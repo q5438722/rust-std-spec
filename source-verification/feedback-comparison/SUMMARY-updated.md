@@ -3,7 +3,7 @@
 Both columns use the same **2,121 targets**. `With feedback` means using spec determinism as feedback.
 
 ## Pure determinism-feedback status table
-We generate specs for 268 functions. and 1853 are classified as no spec
+We generate specs for 268 functions. and 1853 are classified as no spec.
 
 | Status | No feedback | With feedback | Delta |
 |---|---:|---:|---:|
