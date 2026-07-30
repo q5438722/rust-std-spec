@@ -244,11 +244,6 @@ def main() -> None:
     for source_file, group in groups.items():
         group_dir = SUITE_ROOT / group_name(source_file)
         (group_dir / "manifest.json").write_text(json.dumps(group, indent=2) + "\n")
-        (group_dir / "README.md").write_text(
-            f"# `{source_file}`\n\n"
-            f"- Proved local surrogates: **{len(group['proved'])}**\n"
-            f"- External body fallback: **{len(group['external_body'])}**\n"
-        )
 
     suite = {
         "counts": {
@@ -261,30 +256,6 @@ def main() -> None:
         "groups": [groups[key] for key in sorted(groups)],
     }
     (SUITE_ROOT / "manifest.json").write_text(json.dumps(suite, indent=2) + "\n")
-    (SUITE_ROOT / "README.md").write_text(
-        "# Organized Rust std verification suite\n\n"
-        "Contracts are grouped by their original vstd source file.\n\n"
-        f"- Groups: **{suite['counts']['groups']}**\n"
-        f"- Strict-faithful local-surrogate proofs: **{suite['counts']['proved']}**\n"
-        f"- External-body fallbacks: **{suite['counts']['external_body']}**\n\n"
-        "Each group has `proved/` and/or `external_body/` subdirectories. "
-        "Proved entries contain the copied proof, original contract, Rust "
-        "source, and metadata. Fallback entries retain the original contract "
-        "on a same-signature `#[verifier::external_body]` mirror.\n\n"
-        "The proved entries verify local surrogate functions. Artificial "
-        "`source_*` prefixes are removed during export; helper proofs use "
-        "descriptive names ending in `_proof`. These entries do not directly "
-        "prove the original external Rust std symbols, and no machine-checked "
-        "linkage theorem connects the two.\n\n"
-        "Run everything with:\n\n"
-        "```bash\n"
-        "./verify.sh\n"
-        "```\n\n"
-        "Conservative fidelity mode uses "
-        "`source-verification/fidelity-verdicts.json`: alternate "
-        "implementations, inadmissible proofs, wrong mappings, and unresolved "
-        "source bodies are moved to `external_body/`.\n"
-    )
     (SUITE_ROOT / "verify.sh").write_text(
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n\n"
