@@ -1,0 +1,276 @@
+{
+  "candidates": [
+    {
+      "target": "core::ptr::NonNull::write_volatile",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method has only an unobservable unit result and performs a volatile memory or I/O effect. Its exact signature carries no PointsTo permission or volatile-state abstraction through which that effect could be specified.",
+      "risks": [
+        "volatile ordering and I/O effects are not modeled",
+        "ordinary memory ownership is absent from the signature",
+        "the overwritten value is not dropped"
+      ]
+    },
+    {
+      "target": "core::ptr::add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound contract must express that the entire offset remains within the same allocation in addition to address arithmetic not overflowing. Current raw-pointer views expose address and provenance but not the provenance's allocation extent, and the signature carries no suitable permission.",
+      "risks": [
+        "numeric address conditions alone omit the same-allocation safety requirement",
+        "pointer provenance must be preserved",
+        "the const-pointer overload must be distinguished from the mutable-pointer overload"
+      ]
+    },
+    {
+      "target": "core::ptr::addr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[<*mut T>::addr](\n    p: *mut T,\n) -> (address: usize)\n    ensures\n        address == p@.addr,\n;",
+      "requires": [],
+      "ensures": [
+        "address == p@.addr"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source extracts the pointer's address while discarding provenance. PtrData publicly exposes exactly this address component, and the mutable-pointer owner disambiguates the declaration.",
+      "risks": [
+        "the address is platform-dependent",
+        "no provenance or metadata information may be inferred from the integer",
+        "the mutable-pointer overload must remain distinct"
+      ]
+    },
+    {
+      "target": "core::ptr::addr_eq",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<\n    T: core::marker::PointeeSized,\n    U: core::marker::PointeeSized,\n>[core::ptr::addr_eq::<T, U>](\n    p: *const T,\n    q: *const U,\n) -> (result: bool)\n    ensures\n        result <==> p@.addr == q@.addr,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> p@.addr == q@.addr"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source casts both operands to thin unit pointers before comparison, so only their data addresses participate. Raw-pointer views expose that component directly.",
+      "risks": [
+        "metadata is intentionally ignored",
+        "provenance is intentionally ignored",
+        "spec-level raw-pointer equality is stronger than addr_eq"
+      ]
+    },
+    {
+      "target": "core::ptr::align_offset",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Sized>[<*const T>::align_offset](\n    p: *const T,\n    align: usize,\n) -> (offset: usize)\n    requires\n        is_pow2(align as int),\n    ensures\n        offset != usize::MAX ==> (\n            (p@.addr as int + offset as int * size_of::<T>() as int) % align as int == 0\n        ),\n;",
+      "requires": [
+        "is_pow2(align as int)"
+      ],
+      "ensures": [
+        "offset != usize::MAX ==> (p@.addr as int + offset as int * size_of::<T>() as int) % align as int == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::arithmetic::power2::is_pow2",
+        "vstd::layout::size_of"
+      ],
+      "useful": true,
+      "rationale": "The source panics unless align is a power of two and promises alignment when a non-sentinel offset is returned. Address and type-size vocabulary can express that guarantee without claiming allocation validity.",
+      "risks": [
+        "usize::MAX remains an unconstrained failure sentinel",
+        "no in-bounds or same-allocation guarantee is provided",
+        "the contract does not claim a minimal offset"
+      ]
+    },
+    {
+      "target": "core::ptr::as_array",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, const N: usize>[<*const [T]>::as_array::<N>](\n    p: *const [T],\n) -> (result: Option<*const [T; N]>)\n    ensures\n        result == if p@.metadata == N {\n            Some(ptr_from_data::<[T; N]>(PtrData::<[T; N]> {\n                addr: p@.addr,\n                provenance: p@.provenance,\n                metadata: (),\n            }))\n        } else {\n            None\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result is Some exactly when p@.metadata == N, with the resulting array pointer preserving p's address and provenance"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::{ptr_from_data, PtrData}"
+      ],
+      "useful": true,
+      "rationale": "The source tests the slice-pointer length metadata and, on equality, casts its data pointer to a thin array pointer. PtrData can express the exact metadata test and preservation of address and provenance.",
+      "risks": [
+        "the returned raw pointer is not guaranteed dereferenceable",
+        "memory initialization and ownership are not established",
+        "the slice metadata is discarded in the array pointer"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ptr::NonNull::write_volatile",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method has only an unobservable unit result and performs a volatile memory
+or I/O effect. Its exact signature carries no PointsTo permission or volatile-state abstraction
+through which that effect could be specified.",
+      "risks": [
+        "volatile ordering and I/O effects are not modeled",
+        "ordinary memory ownership is absent from the signature",
+        "the overwritten value is not dropped"
+      ]
+    },
+    {
+      "target": "core::ptr::add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound contract must express that the entire offset remains within the same
+allocation in addition to address arithmetic not overflowing. Current raw-pointer views expose
+address and provenance but not the provenance's allocation extent, and the signature carries no
+suitable permission.",
+      "risks": [
+        "numeric address conditions alone omit the same-allocation safety requirement",
+        "pointer provenance must be preserved",
+        "the const-pointer overload must be distinguished from the mutable-pointer overload"
+      ]
+    },
+    {
+      "target": "core::ptr::addr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[<mut T>::addr](\n
+ p: *mut T,\n) -> (address: usize)\n    ensures\n        address == p@.addr,\n;",
+      "requires": [],
+      "ensures": [
+        "address == p@.addr"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source extracts the pointer's address while discarding provenance. PtrData
+publicly exposes exactly this address component, and the mutable-pointer owner disambiguates the
+declaration.",
+      "risks": [
+        "the address is platform-dependent",
+        "no provenance or metadata information may be inferred from the integer",
+        "the mutable-pointer overload must remain distinct"
+      ]
+    },
+    {
+      "target": "core::ptr::addr_eq",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<\n    T: core::marker::PointeeSized,\n    U:
+core::marker::PointeeSized,\n>[core::ptr::addr_eq::<T, U>](\n    p: const T,\n    q: *const U,\n) ->
+ (result: bool)\n    ensures\n        result <==> p@.addr == q@.addr,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> p@.addr == q@.addr"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source casts both operands to thin unit pointers before comparison, so only
+their data addresses participate. Raw-pointer views expose that component directly.",
+      "risks": [
+        "metadata is intentionally ignored",
+        "provenance is intentionally ignored",
+        "spec-level raw-pointer equality is stronger than addr_eq"
+      ]
+    },
+    {
+      "target": "core::ptr::align_offset",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Sized>[<const T>::align_offset](\n    p: *const
+T,\n    align: usize,\n) -> (offset: usize)\n    requires\n        is_pow2(align as int),\n
+ensures\n        offset != usize::MAX ==> (\n            (p@.addr as int + offset as int *
+size_of::<T>() as int) % align as int == 0\n        ),\n;",
+      "requires": [
+        "is_pow2(align as int)"
+      ],
+      "ensures": [
+        "offset != usize::MAX ==> (p@.addr as int + offset as int * size_of::<T>() as int) % align
+as int == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::arithmetic::power2::is_pow2",
+        "vstd::layout::size_of"
+      ],
+      "useful": true,
+      "rationale": "The source panics unless align is a power of two and promises alignment when a
+non-sentinel offset is returned. Address and type-size vocabulary can express that guarantee without
+ claiming allocation validity.",
+      "risks": [
+        "usize::MAX remains an unconstrained failure sentinel",
+        "no in-bounds or same-allocation guarantee is provided",
+        "the contract does not claim a minimal offset"
+      ]
+    },
+    {
+      "target": "core::ptr::as_array",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, const N: usize>[<*const [T]>::as_array::<N>](\n
+   p: const [T],\n) -> (result: Option<*const [T; N]>)\n    ensures\n        result == if
+p@.metadata == N {\n            Some(ptr_from_data::<[T; N]>(PtrData::<[T; N]> {\n
+addr: p@.addr,\n                provenance: p@.provenance,\n                metadata: (),\n
+   }))\n        } else {\n            None\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result is Some exactly when p@.metadata == N, with the resulting array pointer preserving
+p's address and provenance"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::raw_ptr::{ptr_from_data, PtrData}"
+      ],
+      "useful": true,
+      "rationale": "The source tests the slice-pointer length metadata and, on equality, casts its
+data pointer to a thin array pointer. PtrData can express the exact metadata test and preservation
+of address and provenance.",
+      "risks": [
+        "the returned raw pointer is not guaranteed dereferenceable",
+        "memory initialization and ownership are not established",
+        "the slice metadata is discarded in the array pointer"
+      ]
+    } ]
+}
+

@@ -1,0 +1,157 @@
+{
+  "id": "alloc__sync__Arc__unwrap_or_clone__4f2982199187",
+  "api_path": "alloc::sync::Arc::unwrap_or_clone",
+  "raw_target": "Arc::<T, A>::unwrap_or_clone",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 76, patch: 0 })},\nfeature: \"arc_unwrap_or_clone\"}}]"
+      }
+    ],
+    "declaration_id": "alloc:4419",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "unwrap_or_clone",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 346,
+          "path": "Arc"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 25,
+                        "path": "Clone"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 4,
+                        "path": "Allocator"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "A"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:4420",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:346",
+      "resolved_owner_path": [
+        "alloc",
+        "sync",
+        "Arc"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "this",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  2547:                 ptr::write(this, in_progress.into_arc());\n  2548:             }\n  2549:         } else {\n  2550:             // We were the sole reference of either kind; bump back up the\n  2551:             // strong ref count.\n  2552:             this.inner().strong.store(1, Release);\n  2553:         }\n  2554: \n  2555:         // As with `get_mut()`, the unsafety is ok because our reference was\n  2556:         // either unique to begin with, or became one upon cloning the contents.\n  2557:         unsafe { Self::get_mut_unchecked(this) }\n  2558:     }\n  2559: }\n  2560: \n  2561: impl<T: Clone, A: Allocator> Arc<T, A> {\n  2562:     /// If we have the only reference to `T` then unwrap it. Otherwise, clone `T` and return the\n  2563:     /// clone.\n  2564:     ///\n  2565:     /// Assuming `arc_t` is of type `Arc<T>`, this function is functionally equivalent to\n  2566:     /// `(*arc_t).clone()`, but will avoid cloning the inner value where possible.\n  2567:     ///\n  2568:     /// # Examples\n  2569:     ///\n  2570:     /// ```\n  2571:     /// # use std::{ptr, sync::Arc};\n  2572:     /// let inner = String::from(\"test\");\n  2573:     /// let ptr = inner.as_ptr();\n  2574:     ///\n  2575:     /// let arc = Arc::new(inner);\n  2576:     /// let inner = Arc::unwrap_or_clone(arc);\n  2577:     /// // The inner value was not cloned\n  2578:     /// assert!(ptr::eq(ptr, inner.as_ptr()));\n  2579:     ///\n  2580:     /// let arc = Arc::new(inner);\n  2581:     /// let arc2 = arc.clone();\n  2582:     /// let inner = Arc::unwrap_or_clone(arc);\n  2583:     /// // Because there were 2 references, we had to clone the inner value.\n  2584:     /// assert!(!ptr::eq(ptr, inner.as_ptr()));\n  2585:     /// // `arc2` is the last reference, so when we unwrap it we get back\n  2586:     /// // the original `String`.\n  2587:     /// let inner = Arc::unwrap_or_clone(arc2);\n  2588:     /// assert!(ptr::eq(ptr, inner.as_ptr()));\n  2589:     /// ```\n  2590:     #[inline]\n  2591:     #[stable(feature = \"arc_unwrap_or_clone\", since = \"1.76.0\")]\n  2592:     pub fn unwrap_or_clone(this: Self) -> T {\n  2593:         Arc::try_unwrap(this).unwrap_or_else(|arc| (*arc).clone())\n  2594:     }\n  2595: }\n  2596: \n  2597: impl<T: ?Sized, A: Allocator> Arc<T, A> {\n  2598:     /// Returns a mutable reference into the given `Arc`, if there are\n  2599:     /// no other `Arc` or [`Weak`] pointers to the same allocation.\n  2600:     ///\n  2601:     /// Returns [`None`] otherwise, because it is not safe to\n  2602:     /// mutate a shared value.\n  2603:     ///\n  2604:     /// See also [`make_mut`][make_mut], which will [`clone`][clone]\n  2605:     /// the inner value when there are other `Arc` pointers.\n  2606:     ///\n  2607:     /// [make_mut]: Arc::make_mut\n  2608:     /// [clone]: Clone::clone\n  2609:     ///\n  2610:     /// # Examples\n  2611:     ///\n  2612:     /// ```\n  2613:     /// use std::sync::Arc;\n  2614:     ///\n  2615:     /// let mut x = Arc::new(3);\n  2616:     /// *Arc::get_mut(&mut x).unwrap() = 4;\n  2617:     /// assert_eq!(*x, 4);\n  2618:     ///\n  2619:     /// let _y = Arc::clone(&x);\n  2620:     /// assert!(Arc::get_mut(&mut x).is_none());\n  2621:     /// ```\n  2622:     #[inline]\n  2623:     #[stable(feature = \"arc_unique\", since = \"1.4.0\")]\n  2624:     pub fn get_mut(this: &mut Self) -> Option<&mut T> {\n  2625:         if Self::is_unique(this) {\n  2626:             // This unsafety is ok because we're guaranteed that the pointer\n  2627:             // returned is the *only* pointer that will ever be returned to T. Our\n  2628:             // reference count is guaranteed to be 1 at this point, and we required\n  2629:             // the Arc itself to be `mut`, so we're returning the only possible\n  2630:             // reference to the inner data.\n  2631:             unsafe { Some(Arc::get_mut_unchecked(this)) }\n  2632:         } else {\n  2633:             None\n  2634:         }\n  2635:     }\n  2636: \n  2637:     /// Returns a mutable reference into the given `Arc`,",
+    "span": {
+      "begin": [
+        2592,
+        5
+      ],
+      "end": [
+        2594,
+        6
+      ],
+      "filename": "alloc/src/sync.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn unwrap_or_clone(this: Self) -> T {\n        Arc::try_unwrap(this).unwrap_or_else(|arc| (*arc).clone())\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The value-preservation contract for Arc::<T, A>::try_unwrap."
+  ],
+  "rationale": "Mechanically desugars Result::unwrap_or_else into a match while preserving the original try_unwrap and conditional clone operations.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__sync__Arc__unwrap_or_clone__4f2982199187"
+}

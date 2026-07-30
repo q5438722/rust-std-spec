@@ -1,0 +1,174 @@
+{
+  "id": "std_specs__vecdeque.rs__L383__VecDeque__T__A__resize",
+  "api_path": "alloc::collections::vec_deque::VecDeque::resize",
+  "raw_target": "VecDeque::<T, A>::resize",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 383,
+  "rust_declaration": {
+    "declaration_id": "alloc:3128",
+    "name": "resize",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 16, patch: 0 })},\nfeature: \"deque_extras\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        3312,
+        5
+      ],
+      "end": [
+        3319,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "new_len",
+          {
+            "primitive": "usize"
+          }
+        ],
+        [
+          "value",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3131",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Clone",
+                        "id": 25,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  3292:     /// to the back.\n  3293:     ///\n  3294:     /// # Examples\n  3295:     ///\n  3296:     /// ```\n  3297:     /// use std::collections::VecDeque;\n  3298:     ///\n  3299:     /// let mut buf = VecDeque::new();\n  3300:     /// buf.push_back(5);\n  3301:     /// buf.push_back(10);\n  3302:     /// buf.push_back(15);\n  3303:     /// assert_eq!(buf, [5, 10, 15]);\n  3304:     ///\n  3305:     /// buf.resize(2, 0);\n  3306:     /// assert_eq!(buf, [5, 10]);\n  3307:     ///\n  3308:     /// buf.resize(5, 20);\n  3309:     /// assert_eq!(buf, [5, 10, 20, 20, 20]);\n  3310:     /// ```\n  3311:     #[stable(feature = \"deque_extras\", since = \"1.16.0\")]\n  3312:     pub fn resize(&mut self, new_len: usize, value: T) {\n  3313:         if new_len > self.len() {\n  3314:             let extra = new_len - self.len();\n  3315:             self.extend(repeat_n(value, extra))\n  3316:         } else {\n  3317:             self.truncate(new_len);\n  3318:         }\n  3319:     }\n  3320: \n  3321:     /// Clones the elements at the range `src` and appends them to the end.\n  3322:     ///\n  3323:     /// # Panics\n  3324:     ///\n  3325:     /// Panics if the starting index is greater than the end index\n  3326:     /// or if either index is greater than the length of the vector.\n  3327:     ///\n  3328:     /// # Examples\n  3329:     ///\n  3330:     /// ```\n  3331:     /// #![feature(deque_extend_front)]\n  3332:     /// use std::collections::VecDeque;",
+    "source_text": "pub fn resize(&mut self, new_len: usize, value: T) {\n        if new_len > self.len() {\n            let extra = new_len - self.len();\n            self.extend(repeat_n(value, extra))\n        } else {\n            self.truncate(new_len);\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contracts for VecDeque::len, VecDeque::reserve, VecDeque::push_back, and VecDeque::truncate",
+    "vstd cloned/call_ensures model for T::clone"
+  ],
+  "rationale": "The resize branch structure is copied. The TrustedLen extend of repeat_n is source-faithfully desugared into reserve, n-1 cloned push-backs, and one final moved push-back.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vecdeque.rs__L383__VecDeque__T__A__resize"
+}

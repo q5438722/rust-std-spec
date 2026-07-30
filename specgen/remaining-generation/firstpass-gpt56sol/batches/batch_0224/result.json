@@ -1,0 +1,117 @@
+{
+  "batch": 224,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 31594,
+  "targets": [
+    "std::os::windows::io::HandleOrInvalid::from_raw_handle",
+    "std::os::windows::io::HandleOrNull::from_raw_handle",
+    "std::os::windows::io::OwnedHandle::try_clone",
+    "std::os::windows::io::OwnedSocket::try_clone",
+    "std::process::Child::id",
+    "std::process::Child::kill"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::windows::io::HandleOrInvalid::from_raw_handle",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The required handle ownership and validity conditions depend on OS state, while the wrapped raw handle is hidden and has no public vstd view.",
+      "risks": [
+        "external OS state",
+        "unmodeled ownership",
+        "missing handle abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::HandleOrNull::from_raw_handle",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The safety condition requires OS-backed handle ownership or null, and the resulting private raw-handle state has no public vstd observation.",
+      "risks": [
+        "external OS state",
+        "unmodeled ownership",
+        "missing handle abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::OwnedHandle::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on the Windows runtime, and expressing that the returned handle shares the same underlying object requires a resource-identity abstraction absent from vstd.",
+      "risks": [
+        "runtime-dependent result",
+        "hidden resource identity",
+        "missing handle abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::OwnedSocket::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Cloning can fail according to Winsock state, and shared underlying socket identity cannot be represented using existing public vstd vocabulary.",
+      "risks": [
+        "runtime-dependent result",
+        "hidden resource identity",
+        "missing socket abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Child::id",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The identifier comes from a hidden OS process handle, and Child exposes no existing vstd view against which the returned u32 can be related.",
+      "risks": [
+        "hidden process state",
+        "external OS identity",
+        "missing Child abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Child::kill",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Both the Result and termination effect depend on external process state, with no vstd process-state model for describing the mutation.",
+      "risks": [
+        "external runtime effect",
+        "runtime-dependent result",
+        "hidden mutable process state"
+      ]
+    }
+  ]
+}

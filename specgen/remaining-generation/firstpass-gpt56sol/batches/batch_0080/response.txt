@@ -1,0 +1,286 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::chunk_by",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source only constructs an opaque ChunkBy. Current vstd has no public view or IteratorSpec model relating its emitted chunks to the slice and predicate.",
+      "risks": [
+        "A sound contract requires a new prophetic chunk-stream model."
+      ]
+    },
+    {
+      "target": "core::slice::chunk_by_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ChunkByMut is opaque and yields mutable subslices. Current vstd cannot express its partitioning, disjointness, and eventual mutation of the borrowed slice.",
+      "risks": [
+        "A mutable aliasing and prophetic final-state iterator model is missing."
+      ]
+    },
+    {
+      "target": "core::slice::fill_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, F>[ <[T]>::fill_with::<F> ](\n    slice: &mut [T],\n    f: F,\n)\nwhere\n    F: FnMut() -> T,\n    requires\n        old(slice)@.len() > 0 ==> f.requires(()),\n    ensures\n        final(slice)@.len() == old(slice)@.len(),\n        forall|i: int| 0 <= i < final(slice)@.len() ==>\n            f.ensures((), final(slice)@[i]),\n;",
+      "requires": [
+        "old(slice)@.len() > 0 ==> f.requires(())"
+      ],
+      "ensures": [
+        "final(slice)@.len() == old(slice)@.len()",
+        "forall|i: int| 0 <= i < final(slice)@.len() ==> f.ensures((), final(slice)@[i])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source assigns one result of f to every element, so the final slice length and each final value can be related directly through the closure contract.",
+      "risks": [
+        "FnMut mutable-capture evolution is not modeled; the per-call relation is extensional."
+      ]
+    },
+    {
+      "target": "core::slice::is_sorted_by",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, F>[ <[T]>::is_sorted_by::<F> ](\n    slice: &'a [T],\n    compare: F,\n) -> (ret: bool)\nwhere\n    F: FnMut(&'a T, &'a T) -> bool,\n    requires\n        forall|i: int| 0 <= i && i + 1 < slice@.len() ==>\n            compare.requires((&slice[i], &slice[i + 1])),\n    ensures\n        ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==>\n            compare.ensures((&slice[i], &slice[i + 1]), ret)),\n        !ret ==> (exists|i: int| 0 <= i && i + 1 < slice@.len()\n            && compare.ensures((&slice[i], &slice[i + 1]), ret)),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i && i + 1 < slice@.len() ==> compare.requires((&slice[i], &slice[i + 1]))"
+      ],
+      "ensures": [
+        "ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==> compare.ensures((&slice[i], &slice[i + 1]), ret))",
+        "!ret ==> (exists|i: int| 0 <= i && i + 1 < slice@.len() && compare.ensures((&slice[i], &slice[i + 1]), ret))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source applies compare to consecutive pairs with all: success supplies a successful outcome for every pair, while failure supplies a failing pair.",
+      "risks": [
+        "call_ensures records possible comparator outcomes rather than assuming determinism."
+      ]
+    },
+    {
+      "target": "core::slice::is_sorted_by_key",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, F, K>[ <[T]>::is_sorted_by_key::<F, K> ](\n    slice: &'a [T],\n    f: F,\n) -> (ret: bool)\nwhere\n    F: FnMut(&'a T) -> K,\n    K: PartialOrd,\n    requires\n        forall|i: int| 0 <= i < slice@.len() ==>\n            f.requires((&slice[i],)),\n    ensures\n        ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==>\n            exists|left: K, right: K|\n                f.ensures((&slice[i],), left)\n                && f.ensures((&slice[i + 1],), right)\n                && call_ensures(\n                    <K as core::cmp::PartialOrd<K>>::le,\n                    (&left, &right),\n                    ret,\n                )),\n        !ret ==> (exists|i: int, left: K, right: K|\n            0 <= i && i + 1 < slice@.len()\n            && f.ensures((&slice[i],), left)\n            && f.ensures((&slice[i + 1],), right)\n            && call_ensures(\n                <K as core::cmp::PartialOrd<K>>::le,\n                (&left, &right),\n                ret,\n            )),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice[i],))"
+      ],
+      "ensures": [
+        "ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==> exists|left: K, right: K| f.ensures((&slice[i],), left) && f.ensures((&slice[i + 1],), right) && call_ensures(<K as core::cmp::PartialOrd<K>>::le, (&left, &right), ret))",
+        "!ret ==> (exists|i: int, left: K, right: K| 0 <= i && i + 1 < slice@.len() && f.ensures((&slice[i],), left) && f.ensures((&slice[i + 1],), right) && call_ensures(<K as core::cmp::PartialOrd<K>>::le, (&left, &right), ret))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to key-based sortedness. Existential key witnesses and PartialOrd::le call outcomes express the observable result without assuming deterministic keys.",
+      "risks": [
+        "Stateful or nondeterministic key functions yield a deliberately weak existential relation."
+      ]
+    },
+    {
+      "target": "core::slice::partition_point",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, P>[ <[T]>::partition_point::<P> ](\n    slice: &[T],\n    pred: P,\n) -> (ret: usize)\nwhere\n    P: FnMut(&T) -> bool,\n    requires\n        forall|i: int| 0 <= i < slice@.len() ==>\n            pred.requires((&slice[i],)),\n        exists|k: int| 0 <= k <= slice@.len()\n            && (forall|i: int, b: bool|\n                (0 <= i < slice@.len() && pred.ensures((&slice[i],), b)) ==>\n                    (b <==> i < k)),\n    ensures\n        (ret as int) <= slice@.len(),\n        forall|i: int, b: bool|\n            (0 <= i < slice@.len() && pred.ensures((&slice[i],), b)) ==>\n                (b <==> i < (ret as int)),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> pred.requires((&slice[i],))",
+        "exists|k: int| 0 <= k <= slice@.len() && (forall|i: int, b: bool| (0 <= i < slice@.len() && pred.ensures((&slice[i],), b)) ==> (b <==> i < k))"
+      ],
+      "ensures": [
+        "(ret as int) <= slice@.len()",
+        "forall|i: int, b: bool| (0 <= i < slice@.len() && pred.ensures((&slice[i],), b)) ==> (b <==> i < (ret as int))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source performs binary search after mapping predicate outcomes to Less or Greater. Under the documented partition assumption, the result is the true/false boundary.",
+      "risks": [
+        "The cut guarantee requires the predicate's possible outcomes to define a partition."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::slice::chunk_by",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source only constructs an opaque ChunkBy. Current vstd has no public view or
+ IteratorSpec model relating its emitted chunks to the slice and predicate.",
+      "risks": [
+        "A sound contract requires a new prophetic chunk-stream model."
+      ]
+    },
+    {
+      "target": "core::slice::chunk_by_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ChunkByMut is opaque and yields mutable subslices. Current vstd cannot express
+its partitioning, disjointness, and eventual mutation of the borrowed slice.",
+      "risks": [
+        "A mutable aliasing and prophetic final-state iterator model is missing."
+      ]
+    },
+    {
+      "target": "core::slice::fill_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, F>[ <[T]>::fill_with::<F> ](\n    slice: &mut
+[T],\n    f: F,\n)\nwhere\n    F: FnMut() -> T,\n    requires\n        old(slice)@.len() > 0 ==>
+f.requires(()),\n    ensures\n        final(slice)@.len() == old(slice)@.len(),\n        forall|i:
+int| 0 <= i < final(slice)@.len() ==>\n            f.ensures((), final(slice)@[i]),\n;",
+      "requires": [
+        "old(slice)@.len() > 0 ==> f.requires(())"
+      ],
+      "ensures": [
+        "final(slice)@.len() == old(slice)@.len()",
+        "forall|i: int| 0 <= i < final(slice)@.len() ==> f.ensures((), final(slice)@[i])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source assigns one result of f to every element, so the final slice length
+and each final value can be related directly through the closure contract.",
+      "risks": [
+        "FnMut mutable-capture evolution is not modeled; the per-call relation is extensional."
+      ]
+    },
+    {
+      "target": "core::slice::is_sorted_by",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, F>[ <[T]>::is_sorted_by::<F> ](\n    slice:
+&'a [T],\n    compare: F,\n) -> (ret: bool)\nwhere\n    F: FnMut(&'a T, &'a T) -> bool,\n
+requires\n        forall|i: int| 0 <= i && i + 1 < slice@.len() ==>\n
+compare.requires((&slice[i], &slice[i + 1])),\n    ensures\n        ret ==> (forall|i: int| 0 <= i
+&& i + 1 < slice@.len() ==>\n            compare.ensures((&slice[i], &slice[i + 1]), ret)),\n
+ !ret ==> (exists|i: int| 0 <= i && i + 1 < slice@.len()\n            && compare.ensures((&slice[i],
+ &slice[i + 1]), ret)),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i && i + 1 < slice@.len() ==> compare.requires((&slice[i], &slice[i +
+1]))"
+      ],
+      "ensures": [
+        "ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==> compare.ensures((&slice[i],
+&slice[i + 1]), ret))",
+        "!ret ==> (exists|i: int| 0 <= i && i + 1 < slice@.len() && compare.ensures((&slice[i],
+&slice[i + 1]), ret))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source applies compare to consecutive pairs with all: success supplies a
+successful outcome for every pair, while failure supplies a failing pair.",
+      "risks": [
+        "call_ensures records possible comparator outcomes rather than assuming determinism."
+      ]
+    },
+    {
+      "target": "core::slice::is_sorted_by_key",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, F, K>[ <[T]>::is_sorted_by_key::<F, K> ](\n
+   slice: &'a [T],\n    f: F,\n) -> (ret: bool)\nwhere\n    F: FnMut(&'a T) -> K,\n    K:
+PartialOrd,\n    requires\n        forall|i: int| 0 <= i < slice@.len() ==>\n
+f.requires((&slice[i],)),\n    ensures\n        ret ==> (forall|i: int| 0 <= i && i + 1 <
+slice@.len() ==>\n            exists|left: K, right: K|\n                f.ensures((&slice[i],),
+left)\n                && f.ensures((&slice[i + 1],), right)\n                && call_ensures(\n
+                <K as core::cmp::PartialOrd<K>>::le,\n                    (&left, &right),\n
+            ret,\n                )),\n        !ret ==> (exists|i: int, left: K, right: K|\n
+    0 <= i && i + 1 < slice@.len()\n            && f.ensures((&slice[i],), left)\n            &&
+f.ensures((&slice[i + 1],), right)\n            && call_ensures(\n                <K as
+core::cmp::PartialOrd<K>>::le,\n                (&left, &right),\n                ret,\n
+)),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice[i],))"
+      ],
+      "ensures": [
+        "ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==> exists|left: K, right: K|
+f.ensures((&slice[i],), left) && f.ensures((&slice[i + 1],), right) && call_ensures(<K as
+core::cmp::PartialOrd<K>>::le, (&left, &right), ret))",
+        "!ret ==> (exists|i: int, left: K, right: K| 0 <= i && i + 1 < slice@.len() &&
+f.ensures((&slice[i],), left) && f.ensures((&slice[i + 1],), right) && call_ensures(<K as
+core::cmp::PartialOrd<K>>::le, (&left, &right), ret))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to key-based sortedness. Existential key witnesses and
+PartialOrd::le call outcomes express the observable result without assuming deterministic keys.",
+      "risks": [
+        "Stateful or nondeterministic key functions yield a deliberately weak existential relation."
+      ]
+    },
+    {
+      "target": "core::slice::partition_point",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, P>[ <[T]>::partition_point::<P> ](\n    slice:
+&[T],\n    pred: P,\n) -> (ret: usize)\nwhere\n    P: FnMut(&T) -> bool,\n    requires\n
+forall|i: int| 0 <= i < slice@.len() ==>\n            pred.requires((&slice[i],)),\n
+exists|k: int| 0 <= k <= slice@.len()\n            && (forall|i: int, b: bool|\n                (0
+<= i < slice@.len() && pred.ensures((&slice[i],), b)) ==>\n                    (b <==> i < k)),\n
+ ensures\n        (ret as int) <= slice@.len(),\n        forall|i: int, b: bool|\n            (0 <=
+i < slice@.len() && pred.ensures((&slice[i],), b)) ==>\n                (b <==> i < (ret as
+int)),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> pred.requires((&slice[i],))",
+        "exists|k: int| 0 <= k <= slice@.len() && (forall|i: int, b: bool| (0 <= i < slice@.len() &&
+ pred.ensures((&slice[i],), b)) ==> (b <==> i < k))"
+      ],
+      "ensures": [
+        "(ret as int) <= slice@.len()",
+        "forall|i: int, b: bool| (0 <= i < slice@.len() && pred.ensures((&slice[i],), b)) ==> (b
+<==> i < (ret as int))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source performs binary search after mapping predicate outcomes to Less or
+Greater. Under the documented partition assumption, the result is the true/false boundary.",
+      "risks": [
+        "The cut guarantee requires the predicate's possible outcomes to define a partition."
+      ]
+    } ]
+}
+

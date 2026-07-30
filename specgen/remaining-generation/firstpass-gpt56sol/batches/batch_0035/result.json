@@ -1,0 +1,116 @@
+{
+  "batch": 35,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 36673,
+  "targets": [
+    "core::sync::atomic::AtomicU8::into_inner",
+    "core::sync::atomic::AtomicU8::try_update",
+    "core::sync::atomic::AtomicU8::update",
+    "core::sync::atomic::AtomicUsize::as_ptr",
+    "core::sync::atomic::AtomicUsize::compare_and_swap",
+    "core::sync::atomic::AtomicUsize::fetch_update"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicU8::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The consumed atomic's value has no public vstd view, so its returned inner value cannot be related to modeled state.",
+      "risks": [
+        "atomic hidden state",
+        "missing atomic-state abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the result requires modeling atomic linearization, interference, and repeated FnMut invocation, which current public vstd vocabulary does not expose.",
+      "risks": [
+        "concurrent interference",
+        "hidden atomic state",
+        "closure may be invoked repeatedly"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned prior value and resulting update depend on hidden atomic state, interference, and potentially repeated FnMut calls.",
+      "risks": [
+        "concurrent interference",
+        "hidden atomic state",
+        "closure may be invoked repeatedly"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicUsize::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract would need to connect the raw pointer's provenance and pointee to the atomic's hidden storage, for which no public vstd abstraction is available.",
+      "risks": [
+        "hidden atomic storage",
+        "raw-pointer provenance",
+        "aliasing"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicUsize::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its return and state transition depend on an unobservable atomic value at a linearization point; ordinary pre/postconditions cannot model that behavior soundly.",
+      "risks": [
+        "concurrent interference",
+        "hidden atomic state",
+        "missing linearization abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicUsize::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful relation requires modeled atomic state, linearization, and the semantics of a FnMut closure that may execute multiple times.",
+      "risks": [
+        "concurrent interference",
+        "hidden atomic state",
+        "closure may be invoked repeatedly"
+      ]
+    }
+  ]
+}

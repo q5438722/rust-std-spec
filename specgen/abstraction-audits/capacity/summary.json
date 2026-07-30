@@ -1,0 +1,575 @@
+{
+  "metadata": {
+    "module_file": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd/std_specs/capacity.rs",
+    "imports": [
+      "alloc::collections::*",
+      "alloc::string::String",
+      "alloc::vec::Vec",
+      "core::alloc::Allocator",
+      "vstd::std_specs::capacity::*",
+      "vstd::std_specs::collections_extra::*",
+      "vstd::multiset::Multiset",
+      "vstd::utf8::encode_utf8",
+      "vstd::prelude::*"
+    ]
+  },
+  "counts": {
+    "targets": 25,
+    "status": {
+      "ok": 25
+    },
+    "r0_z3": {
+      "unsat": 19,
+      "unknown": 6
+    },
+    "classification": {
+      "complete": 19,
+      "ok_inconclusive": 6
+    }
+  },
+  "results": [
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == v.spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 865,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Vec::<T, A>::capacity",
+      "source_line": 38
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "final(v).spec_capacity() >= old(v)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 933,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Vec::<T, A>::reserve_exact",
+      "source_line": 45
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "result is Ok ==> final(v).spec_capacity() >= old(v)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 13,
+      "verus_returncode": 1,
+      "verus_ms": 634,
+      "r0_z3": "unknown",
+      "n_rounds": 14,
+      "assumes": [
+        "pre_v@.len() == 0",
+        "additional == 0",
+        "r1 is Ok",
+        "r2 is Err",
+        "post1_v@.len() == 0",
+        "post2_v@.len() == 0",
+        "!det___rust_std_candidate_equal(r1, r2, post1_v@, post2_v@)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "Vec::<T, A>::try_reserve_exact",
+      "source_line": 54
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "final(v).spec_capacity() >= old(v)@.len()",
+        "final(v).spec_capacity() <= old(v).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 875,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Vec::<T, A>::shrink_to_fit",
+      "source_line": 63
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "final(v).spec_capacity() >= old(v)@.len()",
+        "final(v).spec_capacity() <= old(v).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 908,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Vec::<T, A>::shrink_to",
+      "source_line": 72
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == s.spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 8,
+      "verus_returncode": 0,
+      "verus_ms": 896,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "String::capacity",
+      "source_line": 82
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == Seq::<char>::empty()",
+        "result.spec_capacity() >= capacity as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 861,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "String::with_capacity",
+      "source_line": 87
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@",
+        "final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 12,
+      "verus_returncode": 0,
+      "verus_ms": 1048,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "String::reserve",
+      "source_line": 93
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@",
+        "final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 12,
+      "verus_returncode": 0,
+      "verus_ms": 1003,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "String::reserve_exact",
+      "source_line": 99
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@",
+        "result is Ok ==>\n            final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 16,
+      "verus_returncode": 1,
+      "verus_ms": 818,
+      "r0_z3": "unknown",
+      "n_rounds": 14,
+      "assumes": [
+        "(pre_s)@ == \"\"@",
+        "additional == 0",
+        "r1 is Ok",
+        "r2 is Err",
+        "(post1_s)@ == \"\"@",
+        "(post2_s)@ == \"\"@",
+        "!det___rust_std_candidate_equal(r1, r2, post1_s, post2_s)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "String::try_reserve",
+      "source_line": 105
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@",
+        "result is Ok ==>\n            final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 16,
+      "verus_returncode": 1,
+      "verus_ms": 770,
+      "r0_z3": "unknown",
+      "n_rounds": 14,
+      "assumes": [
+        "(pre_s)@ == \"\"@",
+        "additional == 0",
+        "r1 is Ok",
+        "r2 is Err",
+        "(post1_s)@ == \"\"@",
+        "(post2_s)@ == \"\"@",
+        "!det___rust_std_candidate_equal(r1, r2, post1_s, post2_s)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "String::try_reserve_exact",
+      "source_line": 115
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@",
+        "final(s).spec_capacity() >= encode_utf8(old(s)@).len()",
+        "final(s).spec_capacity() <= old(s).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 10,
+      "verus_returncode": 0,
+      "verus_ms": 951,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "String::shrink_to_fit",
+      "source_line": 125
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@",
+        "final(s).spec_capacity() >= encode_utf8(old(s)@).len()",
+        "final(s).spec_capacity() <= old(s).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 12,
+      "verus_returncode": 0,
+      "verus_ms": 1007,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "String::shrink_to",
+      "source_line": 132
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == v.spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 828,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "VecDeque::<T, A>::capacity",
+      "source_line": 139
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "result is Ok ==> final(v).spec_capacity() >= old(v)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 1,
+      "verus_ms": 689,
+      "r0_z3": "unknown",
+      "n_rounds": 11,
+      "assumes": [
+        "additional == 0",
+        "r1 is Ok",
+        "r2 is Err",
+        "!det___rust_std_candidate_equal(r1, r2, post1_v, post2_v)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "VecDeque::<T, A>::try_reserve",
+      "source_line": 146
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "final(v).spec_capacity() >= old(v)@.len()",
+        "final(v).spec_capacity() <= old(v).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 857,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "VecDeque::<T, A>::shrink_to_fit",
+      "source_line": 155
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@",
+        "final(v).spec_capacity() >= old(v)@.len()",
+        "final(v).spec_capacity() <= old(v).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 905,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "VecDeque::<T, A>::shrink_to",
+      "source_line": 164
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == heap.spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 792,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::capacity",
+      "source_line": 174
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == Multiset::<T>::empty()",
+        "result.spec_capacity() >= capacity as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 800,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T>::with_capacity",
+      "source_line": 181
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@",
+        "final(heap).spec_capacity() >= old(heap)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 887,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::reserve",
+      "source_line": 189
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@",
+        "final(heap).spec_capacity() >= old(heap)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 871,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::reserve_exact",
+      "source_line": 198
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@",
+        "result is Ok ==>\n            final(heap).spec_capacity() >= old(heap)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 1,
+      "verus_ms": 582,
+      "r0_z3": "unknown",
+      "n_rounds": 11,
+      "assumes": [
+        "additional == 0",
+        "r1 is Ok",
+        "r2 is Err",
+        "!det___rust_std_candidate_equal(r1, r2, post1_heap, post2_heap)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::try_reserve",
+      "source_line": 207
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@",
+        "result is Ok ==>\n            final(heap).spec_capacity() >= old(heap)@.len() + additional as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 1,
+      "verus_ms": 548,
+      "r0_z3": "unknown",
+      "n_rounds": 11,
+      "assumes": [
+        "additional == 0",
+        "r1 is Ok",
+        "r2 is Err",
+        "!det___rust_std_candidate_equal(r1, r2, post1_heap, post2_heap)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::try_reserve_exact",
+      "source_line": 217
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@",
+        "final(heap).spec_capacity() >= old(heap)@.len()",
+        "final(heap).spec_capacity() <= old(heap).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 858,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::shrink_to_fit",
+      "source_line": 227
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@",
+        "final(heap).spec_capacity() >= old(heap)@.len()",
+        "final(heap).spec_capacity() <= old(heap).spec_capacity()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 878,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::shrink_to",
+      "source_line": 236
+    }
+  ]
+}

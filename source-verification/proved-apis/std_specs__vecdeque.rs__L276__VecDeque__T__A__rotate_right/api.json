@@ -1,0 +1,150 @@
+{
+  "id": "std_specs__vecdeque.rs__L276__VecDeque__T__A__rotate_right",
+  "api_path": "alloc::collections::vec_deque::VecDeque::rotate_right",
+  "normalized_api_path": "alloc::collections::VecDeque::rotate_right",
+  "raw_target": "VecDeque::<T, A>::rotate_right",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 276,
+  "rust_declaration": {
+    "declaration_id": "alloc:3121",
+    "name": "rotate_right",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 36, patch: 0 })},\nfeature: \"vecdeque_rotate\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        3034,
+        5
+      ],
+      "end": [
+        3042,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "n",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  3014:     ///\n  3015:     /// Takes `*O*(min(n, len() - n))` time and no extra space.\n  3016:     ///\n  3017:     /// # Examples\n  3018:     ///\n  3019:     /// ```\n  3020:     /// use std::collections::VecDeque;\n  3021:     ///\n  3022:     /// let mut buf: VecDeque<_> = (0..10).collect();\n  3023:     ///\n  3024:     /// buf.rotate_right(3);\n  3025:     /// assert_eq!(buf, [7, 8, 9, 0, 1, 2, 3, 4, 5, 6]);\n  3026:     ///\n  3027:     /// for i in 1..10 {\n  3028:     ///     assert_eq!(0, buf[i * 3 % 10]);\n  3029:     ///     buf.rotate_right(3);\n  3030:     /// }\n  3031:     /// assert_eq!(buf, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);\n  3032:     /// ```\n  3033:     #[stable(feature = \"vecdeque_rotate\", since = \"1.36.0\")]\n  3034:     pub fn rotate_right(&mut self, n: usize) {\n  3035:         assert!(n <= self.len());\n  3036:         let k = self.len - n;\n  3037:         if n <= k {\n  3038:             unsafe { self.rotate_right_inner(n) }\n  3039:         } else {\n  3040:             unsafe { self.rotate_left_inner(k) }\n  3041:         }\n  3042:     }\n  3043: \n  3044:     // SAFETY: the following two methods require that the rotation amount\n  3045:     // be less than half the length of the deque.\n  3046:     //\n  3047:     // `wrap_copy` requires that `min(x, capacity() - x) + copy_len <= capacity()`,\n  3048:     // but then `min` is never more than half the capacity, regardless of x,\n  3049:     // so it's sound to call here because we're calling with something\n  3050:     // less than half the length, which is never above half the capacity.\n  3051: \n  3052:     unsafe fn rotate_left_inner(&mut self, mid: usize) {\n  3053:         debug_assert!(mid * 2 <= self.len());\n  3054:         unsafe {",
+    "source_text": "pub fn rotate_right(&mut self, n: usize) {\n        assert!(n <= self.len());\n        let k = self.len - n;\n        if n <= k {\n            unsafe { self.rotate_right_inner(n) }\n        } else {\n            unsafe { self.rotate_left_inner(k) }\n        }\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,36 @@
+{"candidates":[{"target":"core::slice::get_unchecked_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The generic SliceIndex API lacks a public vstd abstraction for index validity and the identity of its selected mutable output; a view-only postcondition would not model writeback to self.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_slice_index_spec_abstraction"]},{"target":"core::slice::last_chunk_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source selects the final N elements when N fits, current vocabulary cannot relate an Option-wrapped mutable array reference to that region and its eventual writeback into self.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","nested_mutable_reference"]},{"target":"core::slice::select_nth_unstable","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result contains three disjoint mutable references into a reordered self, which cannot be related to their source regions and subsequent writeback; Ord also lacks the needed public specification relation here.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_order_spec_abstraction","multiple_disjoint_mutable_references"]},{"target":"core::slice::select_nth_unstable_by","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The documented partition depends on calls to an arbitrary FnMut comparator, while current vocabulary cannot connect those calls or the three returned mutable references to the reordered slice.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_comparator_spec_abstraction","multiple_disjoint_mutable_references"]},{"target":"core::slice::select_nth_unstable_by_key","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The partition guarantee depends on repeated calls to an arbitrary FnMut key extractor and Ord on its results, and the returned triple requires unsupported mutable-region identity and writeback modeling.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_key_function_spec_abstraction","missing_order_spec_abstraction","multiple_disjoint_mutable_references"]},{"target":"core::slice::split_at_mut_checked","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns two disjoint mutable subslices exactly when mid is in bounds, but current vocabulary cannot express their aliasing identity and eventual combined writeback through an Option-wrapped result.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","nested_mutable_references","multiple_disjoint_mutable_references"]}]}{"candidates":[{"target":"core::slice::get_unchecked_mut","decision":"skip","contract_form":"assume_
+specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful
+":false,"rationale":"The generic SliceIndex API lacks a public vstd abstraction for index validity
+and the identity of its selected mutable output; a view-only postcondition would not model writeback
+ to self.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_s
+lice_index_spec_abstraction"]},{"target":"core::slice::last_chunk_mut","decision":"skip","contract_f
+orm":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"import
+s":[],"useful":false,"rationale":"Although the source selects the final N elements when N fits,
+current vocabulary cannot relate an Option-wrapped mutable array reference to that region and its
+eventual writeback into self.","risks":["mutable_reference_return_not_supported","reference_identity
+_vs_view","nested_mutable_reference"]},{"target":"core::slice::select_nth_unstable","decision":"skip
+","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gate
+s":[],"imports":[],"useful":false,"rationale":"The result contains three disjoint mutable references
+ into a reordered self, which cannot be related to their source regions and subsequent writeback;
+Ord also lacks the needed public specification relation
+here.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_order
+_spec_abstraction","multiple_disjoint_mutable_references"]},{"target":"core::slice::select_nth_unsta
+ble_by","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"e
+nsures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The documented partition
+depends on calls to an arbitrary FnMut comparator, while current vocabulary cannot connect those
+calls or the three returned mutable references to the reordered
+slice.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_comp
+arator_spec_abstraction","multiple_disjoint_mutable_references"]},{"target":"core::slice::select_nth
+_unstable_by_key","decision":"skip","contract_form":"assume_specification","contract_code":"","requi
+res":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The partition
+guarantee depends on repeated calls to an arbitrary FnMut key extractor and Ord on its results, and
+the returned triple requires unsupported mutable-region identity and writeback modeling.","risks":["
+mutable_reference_return_not_supported","reference_identity_vs_view","missing_key_function_spec_abst
+raction","missing_order_spec_abstraction","multiple_disjoint_mutable_references"]},{"target":"core::
+slice::split_at_mut_checked","decision":"skip","contract_form":"assume_specification","contract_code
+":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+source returns two disjoint mutable subslices exactly when mid is in bounds, but current vocabulary
+cannot express their aliasing identity and eventual combined writeback through an Option-wrapped
+result.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","nested_muta
+ble_references","multiple_disjoint_mutable_references"]}]}
+

@@ -1,0 +1,107 @@
+{
+  "batch": 119,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 92320,
+  "targets": [
+    "core::cell::RefCell::try_borrow",
+    "core::cell::RefCell::try_borrow_mut",
+    "core::cell::UnsafeCell::into_inner",
+    "core::cell::UnsafeCell::new",
+    "core::cmp::Ordering::is_eq",
+    "core::cmp::Ordering::is_ge"
+  ],
+  "candidates": [
+    {
+      "target": "core::cell::RefCell::try_borrow",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on RefCell's hidden dynamic borrow state, and current vstd has no RefCell content or shared-borrow guard abstraction.",
+      "risks": [
+        "Modeling success would invent hidden borrow state",
+        "Ref guard lifetime and drop effects are unmodeled"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::try_borrow_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and exclusivity depend on hidden dynamic borrow state; current vstd lacks RefCell state and RefMut permission abstractions.",
+      "risks": [
+        "Modeling success would invent hidden borrow state",
+        "Exclusive guard ownership and drop effects are unmodeled"
+      ]
+    },
+    {
+      "target": "core::cell::UnsafeCell::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation returns the private value field, but current vstd has no public logical projection for UnsafeCell<T> relating the consumed cell to its result.",
+      "risks": [
+        "A useful postcondition requires a new UnsafeCell content abstraction"
+      ]
+    },
+    {
+      "target": "core::cell::UnsafeCell::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation stores value in a private field, and current vstd has no public UnsafeCell view through which the result can be related to value.",
+      "risks": [
+        "A useful postcondition requires a new UnsafeCell content abstraction"
+      ]
+    },
+    {
+      "target": "core::cmp::Ordering::is_eq",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_eq ](\n    ordering: core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering == core::cmp::Ordering::Equal),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Equal)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source and documentation identify exactly the Equal variant, expressible using Ordering's public variants and spec equality.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_ge",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_ge ](\n    ordering: core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (\n            ordering == core::cmp::Ordering::Equal\n                || ordering == core::cmp::Ordering::Greater\n        ),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Equal || ordering == core::cmp::Ordering::Greater)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source and documentation specify exactly Equal or Greater, expressible with public Ordering variants and spec equality.",
+      "risks": []
+    }
+  ]
+}

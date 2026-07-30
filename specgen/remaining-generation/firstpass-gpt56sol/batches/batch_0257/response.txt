@@ -1,0 +1,55 @@
+{"candidates":[{"target":"std::thread::Result::expect_err","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: core::fmt::Debug, E>[ Result::<T, E>::expect_err ](\n    result: Result<T, E>,\n    msg: &str,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;","requires":["result is Err"],"ensures":["error == result->Err_0"],"feature_gates":[],"imports":["core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"The resolved Result method returns the Err payload exactly; requiring Err excludes the documented formatting-dependent panic path.","risks":["The Ok panic and Debug formatting remain unmodeled.","The specification attaches to core::result::Result rather than the thread alias."]},{"target":"std::thread::Result::flatten","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, E>[ Result::<Result<T, E>, E>::flatten ](\n    result: Result<Result<T, E>, E>,\n) -> (flattened: Result<T, E>)\n    ensures\n        flattened == match result {\n            Result::Ok(inner) => inner,\n            Result::Err(error) => Result::Err(error),\n        },\n    no_unwind\n;","requires":[],"ensures":["flattened == match result { Result::Ok(inner) => inner, Result::Err(error) => Result::Err(error), }"],"feature_gates":[],"imports":["core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"The source performs a complete structural match and removes exactly one Result nesting level without observing thread runtime state.","risks":["The specification attaches to core::result::Result rather than the thread alias."]},{"target":"std::thread::Result::inspect","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, E, F: FnOnce(&T)>[ Result::<T, E>::inspect ](\n    result: Result<T, E>,\n    f: F,\n) -> (inspected: Result<T, E>)\n    requires\n        result is Ok ==> f.requires((&result->Ok_0,)),\n    ensures\n        inspected == result,\n        result is Ok ==> f.ensures((&result->Ok_0,), ()),\n;","requires":["result is Ok ==> f.requires((&result->Ok_0,))"],"ensures":["inspected == result","result is Ok ==> f.ensures((&result->Ok_0,), ())"],"feature_gates":[],"imports":["core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"FnOnce contracts express the conditional callback, while the source guarantees that the original Result is returned unchanged.","risks":["Callback effects are represented only by its FnOnce contract.","Unmodeled I/O or interior state remains outside the contract."]},{"target":"std::thread::Result::inspect_err","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, E, F: FnOnce(&E)>[ Result::<T, E>::inspect_err ](\n    result: Result<T, E>,\n    f: F,\n) -> (inspected: Result<T, E>)\n    requires\n        result is Err ==> f.requires((&result->Err_0,)),\n    ensures\n        inspected == result,\n        result is Err ==> f.ensures((&result->Err_0,), ()),\n;","requires":["result is Err ==> f.requires((&result->Err_0,))"],"ensures":["inspected == result","result is Err ==> f.ensures((&result->Err_0,), ())"],"feature_gates":[],"imports":["core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"FnOnce contracts express the Err-only callback, and the source returns the original Result unchanged.","risks":["Callback effects are represented only by its FnOnce contract.","Unmodeled I/O or interior state remains outside the contract."]},{"target":"std::thread::Result::is_err","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Metadata resolves this alias method to core::result::Result::is_err, whose discriminant contract already exists in vstd; another declaration would duplicate the same external item.","risks":["alias_of_core_result_method","duplicate_external_specification"]},{"target":"std::thread::Result::is_err_and","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, E, F: FnOnce(E) -> bool>[ Result::<T, E>::is_err_and ](\n    result: Result<T, E>,\n    f: F,\n) -> (matches_error: bool)\n    requires\n        result is Err ==> f.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> !matches_error,\n        result is Err ==> f.ensures((result->Err_0,), matches_error),\n;","requires":["result is Err ==> f.requires((result->Err_0,))"],"ensures":["result is Ok ==> !matches_error","result is Err ==> f.ensures((result->Err_0,), matches_error)"],"feature_gates":[],"imports":["core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"The source returns a negative Boolean for Ok and otherwise returns the predicate result for the consumed Err payload.","risks":["Predicate effects and determinism are limited to its FnOnce contract.","The specification attaches to core::result::Result rather than the thread alias."]}]}{"candidates":[{"target":"std:🧵:Result::expect_err","decision":"add_spec","contract_form":"assume_s
+pecification","contract_code":"pub assume_specification<T: core::fmt::Debug, E>[ Result::<T,
+E>::expect_err ](\n    result: Result<T, E>,\n    msg: &str,\n) -> (error: E)\n    requires\n
+ result is Err,\n    ensures\n        error == result->Err_0,\n;","requires":["result is
+Err"],"ensures":["error == result->Err_0"],"feature_gates":[],"imports":["core::result::Result","vst
+d::prelude::"],"useful":true,"rationale":"The resolved Result method returns the Err payload
+exactly; requiring Err excludes the documented formatting-dependent panic path.","risks":["The Ok
+panic and Debug formatting remain unmodeled.","The specification attaches to core::result::Result
+rather than the thread alias."]},{"target":"std:🧵:Result::flatten","decision":"add_spec","contract_
+form":"assume_specification","contract_code":"pub assume_specification<T, E>[ Result::<Result<T, E>,
+ E>::flatten ](\n    result: Result<Result<T, E>, E>,\n) -> (flattened: Result<T, E>)\n    ensures\n
+        flattened == match result {\n            Result::Ok(inner) => inner,\n
+Result::Err(error) => Result::Err(error),\n        },\n
+no_unwind\n;","requires":[],"ensures":["flattened == match result { Result::Ok(inner) => inner,
+Result::Err(error) => Result::Err(error), }"],"feature_gates":[],"imports":["core::result::Result","
+vstd::prelude::"],"useful":true,"rationale":"The source performs a complete structural match and
+removes exactly one Result nesting level without observing thread runtime state.","risks":["The
+specification attaches to core::result::Result rather than the thread alias."]},{"target":"std:🧵:Re
+sult::inspect","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub
+assume_specification<T, E, F: FnOnce(&T)>[ Result::<T, E>::inspect ](\n    result: Result<T, E>,\n
+  f: F,\n) -> (inspected: Result<T, E>)\n    requires\n        result is Ok ==>
+f.requires((&result->Ok_0,)),\n    ensures\n        inspected == result,\n        result is Ok ==>
+f.ensures((&result->Ok_0,), ()),\n;","requires":["result is Ok ==>
+f.requires((&result->Ok_0,))"],"ensures":["inspected == result","result is Ok ==>
+f.ensures((&result->Ok_0,), ())"],"feature_gates":[],"imports":["core::result::Result","vstd::prelud
+e::"],"useful":true,"rationale":"FnOnce contracts express the conditional callback, while the source
+ guarantees that the original Result is returned unchanged.","risks":["Callback effects are
+represented only by its FnOnce contract.","Unmodeled I/O or interior state remains outside the
+contract."]},{"target":"std:🧵:Result::inspect_err","decision":"add_spec","contract_form":"assume_sp
+ecification","contract_code":"pub assume_specification<T, E, F: FnOnce(&E)>[ Result::<T,
+E>::inspect_err ](\n    result: Result<T, E>,\n    f: F,\n) -> (inspected: Result<T, E>)\n
+requires\n        result is Err ==> f.requires((&result->Err_0,)),\n    ensures\n        inspected
+== result,\n        result is Err ==> f.ensures((&result->Err_0,), ()),\n;","requires":["result is
+Err ==> f.requires((&result->Err_0,))"],"ensures":["inspected == result","result is Err ==>
+f.ensures((&result->Err_0,), ())"],"feature_gates":[],"imports":["core::result::Result","vstd::prelu
+de::"],"useful":true,"rationale":"FnOnce contracts express the Err-only callback, and the source
+returns the original Result unchanged.","risks":["Callback effects are represented only by its
+FnOnce contract.","Unmodeled I/O or interior state remains outside the contract."]},{"target":"std:
+🧵:Result::is_err","decision":"skip","contract_form":"assume_specification","contract_code":"","requ
+ires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Metadata resolves
+this alias method to core::result::Result::is_err, whose discriminant contract already exists in
+vstd; another declaration would duplicate the same external item.","risks":["alias_of_core_result_me
+thod","duplicate_external_specification"]},{"target":"std:🧵:Result::is_err_and","decision":"add_spe
+c","contract_form":"assume_specification","contract_code":"pub assume_specification<T, E, F:
+FnOnce(E) -> bool>[ Result::<T, E>::is_err_and ](\n    result: Result<T, E>,\n    f: F,\n) ->
+(matches_error: bool)\n    requires\n        result is Err ==> f.requires((result->Err_0,)),\n
+ensures\n        result is Ok ==> !matches_error,\n        result is Err ==>
+f.ensures((result->Err_0,), matches_error),\n;","requires":["result is Err ==>
+f.requires((result->Err_0,))"],"ensures":["result is Ok ==> !matches_error","result is Err ==>
+f.ensures((result->Err_0,), matches_error)"],"feature_gates":[],"imports":["core::result::Result","v
+std::prelude::*"],"useful":true,"rationale":"The source returns a negative Boolean for Ok and
+otherwise returns the predicate result for the consumed Err payload.","risks":["Predicate effects
+and determinism are limited to its FnOnce contract.","The specification attaches to
+core::result::Result rather than the thread alias."]}]}
+

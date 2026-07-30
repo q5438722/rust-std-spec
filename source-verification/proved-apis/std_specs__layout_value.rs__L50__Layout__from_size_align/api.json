@@ -1,0 +1,125 @@
+{
+  "id": "std_specs__layout_value.rs__L50__Layout__from_size_align",
+  "api_path": "core::alloc::Layout::from_size_align",
+  "normalized_api_path": "core::alloc::Layout::from_size_align",
+  "raw_target": "Layout::from_size_align",
+  "contract_source_file": "std_specs/layout_value.rs",
+  "contract_source_line": 50,
+  "rust_declaration": {
+    "declaration_id": "core:32760",
+    "name": "from_size_align",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 28, patch: 0 })},\nfeature: \"alloc_layout\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 50, patch: 0 })},\nfeature: \"const_alloc_layout_size_align\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/alloc/layout.rs",
+      "begin": [
+        59,
+        5
+      ],
+      "end": [
+        66,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "size",
+          {
+            "primitive": "usize"
+          }
+        ],
+        [
+          "align",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "Self"
+                  }
+                },
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "LayoutError",
+                      "id": 10215,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32780",
+      "for": {
+        "resolved_path": {
+          "path": "Layout",
+          "id": 9440,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9440",
+      "resolved_owner_path": [
+        "core",
+        "alloc",
+        "layout",
+        "Layout"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "    39:     // (However, we do not analogously require `align >= sizeof(void*)`,\n    40:     //  even though that is *also* a requirement of `posix_memalign`.)\n    41:     align: Alignment,\n    42: }\n    43: \n    44: impl Layout {\n    45:     /// Constructs a `Layout` from a given `size` and `align`,\n    46:     /// or returns `LayoutError` if any of the following conditions\n    47:     /// are not met:\n    48:     ///\n    49:     /// * `align` must not be zero,\n    50:     ///\n    51:     /// * `align` must be a power of two,\n    52:     ///\n    53:     /// * `size`, when rounded up to the nearest multiple of `align`,\n    54:     ///   must not overflow `isize` (i.e., the rounded value must be\n    55:     ///   less than or equal to `isize::MAX`).\n    56:     #[stable(feature = \"alloc_layout\", since = \"1.28.0\")]\n    57:     #[rustc_const_stable(feature = \"const_alloc_layout_size_align\", since = \"1.50.0\")]\n    58:     #[inline]\n    59:     pub const fn from_size_align(size: usize, align: usize) -> Result<Self, LayoutError> {\n    60:         if Layout::is_size_align_valid(size, align) {\n    61:             // SAFETY: Layout::is_size_align_valid checks the preconditions for this call.\n    62:             unsafe { Ok(Layout { size, align: mem::transmute(align) }) }\n    63:         } else {\n    64:             Err(LayoutError)\n    65:         }\n    66:     }\n    67: \n    68:     #[inline]\n    69:     const fn is_size_align_valid(size: usize, align: usize) -> bool {\n    70:         let Some(alignment) = Alignment::new(align) else { return false };\n    71:         Self::is_size_alignment_valid(size, alignment)\n    72:     }\n    73: \n    74:     const fn is_size_alignment_valid(size: usize, alignment: Alignment) -> bool {\n    75:         size <= Self::max_size_for_alignment(alignment)\n    76:     }\n    77: \n    78:     #[inline(always)]\n    79:     const fn max_size_for_alignment(alignment: Alignment) -> usize {",
+    "source_text": "pub const fn from_size_align(size: usize, align: usize) -> Result<Self, LayoutError> {\n        if Layout::is_size_align_valid(size, align) {\n            // SAFETY: Layout::is_size_align_valid checks the preconditions for this call.\n            unsafe { Ok(Layout { size, align: mem::transmute(align) }) }\n        } else {\n            Err(LayoutError)\n        }\n    }",
+    "has_body": true
+  }
+}

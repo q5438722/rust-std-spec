@@ -1,0 +1,114 @@
+{
+  "batch": 136,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 76286,
+  "targets": [
+    "core::pin::Pin::static_ref",
+    "core::ptr::NonNull::addr",
+    "core::ptr::NonNull::align_offset",
+    "core::ptr::NonNull::cast",
+    "core::ptr::NonNull::dangling",
+    "core::ptr::NonNull::expose_provenance"
+  ],
+  "candidates": [
+    {
+      "target": "core::pin::Pin::static_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps the exact static reference with Pin::new_unchecked, but current vstd has no Pin view or reference-identity abstraction capable of relating the result to r.",
+      "risks": [
+        "reference identity is unmodeled",
+        "pointee-value equality would be too weak"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns the strict-provenance address of self.as_ptr(), but NonNull has no existing vstd view connecting it to the raw-pointer address model. Stating only that the NonZero result is nonzero is redundant and does not relate it to self.",
+      "risks": [
+        "missing NonNull pointer view",
+        "strict-provenance address is unobservable"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::align_offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although a power-of-two requirement could exclude the documented panic, characterizing the returned offset requires the pointer address, element stride, alignment, and usize::MAX failure case. NonNull lacks the necessary vstd pointer view.",
+      "risks": [
+        "missing NonNull address abstraction",
+        "alignment arithmetic and failure sentinel",
+        "panics for non-power-of-two alignment"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::cast",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves the pointer address and provenance while changing its pointee type, but current vstd provides no public NonNull view with which to express that cross-type identity.",
+      "risks": [
+        "missing NonNull pointer view",
+        "cross-type provenance preservation is unmodeled"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::dangling",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source constructs a without-provenance pointer whose address is align_of::<T>(), but current vstd cannot observe a NonNull value's address or provenance. Non-nullness alone would not usefully describe the dangling pointer.",
+      "risks": [
+        "missing NonNull address abstraction",
+        "without-provenance pointer semantics are unmodeled",
+        "result is not dereferenceable"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::expose_provenance",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source both returns the pointer address and performs a provenance-exposure effect. The standard signature returns no vstd exposure token, and NonNull has no address view, so neither the useful effect nor its input-output relation can be expressed soundly.",
+      "risks": [
+        "hidden provenance-exposure effect",
+        "missing NonNull address abstraction",
+        "standard return type cannot carry an exposure token"
+      ]
+    }
+  ]
+}

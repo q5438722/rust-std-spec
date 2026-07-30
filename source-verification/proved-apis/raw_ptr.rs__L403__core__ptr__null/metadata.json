@@ -1,0 +1,119 @@
+{
+  "id": "raw_ptr.rs__L403__core__ptr__null",
+  "api_path": "core::ptr::null",
+  "raw_target": "core::ptr::null",
+  "contract_source_file": "raw_ptr.rs",
+  "contract_source_line": 403,
+  "rust_declaration": {
+    "declaration_id": "core:9604",
+    "name": "null",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 24, patch: 0 })},\nfeature: \"const_ptr_null\", promotable: true}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"ptr_null\")]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/ptr/mod.rs",
+      "begin": [
+        842,
+        1
+      ],
+      "end": [
+        844,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [],
+      "output": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "T",
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "PointeeSized",
+                      "id": 7872,
+                      "args": null
+                    },
+                    "generic_params": [],
+                    "modifier": "none"
+                  }
+                },
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "Thin",
+                      "id": 9433,
+                      "args": null
+                    },
+                    "generic_params": [],
+                    "modifier": "none"
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": true,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   822: ///\n   823: /// This function is equivalent to zero-initializing the pointer:\n   824: /// `MaybeUninit::<*const T>::zeroed().assume_init()`.\n   825: /// The resulting pointer has the address 0.\n   826: ///\n   827: /// # Examples\n   828: ///\n   829: /// ```\n   830: /// use std::ptr;\n   831: ///\n   832: /// let p: *const i32 = ptr::null();\n   833: /// assert!(p.is_null());\n   834: /// assert_eq!(p as usize, 0); // this pointer has the address 0\n   835: /// ```\n   836: #[inline(always)]\n   837: #[must_use]\n   838: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   839: #[rustc_promotable]\n   840: #[rustc_const_stable(feature = \"const_ptr_null\", since = \"1.24.0\")]\n   841: #[rustc_diagnostic_item = \"ptr_null\"]\n   842: pub const fn null<T: PointeeSized + Thin>() -> *const T {\n   843:     from_raw_parts(without_provenance::<()>(0), ())\n   844: }\n   845: \n   846: /// Creates a null mutable raw pointer.\n   847: ///\n   848: /// This function is equivalent to zero-initializing the pointer:\n   849: /// `MaybeUninit::<*mut T>::zeroed().assume_init()`.\n   850: /// The resulting pointer has the address 0.\n   851: ///\n   852: /// # Examples\n   853: ///\n   854: /// ```\n   855: /// use std::ptr;\n   856: ///\n   857: /// let p: *mut i32 = ptr::null_mut();\n   858: /// assert!(p.is_null());\n   859: /// assert_eq!(p as usize, 0); // this pointer has the address 0\n   860: /// ```\n   861: #[inline(always)]\n   862: #[must_use]",
+    "source_text": "pub const fn null<T: PointeeSized + Thin>() -> *const T {\n    from_raw_parts(without_provenance::<()>(0), ())\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower-level core::ptr::without_provenance contract faithfully models its address, null provenance, and unit metadata.",
+    "The lower-level core::ptr::from_raw_parts contract faithfully combines the data pointer's address/provenance with the supplied metadata."
+  ],
+  "rationale": "The exact Rust 1.96 body verifies compositionally from contracts for its two smaller pointer-construction APIs.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/raw_ptr.rs__L403__core__ptr__null"
+}

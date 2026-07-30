@@ -1,0 +1,260 @@
+{
+  "candidates": [
+    {
+      "target": "core::ptr::hash",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function mutates generic Hasher state, but current vstd provides no state or write model for arbitrary Hasher implementations.",
+      "risks": [
+        "opaque mutable hasher state",
+        "missing generic Hasher abstraction"
+      ]
+    },
+    {
+      "target": "core::ptr::is_aligned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    <*const T>::is_aligned\n](ptr: *const T) -> (result: bool)\n    where\n        T: Sized,\n    ensures\n        result <==> ptr@.addr as nat % align_of::<T>() == 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> ptr@.addr as nat % align_of::<T>() == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::layout::align_of"
+      ],
+      "useful": true,
+      "rationale": "The source tests the pointer address against align_of::<T>(); both address and type alignment are exposed by current vstd.",
+      "risks": [
+        "alignment remains target-dependent",
+        "does not imply pointer validity"
+      ]
+    },
+    {
+      "target": "core::ptr::is_empty",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[\n    <*const [T]>::is_empty\n](ptr: *const [T]) -> (result: bool)\n    ensures\n        result <==> ptr@.metadata == 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> ptr@.metadata == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source compares the raw slice length with zero, and vstd exposes slice length as pointer metadata.",
+      "risks": [
+        "does not imply buffer validity or dereferenceability"
+      ]
+    },
+    {
+      "target": "core::ptr::is_null",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    <*const T>::is_null\n](ptr: *const T) -> (result: bool)\n    ensures\n        result <==> ptr@.addr == 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> ptr@.addr == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation checks only the data address, exactly matching the address field of vstd's raw-pointer model.",
+      "risks": [
+        "metadata and provenance are intentionally ignored",
+        "const evaluation may reject indeterminate nullness"
+      ]
+    },
+    {
+      "target": "core::ptr::len",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[\n    <*const [T]>::len\n](ptr: *const [T]) -> (result: usize)\n    ensures\n        result == ptr@.metadata,\n;",
+      "requires": [],
+      "ensures": [
+        "result == ptr@.metadata"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the raw slice's metadata, represented publicly by vstd as a usize.",
+      "risks": [
+        "metadata need not describe valid or accessible memory"
+      ]
+    },
+    {
+      "target": "core::ptr::map_addr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<\n    T: core::marker::PointeeSized,\n    F: FnOnce(usize) -> usize,\n>[\n    <*mut T>::map_addr\n](ptr: *mut T, f: F) -> (result: *mut T)\n    requires\n        f.requires((ptr@.addr,)),\n    ensures\n        f.ensures((ptr@.addr,), result@.addr),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n;",
+      "requires": [
+        "f.requires((ptr@.addr,))"
+      ],
+      "ensures": [
+        "f.ensures((ptr@.addr,), result@.addr)",
+        "result@.provenance == ptr@.provenance",
+        "result@.metadata == ptr@.metadata"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source applies f to the address and uses with_addr, while vstd models callback contracts and all three raw-pointer components.",
+      "risks": [
+        "the resulting pointer need not be valid or dereferenceable",
+        "callback panic or divergence is outside the normal-return contract"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ptr::hash",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function mutates generic Hasher state, but current vstd provides no state or
+ write model for arbitrary Hasher implementations.",
+      "risks": [
+        "opaque mutable hasher state",
+        "missing generic Hasher abstraction"
+      ]
+    },
+    {
+      "target": "core::ptr::is_aligned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    <const
+T>::is_aligned\n](ptr: *const T) -> (result: bool)\n    where\n        T: Sized,\n    ensures\n
+   result <==> ptr@.addr as nat % align_of::<T>() == 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> ptr@.addr as nat % align_of::<T>() == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::layout::align_of"
+      ],
+      "useful": true,
+      "rationale": "The source tests the pointer address against align_of::<T>(); both address and
+type alignment are exposed by current vstd.",
+      "risks": [
+        "alignment remains target-dependent",
+        "does not imply pointer validity"
+      ]
+    },
+    {
+      "target": "core::ptr::is_empty",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[\n    <const [T]>::is_empty\n](ptr: const [T])
+-> (result: bool)\n    ensures\n        result <==> ptr@.metadata == 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> ptr@.metadata == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source compares the raw slice length with zero, and vstd exposes slice
+length as pointer metadata.",
+      "risks": [
+        "does not imply buffer validity or dereferenceability"
+      ]
+    },
+    {
+      "target": "core::ptr::is_null",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    <*const
+T>::is_null\n](ptr: *const T) -> (result: bool)\n    ensures\n        result <==> ptr@.addr ==
+0,\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> ptr@.addr == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The implementation checks only the data address, exactly matching the address
+field of vstd's raw-pointer model.",
+      "risks": [
+        "metadata and provenance are intentionally ignored",
+        "const evaluation may reject indeterminate nullness"
+      ]
+    },
+    {
+      "target": "core::ptr::len",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[\n    <*const [T]>::len\n](ptr: const [T]) ->
+(result: usize)\n    ensures\n        result == ptr@.metadata,\n;",
+      "requires": [],
+      "ensures": [
+        "result == ptr@.metadata"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source returns the raw slice's metadata, represented publicly by vstd as a
+usize.",
+      "risks": [
+        "metadata need not describe valid or accessible memory"
+      ]
+    },
+    {
+      "target": "core::ptr::map_addr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<\n    T: core::marker::PointeeSized,\n    F:
+FnOnce(usize) -> usize,\n>[\n    <*mut T>::map_addr\n](ptr: *mut T, f: F) -> (result: mut T)\n
+requires\n        f.requires((ptr@.addr,)),\n    ensures\n        f.ensures((ptr@.addr,),
+result@.addr),\n        result@.provenance == ptr@.provenance,\n        result@.metadata ==
+ptr@.metadata,\n;",
+      "requires": [
+        "f.requires((ptr@.addr,))"
+      ],
+      "ensures": [
+        "f.ensures((ptr@.addr,), result@.addr)",
+        "result@.provenance == ptr@.provenance",
+        "result@.metadata == ptr@.metadata"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source applies f to the address and uses with_addr, while vstd models
+callback contracts and all three raw-pointer components.",
+      "risks": [
+        "the resulting pointer need not be valid or dereferenceable",
+        "callback panic or divergence is outside the normal-return contract"
+      ]
+    } ]
+}
+

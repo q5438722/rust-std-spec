@@ -1,0 +1,216 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicPtr::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The consumed atomic's pointer value has no public logical view in the current vstd vocabulary, so the returned pointer cannot be usefully related to self.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::load",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is determined by hidden concurrent atomic state at a linearization point, which this signature exposes through neither a view nor a permission token.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although construction stores p, AtomicPtr has no public logical view in the current vocabulary through which that initial hidden value can be specified.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::store",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This unit-returning operation changes hidden atomic state through a shared reference, with no public view or permission argument available to express the effect.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "unit_return_variant",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the returned previous pointer and installed pointer requires a logical atomic state and linearization relation absent from the signature and current vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure may run repeatedly against changing concurrent values, and neither atomic history nor callable effects are represented sufficiently to characterize the result.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "repeated_fnmut_invocation",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicPtr::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The consumed atomic's pointer value has no public logical view in the current
+vstd vocabulary, so the returned pointer cannot be usefully related to self.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::load",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is determined by hidden concurrent atomic state at a linearization
+point, which this signature exposes through neither a view nor a permission token.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although construction stores p, AtomicPtr has no public logical view in the
+current vocabulary through which that initial hidden value can be specified.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::store",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This unit-returning operation changes hidden atomic state through a shared
+reference, with no public view or permission argument available to express the effect.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "unit_return_variant",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the returned previous pointer and installed pointer requires a
+logical atomic state and linearization relation absent from the signature and current vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure may run repeatedly against changing concurrent values, and neither
+atomic history nor callable effects are represented sufficiently to characterize the result.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "repeated_fnmut_invocation",
+        "missing_atomic_state_abstraction"
+      ]
+    } ]
+}
+

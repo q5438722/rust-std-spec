@@ -1,0 +1,104 @@
+{
+  "id": "core__str__ceil_char_boundary__74f6651664b6",
+  "api_path": "core::str::ceil_char_boundary",
+  "raw_target": "str::ceil_char_boundary",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 91, patch: 0 })},\nfeature: \"round_char_boundary\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 91, patch: 0 })},\nfeature: \"round_char_boundary\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "declaration_id": "core:51892",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "ceil_char_boundary",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "primitive": "str"
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:51935",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "index",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "usize"
+      }
+    },
+    "source_context": "   420:     #[rustc_const_stable(feature = \"round_char_boundary\", since = \"1.91.0\")]\n   421:     #[inline]\n   422:     pub const fn floor_char_boundary(&self, index: usize) -> usize {\n   423:         if index >= self.len() {\n   424:             self.len()\n   425:         } else {\n   426:             let mut i = index;\n   427:             while i > 0 {\n   428:                 if self.as_bytes()[i].is_utf8_char_boundary() {\n   429:                     break;\n   430:                 }\n   431:                 i -= 1;\n   432:             }\n   433: \n   434:             //  The character boundary will be within four bytes of the index\n   435:             debug_assert!(i >= index.saturating_sub(3));\n   436: \n   437:             i\n   438:         }\n   439:     }\n   440: \n   441:     /// Finds the closest `x` not below `index` where [`is_char_boundary(x)`] is `true`.\n   442:     ///\n   443:     /// If `index` is greater than the length of the string, this returns the length of the string.\n   444:     ///\n   445:     /// This method is the natural complement to [`floor_char_boundary`]. See that method\n   446:     /// for more details.\n   447:     ///\n   448:     /// [`floor_char_boundary`]: str::floor_char_boundary\n   449:     /// [`is_char_boundary(x)`]: Self::is_char_boundary\n   450:     ///\n   451:     /// # Examples\n   452:     ///\n   453:     /// ```\n   454:     /// let s = \"\u2764\ufe0f\ud83e\udde1\ud83d\udc9b\ud83d\udc9a\ud83d\udc99\ud83d\udc9c\";\n   455:     /// assert_eq!(s.len(), 26);\n   456:     /// assert!(!s.is_char_boundary(13));\n   457:     ///\n   458:     /// let closest = s.ceil_char_boundary(13);\n   459:     /// assert_eq!(closest, 14);\n   460:     /// assert_eq!(&s[..closest], \"\u2764\ufe0f\ud83e\udde1\ud83d\udc9b\");\n   461:     /// ```\n   462:     #[stable(feature = \"round_char_boundary\", since = \"1.91.0\")]\n   463:     #[rustc_const_stable(feature = \"round_char_boundary\", since = \"1.91.0\")]\n   464:     #[inline]\n   465:     pub const fn ceil_char_boundary(&self, index: usize) -> usize {\n   466:         if index >= self.len() {\n   467:             self.len()\n   468:         } else {\n   469:             let mut i = index;\n   470:             while i < self.len() {\n   471:                 if self.as_bytes()[i].is_utf8_char_boundary() {\n   472:                     break;\n   473:                 }\n   474:                 i += 1;\n   475:             }\n   476: \n   477:             //  The character boundary will be within four bytes of the index\n   478:             debug_assert!(i <= index + 3);\n   479: \n   480:             i\n   481:         }\n   482:     }\n   483: \n   484:     /// Converts a string slice to a byte slice. To convert the byte slice back\n   485:     /// into a string slice, use the [`from_utf8`] function.\n   486:     ///\n   487:     /// # Examples\n   488:     ///\n   489:     /// ```\n   490:     /// let bytes = \"bors\".as_bytes();\n   491:     /// assert_eq!(b\"bors\", bytes);\n   492:     /// ```\n   493:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   494:     #[rustc_const_stable(feature = \"str_as_bytes\", since = \"1.39.0\")]\n   495:     #[must_use]\n   496:     #[inline(always)]\n   497:     #[allow(unused_attributes)]\n   498:     pub const fn as_bytes(&self) -> &[u8] {\n   499:         // SAFETY: const sound because we transmute two types with the same layout\n   500:         unsafe { mem::transmute(self) }\n   501:     }\n   502: \n   503:     /// Converts a mutable string slice to a mutable byte slice.\n   504:     ///\n   505:     /// # Safety\n   506:     ///\n   507:     /// The caller must ensure that the content of the slice is valid UTF-8\n   508:     /// before the borrow ends and the underlying `str` is used.\n   509:     ///\n   510:     /// Use of a `str` whose contents are not valid UTF-8 is undefined behavior.",
+    "span": {
+      "begin": [
+        465,
+        5
+      ],
+      "end": [
+        482,
+        6
+      ],
+      "filename": "core/src/str/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn ceil_char_boundary(&self, index: usize) -> usize {\n        if index >= self.len() {\n            self.len()\n        } else {\n            let mut i = index;\n            while i < self.len() {\n                if self.as_bytes()[i].is_utf8_char_boundary() {\n                    break;\n                }\n                i += 1;\n            }\n\n            //  The character boundary will be within four bytes of the index\n            debug_assert!(i <= index + 3);\n\n            i\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd str::as_bytes specification",
+    "vstd slice length/indexing specifications, including axiom_spec_len"
+  ],
+  "rationale": "Verus verifies the source control flow after mechanically inlining Rust 1.96 str::len and u8::is_utf8_char_boundary; vstd UTF-8 lemmas prove minimality and the three-byte bound.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__str__ceil_char_boundary__74f6651664b6"
+}

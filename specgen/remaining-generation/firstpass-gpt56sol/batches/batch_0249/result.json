@@ -1,0 +1,136 @@
+{
+  "batch": 249,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 277533,
+  "targets": [
+    "std::sync::TryLockResult::or_else",
+    "std::sync::TryLockResult::transpose",
+    "std::sync::TryLockResult::unwrap",
+    "std::sync::TryLockResult::unwrap_err",
+    "std::sync::TryLockResult::unwrap_err_unchecked",
+    "std::sync::TryLockResult::unwrap_or"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::TryLockResult::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O>[Result::<T, E>::or_else](\n    result: Result<T, E>,\n    op: O,\n) -> (res: Result<T, F>)\nwhere\n    O: FnOnce(E) -> Result<T, F>,\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The alias resolves to Result::or_else, whose public branches preserve Ok or invoke op on Err without inspecting lock state.",
+      "risks": [
+        "Err-branch precision depends on the closure contract.",
+        "The declaration specifies the underlying generic Result method."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::transpose",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[Result::<Option<T>, E>::transpose](\n    result: Result<Option<T>, E>,\n) -> (res: Option<Result<T, E>>)\n    ensures\n        res == (match result {\n            Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)),\n            Result::Ok(Option::None) => Option::None,\n            Result::Err(error) => Option::Some(Result::Err(error)),\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "res == (match result { Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)), Result::Ok(Option::None) => Option::None, Result::Err(error) => Option::Some(Result::Err(error)), })"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source exhaustively rearranges public Result and Option variants and does not observe concurrent state.",
+      "risks": [
+        "The declaration specifies the underlying generic Result method."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::unwrap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This resolves to Result::unwrap, whose Ok precondition and payload postcondition are already specified in vstd.",
+      "risks": [
+        "duplicate_existing_result_specification",
+        "panic formatting on Err remains outside the contract"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::unwrap_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This resolves to Result::unwrap_err, whose Err precondition and payload postcondition are already specified in vstd.",
+      "risks": [
+        "duplicate_existing_result_specification",
+        "panic formatting on Ok remains outside the contract"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::unwrap_err_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[Result::<T, E>::unwrap_err_unchecked](\n    result: Result<T, E>,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The required Err discriminant is exactly the documented safety condition, after which the source returns the public error payload.",
+      "risks": [
+        "Violating the precondition is undefined behavior.",
+        "The declaration specifies the underlying generic Result method."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::unwrap_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[Result::<T, E>::unwrap_or](\n    result: Result<T, E>,\n    default: T,\n) -> (res: T)\n    ensures\n        res == (match result {\n            Result::Ok(value) => value,\n            Result::Err(_) => default,\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "res == (match result { Result::Ok(value) => value, Result::Err(_) => default, })"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the Ok payload or the supplied default using only public Result variants.",
+      "risks": [
+        "Discarded values may run destructors with unmodeled concurrency effects.",
+        "The declaration specifies the underlying generic Result method."
+      ]
+    }
+  ]
+}

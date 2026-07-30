@@ -1,0 +1,111 @@
+{
+  "batch": 280,
+  "group": "trait_contract_integration",
+  "duration_ms": 127611,
+  "targets": [
+    "core::borrow::Borrow::borrow",
+    "core::borrow::BorrowMut::borrow_mut",
+    "core::clone::Clone::clone_from",
+    "core::convert::AsMut::as_mut",
+    "core::convert::AsRef::as_ref",
+    "core::error::Error::cause"
+  ],
+  "candidates": [
+    {
+      "target": "core::borrow::Borrow::borrow",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The trait permits implementation-defined projections, and the source provides no generic value or view relation between Self and Borrowed.",
+      "risks": [
+        "Missing generic borrow-projection abstraction.",
+        "Reference identity cannot be replaced by view equality."
+      ]
+    },
+    {
+      "target": "core::borrow::BorrowMut::borrow_mut",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable reference is an implementation-defined projection, which current vstd cannot relate to old(self) and final(self).",
+      "risks": [
+        "Unsupported generic mutable-reference result.",
+        "Missing mutable borrow-projection abstraction."
+      ]
+    },
+    {
+      "target": "core::clone::Clone::clone_from",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source describes copy-assignment semantics, the current Verus frontend explicitly rejects clone_from calls, so no usable trait contract can be installed.",
+      "risks": [
+        "clone_from is unsupported by the Verus frontend.",
+        "The method may use an implementation-specific Clone relation."
+      ]
+    },
+    {
+      "target": "core::convert::AsMut::as_mut",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The signature permits an arbitrary mutable projection of self, with no source-supported generic relation expressible using old(self) and final(self).",
+      "risks": [
+        "Unsupported generic mutable-reference result.",
+        "Missing mutable projection abstraction."
+      ]
+    },
+    {
+      "target": "core::convert::AsRef::as_ref",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "AsRef implementations choose their own projection, and the source establishes no universal identity or view relation between Self and T.",
+      "risks": [
+        "Missing generic shared-projection abstraction.",
+        "Reference identity cannot be inferred from semantic views."
+      ]
+    },
+    {
+      "target": "core::error::Error::cause",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The default body delegates to source, but current vstd has no Error::source contract, and the trait-object reference result lacks a safe public model.",
+      "risks": [
+        "Missing Error source-chain abstraction.",
+        "Dynamic-trait reference identity and lifetime are unmodeled."
+      ]
+    }
+  ]
+}

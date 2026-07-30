@@ -1,0 +1,109 @@
+{
+  "batch": 156,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 22041,
+  "targets": [
+    "std::path::Path::starts_with",
+    "std::path::Path::strip_prefix",
+    "std::path::Path::symlink_metadata",
+    "std::path::Path::to_path_buf",
+    "std::path::Path::to_str",
+    "std::path::Path::to_string_lossy"
+  ],
+  "candidates": [
+    {
+      "target": "std::path::Path::starts_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on normalized whole-component comparison, but current vstd has no public Path component-sequence view.",
+      "risks": [
+        "missing Path component abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::strip_prefix",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Describing success and the returned suffix requires a Path component view and a relation for the borrowed subslice, neither of which exists in current vstd.",
+      "risks": [
+        "missing Path component abstraction",
+        "reference identity versus view"
+      ]
+    },
+    {
+      "target": "std::path::Path::symlink_metadata",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result observes runtime filesystem state, and current vstd provides no filesystem-state or Metadata abstraction supporting a useful relation.",
+      "risks": [
+        "runtime filesystem effects",
+        "missing filesystem-state abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::to_path_buf",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing that the owned PathBuf preserves the Path contents requires compatible public Path and PathBuf views absent from current vstd.",
+      "risks": [
+        "missing Path and PathBuf content abstractions"
+      ]
+    },
+    {
+      "target": "std::path::Path::to_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must characterize UTF-8 validity and relate the borrowed str to the path's encoded bytes, for which current vstd has no Path view.",
+      "risks": [
+        "missing encoded-path abstraction",
+        "reference identity versus view"
+      ]
+    },
+    {
+      "target": "std::path::Path::to_string_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing valid text and replacement of invalid encoded sequences requires Path encoding and Cow content abstractions unavailable in current vstd.",
+      "risks": [
+        "missing encoded-path abstraction",
+        "missing Cow content abstraction"
+      ]
+    }
+  ]
+}

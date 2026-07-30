@@ -1,0 +1,99 @@
+{
+  "batch": 178,
+  "group": "representation_or_allocator",
+  "duration_ms": 42250,
+  "targets": [
+    "std::path::PathBuf::shrink_to",
+    "std::path::PathBuf::shrink_to_fit",
+    "std::path::PathBuf::try_reserve",
+    "std::path::PathBuf::try_reserve_exact",
+    "std::path::PathBuf::with_capacity"
+  ],
+  "candidates": [
+    {
+      "target": "std::path::PathBuf::shrink_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only delegates to OsString::shrink_to, affecting hidden allocation capacity. Current vstd has no PathBuf content or capacity view with which to state a useful preservation or capacity relation.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "path_contents_not_modeled",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::shrink_to_fit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only delegates to OsString::shrink_to_fit, whose effect is hidden allocator capacity. Current vstd cannot express either the capacity change or PathBuf content preservation.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "path_contents_not_modeled",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::try_reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reports allocation success or failure while the mutation concerns hidden capacity. Without a PathBuf content/capacity abstraction, no useful relation between result and final(self) is expressible.",
+      "risks": [
+        "allocator_outcome_not_deterministic",
+        "allocator_state_not_modeled",
+        "path_contents_not_modeled"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::try_reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reports allocation success or failure and the delegated mutation affects hidden exact-reservation state. Current vstd lacks the PathBuf abstraction needed for a useful postcondition.",
+      "risks": [
+        "allocator_outcome_not_deterministic",
+        "allocator_state_not_modeled",
+        "path_contents_not_modeled"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The requested capacity is hidden inside OsString, and current vstd has no PathBuf content view with which to state that the constructed path is empty. A capacity-only contract is therefore unavailable.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "path_contents_not_modeled",
+        "missing_pathbuf_abstraction"
+      ]
+    }
+  ]
+}

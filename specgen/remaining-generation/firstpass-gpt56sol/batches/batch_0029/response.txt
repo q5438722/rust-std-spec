@@ -1,0 +1,109 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicU16::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result aliases raw memory as atomic state, but current vstd exposes neither that atomic state nor a suitable pointer-to-atomic identity relation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned mutable u16 reference to the consumed exclusive access requires an observable AtomicU16 state model that current vstd lacks.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "unsupported_mutable_reference_relation",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful elementwise relation between the atomic slice and returned mutable u16 slice cannot be expressed without views for atomic contents and alias identity.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although consuming the atomic prevents concurrent access, current vstd has no public logical view of AtomicU16 with which to relate the returned u16.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on concurrent atomic state and potentially repeated FnMut invocations during compare-exchange retries, which current vstd cannot model with a concrete public relation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "compare_exchange_retry_behavior",
+        "closure_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned prior value and update depend on concurrent atomic state, while compare-exchange retries may invoke the FnMut closure repeatedly; existing vstd vocabulary does not capture either behavior.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "compare_exchange_retry_behavior",
+        "closure_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}
+

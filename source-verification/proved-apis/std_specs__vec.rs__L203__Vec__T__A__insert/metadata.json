@@ -1,0 +1,166 @@
+{
+  "id": "std_specs__vec.rs__L203__Vec__T__A__insert",
+  "api_path": "alloc::vec::Vec::insert",
+  "raw_target": "Vec::<T, A>::insert",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 203,
+  "rust_declaration": {
+    "declaration_id": "alloc:4882",
+    "name": "insert",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgTrace([Not(NameValue { name: \"no_global_oom_handling\", value: None, span: alloc/src/vec/mod.rs:2269:15: 2269:37 (#0) }, alloc/src/vec/mod.rs:2269:14: 2269:38 (#0))])]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        2272,
+        5
+      ],
+      "end": [
+        2274,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "index",
+          {
+            "primitive": "usize"
+          }
+        ],
+        [
+          "element",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2252:     /// Panics if `index > len`.\n  2253:     ///\n  2254:     /// # Examples\n  2255:     ///\n  2256:     /// ```\n  2257:     /// let mut vec = vec!['a', 'b', 'c'];\n  2258:     /// vec.insert(1, 'd');\n  2259:     /// assert_eq!(vec, ['a', 'd', 'b', 'c']);\n  2260:     /// vec.insert(4, 'e');\n  2261:     /// assert_eq!(vec, ['a', 'd', 'b', 'c', 'e']);\n  2262:     /// ```\n  2263:     ///\n  2264:     /// # Time complexity\n  2265:     ///\n  2266:     /// Takes *O*([`Vec::len`]) time. All items after the insertion index must be\n  2267:     /// shifted to the right. In the worst case, all elements are shifted when\n  2268:     /// the insertion index is 0.\n  2269:     #[cfg(not(no_global_oom_handling))]\n  2270:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2271:     #[track_caller]\n  2272:     pub fn insert(&mut self, index: usize, element: T) {\n  2273:         let _ = self.insert_mut(index, element);\n  2274:     }\n  2275: \n  2276:     /// Inserts an element at position `index` within the vector, shifting all\n  2277:     /// elements after it to the right, and returning a reference to the new\n  2278:     /// element.\n  2279:     ///\n  2280:     /// # Panics\n  2281:     ///\n  2282:     /// Panics if `index > len`.\n  2283:     ///\n  2284:     /// # Examples\n  2285:     ///\n  2286:     /// ```\n  2287:     /// let mut vec = vec![1, 3, 5, 9];\n  2288:     /// let x = vec.insert_mut(3, 6);\n  2289:     /// *x += 1;\n  2290:     /// assert_eq!(vec, [1, 3, 5, 7, 9]);\n  2291:     /// ```\n  2292:     ///",
+    "source_text": "pub fn insert(&mut self, index: usize, element: T) {\n        let _ = self.insert_mut(index, element);\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower-level Vec::<T, A>::insert_mut contract correctly models insertion and its returned mutable reference."
+  ],
+  "rationale": "The source body is copied exactly modulo receiver naming, and the target postcondition follows compositionally from insert_mut's contract.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L203__Vec__T__A__insert"
+}

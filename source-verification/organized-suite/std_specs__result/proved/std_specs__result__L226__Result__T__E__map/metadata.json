@@ -1,0 +1,214 @@
+{
+  "id": "std_specs__result.rs__L226__Result__T__E__map",
+  "api_path": "core::result::Result::map",
+  "raw_target": "Result::<T, E>::map",
+  "contract_source_file": "std_specs/result.rs",
+  "contract_source_line": 226,
+  "rust_declaration": {
+    "declaration_id": "core:29286",
+    "name": "map",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/result.rs",
+      "begin": [
+        831,
+        5
+      ],
+      "end": [
+        839,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "op",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "U"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "U",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        },
+        {
+          "name": "F",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "F"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "FnOnce",
+                    "id": 24,
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "generic": "U"
+                        }
+                      }
+                    }
+                  },
+                  "generic_params": [],
+                  "modifier": "maybe_const"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:29310",
+      "for": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "E",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   811:     ///\n   812:     /// This function can be used to compose the results of two functions.\n   813:     ///\n   814:     /// # Examples\n   815:     ///\n   816:     /// Print the numbers on each line of a string multiplied by two.\n   817:     ///\n   818:     /// ```\n   819:     /// let line = \"1\\n2\\n3\\n4\\n\";\n   820:     ///\n   821:     /// for num in line.lines() {\n   822:     ///     match num.parse::<i32>().map(|i| i * 2) {\n   823:     ///         Ok(n) => println!(\"{n}\"),\n   824:     ///         Err(..) => {}\n   825:     ///     }\n   826:     /// }\n   827:     /// ```\n   828:     #[inline]\n   829:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   830:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   831:     pub const fn map<U, F>(self, op: F) -> Result<U, E>\n   832:     where\n   833:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   834:     {\n   835:         match self {\n   836:             Ok(t) => Ok(op(t)),\n   837:             Err(e) => Err(e),\n   838:         }\n   839:     }\n   840: \n   841:     /// Returns the provided default (if [`Err`]), or\n   842:     /// applies a function to the contained value (if [`Ok`]).\n   843:     ///\n   844:     /// Arguments passed to `map_or` are eagerly evaluated; if you are passing\n   845:     /// the result of a function call, it is recommended to use [`map_or_else`],\n   846:     /// which is lazily evaluated.\n   847:     ///\n   848:     /// [`map_or_else`]: Result::map_or_else\n   849:     ///\n   850:     /// # Examples\n   851:     ///",
+    "source_text": "pub const fn map<U, F>(self, op: F) -> Result<U, E>\n    where\n        F: [const] FnOnce(T) -> U + [const] Destruct,\n    {\n        match self {\n            Ok(t) => Ok(op(t)),\n            Err(e) => Err(e),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source-faithful enum match directly proves both contract branches without invoking Result::map or another external standard-library contract.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__result.rs__L226__Result__T__E__map"
+}

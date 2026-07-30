@@ -1,0 +1,179 @@
+{
+  "id": "core__ops__Bound__cloned__217ff8b0bca9",
+  "api_path": "core::ops::Bound::cloned",
+  "raw_target": "Bound::<&'a T>::cloned",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "`self` will be dropped if the result is not used"
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 55, patch: 0 })},\nfeature: \"bound_cloned\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None},\nfeature: \"const_range\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:24014",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": null,
+                    "id": 42,
+                    "path": "Clone"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "cloned",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "is_mutable": false,
+                      "lifetime": null,
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9759,
+          "path": "Bound"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 42,
+                        "path": "Clone"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:24015",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:9759",
+      "resolved_owner_path": [
+        "core",
+        "ops",
+        "range",
+        "Bound"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9759,
+          "path": "Bound"
+        }
+      }
+    },
+    "source_context": "   758: }\n   759: \n   760: impl<T: Copy> Bound<&T> {\n   761:     /// Map a `Bound<&T>` to a `Bound<T>` by copying the contents of the bound.\n   762:     ///\n   763:     /// # Examples\n   764:     ///\n   765:     /// ```\n   766:     /// #![feature(bound_copied)]\n   767:     ///\n   768:     /// use std::ops::Bound::*;\n   769:     /// use std::ops::RangeBounds;\n   770:     ///\n   771:     /// assert_eq!((1..12).start_bound(), Included(&1));\n   772:     /// assert_eq!((1..12).start_bound().copied(), Included(1));\n   773:     /// ```\n   774:     #[unstable(feature = \"bound_copied\", issue = \"145966\")]\n   775:     #[must_use]\n   776:     pub const fn copied(self) -> Bound<T> {\n   777:         match self {\n   778:             Bound::Unbounded => Bound::Unbounded,\n   779:             Bound::Included(x) => Bound::Included(*x),\n   780:             Bound::Excluded(x) => Bound::Excluded(*x),\n   781:         }\n   782:     }\n   783: }\n   784: \n   785: impl<T: Clone> Bound<&T> {\n   786:     /// Map a `Bound<&T>` to a `Bound<T>` by cloning the contents of the bound.\n   787:     ///\n   788:     /// # Examples\n   789:     ///\n   790:     /// ```\n   791:     /// use std::ops::Bound::*;\n   792:     /// use std::ops::RangeBounds;\n   793:     ///\n   794:     /// let a1 = String::from(\"a\");\n   795:     /// let (a2, a3, a4) = (a1.clone(), a1.clone(), a1.clone());\n   796:     ///\n   797:     /// assert_eq!(Included(&a1), (a2..).start_bound());\n   798:     /// assert_eq!(Included(a3), (a4..).start_bound().cloned());\n   799:     /// ```\n   800:     #[must_use = \"`self` will be dropped if the result is not used\"]\n   801:     #[stable(feature = \"bound_cloned\", since = \"1.55.0\")]\n   802:     #[rustc_const_unstable(feature = \"const_range\", issue = \"none\")]\n   803:     pub const fn cloned(self) -> Bound<T>\n   804:     where\n   805:         T: [const] Clone,\n   806:     {\n   807:         match self {\n   808:             Bound::Unbounded => Bound::Unbounded,\n   809:             Bound::Included(x) => Bound::Included(x.clone()),\n   810:             Bound::Excluded(x) => Bound::Excluded(x.clone()),\n   811:         }\n   812:     }\n   813: }\n   814: \n   815: /// `RangeBounds` is implemented by Rust's built-in range types, produced\n   816: /// by range syntax like `..`, `a..`, `..b`, `..=c`, `d..e`, or `f..=g`.\n   817: #[stable(feature = \"collections_range\", since = \"1.28.0\")]\n   818: #[rustc_diagnostic_item = \"RangeBounds\"]\n   819: #[rustc_const_unstable(feature = \"const_range\", issue = \"none\")]\n   820: pub const trait RangeBounds<T: ?Sized> {\n   821:     /// Start index bound.\n   822:     ///\n   823:     /// Returns the start value as a `Bound`.\n   824:     ///\n   825:     /// # Examples\n   826:     ///\n   827:     /// ```\n   828:     /// use std::ops::Bound::*;\n   829:     /// use std::ops::RangeBounds;\n   830:     ///\n   831:     /// assert_eq!((..10).start_bound(), Unbounded);\n   832:     /// assert_eq!((3..10).start_bound(), Included(&3));\n   833:     /// ```\n   834:     #[stable(feature = \"collections_range\", since = \"1.28.0\")]\n   835:     fn start_bound(&self) -> Bound<&T>;\n   836: \n   837:     /// End index bound.\n   838:     ///\n   839:     /// Returns the end value as a `Bound`.\n   840:     ///\n   841:     /// # Examples\n   842:     ///\n   843:     /// ```\n   844:     /// use std::ops::Bound::*;\n   845:     /// use std::ops::RangeBounds;\n   846:     ///\n   847:     /// assert_eq!((3..).end_bound(), Unbounded);\n   848:     /// assert_eq!((3..10).end_bound(), Excluded(&10));",
+    "span": {
+      "begin": [
+        803,
+        5
+      ],
+      "end": [
+        812,
+        6
+      ],
+      "filename": "core/src/ops/range.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn cloned(self) -> Bound<T>\n    where\n        T: [const] Clone,\n    {\n        match self {\n            Bound::Unbounded => Bound::Unbounded,\n            Bound::Included(x) => Bound::Included(x.clone()),\n            Bound::Excluded(x) => Bound::Excluded(x.clone()),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's external Clone trait specification correctly models each T::clone call through cloned/call_ensures."
+  ],
+  "rationale": "The exact enum match and one clone operation per bounded arm are preserved; ghost assertions expose the element clone relation.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ops__Bound__cloned__217ff8b0bca9"
+}

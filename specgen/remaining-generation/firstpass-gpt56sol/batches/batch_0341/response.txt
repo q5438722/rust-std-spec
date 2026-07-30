@@ -1,0 +1,263 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::as_ptr_range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source derives both endpoints from the slice data pointer, but vstd cannot tie a slice's value view or reference identity to that raw pointer. Endpoint-address facts alone would not identify this slice's range.",
+      "risks": [
+        "missing slice-reference-to-pointer abstraction",
+        "raw-pointer provenance and equality"
+      ]
+    },
+    {
+      "target": "core::slice::assume_init_drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation calls drop_in_place for every initialized T. Current vstd can express initialization, but not arbitrary destructor effects, unwinding, or a sound post-drop memory state.",
+      "risks": [
+        "unmodeled destructor effects",
+        "unmodeled post-drop state",
+        "possible unwinding"
+      ]
+    },
+    {
+      "target": "core::slice::assume_init_ref",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[MaybeUninit<T>]>::assume_init_ref ](\n    slice: &[MaybeUninit<T>],\n) -> (ret: &[T])\n    requires\n        forall|i: int| 0 <= i < slice@.len() ==> slice@[i].mem_contents().is_init(),\n    ensures\n        ret@.len() == slice@.len(),\n        forall|i: int| 0 <= i < slice@.len() ==> ret@[i] == slice@[i].mem_contents().value(),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> slice@[i].mem_contents().is_init()"
+      ],
+      "ensures": [
+        "ret@.len() == slice@.len()",
+        "forall|i: int| 0 <= i < slice@.len() ==> ret@[i] == slice@[i].mem_contents().value()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::mem::MaybeUninit;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source casts a fully initialized MaybeUninit slice to &[T]; vstd's mem_contents and slice views express both the safety condition and returned element values.",
+      "risks": [
+        "reference identity and aliasing are intentionally not modeled"
+      ]
+    },
+    {
+      "target": "core::slice::from_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source dereferences a caller-supplied raw slice pointer. Address and provenance alone cannot establish a live, aligned, initialized contiguous allocation; vstd requires PointsTo-style permissions absent from the exact signature.",
+      "risks": [
+        "missing contiguous-allocation permission",
+        "raw-pointer validity and initialized contents",
+        "reference lifetime and aliasing"
+      ]
+    },
+    {
+      "target": "core::slice::get_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, I>[ <[T]>::get_unchecked::<I> ](\n    slice: &[T],\n    index: I,\n) -> (output: &<I as SliceIndex<[T]>>::Output)\n    where I: SliceIndex<[T]>\n    requires\n        index.index_req(slice),\n    ensures\n        call_ensures(<I as SliceIndex<[T]>>::index, (index, slice), output),\n;",
+      "requires": [
+        "index.index_req(slice)"
+      ],
+      "ensures": [
+        "call_ensures(<I as SliceIndex<[T]>>::index, (index, slice), output)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::slice::SliceIndex;",
+        "use vstd::prelude::*;",
+        "use vstd::slice::SliceIndexSpec;"
+      ],
+      "useful": true,
+      "rationale": "SliceIndexSpec::index_req captures the unchecked-index safety condition, while the existing checked-index call_ensures relation characterizes the returned element or subslice.",
+      "risks": [
+        "precision depends on the SliceIndex implementation's trusted contract",
+        "reference identity is not modeled"
+      ]
+    },
+    {
+      "target": "core::slice::split_at_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[T]>::split_at_unchecked ](\n    slice: &[T],\n    mid: usize,\n) -> (ret: (&[T], &[T]))\n    requires\n        mid <= slice.len(),\n    ensures\n        ret.0@ == slice@.subrange(0, mid as int),\n        ret.1@ == slice@.subrange(mid as int, slice@.len() as int),\n;",
+      "requires": [
+        "mid <= slice.len()"
+      ],
+      "ensures": [
+        "ret.0@ == slice@.subrange(0, mid as int)",
+        "ret.1@ == slice@.subrange(mid as int, slice@.len() as int)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source explicitly requires mid within the slice and constructs prefix and suffix slices; existing Seq subrange vocabulary captures both returned views exactly.",
+      "risks": [
+        "reference identity is not modeled"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::slice::as_ptr_range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source derives both endpoints from the slice data pointer, but vstd cannot
+tie a slice's value view or reference identity to that raw pointer. Endpoint-address facts alone
+would not identify this slice's range.",
+      "risks": [
+        "missing slice-reference-to-pointer abstraction",
+        "raw-pointer provenance and equality"
+      ]
+    },
+    {
+      "target": "core::slice::assume_init_drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation calls drop_in_place for every initialized T. Current vstd can
+ express initialization, but not arbitrary destructor effects, unwinding, or a sound post-drop
+memory state.",
+      "risks": [
+        "unmodeled destructor effects",
+        "unmodeled post-drop state",
+        "possible unwinding"
+      ]
+    },
+    {
+      "target": "core::slice::assume_init_ref",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[MaybeUninit<T>]>::assume_init_ref ](\n
+slice: &[MaybeUninit<T>],\n) -> (ret: &[T])\n    requires\n        forall|i: int| 0 <= i <
+slice@.len() ==> slice@[i].mem_contents().is_init(),\n    ensures\n        ret@.len() ==
+slice@.len(),\n        forall|i: int| 0 <= i < slice@.len() ==> ret@[i] ==
+slice@[i].mem_contents().value(),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> slice@[i].mem_contents().is_init()"
+      ],
+      "ensures": [
+        "ret@.len() == slice@.len()",
+        "forall|i: int| 0 <= i < slice@.len() ==> ret@[i] == slice@[i].mem_contents().value()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::mem::MaybeUninit;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The source casts a fully initialized MaybeUninit slice to &[T]; vstd's
+mem_contents and slice views express both the safety condition and returned element values.",
+      "risks": [
+        "reference identity and aliasing are intentionally not modeled"
+      ]
+    },
+    {
+      "target": "core::slice::from_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source dereferences a caller-supplied raw slice pointer. Address and
+provenance alone cannot establish a live, aligned, initialized contiguous allocation; vstd requires
+PointsTo-style permissions absent from the exact signature.",
+      "risks": [
+        "missing contiguous-allocation permission",
+        "raw-pointer validity and initialized contents",
+        "reference lifetime and aliasing"
+      ]
+    },
+    {
+      "target": "core::slice::get_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, I>[ <[T]>::get_unchecked::<I> ](\n    slice:
+&[T],\n    index: I,\n) -> (output: &<I as SliceIndex<[T]>>::Output)\n    where I: SliceIndex<[T]>\n
+    requires\n        index.index_req(slice),\n    ensures\n        call_ensures(<I as
+SliceIndex<[T]>>::index, (index, slice), output),\n;",
+      "requires": [
+        "index.index_req(slice)"
+      ],
+      "ensures": [
+        "call_ensures(<I as SliceIndex<[T]>>::index, (index, slice), output)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::slice::SliceIndex;",
+        "use vstd::prelude::;",
+        "use vstd::slice::SliceIndexSpec;"
+      ],
+      "useful": true,
+      "rationale": "SliceIndexSpec::index_req captures the unchecked-index safety condition, while
+the existing checked-index call_ensures relation characterizes the returned element or subslice.",
+      "risks": [
+        "precision depends on the SliceIndex implementation's trusted contract",
+        "reference identity is not modeled"
+      ]
+    },
+    {
+      "target": "core::slice::split_at_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[T]>::split_at_unchecked ](\n    slice:
+&[T],\n    mid: usize,\n) -> (ret: (&[T], &[T]))\n    requires\n        mid <= slice.len(),\n
+ensures\n        ret.0@ == slice@.subrange(0, mid as int),\n        ret.1@ == slice@.subrange(mid as
+ int, slice@.len() as int),\n;",
+      "requires": [
+        "mid <= slice.len()"
+      ],
+      "ensures": [
+        "ret.0@ == slice@.subrange(0, mid as int)",
+        "ret.1@ == slice@.subrange(mid as int, slice@.len() as int)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source explicitly requires mid within the slice and constructs prefix and
+suffix slices; existing Seq subrange vocabulary captures both returned views exactly.",
+      "risks": [
+        "reference identity is not modeled"
+      ]
+    } ]
+}
+

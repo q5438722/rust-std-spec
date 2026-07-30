@@ -1,0 +1,102 @@
+{
+  "candidates": [
+    {
+      "target": "std::os::unix::net::UnixStream::connect_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on kernel socket creation, address validity, and external listener state; vstd has no public model relating SocketAddr to a connected UnixStream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::local_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result comes from getsockname and reflects kernel-maintained socket state, which is not observable through an existing public vstd abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_address_model"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::pair",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee is that the returned sockets are connected, but vstd provides no public relation for UnixStream endpoints or their kernel-managed connection state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_connected_endpoint_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::peer_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is obtained through getpeername from kernel-maintained connection state, with no public vstd model linking a UnixStream to its peer address.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_address_model"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::read_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The timeout is read from the socket's hidden SO_RCVTIMEO kernel option; no public vstd state model relates the stream to that option.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_option_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::set_nonblocking",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This mutates a kernel file-status flag through shared-reference interior state; vstd has no public UnixStream state model in which to express the successful update.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_interior_mutation",
+        "missing_socket_flag_abstraction"
+      ]
+    }
+  ]
+}
+

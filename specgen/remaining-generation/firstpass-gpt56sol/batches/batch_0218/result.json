@@ -1,0 +1,111 @@
+{
+  "batch": 218,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 26352,
+  "targets": [
+    "std::os::unix::net::UnixDatagram::send_to_addr",
+    "std::os::unix::net::UnixDatagram::set_nonblocking",
+    "std::os::unix::net::UnixDatagram::set_read_timeout",
+    "std::os::unix::net::UnixDatagram::set_write_timeout",
+    "std::os::unix::net::UnixDatagram::shutdown",
+    "std::os::unix::net::UnixDatagram::take_error"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::unix::net::UnixDatagram::send_to_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is determined by sendto and external socket, address, and OS state; the source provides no useful result relation expressible in current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::set_nonblocking",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the resulting nonblocking mode concern hidden OS socket state, for which current vstd has no public abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::set_read_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation updates an OS socket option through hidden state. Modeling its effect or platform-dependent failure requires a socket-state abstraction absent from current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::set_write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation updates an OS socket option through hidden state. Modeling its effect or platform-dependent failure requires a socket-state abstraction absent from current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::shutdown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Shutdown changes externally maintained socket state and affects future I/O; neither that state transition nor its failures are representable in current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::take_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned SO_ERROR value and its removal are entirely determined by hidden kernel socket state, with no corresponding current-vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_error_state_abstraction"
+      ]
+    }
+  ]
+}

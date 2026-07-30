@@ -1,0 +1,110 @@
+{
+  "batch": 180,
+  "group": "retry_suitable_skip",
+  "duration_ms": 364224,
+  "targets": [
+    "core::mem::needs_drop",
+    "core::mem::take",
+    "core::result::Result::unwrap_or_default",
+    "core::slice::clone_from_slice",
+    "core::slice::element_offset",
+    "core::slice::fill"
+  ],
+  "candidates": [
+    {
+      "target": "core::mem::needs_drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Vstd has no public type-level predicate modeling compiler drop glue, so the intrinsic's Boolean result cannot be usefully related to T.",
+      "risks": [
+        "missing drop-glue abstraction"
+      ]
+    },
+    {
+      "target": "core::mem::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned old value is expressible, but the observable destination post-state is known only through the potentially non-functional T::default.ensures relation. Requiring uniqueness would impose an unjustified domain restriction.",
+      "risks": [
+        "non-functional Default specification",
+        "underdetermined mutable post-state"
+      ]
+    },
+    {
+      "target": "core::result::Result::unwrap_or_default",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Ok branch is precise, but the Err result is expressible only through the potentially non-functional T::default.ensures relation; no source-justified deterministic contract covers both branches.",
+      "risks": [
+        "non-functional Default specification",
+        "underdetermined Err result"
+      ]
+    },
+    {
+      "target": "core::slice::clone_from_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "For arbitrary T: Clone, vstd can state only the relational cloned postcondition. It provides no law making independently admissible clone results equal, and adding such a requirement would be unjustified.",
+      "risks": [
+        "non-functional Clone specification",
+        "underdetermined destination elements"
+      ]
+    },
+    {
+      "target": "core::slice::element_offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on reference location, pointer addresses, alignment, and provenance, which semantic slice and reference views cannot express or distinguish.",
+      "risks": [
+        "missing reference-identity abstraction",
+        "missing pointer provenance relation"
+      ]
+    },
+    {
+      "target": "core::slice::fill",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must describe the exact &mut [T] post-state, but current contract checking materializes it as unsized by-value [T], which cannot typecheck without a new post-state representation.",
+      "risks": [
+        "unsupported unsized mutable-slice state",
+        "non-functional Clone specification"
+      ]
+    }
+  ]
+}

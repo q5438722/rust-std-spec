@@ -1,0 +1,124 @@
+{
+  "id": "std_specs__net.rs__L631__SocketAddr__set_ip",
+  "api_path": "core::net::SocketAddr::set_ip",
+  "raw_target": "SocketAddr::set_ip",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 631,
+  "rust_declaration": {
+    "declaration_id": "core:27912",
+    "name": "set_ip",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 9, patch: 0 })},\nfeature: \"sockaddr_setters\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_sockaddr_setters\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/socket_addr.rs",
+      "begin": [
+        214,
+        5
+      ],
+      "end": [
+        221,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "new_ip",
+          {
+            "resolved_path": {
+              "path": "IpAddr",
+              "id": 9943,
+              "args": null
+            }
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27917",
+      "for": {
+        "resolved_path": {
+          "path": "SocketAddr",
+          "id": 9958,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9958",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "socket_addr",
+        "SocketAddr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "   194:         match *self {\n   195:             SocketAddr::V4(ref a) => IpAddr::V4(*a.ip()),\n   196:             SocketAddr::V6(ref a) => IpAddr::V6(*a.ip()),\n   197:         }\n   198:     }\n   199: \n   200:     /// Changes the IP address associated with this socket address.\n   201:     ///\n   202:     /// # Examples\n   203:     ///\n   204:     /// ```\n   205:     /// use std::net::{IpAddr, Ipv4Addr, SocketAddr};\n   206:     ///\n   207:     /// let mut socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);\n   208:     /// socket.set_ip(IpAddr::V4(Ipv4Addr::new(10, 10, 0, 1)));\n   209:     /// assert_eq!(socket.ip(), IpAddr::V4(Ipv4Addr::new(10, 10, 0, 1)));\n   210:     /// ```\n   211:     #[inline]\n   212:     #[stable(feature = \"sockaddr_setters\", since = \"1.9.0\")]\n   213:     #[rustc_const_stable(feature = \"const_sockaddr_setters\", since = \"1.87.0\")]\n   214:     pub const fn set_ip(&mut self, new_ip: IpAddr) {\n   215:         // `match (*self, new_ip)` would have us mutate a copy of self only to throw it away.\n   216:         match (self, new_ip) {\n   217:             (&mut SocketAddr::V4(ref mut a), IpAddr::V4(new_ip)) => a.set_ip(new_ip),\n   218:             (&mut SocketAddr::V6(ref mut a), IpAddr::V6(new_ip)) => a.set_ip(new_ip),\n   219:             (self_, new_ip) => *self_ = Self::new(new_ip, self_.port()),\n   220:         }\n   221:     }\n   222: \n   223:     /// Returns the port number associated with this socket address.\n   224:     ///\n   225:     /// # Examples\n   226:     ///\n   227:     /// ```\n   228:     /// use std::net::{IpAddr, Ipv4Addr, SocketAddr};\n   229:     ///\n   230:     /// let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);\n   231:     /// assert_eq!(socket.port(), 8080);\n   232:     /// ```\n   233:     #[must_use]\n   234:     #[stable(feature = \"rust1\", since = \"1.0.0\")]",
+    "source_text": "pub const fn set_ip(&mut self, new_ip: IpAddr) {\n        // `match (*self, new_ip)` would have us mutate a copy of self only to throw it away.\n        match (self, new_ip) {\n            (&mut SocketAddr::V4(ref mut a), IpAddr::V4(new_ip)) => a.set_ip(new_ip),\n            (&mut SocketAddr::V6(ref mut a), IpAddr::V6(new_ip)) => a.set_ip(new_ip),\n            (self_, new_ip) => *self_ = Self::new(new_ip, self_.port()),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd assumed specification for SocketAddrV4::set_ip",
+    "vstd assumed specification for SocketAddrV6::set_ip",
+    "vstd assumed specification for SocketAddr::new",
+    "vstd assumed specification for SocketAddr::port"
+  ],
+  "rationale": "Preserves the source's three-arm match and exact smaller operations. Rust match ergonomics desugar the unsupported explicit ref-mut patterns without changing control flow.",
+  "run_target_dir": "source-verification/fidelity-retry/runs/full-gpt56sol/targets/std_specs__net.rs__L631__SocketAddr__set_ip",
+  "fidelity_retry": {
+    "accepted": true,
+    "audit_reason": "The proof uses match ergonomics instead of explicit &mut/ref mut patterns but preserves the same three arms, same-family setters, and cross-family Self::new(new_ip, port()) assignment. Those called methods are smaller acyclic std contracts.",
+    "source_run": "/home/chentianyu/nanvix-rust-std-spec-survey/source-verification/fidelity-retry/proved-apis/std_specs__net.rs__L631__SocketAddr__set_ip"
+  }
+}

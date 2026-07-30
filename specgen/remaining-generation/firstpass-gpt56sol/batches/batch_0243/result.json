@@ -1,0 +1,117 @@
+{
+  "batch": 243,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 39430,
+  "targets": [
+    "std::sync::RwLock::get_mut",
+    "std::sync::RwLock::into_inner",
+    "std::sync::RwLock::is_poisoned",
+    "std::sync::RwLock::new",
+    "std::sync::RwLock::read",
+    "std::sync::RwLock::try_read"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::RwLock::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable reference comes from hidden UnsafeCell data and is wrapped according to the hidden poison flag. vstd has no public RwLock content/poison model with which to relate the reference to self.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_model"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains the hidden data and its Ok/Err variant depends on the hidden poison flag. Without an RwLock content and poison abstraction, no useful relation to the consumed self is expressible.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_lock_content_model"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::is_poisoned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result directly observes a hidden poison flag that can be affected by concurrent writer panics. Current public vstd vocabulary cannot name that state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_poison_state_model"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Construction stores t in an UnsafeCell and initializes hidden runtime-lock and poison state. Without a public RwLock view, neither the contained value nor initialization state can be stated usefully.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_lock_content_model"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::read",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The call blocks on runtime lock state and returns a guard or poison error. vstd lacks a public model connecting RwLock guards, protected data, poisoning, and lock ownership.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_guard_and_lock_invariant_model"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::try_read",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, poisoning, or WouldBlock depends on hidden contention and poison state, and the returned guard has no public vstd relation to protected data.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_guard_and_contention_model"
+      ]
+    }
+  ]
+}

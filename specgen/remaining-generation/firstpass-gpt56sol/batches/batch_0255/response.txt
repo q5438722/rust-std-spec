@@ -1,0 +1,248 @@
+{
+  "candidates": [
+    {
+      "target": "std::thread::LocalKey::with_borrow",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The callback receives a value from hidden thread-local and RefCell borrow state. Current vstd cannot relate that value to LocalKey or express the documented initialization, borrow, and destructor-state panic conditions.",
+      "risks": [
+        "unmodeled thread-local state",
+        "hidden RefCell borrow state",
+        "lazy initialization and destructor-state panics"
+      ]
+    },
+    {
+      "target": "std::thread::LocalKey::with_borrow_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the callback's mutable-reference post-state to hidden per-thread storage and model RefCell borrow validity. No such LocalKey state abstraction exists in current vstd.",
+      "risks": [
+        "unmodeled thread-local mutation",
+        "hidden RefCell borrow state",
+        "mutable-reference framing",
+        "documented runtime panics"
+      ]
+    },
+    {
+      "target": "std::thread::Result::and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U>[ Result::<T, E>::and ](\n    result: Result<T, E>,\n    res: Result<U, E>,\n) -> (out: Result<U, E>)\n    ensures\n        result is Ok ==> out == res,\n        result is Err ==> out == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> out == res",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The resolved owner and supplied body are core Result, not thread-local state. The body gives a complete structural relation expressible with vstd Result variants.",
+      "risks": [
+        "destructor effects and unwinding are intentionally unconstrained"
+      ]
+    },
+    {
+      "target": "std::thread::Result::and_then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> Result<U, E>>[\n    Result::<T, E>::and_then\n](\n    result: Result<T, E>,\n    op: F,\n) -> (out: Result<U, E>)\n    requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> op.ensures((result->Ok_0,), out),\n        result is Err ==> out == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> op.ensures((result->Ok_0,), out)",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The supplied implementation is a structural Result combinator. Existing vstd FnOnce requires/ensures vocabulary precisely models conditional invocation of op.",
+      "risks": [
+        "depends on the callback's trusted contract",
+        "callback and destructor unwinding are unconstrained"
+      ]
+    },
+    {
+      "target": "std::thread::Result::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Result variant preservation alone is too weak; describing the Ok reference requires a generic relational specification for Deref::deref. Current vstd exposes Deref but provides no universal target view or identity relation.",
+      "risks": [
+        "missing generic Deref target abstraction",
+        "reference identity versus value-view ambiguity"
+      ]
+    },
+    {
+      "target": "std::thread::Result::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract must connect old(self), final(self), and final returned target through generic DerefMut. Current vstd lacks that abstraction and cannot state the necessary mutable-reference framing generically.",
+      "risks": [
+        "unsupported generic mutable-reference return framing",
+        "missing DerefMut target-state relation",
+        "aliasing and post-state coupling"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std:🧵:LocalKey::with_borrow",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The callback receives a value from hidden thread-local and RefCell borrow state.
+ Current vstd cannot relate that value to LocalKey or express the documented initialization, borrow,
+ and destructor-state panic conditions.",
+      "risks": [
+        "unmodeled thread-local state",
+        "hidden RefCell borrow state",
+        "lazy initialization and destructor-state panics"
+      ]
+    },
+    {
+      "target": "std:🧵:LocalKey::with_borrow_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the callback's mutable-reference post-state to
+hidden per-thread storage and model RefCell borrow validity. No such LocalKey state abstraction
+exists in current vstd.",
+      "risks": [
+        "unmodeled thread-local mutation",
+        "hidden RefCell borrow state",
+        "mutable-reference framing",
+        "documented runtime panics"
+      ]
+    },
+    {
+      "target": "std:🧵:Result::and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U>[ Result::<T, E>::and ](\n    result:
+Result<T, E>,\n    res: Result<U, E>,\n) -> (out: Result<U, E>)\n    ensures\n        result is Ok
+==> out == res,\n        result is Err ==> out == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> out == res",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The resolved owner and supplied body are core Result, not thread-local state.
+The body gives a complete structural relation expressible with vstd Result variants.",
+      "risks": [
+        "destructor effects and unwinding are intentionally unconstrained"
+      ]
+    },
+    {
+      "target": "std:🧵:Result::and_then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> Result<U, E>>[\n
+Result::<T, E>::and_then\n](\n    result: Result<T, E>,\n    op: F,\n) -> (out: Result<U, E>)\n
+requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok
+==> op.ensures((result->Ok_0,), out),\n        result is Err ==> out == Result::<U,
+E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> op.ensures((result->Ok_0,), out)",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The supplied implementation is a structural Result combinator. Existing vstd
+FnOnce requires/ensures vocabulary precisely models conditional invocation of op.",
+      "risks": [
+        "depends on the callback's trusted contract",
+        "callback and destructor unwinding are unconstrained"
+      ]
+    },
+    {
+      "target": "std:🧵:Result::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Result variant preservation alone is too weak; describing the Ok reference
+requires a generic relational specification for Deref::deref. Current vstd exposes Deref but
+provides no universal target view or identity relation.",
+      "risks": [
+        "missing generic Deref target abstraction",
+        "reference identity versus value-view ambiguity"
+      ]
+    },
+    {
+      "target": "std:🧵:Result::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract must connect old(self), final(self), and final returned
+target through generic DerefMut. Current vstd lacks that abstraction and cannot state the necessary
+mutable-reference framing generically.",
+      "risks": [
+        "unsupported generic mutable-reference return framing",
+        "missing DerefMut target-state relation",
+        "aliasing and post-state coupling"
+      ]
+    } ]
+}
+

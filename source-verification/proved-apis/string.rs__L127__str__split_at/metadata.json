@@ -1,0 +1,127 @@
+{
+  "id": "string.rs__L127__str__split_at",
+  "api_path": "core::str::split_at",
+  "raw_target": "str::split_at",
+  "contract_source_file": "string.rs",
+  "contract_source_line": 127,
+  "rust_declaration": {
+    "declaration_id": "core:51903",
+    "name": "split_at",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 4, patch: 0 })},\nfeature: \"str_split_at\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 86, patch: 0 })},\nfeature: \"const_str_split_at\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/str/mod.rs",
+      "begin": [
+        843,
+        5
+      ],
+      "end": [
+        848,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "mid",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "tuple": [
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "primitive": "str"
+              }
+            }
+          },
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "primitive": "str"
+              }
+            }
+          }
+        ]
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:51935",
+      "for": {
+        "primitive": "str"
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": null,
+      "resolved_owner_path": null
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   823:     /// # Panics\n   824:     ///\n   825:     /// Panics if `mid` is not on a UTF-8 code point boundary, or if it is past\n   826:     /// the end of the last code point of the string slice.  For a non-panicking\n   827:     /// alternative see [`split_at_checked`](str::split_at_checked).\n   828:     ///\n   829:     /// # Examples\n   830:     ///\n   831:     /// ```\n   832:     /// let s = \"Per Martin-L\u00f6f\";\n   833:     ///\n   834:     /// let (first, last) = s.split_at(3);\n   835:     ///\n   836:     /// assert_eq!(\"Per\", first);\n   837:     /// assert_eq!(\" Martin-L\u00f6f\", last);\n   838:     /// ```\n   839:     #[inline]\n   840:     #[must_use]\n   841:     #[stable(feature = \"str_split_at\", since = \"1.4.0\")]\n   842:     #[rustc_const_stable(feature = \"const_str_split_at\", since = \"1.86.0\")]\n   843:     pub const fn split_at(&self, mid: usize) -> (&str, &str) {\n   844:         match self.split_at_checked(mid) {\n   845:             None => slice_error_fail(self, 0, mid),\n   846:             Some(pair) => pair,\n   847:         }\n   848:     }\n   849: \n   850:     /// Divides one mutable string slice into two at an index.\n   851:     ///\n   852:     /// The argument, `mid`, should be a byte offset from the start of the\n   853:     /// string. It must also be on the boundary of a UTF-8 code point.\n   854:     ///\n   855:     /// The two slices returned go from the start of the string slice to `mid`,\n   856:     /// and from `mid` to the end of the string slice.\n   857:     ///\n   858:     /// To get immutable string slices instead, see the [`split_at`] method.\n   859:     ///\n   860:     /// [`split_at`]: str::split_at\n   861:     ///\n   862:     /// # Panics\n   863:     ///",
+    "source_text": "pub const fn split_at(&self, mid: usize) -> (&str, &str) {\n        match self.split_at_checked(mid) {\n            None => slice_error_fail(self, 0, mid),\n            Some(pair) => pair,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller `str::split_at_checked` specification correctly relates its option result to UTF-8 boundary validity and the returned byte subranges."
+  ],
+  "rationale": "The source match is preserved. The boundary precondition makes the panic branch unreachable, while the checked API contract proves both returned subranges.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/string.rs__L127__str__split_at"
+}

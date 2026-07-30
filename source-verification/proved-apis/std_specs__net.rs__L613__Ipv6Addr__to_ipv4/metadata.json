@@ -1,0 +1,132 @@
+{
+  "id": "std_specs__net.rs__L613__Ipv6Addr__to_ipv4",
+  "api_path": "core::net::Ipv6Addr::to_ipv4",
+  "raw_target": "Ipv6Addr::to_ipv4",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 613,
+  "rust_declaration": {
+    "declaration_id": "core:27819",
+    "name": "to_ipv4",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 50, patch: 0 })},\nfeature: \"const_ip_50\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": "this returns the result of the operation, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/ip_addr.rs",
+      "begin": [
+        2037,
+        5
+      ],
+      "end": [
+        2045,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "Ipv4Addr",
+                      "id": 9946,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27837",
+      "for": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9949",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "ip_addr",
+        "Ipv6Addr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  2017:     /// [IPv4-mapped]: Ipv6Addr#ipv4-mapped-ipv6-addresses\n  2018:     /// [IETF RFC 4291 section 2.5.5.1]: https://tools.ietf.org/html/rfc4291#section-2.5.5.1\n  2019:     /// [IETF RFC 4291 section 2.5.5.2]: https://tools.ietf.org/html/rfc4291#section-2.5.5.2\n  2020:     ///\n  2021:     /// # Examples\n  2022:     ///\n  2023:     /// ```\n  2024:     /// use std::net::{Ipv4Addr, Ipv6Addr};\n  2025:     ///\n  2026:     /// assert_eq!(Ipv6Addr::new(0xff00, 0, 0, 0, 0, 0, 0, 0).to_ipv4(), None);\n  2027:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff).to_ipv4(),\n  2028:     ///            Some(Ipv4Addr::new(192, 10, 2, 255)));\n  2029:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1).to_ipv4(),\n  2030:     ///            Some(Ipv4Addr::new(0, 0, 0, 1)));\n  2031:     /// ```\n  2032:     #[rustc_const_stable(feature = \"const_ip_50\", since = \"1.50.0\")]\n  2033:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2034:     #[must_use = \"this returns the result of the operation, \\\n  2035:                   without modifying the original\"]\n  2036:     #[inline]\n  2037:     pub const fn to_ipv4(&self) -> Option<Ipv4Addr> {\n  2038:         if let [0, 0, 0, 0, 0, 0 | 0xffff, ab, cd] = self.segments() {\n  2039:             let [a, b] = ab.to_be_bytes();\n  2040:             let [c, d] = cd.to_be_bytes();\n  2041:             Some(Ipv4Addr::new(a, b, c, d))\n  2042:         } else {\n  2043:             None\n  2044:         }\n  2045:     }\n  2046: \n  2047:     /// Converts this address to an `IpAddr::V4` if it is an IPv4-mapped address,\n  2048:     /// otherwise returns self wrapped in an `IpAddr::V6`.\n  2049:     ///\n  2050:     /// # Examples\n  2051:     ///\n  2052:     /// ```\n  2053:     /// use std::net::Ipv6Addr;\n  2054:     ///\n  2055:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0x7f00, 0x1).is_loopback(), false);\n  2056:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0x7f00, 0x1).to_canonical().is_loopback(), true);\n  2057:     /// ```",
+    "source_text": "pub const fn to_ipv4(&self) -> Option<Ipv4Addr> {\n        if let [0, 0, 0, 0, 0, 0 | 0xffff, ab, cd] = self.segments() {\n            let [a, b] = ab.to_be_bytes();\n            let [c, d] = cd.to_be_bytes();\n            Some(Ipv4Addr::new(a, b, c, d))\n        } else {\n            None\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd Ipv6Addr::segments contract: each returned u16 is the big-endian pair of the corresponding address-view bytes",
+    "vstd Ipv4Addr::new contract: the constructed address view is the four supplied octets",
+    "vstd axiom_ipv6_view_len: every Ipv6Addr view has length 16"
+  ],
+  "rationale": "The slice/or pattern and u16::to_be_bytes calls are source-faithfully desugared; the copied control flow proves both postconditions from smaller net contracts.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__net.rs__L613__Ipv6Addr__to_ipv4"
+}

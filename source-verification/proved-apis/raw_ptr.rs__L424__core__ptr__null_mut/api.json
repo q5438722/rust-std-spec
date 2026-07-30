@@ -1,0 +1,113 @@
+{
+  "id": "raw_ptr.rs__L424__core__ptr__null_mut",
+  "api_path": "core::ptr::null_mut",
+  "normalized_api_path": "core::ptr::null_mut",
+  "raw_target": "core::ptr::null_mut",
+  "contract_source_file": "raw_ptr.rs",
+  "contract_source_line": 424,
+  "rust_declaration": {
+    "declaration_id": "core:9605",
+    "name": "null_mut",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 24, patch: 0 })},\nfeature: \"const_ptr_null\", promotable: true}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"ptr_null_mut\")]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/ptr/mod.rs",
+      "begin": [
+        867,
+        1
+      ],
+      "end": [
+        869,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [],
+      "output": {
+        "raw_pointer": {
+          "is_mutable": true,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "T",
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "PointeeSized",
+                      "id": 7872,
+                      "args": null
+                    },
+                    "generic_params": [],
+                    "modifier": "none"
+                  }
+                },
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "Thin",
+                      "id": 9433,
+                      "args": null
+                    },
+                    "generic_params": [],
+                    "modifier": "none"
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": true,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   847: ///\n   848: /// This function is equivalent to zero-initializing the pointer:\n   849: /// `MaybeUninit::<*mut T>::zeroed().assume_init()`.\n   850: /// The resulting pointer has the address 0.\n   851: ///\n   852: /// # Examples\n   853: ///\n   854: /// ```\n   855: /// use std::ptr;\n   856: ///\n   857: /// let p: *mut i32 = ptr::null_mut();\n   858: /// assert!(p.is_null());\n   859: /// assert_eq!(p as usize, 0); // this pointer has the address 0\n   860: /// ```\n   861: #[inline(always)]\n   862: #[must_use]\n   863: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   864: #[rustc_promotable]\n   865: #[rustc_const_stable(feature = \"const_ptr_null\", since = \"1.24.0\")]\n   866: #[rustc_diagnostic_item = \"ptr_null_mut\"]\n   867: pub const fn null_mut<T: PointeeSized + Thin>() -> *mut T {\n   868:     from_raw_parts_mut(without_provenance_mut::<()>(0), ())\n   869: }\n   870: \n   871: /// Creates a pointer with the given address and no [provenance][crate::ptr#provenance].\n   872: ///\n   873: /// This is equivalent to `ptr::null().with_addr(addr)`.\n   874: ///\n   875: /// Without provenance, this pointer is not associated with any actual allocation. Such a\n   876: /// no-provenance pointer may be used for zero-sized memory accesses (if suitably aligned), but\n   877: /// non-zero-sized memory accesses with a no-provenance pointer are UB. No-provenance pointers are\n   878: /// little more than a `usize` address in disguise.\n   879: ///\n   880: /// This is different from `addr as *const T`, which creates a pointer that picks up a previously\n   881: /// exposed provenance. See [`with_exposed_provenance`] for more details on that operation.\n   882: ///\n   883: /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.\n   884: #[inline(always)]\n   885: #[must_use]\n   886: #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   887: #[rustc_const_stable(feature = \"strict_provenance\", since = \"1.84.0\")]",
+    "source_text": "pub const fn null_mut<T: PointeeSized + Thin>() -> *mut T {\n    from_raw_parts_mut(without_provenance_mut::<()>(0), ())\n}",
+    "has_body": true
+  }
+}

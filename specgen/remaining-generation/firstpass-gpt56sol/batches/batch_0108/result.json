@@ -1,0 +1,117 @@
+{
+  "batch": 108,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 421173,
+  "targets": [
+    "alloc::ffi::CString::as_bytes",
+    "alloc::ffi::CString::as_bytes_with_nul",
+    "alloc::ffi::CString::as_c_str",
+    "alloc::ffi::CString::from_vec_with_nul",
+    "alloc::ffi::CString::into_boxed_c_str",
+    "alloc::ffi::CString::into_bytes"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::ffi::CString::as_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns the hidden buffer without its terminator, but current vstd has no external type or contents abstraction for CString, so even a partial method specification requires new vstd support.",
+      "risks": [
+        "missing_CString_external_type_specification",
+        "missing_CString_contents_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::as_bytes_with_nul",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned slice is the hidden nul-terminated buffer, but CString is unsupported and has no public vstd contents view relating that buffer to self.",
+      "risks": [
+        "missing_CString_external_type_specification",
+        "missing_CString_contents_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::as_c_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source creates a CStr view over CString's complete buffer, but current vstd models neither CString nor CStr contents or their shared reference identity.",
+      "risks": [
+        "missing_CString_external_type_specification",
+        "missing_CStr_external_type_specification",
+        "missing_FFI_string_contents_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::from_vec_with_nul",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source gives an exact acceptance condition over the Vec, the Result contains unsupported CString and FromVecWithNulError types; specifying it requires new external type abstractions.",
+      "risks": [
+        "missing_CString_external_type_specification",
+        "missing_FromVecWithNulError_external_type_specification",
+        "missing_error_payload_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::into_boxed_c_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The conversion preserves CString's hidden allocation as a boxed CStr, but neither FFI string type has a current vstd contents or external-type abstraction.",
+      "risks": [
+        "missing_CString_external_type_specification",
+        "missing_CStr_external_type_specification",
+        "missing_boxed_CStr_contents_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::into_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source removes the trailing nul and returns the remaining bytes, but CString itself is unsupported by current vstd; relating the Vec to the consumed value requires a new CString abstraction.",
+      "risks": [
+        "missing_CString_external_type_specification",
+        "missing_CString_contents_abstraction"
+      ]
+    }
+  ]
+}

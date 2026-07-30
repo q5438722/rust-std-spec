@@ -1,0 +1,302 @@
+I’m checking the surrounding generated-contract conventions and available Result vocabulary before classifying these mislabeled formatting targets.
+
+The neighboring batch confirms these are alias-reached `core::result::Result` methods, so I’m using structural Result contracts where the source exposes one and callable contracts only where vstd already supports `FnOnce::requires/ensures`.The neighboring batch confirms these are alias-reached core::result::Result methods, so I’m using
+structural Result contracts where the source exposes one and callable contracts only where vstd
+already supports FnOnce::requires/ensures.
+
+{
+  "candidates": [
+    {
+      "target": "core::fmt::Result::ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::ok ](\n    result: Result<T, E>,\n) -> (opt: Option<T>)\n    ensures\n        result is Ok ==> opt == Option::Some(result->Ok_0),\n        result is Err ==> opt == Option::None,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> opt == Option::Some(result->Ok_0)",
+        "result is Err ==> opt == Option::None"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The metadata resolves the fmt alias to core::result::Result, and the source gives an exact structural mapping without formatting state.",
+      "risks": [
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F>[ Result::<T, E>::or ](\n    result: Result<T, E>,\n    res: Result<T, F>,\n) -> (out: Result<T, F>)\n    ensures\n        result is Ok ==> out == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> out == res,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> out == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> out == res"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The resolved Result implementation returns its Ok payload or the supplied fallback exactly.",
+      "risks": [
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> Result<T, F>>[ Result::<T, E>::or_else ](\n    result: Result<T, E>,\n    op: O,\n) -> (out: Result<T, F>)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> out == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), out),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> out == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), out)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The conditional closure call is expressible using vstd's FnOnce requires/ensures vocabulary.",
+      "risks": [
+        "Err-branch precision depends on the supplied closure contract.",
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::transpose",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<Option<T>, E>::transpose ](\n    result: Result<Option<T>, E>,\n) -> (out: Option<Result<T, E>>)\n    ensures\n        out == match result {\n            Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)),\n            Result::Ok(Option::None) => Option::None,\n            Result::Err(error) => Option::Some(Result::Err(error)),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "out == match result { Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)), Result::Ok(Option::None) => Option::None, Result::Err(error) => Option::Some(Result::Err(error)), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source exhaustively specifies all three structural mappings and accesses no formatting state.",
+      "risks": [
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::unwrap",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E: core::fmt::Debug>[ Result::<T, E>::unwrap ](\n    result: Result<T, E>,\n) -> (value: T)\n    requires\n        result is Ok,\n    ensures\n        value == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "value == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Requiring Ok excludes the formatting-dependent panic branch; normal return then yields exactly the Ok payload.",
+      "risks": [
+        "The Err panic message and Debug formatting effect are intentionally unmodeled.",
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::unwrap_err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::fmt::Debug, E>[ Result::<T, E>::unwrap_err ](\n    result: Result<T, E>,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Requiring Err excludes the formatting-dependent panic branch; normal return then yields exactly the Err payload.",
+      "risks": [
+        "The Ok panic message and Debug formatting effect are intentionally unmodeled.",
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::fmt::Result::ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::ok ](\n    result: Result<T,
+ E>,\n) -> (opt: Option<T>)\n    ensures\n        result is Ok ==> opt ==
+Option::Some(result->Ok_0),\n        result is Err ==> opt == Option::None,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> opt == Option::Some(result->Ok_0)",
+        "result is Err ==> opt == Option::None"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The metadata resolves the fmt alias to core::result::Result, and the source
+gives an exact structural mapping without formatting state.",
+      "risks": [
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F>[ Result::<T, E>::or ](\n    result:
+Result<T, E>,\n    res: Result<T, F>,\n) -> (out: Result<T, F>)\n    ensures\n        result is Ok
+==> out == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> out == res,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> out == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> out == res"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The resolved Result implementation returns its Ok payload or the supplied
+fallback exactly.",
+      "risks": [
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> Result<T, F>>[ Result::<T,
+ E>::or_else ](\n    result: Result<T, E>,\n    op: O,\n) -> (out: Result<T, F>)\n    requires\n
+    result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> out ==
+Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), out),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> out == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), out)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The conditional closure call is expressible using vstd's FnOnce requires/ensures
+ vocabulary.",
+      "risks": [
+        "Err-branch precision depends on the supplied closure contract.",
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::transpose",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<Option<T>, E>::transpose ](\n
+result: Result<Option<T>, E>,\n) -> (out: Option<Result<T, E>>)\n    ensures\n        out == match
+result {\n            Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)),\n
+   Result::Ok(Option::None) => Option::None,\n            Result::Err(error) =>
+Option::Some(Result::Err(error)),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "out == match result { Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)),
+Result::Ok(Option::None) => Option::None, Result::Err(error) => Option::Some(Result::Err(error)), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source exhaustively specifies all three structural mappings and accesses no
+formatting state.",
+      "risks": [
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::unwrap",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E: core::fmt::Debug>[ Result::<T, E>::unwrap
+](\n    result: Result<T, E>,\n) -> (value: T)\n    requires\n        result is Ok,\n    ensures\n
+      value == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "value == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "Requiring Ok excludes the formatting-dependent panic branch; normal return then
+yields exactly the Ok payload.",
+      "risks": [
+        "The Err panic message and Debug formatting effect are intentionally unmodeled.",
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::unwrap_err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::fmt::Debug, E>[ Result::<T, E>::unwrap_err
+ ](\n    result: Result<T, E>,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n
+        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "Requiring Err excludes the formatting-dependent panic branch; normal return then
+ yields exactly the Err payload.",
+      "risks": [
+        "The Ok panic message and Debug formatting effect are intentionally unmodeled.",
+        "Specification registration must use the resolved core::result::Result owner."
+      ]
+    } ]
+}
+

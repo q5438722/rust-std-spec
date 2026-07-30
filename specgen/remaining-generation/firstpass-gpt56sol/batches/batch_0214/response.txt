@@ -1,0 +1,223 @@
+{
+  "candidates": [
+    {
+      "target": "std::net::UdpSocket::write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The timeout and possible error are observations of hidden, platform-dependent socket state for which vstd has no public model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_dependent_behavior",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::fd::BorrowedFd::borrow_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Descriptor identity and the unsafe requirement that the resource remain open need descriptor-liveness and AsRawFd abstractions absent from current vstd; the documented -1 panic alone is not a sufficient contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_descriptor_identity_abstraction",
+        "missing_resource_liveness_abstraction",
+        "unsafe_precondition_not_fully_expressible"
+      ]
+    },
+    {
+      "target": "std::os::fd::BorrowedFd::try_clone_to_owned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate a successful OwnedFd to the same underlying open file description, while success and allocation of a descriptor depend on OS state; vstd models neither relationship.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_description_identity_abstraction",
+        "platform_dependent_behavior"
+      ]
+    },
+    {
+      "target": "std::os::fd::OwnedFd::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The meaningful guarantee is that a successful result shares the underlying file description with self, but this OS-level identity and the runtime-dependent Result are not modeled in vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_description_identity_abstraction",
+        "shared_hidden_file_state"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::chown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and ownership change depend on permissions and external filesystem state, and vstd has no filesystem metadata model in which to express the effect.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_metadata_abstraction",
+        "permission_dependent_behavior"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::chroot",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function changes hidden process-wide filesystem resolution state and may fail based on runtime privileges; current vstd has no process-root or filesystem model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "process_global_state",
+        "missing_process_filesystem_abstraction",
+        "permission_dependent_behavior"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::net::UdpSocket::write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The timeout and possible error are observations of hidden, platform-dependent
+socket state for which vstd has no public model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_dependent_behavior",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::fd::BorrowedFd::borrow_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Descriptor identity and the unsafe requirement that the resource remain open
+need descriptor-liveness and AsRawFd abstractions absent from current vstd; the documented -1 panic
+alone is not a sufficient contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_descriptor_identity_abstraction",
+        "missing_resource_liveness_abstraction",
+        "unsafe_precondition_not_fully_expressible"
+      ]
+    },
+    {
+      "target": "std::os::fd::BorrowedFd::try_clone_to_owned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate a successful OwnedFd to the same underlying open
+file description, while success and allocation of a descriptor depend on OS state; vstd models
+neither relationship.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_description_identity_abstraction",
+        "platform_dependent_behavior"
+      ]
+    },
+    {
+      "target": "std::os::fd::OwnedFd::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The meaningful guarantee is that a successful result shares the underlying file
+description with self, but this OS-level identity and the runtime-dependent Result are not modeled
+in vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_description_identity_abstraction",
+        "shared_hidden_file_state"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::chown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and ownership change depend on permissions and external filesystem
+state, and vstd has no filesystem metadata model in which to express the effect.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_metadata_abstraction",
+        "permission_dependent_behavior"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::chroot",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function changes hidden process-wide filesystem resolution state and may
+fail based on runtime privileges; current vstd has no process-root or filesystem model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "process_global_state",
+        "missing_process_filesystem_abstraction",
+        "permission_dependent_behavior"
+      ]
+    } ]
+}
+

@@ -1,0 +1,225 @@
+{
+  "candidates": [
+    {
+      "target": "core::cell::Ref::map_split",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps the two references returned by the closure in new Ref guards. vstd has no public Ref content or borrow-token model connecting those references to the returned guards.",
+      "risks": [
+        "missing Ref logical model",
+        "closure returns borrowed projections"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::replace_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The shared receiver is modified through hidden interior state, and the operation can panic based on hidden borrow state. vstd has no RefCell content or borrow-state model with which to express either behavior.",
+      "risks": [
+        "hidden dynamic borrow state",
+        "missing RefCell interior-state model",
+        "mutable closure argument requires prophetic state"
+      ]
+    },
+    {
+      "target": "core::cell::RefMut::filter_map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the Ok guard to the closure result requires modeling a returned mutable reference and its final value; relating the Err guard requires a RefMut ownership model. Neither abstraction is available.",
+      "risks": [
+        "unsupported mutable-reference closure result",
+        "missing RefMut guard model"
+      ]
+    },
+    {
+      "target": "core::cell::RefMut::map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned RefMut is constructed from the mutable reference produced by the closure. Expressing that projection and its eventual write-back requires unsupported mutable-reference-return prophecy and a RefMut model.",
+      "risks": [
+        "unsupported mutable-reference closure result",
+        "missing RefMut write-back model"
+      ]
+    },
+    {
+      "target": "core::cell::RefMut::map_split",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure returns two mutable projections that become independently held RefMut guards. A sound contract needs prophetic write-back, guard ownership, and disjointness abstractions absent from current vstd.",
+      "risks": [
+        "unsupported mutable-reference closure results",
+        "missing RefMut split-ownership model",
+        "mutable projection disjointness"
+      ]
+    },
+    {
+      "target": "core::cmp::Ordering::then_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<F: FnOnce() -> core::cmp::Ordering>[ core::cmp::Ordering::then_with ](\n    ordering: core::cmp::Ordering,\n    f: F,\n) -> (result: core::cmp::Ordering)\n    requires\n        ordering == core::cmp::Ordering::Equal ==> f.requires(()),\n    ensures\n        ordering == core::cmp::Ordering::Equal ==> f.ensures((), result),\n        ordering != core::cmp::Ordering::Equal ==> result == ordering,\n;",
+      "requires": [
+        "ordering == core::cmp::Ordering::Equal ==> f.requires(())"
+      ],
+      "ensures": [
+        "ordering == core::cmp::Ordering::Equal ==> f.ensures((), result)",
+        "ordering != core::cmp::Ordering::Equal ==> result == ordering"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source calls the closure exactly for Equal and otherwise returns self. Existing FnOnce requires/ensures vocabulary expresses this normal-return behavior directly.",
+      "risks": [
+        "closure unwinding is outside the postcondition"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::cell::Ref::map_split",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps the two references returned by the closure in new Ref guards.
+vstd has no public Ref content or borrow-token model connecting those references to the returned
+guards.",
+      "risks": [
+        "missing Ref logical model",
+        "closure returns borrowed projections"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::replace_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The shared receiver is modified through hidden interior state, and the operation
+ can panic based on hidden borrow state. vstd has no RefCell content or borrow-state model with
+which to express either behavior.",
+      "risks": [
+        "hidden dynamic borrow state",
+        "missing RefCell interior-state model",
+        "mutable closure argument requires prophetic state"
+      ]
+    },
+    {
+      "target": "core::cell::RefMut::filter_map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the Ok guard to the closure result requires modeling a returned mutable
+ reference and its final value; relating the Err guard requires a RefMut ownership model. Neither
+abstraction is available.",
+      "risks": [
+        "unsupported mutable-reference closure result",
+        "missing RefMut guard model"
+      ]
+    },
+    {
+      "target": "core::cell::RefMut::map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned RefMut is constructed from the mutable reference produced by the
+closure. Expressing that projection and its eventual write-back requires unsupported
+mutable-reference-return prophecy and a RefMut model.",
+      "risks": [
+        "unsupported mutable-reference closure result",
+        "missing RefMut write-back model"
+      ]
+    },
+    {
+      "target": "core::cell::RefMut::map_split",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure returns two mutable projections that become independently held
+RefMut guards. A sound contract needs prophetic write-back, guard ownership, and disjointness
+abstractions absent from current vstd.",
+      "risks": [
+        "unsupported mutable-reference closure results",
+        "missing RefMut split-ownership model",
+        "mutable projection disjointness"
+      ]
+    },
+    {
+      "target": "core::cmp::Ordering::then_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<F: FnOnce() -> core::cmp::Ordering>[
+core::cmp::Ordering::then_with ](\n    ordering: core::cmp::Ordering,\n    f: F,\n) -> (result:
+core::cmp::Ordering)\n    requires\n        ordering == core::cmp::Ordering::Equal ==>
+f.requires(()),\n    ensures\n        ordering == core::cmp::Ordering::Equal ==> f.ensures((),
+result),\n        ordering != core::cmp::Ordering::Equal ==> result == ordering,\n;",
+      "requires": [
+        "ordering == core::cmp::Ordering::Equal ==> f.requires(())"
+      ],
+      "ensures": [
+        "ordering == core::cmp::Ordering::Equal ==> f.ensures((), result)",
+        "ordering != core::cmp::Ordering::Equal ==> result == ordering"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source calls the closure exactly for Equal and otherwise returns self.
+Existing FnOnce requires/ensures vocabulary expresses this normal-return behavior directly.",
+      "risks": [
+        "closure unwinding is outside the postcondition"
+      ]
+    } ]
+}
+

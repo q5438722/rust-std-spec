@@ -1,0 +1,117 @@
+{
+  "batch": 206,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 161126,
+  "targets": [
+    "std::net::TcpListener::ttl",
+    "std::net::TcpStream::connect",
+    "std::net::TcpStream::connect_timeout",
+    "std::net::TcpStream::local_addr",
+    "std::net::TcpStream::nodelay",
+    "std::net::TcpStream::peek"
+  ],
+  "candidates": [
+    {
+      "target": "std::net::TcpListener::ttl",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The value comes from hidden OS socket state. Relating it to prior set_ttl calls requires a socket-option model absent from vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_option_model"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::connect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Address resolution and connection outcomes depend on DNS, OS, and network state, with no public vstd connection abstraction relating the input to a returned stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "dns_and_network_nondeterminism",
+        "missing_connection_model"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::connect_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Connection and timeout outcomes depend on OS timing and network state. Current vstd lacks the Duration and socket models needed even to capture the documented zero-timeout error usefully.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "timing_nondeterminism",
+        "missing_duration_and_socket_model"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::local_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned address is obtained from hidden OS socket state, and vstd provides no logical endpoint relation for TcpStream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_tcp_endpoint_model"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::nodelay",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The getter reads the hidden TCP_NODELAY socket option. A useful relation to set_nodelay requires socket-option ghost state not present in vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_option_model"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::peek",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[std::net::TcpStream::peek](\n    stream: &std::net::TcpStream,\n    buf: &mut [u8],\n) -> (result: std::io::Result<usize>)\n    ensures\n        final(buf)@.len() == old(buf)@.len(),\n        result is Ok ==> result->Ok_0 <= old(buf).len(),\n;",
+      "requires": [],
+      "ensures": [
+        "final(buf)@.len() == old(buf)@.len()",
+        "result is Ok ==> result->Ok_0 <= old(buf).len()"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The successful byte count is bounded by the supplied slice length, a useful public relation expressible with existing slice and Result vocabulary. Network-provided bytes remain unconstrained.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "payload_contents_unmodeled",
+        "peek_queue_semantics_unmodeled"
+      ]
+    }
+  ]
+}

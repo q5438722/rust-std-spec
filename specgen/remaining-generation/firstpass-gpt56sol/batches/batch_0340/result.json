@@ -1,0 +1,149 @@
+{
+  "batch": 340,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 348250,
+  "targets": [
+    "core::result::Result::unwrap_unchecked",
+    "core::slice::align_to",
+    "core::slice::as_chunks_unchecked",
+    "core::slice::as_mut_ptr",
+    "core::slice::as_mut_ptr_range",
+    "core::slice::as_ptr"
+  ],
+  "candidates": [
+    {
+      "target": "core::result::Result::unwrap_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[\n    core::result::Result::<T, E>::unwrap_unchecked\n](\n    result: core::result::Result<T, E>,\n) -> (value: T)\n    requires\n        result is Ok,\n    ensures\n        value == result->Ok_0,\n    no_unwind\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "value == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source returns the Ok payload and makes the Err branch undefined behavior.",
+      "risks": [
+        "Calling the method on Err violates its safety contract."
+      ]
+    },
+    {
+      "target": "core::slice::align_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The middle slice is a cross-type byte reinterpretation, while its prefix depends on the slice address and alignment. Current vstd lacks a generic value-to-bytes relation and reference-allocation identity.",
+      "risks": [
+        "missing_byte_representation_abstraction",
+        "alignment_dependent_partition",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::as_chunks_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, const N: usize>[\n    <[T]>::as_chunks_unchecked::<N>\n](\n    slice: &[T],\n) -> (chunks: &[[T; N]])\n    requires\n        N != 0,\n        slice@.len() % (N as nat) == 0,\n    ensures\n        chunks@.len() == slice@.len() / (N as nat),\n        slice@.len() == chunks@.len() * (N as nat),\n        forall|i: int| 0 <= i < chunks@.len() ==>\n            (#[trigger] chunks@[i])@ == slice@.subrange(\n                i * (N as int),\n                (i + 1) * (N as int),\n            ),\n    no_unwind\n;",
+      "requires": [
+        "N != 0",
+        "slice@.len() % (N as nat) == 0"
+      ],
+      "ensures": [
+        "chunks@.len() == slice@.len() / (N as nat)",
+        "slice@.len() == chunks@.len() * (N as nat)",
+        "forall|i: int| 0 <= i < chunks@.len() ==> (#[trigger] chunks@[i])@ == slice@.subrange(i * (N as int), (i + 1) * (N as int))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The preconditions exactly match the unsafe check, and array sequence views express each consecutive N-element chunk.",
+      "risks": [
+        "The contract models contents rather than returned-reference identity.",
+        "Violating either precondition is undefined behavior."
+      ]
+    },
+    {
+      "target": "core::slice::as_mut_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[T]>::as_mut_ptr ](\n    slice: &mut [T],\n) -> (ptr: *mut T)\n    ensures\n        ptr@.addr != 0,\n        ptr@.addr as nat % align_of::<T>() == 0,\n        final(slice)@ == old(slice)@,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0",
+        "ptr@.addr as nat % align_of::<T>() == 0",
+        "final(slice)@ == old(slice)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::layout::align_of;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Casting a valid mutable slice reference yields a non-null, T-aligned pointer and does not itself modify the slice.",
+      "risks": [
+        "The contract cannot relate the pointer's provenance to the slice allocation.",
+        "It provides no PointsTo permission or write-through model."
+      ]
+    },
+    {
+      "target": "core::slice::as_mut_ptr_range",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[T]>::as_mut_ptr_range ](\n    slice: &mut [T],\n) -> (range: core::ops::Range<*mut T>)\n    ensures\n        range.start@.addr != 0,\n        range.start@.addr as nat % align_of::<T>() == 0,\n        range.end@.addr as nat == range.start@.addr as nat\n            + old(slice)@.len() * size_of::<T>(),\n        range.end@.provenance == range.start@.provenance,\n        range.end@.metadata == range.start@.metadata,\n        final(slice)@ == old(slice)@,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "range.start@.addr != 0",
+        "range.start@.addr as nat % align_of::<T>() == 0",
+        "range.end@.addr as nat == range.start@.addr as nat + old(slice)@.len() * size_of::<T>()",
+        "range.end@.provenance == range.start@.provenance",
+        "range.end@.metadata == range.start@.metadata",
+        "final(slice)@ == old(slice)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::layout::{align_of, size_of};",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source forms the end with in-bounds add(len), preserving provenance and advancing by exactly the slice's byte length without modifying it.",
+      "risks": [
+        "The start pointer cannot be tied to the slice's allocation identity.",
+        "No raw-memory access permission is returned."
+      ]
+    },
+    {
+      "target": "core::slice::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ <[T]>::as_ptr ](\n    slice: &[T],\n) -> (ptr: *const T)\n    ensures\n        ptr@.addr != 0,\n        ptr@.addr as nat % align_of::<T>() == 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0",
+        "ptr@.addr as nat % align_of::<T>() == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::layout::align_of;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The direct cast from a valid slice reference guarantees a non-null, T-aligned data pointer.",
+      "risks": [
+        "Current vstd cannot connect ordinary reference identity to raw-pointer provenance.",
+        "The contract establishes no dereference permission."
+      ]
+    }
+  ]
+}

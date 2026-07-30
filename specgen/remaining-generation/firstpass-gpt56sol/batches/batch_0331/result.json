@@ -1,0 +1,126 @@
+{
+  "batch": 331,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 241973,
+  "targets": [
+    "core::ptr::byte_offset_from_unsigned",
+    "core::ptr::byte_sub",
+    "core::ptr::cast",
+    "core::ptr::cast_const",
+    "core::ptr::cast_mut",
+    "core::ptr::copy"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::byte_offset_from_unsigned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The delegated unsigned offset requires ordered data pointers in one allocation and an isize-representable distance. PtrData exposes addresses and provenance but no sound same-allocation predicate.",
+      "risks": [
+        "missing_same_allocation_abstraction",
+        "pointer_ordering",
+        "distance_representability",
+        "provenance_equality_is_insufficient"
+      ]
+    },
+    {
+      "target": "core::ptr::byte_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the address change and preserved metadata are observable, sub requires the traversed byte range to remain within one allocation. The signature carries no allocation-range permission.",
+      "risks": [
+        "missing_allocation_bounds",
+        "address_underflow",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::cast",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized, U>[\n    <*const T>::cast::<U>\n](ptr: *const T) -> (result: *const U)\n    ensures\n        result == ptr as *const U,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result == ptr as *const U"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation is exactly a raw-pointer as-cast, whose address and provenance preservation is modeled by vstd.",
+      "risks": [
+        "does_not_establish_alignment_or_dereference_validity",
+        "explicit_const_pointer_owner_required_for_shared_path"
+      ]
+    },
+    {
+      "target": "core::ptr::cast_const",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    <*mut T>::cast_const\n](ptr: *mut T) -> (result: *const T)\n    ensures\n        result == ptr as *const T,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result == ptr as *const T"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source performs only a constness cast, which vstd models as preserving the complete raw-pointer data.",
+      "risks": [
+        "does_not_establish_dereference_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::cast_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    <*const T>::cast_mut\n](ptr: *const T) -> (result: *mut T)\n    ensures\n        result == ptr as *mut T,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result == ptr as *mut T"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source performs only a mutability cast, and vstd's raw-pointer cast model preserves address, provenance, and metadata.",
+      "risks": [
+        "does_not_grant_write_or_dereference_permission"
+      ]
+    },
+    {
+      "target": "core::ptr::copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The memmove-like operation mutates raw destination memory, but the exact signature carries no readable/writable range permissions or byte-state observer.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_permission_parameters",
+        "overlapping_copy_semantics",
+        "initialization_and_ownership"
+      ]
+    }
+  ]
+}

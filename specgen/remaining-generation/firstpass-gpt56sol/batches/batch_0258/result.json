@@ -1,0 +1,118 @@
+{
+  "batch": 258,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 188787,
+  "targets": [
+    "std::thread::Result::is_ok",
+    "std::thread::Result::is_ok_and",
+    "std::thread::Result::iter",
+    "std::thread::Result::iter_mut",
+    "std::thread::Result::map",
+    "std::thread::Result::map_err"
+  ],
+  "candidates": [
+    {
+      "target": "std::thread::Result::is_ok",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Metadata resolves this alias-surfaced API to core::result::Result::is_ok, whose discriminant contract already exists in vstd. A thread-alias declaration would duplicate the same external item.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    },
+    {
+      "target": "std::thread::Result::is_ok_and",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The owner and source are generic Result::is_ok_and, not a thread-specific method. An alias-scoped declaration would target the canonical Result method without modeling the classified runtime state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "alias_of_core_result_method",
+        "mis_scoped_global_result_specification"
+      ]
+    },
+    {
+      "target": "std::thread::Result::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source constructs generic Result::Iter from the stored variant. Any IteratorSpec contract belongs to canonical core::result::Result::iter; the thread alias defines no distinct iterator or runtime-state relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "alias_of_core_result_method",
+        "duplicate_canonical_api_specification"
+      ]
+    },
+    {
+      "target": "std::thread::Result::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Result::IterMut yields mutable references whose eventual writes require a prophetic relation to final(self), which current IteratorSpec vocabulary does not provide; the alias also exposes no thread-state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "alias_of_core_result_method",
+        "unsupported_mutable_reference_iteration",
+        "missing_mutable_iterator_writeback_model"
+      ]
+    },
+    {
+      "target": "std::thread::Result::map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Metadata resolves this alias method to generic Result::map, whose closure-aware contract already exists in vstd. Re-specifying it through std::thread::Result would duplicate the canonical external specification.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    },
+    {
+      "target": "std::thread::Result::map_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Metadata resolves this alias method to generic Result::map_err, which already has a vstd contract. std::thread::Result defines no distinct method or public runtime-state relation to specify.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    }
+  ]
+}

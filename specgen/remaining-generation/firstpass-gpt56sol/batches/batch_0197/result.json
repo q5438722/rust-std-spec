@@ -1,0 +1,113 @@
+{
+  "batch": 197,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 22518,
+  "targets": [
+    "std::fs::rename",
+    "std::fs::set_permissions",
+    "std::fs::soft_link",
+    "std::fs::symlink_metadata",
+    "std::fs::write",
+    "std::io::BufReader::buffer"
+  ],
+  "candidates": [
+    {
+      "target": "std::fs::rename",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and effects depend on external filesystem state; vstd has no filesystem-world abstraction relating the two paths to the rename operation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::set_permissions",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the resulting permission change depend on hidden OS filesystem state, which cannot be expressed using current public vstd models.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::soft_link",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Creating the symbolic link is an external filesystem mutation with platform-dependent outcomes and no corresponding vstd state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_dependent_behavior",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::symlink_metadata",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned metadata or error is determined by external filesystem state, and no current vstd abstraction connects a path to symlink metadata.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Writing or creating the file and reporting success are external filesystem effects that cannot be related to contents without a modeled filesystem state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufReader::buffer",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned slice exposes unread bytes held in private buffer state; current public vstd vocabulary provides no BufReader view connecting that hidden state to the borrowed slice.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_bufreader_state_abstraction"
+      ]
+    }
+  ]
+}

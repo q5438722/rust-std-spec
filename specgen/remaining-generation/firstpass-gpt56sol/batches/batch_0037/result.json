@@ -1,0 +1,99 @@
+{
+  "batch": 37,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 23194,
+  "targets": [
+    "core::sync::atomic::AtomicUsize::try_update",
+    "core::sync::atomic::AtomicUsize::update",
+    "core::sync::atomic::compiler_fence",
+    "core::sync::atomic::fence",
+    "core::sync::atomic::spin_loop_hint"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicUsize::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden atomic state, possible concurrent interference, and repeated FnMut calls; current public vstd vocabulary exposes no relation sufficient to specify these effects.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "callback_may_run_multiple_times"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicUsize::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned value and update depend on hidden atomic state and concurrent compare-exchange retries, which cannot be related to the callback using an ordinary public view.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "callback_may_run_multiple_times"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::compiler_fence",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful behavior is compiler-level synchronization, which has no existing public vstd assertion vocabulary; a unit-return contract would omit the effect. The source also panics for Relaxed ordering.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_memory_ordering_abstraction",
+        "panics_on_relaxed"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::fence",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful behavior is cross-thread synchronization through the atomic memory model, which cannot be expressed in the current public vstd vocabulary. The source also panics for Relaxed ordering.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_memory_ordering_abstraction",
+        "panics_on_relaxed"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::spin_loop_hint",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This deprecated API only emits a processor busy-wait hint and has no modeled output or state relation; an empty unit contract would not be useful.",
+      "risks": [
+        "runtime_only_effect",
+        "unit_return_variant",
+        "no_observable_postcondition"
+      ]
+    }
+  ]
+}

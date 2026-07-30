@@ -1,0 +1,114 @@
+{
+  "batch": 43,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 22216,
+  "targets": [
+    "alloc::vec::Vec::insert_mut",
+    "alloc::vec::Vec::leak",
+    "alloc::vec::Vec::push_mut",
+    "alloc::vec::Vec::spare_capacity_mut",
+    "core::array::IntoIter::as_mut_slice",
+    "core::array::as_mut_slice"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::vec::Vec::insert_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates the vector and returns a mutable reference to the inserted element. The checker cannot model that returned alias and its relationship to the vector view.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::leak",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The consumed vector becomes leaked storage returned through an arbitrarily long-lived mutable slice. Current vstd cannot express that allocation identity, lifetime, and mutable-reference result faithfully.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_leaked_allocation_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::push_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the vector-view update resembles push, the result is a mutable reference aliasing the new final element. That alias/post-state relationship is unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::spare_capacity_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result aliases uninitialized backing storage outside the vector's logical contents. Current vstd lacks both supported mutable-reference returns and a public abstraction for spare-capacity storage.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_spare_capacity_abstraction"
+      ]
+    },
+    {
+      "target": "core::array::IntoIter::as_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable slice aliases the iterator's not-yet-yielded range. Its mutable-reference result is unsupported, and the remaining-range state has no suitable public vstd model.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_iterator_remaining_range_abstraction"
+      ]
+    },
+    {
+      "target": "core::array::as_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a mutable slice alias of the entire input array. Expressing its identity and mutation correspondence requires the unsupported mutable-reference-return model.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}

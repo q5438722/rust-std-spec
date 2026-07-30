@@ -1,0 +1,108 @@
+{
+  "batch": 103,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 37983,
+  "targets": [
+    "alloc::collections::LinkedList::is_empty",
+    "alloc::collections::LinkedList::len",
+    "alloc::collections::LinkedList::new",
+    "alloc::collections::LinkedList::pop_back",
+    "alloc::collections::LinkedList::pop_front",
+    "alloc::collections::LinkedList::push_back"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::LinkedList::is_empty",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation observes the private head field, while current vstd has no logical LinkedList view or emptiness abstraction.",
+      "risks": [
+        "missing_linked_list_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::len",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned private len field cannot be related to logical contents because current vstd has no LinkedList model.",
+      "risks": [
+        "missing_linked_list_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing that the constructed list is empty requires a logical LinkedList contents or length abstraction absent from current vstd.",
+      "risks": [
+        "missing_linked_list_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::pop_back",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned element and mutated list requires a sequence view that models LinkedList contents and order, which current vstd lacks.",
+      "risks": [
+        "missing_linked_list_abstraction",
+        "unmodeled_element_order"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::pop_front",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned front element to old(self) and final(self) requires a logical ordered-contents view absent from current vstd.",
+      "risks": [
+        "missing_linked_list_abstraction",
+        "unmodeled_element_order"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::push_back",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Because the method returns unit, its useful behavior can only be expressed through the final list contents or length, neither of which current vstd models.",
+      "risks": [
+        "missing_linked_list_abstraction",
+        "unit_return_requires_state_model"
+      ]
+    }
+  ]
+}

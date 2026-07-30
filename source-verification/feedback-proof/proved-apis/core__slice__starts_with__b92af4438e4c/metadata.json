@@ -1,0 +1,146 @@
+{
+  "id": "core__slice__starts_with__b92af4438e4c",
+  "api_path": "core::slice::starts_with",
+  "raw_target": "<[T]>::starts_with",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51829",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 54,
+                    "path": "PartialEq"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "starts_with",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "needle",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "slice": {
+                  "generic": "T"
+                }
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "  2574:     /// assert!(!v.contains(&50));\n  2575:     /// ```\n  2576:     ///\n  2577:     /// If you do not have a `&T`, but some other value that you can compare\n  2578:     /// with one (for example, `String` implements `PartialEq<str>`), you can\n  2579:     /// use `iter().any`:\n  2580:     ///\n  2581:     /// ```\n  2582:     /// let v = [String::from(\"hello\"), String::from(\"world\")]; // slice of `String`\n  2583:     /// assert!(v.iter().any(|e| e == \"hello\")); // search with `&str`\n  2584:     /// assert!(!v.iter().any(|e| e == \"hi\"));\n  2585:     /// ```\n  2586:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2587:     #[inline]\n  2588:     #[must_use]\n  2589:     pub fn contains(&self, x: &T) -> bool\n  2590:     where\n  2591:         T: PartialEq,\n  2592:     {\n  2593:         cmp::SliceContains::slice_contains(x, self)\n  2594:     }\n  2595: \n  2596:     /// Returns `true` if `needle` is a prefix of the slice or equal to the slice.\n  2597:     ///\n  2598:     /// # Examples\n  2599:     ///\n  2600:     /// ```\n  2601:     /// let v = [10, 40, 30];\n  2602:     /// assert!(v.starts_with(&[10]));\n  2603:     /// assert!(v.starts_with(&[10, 40]));\n  2604:     /// assert!(v.starts_with(&v));\n  2605:     /// assert!(!v.starts_with(&[50]));\n  2606:     /// assert!(!v.starts_with(&[10, 50]));\n  2607:     /// ```\n  2608:     ///\n  2609:     /// Always returns `true` if `needle` is an empty slice:\n  2610:     ///\n  2611:     /// ```\n  2612:     /// let v = &[10, 40, 30];\n  2613:     /// assert!(v.starts_with(&[]));\n  2614:     /// let v: &[u8] = &[];\n  2615:     /// assert!(v.starts_with(&[]));\n  2616:     /// ```\n  2617:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2618:     #[must_use]\n  2619:     pub fn starts_with(&self, needle: &[T]) -> bool\n  2620:     where\n  2621:         T: PartialEq,\n  2622:     {\n  2623:         let n = needle.len();\n  2624:         self.len() >= n && needle == &self[..n]\n  2625:     }\n  2626: \n  2627:     /// Returns `true` if `needle` is a suffix of the slice or equal to the slice.\n  2628:     ///\n  2629:     /// # Examples\n  2630:     ///\n  2631:     /// ```\n  2632:     /// let v = [10, 40, 30];\n  2633:     /// assert!(v.ends_with(&[30]));\n  2634:     /// assert!(v.ends_with(&[40, 30]));\n  2635:     /// assert!(v.ends_with(&v));\n  2636:     /// assert!(!v.ends_with(&[50]));\n  2637:     /// assert!(!v.ends_with(&[50, 30]));\n  2638:     /// ```\n  2639:     ///\n  2640:     /// Always returns `true` if `needle` is an empty slice:\n  2641:     ///\n  2642:     /// ```\n  2643:     /// let v = &[10, 40, 30];\n  2644:     /// assert!(v.ends_with(&[]));\n  2645:     /// let v: &[u8] = &[];\n  2646:     /// assert!(v.ends_with(&[]));\n  2647:     /// ```\n  2648:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2649:     #[must_use]\n  2650:     pub fn ends_with(&self, needle: &[T]) -> bool\n  2651:     where\n  2652:         T: PartialEq,\n  2653:     {\n  2654:         let (m, n) = (self.len(), needle.len());\n  2655:         m >= n && needle == &self[m - n..]\n  2656:     }\n  2657: \n  2658:     /// Returns a subslice with the prefix removed.\n  2659:     ///\n  2660:     /// If the slice starts with `prefix`, returns the subslice after the prefix, wrapped in `Some`.\n  2661:     /// If `prefix` is empty, simply returns the original slice. If `prefix` is equal to the\n  2662:     /// original slice, returns an empty slice.\n  2663:     ///\n  2664:     /// If the slice does not start with `prefix`, returns `None`.",
+    "span": {
+      "begin": [
+        2619,
+        5
+      ],
+      "end": [
+        2625,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn starts_with(&self, needle: &[T]) -> bool\n    where\n        T: PartialEq,\n    {\n        let n = needle.len();\n        self.len() >= n && needle == &self[..n]\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd specifications for slice length and Range<usize> slice indexing.",
+    "The declared lower-level specification of slice PartialEq::eq as length equality plus pointwise eq_spec, conditional on T::obeys_eq_spec()."
+  ],
+  "rationale": "Preserves short-circuit control flow, mechanically desugars ..n to 0..n, and inlines Rust's reference PartialEq forwarding implementation. Verus proves the target contract compositionally.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__starts_with__b92af4438e4c"
+}

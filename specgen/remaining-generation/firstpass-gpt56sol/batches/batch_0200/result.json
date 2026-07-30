@@ -1,0 +1,113 @@
+{
+  "batch": 200,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 31665,
+  "targets": [
+    "std::io::BufWriter::into_parts",
+    "std::io::BufWriter::new",
+    "std::io::BufWriter::with_capacity",
+    "std::io::IntoInnerError::error",
+    "std::io::IntoInnerError::into_error",
+    "std::io::IntoInnerError::into_inner"
+  ],
+  "candidates": [
+    {
+      "target": "std::io::BufWriter::into_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned writer, buffer, and WriterPanicked branch depend on BufWriter's private inner, buffer, and panic state, none of which has a public vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing BufWriter state abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source establishes a hidden empty buffer, default capacity, and non-panicked state, but current vstd provides no public BufWriter abstraction through which to express those properties or preservation of inner.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing BufWriter state abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful guarantees concern the private buffer capacity, empty contents, panic flag, and stored writer; these are not observable in existing public vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "allocation-dependent capacity",
+        "missing BufWriter state abstraction"
+      ]
+    },
+    {
+      "target": "std::io::IntoInnerError::error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method borrows a private tuple field. Without an IntoInnerError model or a supported reference-identity abstraction, no useful relation between self and the returned Error reference can be stated.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing IntoInnerError abstraction"
+      ]
+    },
+    {
+      "target": "std::io::IntoInnerError::into_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private error component of the consumed value, and current vstd has no public projection or model relating that component to the result.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing IntoInnerError abstraction"
+      ]
+    },
+    {
+      "target": "std::io::IntoInnerError::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private writer component of the consumed value, with no public vstd projection or model available to express that ownership relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing IntoInnerError abstraction"
+      ]
+    }
+  ]
+}

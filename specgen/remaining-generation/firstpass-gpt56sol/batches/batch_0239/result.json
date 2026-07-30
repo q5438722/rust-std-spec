@@ -1,0 +1,118 @@
+{
+  "batch": 239,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 32720,
+  "targets": [
+    "std::sync::Mutex::is_poisoned",
+    "std::sync::Mutex::lock",
+    "std::sync::Mutex::new",
+    "std::sync::Mutex::try_lock",
+    "std::sync::Once::call_once",
+    "std::sync::Once::call_once_force"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::Mutex::is_poisoned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reads the mutex's hidden poison flag, which may change concurrently and has no public vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_mutex_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Mutex::lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Blocking, poison handling, lock ownership, and the returned guard depend on hidden concurrent state not represented in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_mutex_guard_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Mutex::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although construction initializes an unlocked, unpoisoned mutex containing the argument, current public vstd vocabulary exposes no logical Mutex contents or state with which to express that relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_mutex_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Mutex::try_lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, poisoning, and WouldBlock depend on hidden concurrent lock state, while vstd provides no suitable mutex-guard ownership model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_mutex_guard_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Once::call_once",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether the closure executes and whether the call propagates poisoning depend on hidden concurrent Once state; no current vstd abstraction relates that state to closure effects.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_once_state_abstraction",
+        "unmodelled_closure_effects"
+      ]
+    },
+    {
+      "target": "std::sync::Once::call_once_force",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Closure execution, observed poison status, and completion recovery all depend on hidden concurrent Once state unavailable in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_once_state_abstraction",
+        "unmodelled_closure_effects"
+      ]
+    }
+  ]
+}

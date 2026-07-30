@@ -1,0 +1,200 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_back",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source relates the result and post-state to indexed deque contents, but vstd has no public VecDeque sequence-view abstraction for expressing that relation.",
+      "risks": [
+        "missing VecDeque view abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_front",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The swap-and-pop behavior requires relating indexed pre-state contents to the resulting deque, which cannot be expressed without a public VecDeque view.",
+      "risks": [
+        "missing VecDeque view abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::insert_entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Entry and OccupiedEntry expose no existing vstd model connecting the consumed entry, returned handle, and underlying BTreeMap update.",
+      "risks": [
+        "missing BTreeMap entry abstraction",
+        "hidden map mutation"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference can only be characterized through the entry's hidden key, for which no public vstd Entry abstraction exists.",
+      "risks": [
+        "missing Entry key abstraction",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::get",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "No public vstd model exposes the value associated with an OccupiedEntry, so the returned reference cannot be usefully related to its owner.",
+      "risks": [
+        "missing OccupiedEntry value abstraction",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::insert",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing that the result is the old entry value and the new value replaces it requires an OccupiedEntry state abstraction absent from current vstd.",
+      "risks": [
+        "missing OccupiedEntry state abstraction",
+        "hidden map mutation"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_back",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source relates the result and post-state to indexed deque contents, but vstd
+ has no public VecDeque sequence-view abstraction for expressing that relation.",
+      "risks": [
+        "missing VecDeque view abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_front",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The swap-and-pop behavior requires relating indexed pre-state contents to the
+resulting deque, which cannot be expressed without a public VecDeque view.",
+      "risks": [
+        "missing VecDeque view abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::insert_entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Entry and OccupiedEntry expose no existing vstd model connecting the consumed
+entry, returned handle, and underlying BTreeMap update.",
+      "risks": [
+        "missing BTreeMap entry abstraction",
+        "hidden map mutation"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference can only be characterized through the entry's hidden key,
+ for which no public vstd Entry abstraction exists.",
+      "risks": [
+        "missing Entry key abstraction",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::get",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "No public vstd model exposes the value associated with an OccupiedEntry, so the
+returned reference cannot be usefully related to its owner.",
+      "risks": [
+        "missing OccupiedEntry value abstraction",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::insert",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing that the result is the old entry value and the new value replaces it
+requires an OccupiedEntry state abstraction absent from current vstd.",
+      "risks": [
+        "missing OccupiedEntry state abstraction",
+        "hidden map mutation"
+      ]
+    } ]
+}
+

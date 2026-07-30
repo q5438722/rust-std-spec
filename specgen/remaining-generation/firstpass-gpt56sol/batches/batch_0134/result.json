@@ -1,0 +1,119 @@
+{
+  "batch": 134,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 269812,
+  "targets": [
+    "core::panic::Location::column",
+    "core::panic::Location::file",
+    "core::panic::Location::file_as_c_str",
+    "core::panic::Location::line",
+    "core::panic::PanicInfo::location",
+    "core::panic::PanicInfo::message"
+  ],
+  "candidates": [
+    {
+      "target": "core::panic::Location::column",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only exposes the private col field. Without a public Location model, vstd can state nothing useful beyond the u32 type.",
+      "risks": [
+        "missing Location abstraction",
+        "private-field dependence"
+      ]
+    },
+    {
+      "target": "core::panic::Location::file",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_type_specification]\n#[verifier::external_body]\npub struct ExLocation<'a>(core::panic::Location<'a>);\n\npub assume_specification<'a>[ core::panic::Location::<'a>::file ](\n    location: &core::panic::Location<'a>,\n) -> (result: &'a str)\n    ensures\n        !result@.contains('\\0'),\n;",
+      "requires": [],
+      "ensures": [
+        "!result@.contains('\\0')"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The supplied implementation invariant guarantees that the filename has no interior NUL bytes, which the existing str view can express without modeling private fields.",
+      "risks": [
+        "does not model filename contents",
+        "does not model reference identity"
+      ]
+    },
+    {
+      "target": "core::panic::Location::file_as_c_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd has no CStr view relating the result to its bytes or to Location::file; the type-level CStr invariant alone yields no usable postcondition.",
+      "risks": [
+        "missing CStr abstraction",
+        "reference identity versus view"
+      ]
+    },
+    {
+      "target": "core::panic::Location::line",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only exposes the private line field. No existing public Location view can relate the returned u32 to the receiver.",
+      "risks": [
+        "missing Location abstraction",
+        "private-field dependence"
+      ]
+    },
+    {
+      "target": "core::panic::PanicInfo::location",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_type_specification]\n#[verifier::external_body]\npub struct ExLocation<'a>(core::panic::Location<'a>);\n\n#[verifier::external_type_specification]\n#[verifier::external_body]\npub struct ExPanicInfo<'a>(core::panic::PanicInfo<'a>);\n\npub assume_specification<'a>[ core::panic::PanicInfo::<'a>::location ](\n    info: &core::panic::PanicInfo<'a>,\n) -> (result: Option<&core::panic::Location<'_>>)\n    ensures\n        result.is_some(),\n;",
+      "requires": [],
+      "ensures": [
+        "result.is_some()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation unconditionally returns Some(&self.location), so non-emptiness is an exact useful relation expressible with the existing Option vocabulary.",
+      "risks": [
+        "does not identify the referenced Location",
+        "version-sensitive because documentation permits future None results"
+      ]
+    },
+    {
+      "target": "core::panic::PanicInfo::message",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result wraps private fmt::Arguments state, and current vstd has no PanicMessage or formatting abstraction with which to describe its value.",
+      "risks": [
+        "missing PanicMessage abstraction",
+        "hidden formatting state"
+      ]
+    }
+  ]
+}

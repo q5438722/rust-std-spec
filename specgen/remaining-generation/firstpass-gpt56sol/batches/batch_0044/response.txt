@@ -1,0 +1,220 @@
+{
+  "candidates": [
+    {
+      "target": "core::array::each_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains mutable references aliasing each element of self. Current vstd views cannot express their per-element identity and write-back behavior, and mutable-reference returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::array::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned array reference aliases exactly the storage of s. Snapshot equality would not capture that identity or subsequent write-back, and mutable-reference returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::cell::Cell::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes the Cell's underlying storage as a mutable reference. Existing public vocabulary cannot state the required alias and write-back relation, and the result form is unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_public_cell_storage_model"
+      ]
+    },
+    {
+      "target": "core::cell::LazyCell::force_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This operation may invoke the hidden FnOnce initializer, transition or poison hidden state, and return a mutable alias to the stored value. No public vstd model captures those effects or the mutable-reference result.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "hidden_initialization_state",
+        "initializer_runtime_effects",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::cell::LazyCell::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether the result is Some depends on unmodeled initialization and poison state, while a Some result contains a mutable alias to hidden storage. Current vocabulary cannot express a useful sound relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "hidden_initialization_state",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Option discriminant depends on unmodeled initialization state, and a Some result aliases the cell's stored value mutably. Mutable-reference results and that alias/write-back relation are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "hidden_initialization_state",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::array::each_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains mutable references aliasing each element of self. Current
+vstd views cannot express their per-element identity and write-back behavior, and mutable-reference
+returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::array::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned array reference aliases exactly the storage of s. Snapshot equality
+ would not capture that identity or subsequent write-back, and mutable-reference returns are
+unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::cell::Cell::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes the Cell's underlying storage as a mutable reference.
+Existing public vocabulary cannot state the required alias and write-back relation, and the result
+form is unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_public_cell_storage_model"
+      ]
+    },
+    {
+      "target": "core::cell::LazyCell::force_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This operation may invoke the hidden FnOnce initializer, transition or poison
+hidden state, and return a mutable alias to the stored value. No public vstd model captures those
+effects or the mutable-reference result.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "hidden_initialization_state",
+        "initializer_runtime_effects",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::cell::LazyCell::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether the result is Some depends on unmodeled initialization and poison state,
+ while a Some result contains a mutable alias to hidden storage. Current vocabulary cannot express a
+ useful sound relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "hidden_initialization_state",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Option discriminant depends on unmodeled initialization state, and a Some
+result aliases the cell's stored value mutably. Mutable-reference results and that alias/write-back
+relation are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "hidden_initialization_state",
+        "reference_identity_vs_view"
+      ]
+    } ]
+}
+

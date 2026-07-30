@@ -1,0 +1,114 @@
+{
+  "batch": 189,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 18784,
+  "targets": [
+    "std::fs::File::set_modified",
+    "std::fs::File::set_permissions",
+    "std::fs::File::set_times",
+    "std::fs::File::sync_all",
+    "std::fs::File::sync_data",
+    "std::fs::File::try_clone"
+  ],
+  "candidates": [
+    {
+      "target": "std::fs::File::set_modified",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success changes an underlying file timestamp, which is external filesystem state not modeled by current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::File::set_permissions",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates permissions of the underlying file through shared access; that OS state is not publicly modeled in vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_permissions_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::File::set_times",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful effect is updating external filesystem timestamps, for which current vstd provides no state abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::File::sync_all",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Durability of file contents and metadata is an OS/filesystem effect not observable in current vstd specifications.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_durability_abstraction",
+        "platform_specific_behavior"
+      ]
+    },
+    {
+      "target": "std::fs::File::sync_data",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Synchronizing file data affects external persistence state, which current vstd vocabulary cannot express.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_durability_abstraction",
+        "platform_specific_behavior"
+      ]
+    },
+    {
+      "target": "std::fs::File::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must express that a successful result duplicates the same underlying handle and may share its file position; this hidden OS relationship is not modeled in vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_handle_identity_abstraction",
+        "shared_hidden_cursor_state"
+      ]
+    }
+  ]
+}

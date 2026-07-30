@@ -1,0 +1,267 @@
+{
+  "candidates": [
+    {
+      "target": "core::ops::ControlFlow::is_break",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::is_break ](\n    flow: &ControlFlow<B, C>,\n) -> (result: bool)\n    ensures\n        result <==> flow is Break,\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> flow is Break"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "vstd already exposes ControlFlow variants, and the source returns exactly whether the borrowed value is Break.",
+      "risks": []
+    },
+    {
+      "target": "core::ops::ControlFlow::is_continue",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::is_continue ](\n    flow: &ControlFlow<B, C>,\n) -> (result: bool)\n    ensures\n        result <==> flow is Continue,\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> flow is Continue"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "vstd already exposes ControlFlow variants, and the source returns exactly whether the borrowed value is Continue.",
+      "risks": []
+    },
+    {
+      "target": "core::ops::RangeFrom::contains",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<Idx: PartialOrd<Idx>, U>[ RangeFrom::<Idx>::contains ](\n    range: &RangeFrom<Idx>,\n    item: &U,\n) -> (result: bool) where Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>\n    ensures\n        <Idx as PartialOrdSpec<U>>::obeys_partial_cmp_spec()\n            ==> result == range.start.is_le(&item),\n;",
+      "requires": [],
+      "ensures": [
+        "<Idx as PartialOrdSpec<U>>::obeys_partial_cmp_spec() ==> result == range.start.is_le(&item)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::PartialOrd",
+        "core::ops::RangeFrom",
+        "vstd::prelude::*",
+        "vstd::std_specs::cmp::{PartialOrdIs, PartialOrdSpec}"
+      ],
+      "useful": true,
+      "rationale": "RangeFrom has an included start and unbounded end, so RangeBounds::contains reduces to start <= item, which existing PartialOrd vocabulary models conditionally.",
+      "risks": [
+        "The relation is informative only when the relevant PartialOrdSpec model is obeyed."
+      ]
+    },
+    {
+      "target": "core::ops::RangeTo::contains",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<Idx: PartialOrd<Idx>, U>[ RangeTo::<Idx>::contains ](\n    range: &RangeTo<Idx>,\n    item: &U,\n) -> (result: bool) where Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>\n    ensures\n        <U as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec()\n            ==> result == item.is_lt(&range.end),\n;",
+      "requires": [],
+      "ensures": [
+        "<U as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec() ==> result == item.is_lt(&range.end)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::PartialOrd",
+        "core::ops::RangeTo",
+        "vstd::prelude::*",
+        "vstd::std_specs::cmp::{PartialOrdIs, PartialOrdSpec}"
+      ],
+      "useful": true,
+      "rationale": "RangeTo has an unbounded start and excluded end, so containment reduces to item < end.",
+      "risks": [
+        "The relation is informative only when the relevant PartialOrdSpec model is obeyed."
+      ]
+    },
+    {
+      "target": "core::ops::RangeToInclusive::contains",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<Idx: PartialOrd<Idx>, U>[ RangeToInclusive::<Idx>::contains ](\n    range: &RangeToInclusive<Idx>,\n    item: &U,\n) -> (result: bool) where Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>\n    ensures\n        <U as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec()\n            ==> result == item.is_le(&range.end),\n;",
+      "requires": [],
+      "ensures": [
+        "<U as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec() ==> result == item.is_le(&range.end)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::PartialOrd",
+        "core::ops::RangeToInclusive",
+        "vstd::prelude::*",
+        "vstd::std_specs::cmp::{PartialOrdIs, PartialOrdSpec}"
+      ],
+      "useful": true,
+      "rationale": "RangeToInclusive has an unbounded start and included end, so containment reduces to item <= end.",
+      "risks": [
+        "The relation is informative only when the relevant PartialOrdSpec model is obeyed."
+      ]
+    },
+    {
+      "target": "core::panic::Location::caller",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The track_caller intrinsic obtains a reference from implicit compiler call-site state; vstd has neither a caller-context abstraction nor a Location view for describing it.",
+      "risks": [
+        "hidden_track_caller_state",
+        "missing_location_view",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ops::ControlFlow::is_break",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::is_break ](\n    flow:
+&ControlFlow<B, C>,\n) -> (result: bool)\n    ensures\n        result <==> flow is Break,\n
+no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> flow is Break"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "vstd already exposes ControlFlow variants, and the source returns exactly
+whether the borrowed value is Break.",
+      "risks": []
+    },
+    {
+      "target": "core::ops::ControlFlow::is_continue",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::is_continue ](\n
+flow: &ControlFlow<B, C>,\n) -> (result: bool)\n    ensures\n        result <==> flow is Continue,\n
+    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> flow is Continue"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "vstd already exposes ControlFlow variants, and the source returns exactly
+whether the borrowed value is Continue.",
+      "risks": []
+    },
+    {
+      "target": "core::ops::RangeFrom::contains",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<Idx: PartialOrd<Idx>, U>[
+RangeFrom::<Idx>::contains ](\n    range: &RangeFrom<Idx>,\n    item: &U,\n) -> (result: bool) where
+ Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>\n    ensures\n        <Idx as
+PartialOrdSpec<U>>::obeys_partial_cmp_spec()\n            ==> result ==
+range.start.is_le(&item),\n;",
+      "requires": [],
+      "ensures": [
+        "<Idx as PartialOrdSpec<U>>::obeys_partial_cmp_spec() ==> result ==
+range.start.is_le(&item)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::PartialOrd",
+        "core::ops::RangeFrom",
+        "vstd::prelude::",
+        "vstd::std_specs::cmp::{PartialOrdIs, PartialOrdSpec}"
+      ],
+      "useful": true,
+      "rationale": "RangeFrom has an included start and unbounded end, so RangeBounds::contains
+reduces to start <= item, which existing PartialOrd vocabulary models conditionally.",
+      "risks": [
+        "The relation is informative only when the relevant PartialOrdSpec model is obeyed."
+      ]
+    },
+    {
+      "target": "core::ops::RangeTo::contains",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<Idx: PartialOrd<Idx>, U>[ RangeTo::<Idx>::contains
+](\n    range: &RangeTo<Idx>,\n    item: &U,\n) -> (result: bool) where Idx: PartialOrd<U>, U:
+?Sized + PartialOrd<Idx>\n    ensures\n        <U as
+PartialOrdSpec<Idx>>::obeys_partial_cmp_spec()\n            ==> result ==
+item.is_lt(&range.end),\n;",
+      "requires": [],
+      "ensures": [
+        "<U as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec() ==> result == item.is_lt(&range.end)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::PartialOrd",
+        "core::ops::RangeTo",
+        "vstd::prelude::",
+        "vstd::std_specs::cmp::{PartialOrdIs, PartialOrdSpec}"
+      ],
+      "useful": true,
+      "rationale": "RangeTo has an unbounded start and excluded end, so containment reduces to item
+< end.",
+      "risks": [
+        "The relation is informative only when the relevant PartialOrdSpec model is obeyed."
+      ]
+    },
+    {
+      "target": "core::ops::RangeToInclusive::contains",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<Idx: PartialOrd<Idx>, U>[
+RangeToInclusive::<Idx>::contains ](\n    range: &RangeToInclusive<Idx>,\n    item: &U,\n) ->
+(result: bool) where Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>\n    ensures\n        <U as
+PartialOrdSpec<Idx>>::obeys_partial_cmp_spec()\n            ==> result ==
+item.is_le(&range.end),\n;",
+      "requires": [],
+      "ensures": [
+        "<U as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec() ==> result == item.is_le(&range.end)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::PartialOrd",
+        "core::ops::RangeToInclusive",
+        "vstd::prelude::*",
+        "vstd::std_specs::cmp::{PartialOrdIs, PartialOrdSpec}"
+      ],
+      "useful": true,
+      "rationale": "RangeToInclusive has an unbounded start and included end, so containment reduces
+ to item <= end.",
+      "risks": [
+        "The relation is informative only when the relevant PartialOrdSpec model is obeyed."
+      ]
+    },
+    {
+      "target": "core::panic::Location::caller",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The track_caller intrinsic obtains a reference from implicit compiler call-site
+state; vstd has neither a caller-context abstraction nor a Location view for describing it.",
+      "risks": [
+        "hidden_track_caller_state",
+        "missing_location_view",
+        "reference_identity_vs_view"
+      ]
+    } ]
+}
+

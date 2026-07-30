@@ -1,0 +1,153 @@
+{
+  "id": "std_specs__alloc.rs__L36__alloc__boxed__Box__T__new_uninit",
+  "api_path": "alloc::boxed::Box::new_uninit",
+  "raw_target": "alloc::boxed::Box::<T>::new_uninit",
+  "contract_source_file": "std_specs/alloc.rs",
+  "contract_source_line": 36,
+  "rust_declaration": {
+    "declaration_id": "alloc:430",
+    "name": "new_uninit",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgTrace([Not(NameValue { name: \"no_global_oom_handling\", value: None, span: alloc/src/boxed.rs:306:15: 306:37 (#0) }, alloc/src/boxed.rs:306:14: 306:38 (#0))])]"
+      },
+      {
+        "other": "#[attr = CfgAttrTrace]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 82, patch: 0 })},\nfeature: \"new_uninit\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/boxed.rs",
+      "begin": [
+        311,
+        5
+      ],
+      "end": [
+        318,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [],
+      "output": {
+        "resolved_path": {
+          "path": "Box",
+          "id": 82,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "mem::MaybeUninit",
+                      "id": 431,
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:445",
+      "for": {
+        "resolved_path": {
+          "path": "Box",
+          "id": 82,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:82",
+      "resolved_owner_path": [
+        "alloc",
+        "boxed",
+        "Box"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   291:         unsafe { mem::transmute(ptr) }\n   292:     }\n   293: \n   294:     /// Constructs a new box with uninitialized contents.\n   295:     ///\n   296:     /// # Examples\n   297:     ///\n   298:     /// ```\n   299:     /// let mut five = Box::<u32>::new_uninit();\n   300:     /// // Deferred initialization:\n   301:     /// five.write(5);\n   302:     /// let five = unsafe { five.assume_init() };\n   303:     ///\n   304:     /// assert_eq!(*five, 5)\n   305:     /// ```\n   306:     #[cfg(not(no_global_oom_handling))]\n   307:     #[stable(feature = \"new_uninit\", since = \"1.82.0\")]\n   308:     #[must_use]\n   309:     #[inline(always)]\n   310:     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces\n   311:     pub fn new_uninit() -> Box<mem::MaybeUninit<T>> {\n   312:         // This is the same as `Self::new_uninit_in(Global)`, but manually inlined (just like\n   313:         // `Box::new`).\n   314: \n   315:         // SAFETY:\n   316:         // - If `allocate` succeeds, the returned pointer exactly matches what `Box` needs.\n   317:         unsafe { mem::transmute(box_new_uninit(<T as SizedTypeProperties>::LAYOUT)) }\n   318:     }\n   319: \n   320:     /// Constructs a new `Box` with uninitialized contents, with the memory\n   321:     /// being filled with `0` bytes.\n   322:     ///\n   323:     /// See [`MaybeUninit::zeroed`][zeroed] for examples of correct and incorrect usage\n   324:     /// of this method.\n   325:     ///\n   326:     /// # Examples\n   327:     ///\n   328:     /// ```\n   329:     /// let zero = Box::<u32>::new_zeroed();\n   330:     /// let zero = unsafe { zero.assume_init() };\n   331:     ///",
+    "source_text": "pub fn new_uninit() -> Box<mem::MaybeUninit<T>> {\n        // This is the same as `Self::new_uninit_in(Global)`, but manually inlined (just like\n        // `Box::new`).\n\n        // SAFETY:\n        // - If `allocate` succeeds, the returned pointer exactly matches what `Box` needs.\n        unsafe { mem::transmute(box_new_uninit(<T as SizedTypeProperties>::LAYOUT)) }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for core::mem::MaybeUninit::<T>::uninit",
+    "vstd contract for alloc::boxed::Box::<U>::new"
+  ],
+  "rationale": "The contract has no postcondition beyond returning the declared type. The source-equivalent public composition boxes an uninitialized MaybeUninit without calling the target.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__alloc.rs__L36__alloc__boxed__Box__T__new_uninit"
+}

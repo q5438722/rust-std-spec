@@ -1,0 +1,115 @@
+{
+  "batch": 201,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 22181,
+  "targets": [
+    "std::io::IntoInnerError::into_parts",
+    "std::io::LineWriter::get_mut",
+    "std::io::LineWriter::get_ref",
+    "std::io::LineWriter::into_inner",
+    "std::io::LineWriter::new",
+    "std::io::LineWriter::with_capacity"
+  ],
+  "candidates": [
+    {
+      "target": "std::io::IntoInnerError::into_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns the error and writer stored in private tuple fields, but current public vstd vocabulary provides no model or observers for those hidden components.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_public_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::LineWriter::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes a mutable reference to a hidden underlying writer; vstd cannot express the required reference identity and subsequent mutation relation without a LineWriter state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "std::io::LineWriter::get_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference aliases the hidden underlying writer, but no public vstd abstraction identifies that writer or relates its reference to LineWriter state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_public_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::LineWriter::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation flushes buffered data and may return an I/O-dependent error containing recovered hidden state; current vstd has no model for either effect or result contents.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "io_side_effects",
+        "missing_io_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::LineWriter::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source delegates to with_capacity(1024, inner), LineWriter's buffer and contained writer are hidden and have no usable public vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_public_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::LineWriter::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied capacity configures a private BufWriter buffer and the writer is stored in hidden state; neither relation is observable in current public vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_buffer_model",
+        "missing_public_state_abstraction"
+      ]
+    }
+  ]
+}

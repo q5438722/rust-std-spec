@@ -1,0 +1,99 @@
+{
+  "candidates": [
+    {
+      "target": "core::str::match_indices",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is an opaque iterator backed by private searcher state. Vstd has no public prophetic iterator model or generic Pattern model with which to specify the yielded disjoint indexed matches.",
+      "risks": [
+        "Any useful postcondition would invent a model for Pattern search semantics or hidden iterator state."
+      ]
+    },
+    {
+      "target": "core::str::matches",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor exposes only an opaque Matches iterator whose behavior depends on private Pattern searcher state. Current vstd vocabulary cannot relate it to the future sequence of matched substrings.",
+      "risks": [
+        "A deterministic result model would be unsupported for arbitrary Pattern implementations."
+      ]
+    },
+    {
+      "target": "core::str::split",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Useful semantics require modeling every future substring yielded by the opaque Split iterator and the generic Pattern searcher. Those prophetic and pattern abstractions are absent from public vstd.",
+      "risks": [
+        "Referring to SplitInternal fields would rely on private hidden state.",
+        "Generic patterns can have search behavior not expressible in current vstd."
+      ]
+    },
+    {
+      "target": "core::str::split_ascii_whitespace",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although ASCII whitespace is concrete, the API returns an opaque adapter pipeline. Vstd lacks a public prophetic model connecting that iterator to its future nonempty string slices.",
+      "risks": [
+        "Specifying only construction or input preservation would provide no useful behavioral guarantee.",
+        "Modeling the private split/filter/map pipeline would invent hidden state."
+      ]
+    },
+    {
+      "target": "core::str::split_inclusive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Inclusive splitting is observable only through future iteration over private SplitInternal search state. Current vstd has neither the required prophetic iterator abstraction nor generic Pattern semantics.",
+      "risks": [
+        "A sequence postcondition would be semantically unsupported for arbitrary Pattern values.",
+        "The trailing-element behavior cannot be expressed without modeling iteration."
+      ]
+    },
+    {
+      "target": "core::str::split_terminator",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source defines this through private SplitInternal state with trailing-empty suppression. Expressing that behavior requires missing prophetic iterator and generic Pattern models.",
+      "risks": [
+        "Relating the result to split while omitting its final empty item requires an unavailable iterator-sequence abstraction.",
+        "Private allow_trailing_empty state cannot appear in an external contract."
+      ]
+    }
+  ]
+}
+

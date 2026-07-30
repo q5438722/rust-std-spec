@@ -1,0 +1,145 @@
+{
+  "id": "core__str__split_at_checked__1787649b08c2",
+  "api_path": "core::str::split_at_checked",
+  "raw_target": "str::split_at_checked",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"split_at_checked\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 86, patch: 0 })},\nfeature: \"const_str_split_at\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:51902",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "split_at_checked",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "primitive": "str"
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:51935",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "mid",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "tuple": [
+                      {
+                        "borrowed_ref": {
+                          "is_mutable": false,
+                          "lifetime": null,
+                          "type": {
+                            "primitive": "str"
+                          }
+                        }
+                      },
+                      {
+                        "borrowed_ref": {
+                          "is_mutable": false,
+                          "lifetime": null,
+                          "type": {
+                            "primitive": "str"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "   879:     /// ```\n   880:     #[inline]\n   881:     #[must_use]\n   882:     #[stable(feature = \"str_split_at\", since = \"1.4.0\")]\n   883:     #[rustc_const_stable(feature = \"const_str_split_at\", since = \"1.86.0\")]\n   884:     pub const fn split_at_mut(&mut self, mid: usize) -> (&mut str, &mut str) {\n   885:         // is_char_boundary checks that the index is in [0, .len()]\n   886:         if self.is_char_boundary(mid) {\n   887:             // SAFETY: just checked that `mid` is on a char boundary.\n   888:             unsafe { self.split_at_mut_unchecked(mid) }\n   889:         } else {\n   890:             slice_error_fail(self, 0, mid)\n   891:         }\n   892:     }\n   893: \n   894:     /// Divides one string slice into two at an index.\n   895:     ///\n   896:     /// The argument, `mid`, should be a valid byte offset from the start of the\n   897:     /// string. It must also be on the boundary of a UTF-8 code point. The\n   898:     /// method returns `None` if that\u2019s not the case.\n   899:     ///\n   900:     /// The two slices returned go from the start of the string slice to `mid`,\n   901:     /// and from `mid` to the end of the string slice.\n   902:     ///\n   903:     /// To get mutable string slices instead, see the [`split_at_mut_checked`]\n   904:     /// method.\n   905:     ///\n   906:     /// [`split_at_mut_checked`]: str::split_at_mut_checked\n   907:     ///\n   908:     /// # Examples\n   909:     ///\n   910:     /// ```\n   911:     /// let s = \"Per Martin-L\u00f6f\";\n   912:     ///\n   913:     /// let (first, last) = s.split_at_checked(3).unwrap();\n   914:     /// assert_eq!(\"Per\", first);\n   915:     /// assert_eq!(\" Martin-L\u00f6f\", last);\n   916:     ///\n   917:     /// assert_eq!(None, s.split_at_checked(13));  // Inside \u201c\u00f6\u201d\n   918:     /// assert_eq!(None, s.split_at_checked(16));  // Beyond the string length\n   919:     /// ```\n   920:     #[inline]\n   921:     #[must_use]\n   922:     #[stable(feature = \"split_at_checked\", since = \"1.80.0\")]\n   923:     #[rustc_const_stable(feature = \"const_str_split_at\", since = \"1.86.0\")]\n   924:     pub const fn split_at_checked(&self, mid: usize) -> Option<(&str, &str)> {\n   925:         // is_char_boundary checks that the index is in [0, .len()]\n   926:         if self.is_char_boundary(mid) {\n   927:             // SAFETY: just checked that `mid` is on a char boundary.\n   928:             Some(unsafe { self.split_at_unchecked(mid) })\n   929:         } else {\n   930:             None\n   931:         }\n   932:     }\n   933: \n   934:     /// Divides one mutable string slice into two at an index.\n   935:     ///\n   936:     /// The argument, `mid`, should be a valid byte offset from the start of the\n   937:     /// string. It must also be on the boundary of a UTF-8 code point. The\n   938:     /// method returns `None` if that\u2019s not the case.\n   939:     ///\n   940:     /// The two slices returned go from the start of the string slice to `mid`,\n   941:     /// and from `mid` to the end of the string slice.\n   942:     ///\n   943:     /// To get immutable string slices instead, see the [`split_at_checked`] method.\n   944:     ///\n   945:     /// [`split_at_checked`]: str::split_at_checked\n   946:     ///\n   947:     /// # Examples\n   948:     ///\n   949:     /// ```\n   950:     /// let mut s = \"Per Martin-L\u00f6f\".to_string();\n   951:     /// if let Some((first, last)) = s.split_at_mut_checked(3) {\n   952:     ///     first.make_ascii_uppercase();\n   953:     ///     assert_eq!(\"PER\", first);\n   954:     ///     assert_eq!(\" Martin-L\u00f6f\", last);\n   955:     /// }\n   956:     /// assert_eq!(\"PER Martin-L\u00f6f\", s);\n   957:     ///\n   958:     /// assert_eq!(None, s.split_at_mut_checked(13));  // Inside \u201c\u00f6\u201d\n   959:     /// assert_eq!(None, s.split_at_mut_checked(16));  // Beyond the string length\n   960:     /// ```\n   961:     #[inline]\n   962:     #[must_use]\n   963:     #[stable(feature = \"split_at_checked\", since = \"1.80.0\")]\n   964:     #[rustc_const_stable(feature = \"const_str_split_at\", since = \"1.86.0\")]\n   965:     pub const fn split_at_mut_checked(&mut self, mid: usize) -> Option<(&mut str, &mut str)> {\n   966:         // is_char_boundary checks that the index is in [0, .len()]\n   967:         if self.is_char_boundary(mid) {\n   968:             // SAFETY: just checked that `mid` is on a char boundary.\n   969:             Some(unsafe { self.split_at_mut_unchecked(mid) })",
+    "span": {
+      "begin": [
+        924,
+        5
+      ],
+      "end": [
+        932,
+        6
+      ],
+      "filename": "core/src/str/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn split_at_checked(&self, mid: usize) -> Option<(&str, &str)> {\n        // is_char_boundary checks that the index is in [0, .len()]\n        if self.is_char_boundary(mid) {\n            // SAFETY: just checked that `mid` is on a char boundary.\n            Some(unsafe { self.split_at_unchecked(mid) })\n        } else {\n            None\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "vstd specifications for str::is_char_boundary and str::len.",
+    "The str::as_ptr representation contract exposes the string bytes and bounds their length by usize::MAX.",
+    "Raw-pointer add and core::slice::from_raw_parts preserve the modeled byte region.",
+    "core::str::from_utf8_unchecked preserves valid UTF-8 bytes."
+  ],
+  "rationale": "The branch is copied exactly and the private split_at_unchecked call is mechanically inlined from Rust 1.96. The proof uses lower raw-memory representation contracts without assuming the target contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__str__split_at_checked__1787649b08c2"
+}

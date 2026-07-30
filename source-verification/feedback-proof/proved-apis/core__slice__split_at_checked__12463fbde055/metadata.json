@@ -1,0 +1,159 @@
+{
+  "id": "core__slice__split_at_checked__12463fbde055",
+  "api_path": "core::slice::split_at_checked",
+  "raw_target": "<[T]>::split_at_checked",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"split_at_checked\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"split_at_checked\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51819",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "split_at_checked",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "mid",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "tuple": [
+                      {
+                        "borrowed_ref": {
+                          "is_mutable": false,
+                          "lifetime": null,
+                          "type": {
+                            "slice": {
+                              "generic": "T"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "borrowed_ref": {
+                          "is_mutable": false,
+                          "lifetime": null,
+                          "type": {
+                            "slice": {
+                              "generic": "T"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  2108:                 from_raw_parts_mut(ptr, mid),\n  2109:                 from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid)),\n  2110:             )\n  2111:         }\n  2112:     }\n  2113: \n  2114:     /// Divides one slice into two at an index, returning `None` if the slice is\n  2115:     /// too short.\n  2116:     ///\n  2117:     /// If `mid \u2264 len` returns a pair of slices where the first will contain all\n  2118:     /// indices from `[0, mid)` (excluding the index `mid` itself) and the\n  2119:     /// second will contain all indices from `[mid, len)` (excluding the index\n  2120:     /// `len` itself).\n  2121:     ///\n  2122:     /// Otherwise, if `mid > len`, returns `None`.\n  2123:     ///\n  2124:     /// # Examples\n  2125:     ///\n  2126:     /// ```\n  2127:     /// let v = [1, -2, 3, -4, 5, -6];\n  2128:     ///\n  2129:     /// {\n  2130:     ///    let (left, right) = v.split_at_checked(0).unwrap();\n  2131:     ///    assert_eq!(left, []);\n  2132:     ///    assert_eq!(right, [1, -2, 3, -4, 5, -6]);\n  2133:     /// }\n  2134:     ///\n  2135:     /// {\n  2136:     ///     let (left, right) = v.split_at_checked(2).unwrap();\n  2137:     ///     assert_eq!(left, [1, -2]);\n  2138:     ///     assert_eq!(right, [3, -4, 5, -6]);\n  2139:     /// }\n  2140:     ///\n  2141:     /// {\n  2142:     ///     let (left, right) = v.split_at_checked(6).unwrap();\n  2143:     ///     assert_eq!(left, [1, -2, 3, -4, 5, -6]);\n  2144:     ///     assert_eq!(right, []);\n  2145:     /// }\n  2146:     ///\n  2147:     /// assert_eq!(None, v.split_at_checked(7));\n  2148:     /// ```\n  2149:     #[stable(feature = \"split_at_checked\", since = \"1.80.0\")]\n  2150:     #[rustc_const_stable(feature = \"split_at_checked\", since = \"1.80.0\")]\n  2151:     #[inline]\n  2152:     #[must_use]\n  2153:     pub const fn split_at_checked(&self, mid: usize) -> Option<(&[T], &[T])> {\n  2154:         if mid <= self.len() {\n  2155:             // SAFETY: `[ptr; mid]` and `[mid; len]` are inside `self`, which\n  2156:             // fulfills the requirements of `split_at_unchecked`.\n  2157:             Some(unsafe { self.split_at_unchecked(mid) })\n  2158:         } else {\n  2159:             None\n  2160:         }\n  2161:     }\n  2162: \n  2163:     /// Divides one mutable slice into two at an index, returning `None` if the\n  2164:     /// slice is too short.\n  2165:     ///\n  2166:     /// If `mid \u2264 len` returns a pair of slices where the first will contain all\n  2167:     /// indices from `[0, mid)` (excluding the index `mid` itself) and the\n  2168:     /// second will contain all indices from `[mid, len)` (excluding the index\n  2169:     /// `len` itself).\n  2170:     ///\n  2171:     /// Otherwise, if `mid > len`, returns `None`.\n  2172:     ///\n  2173:     /// # Examples\n  2174:     ///\n  2175:     /// ```\n  2176:     /// let mut v = [1, 0, 3, 0, 5, 6];\n  2177:     ///\n  2178:     /// if let Some((left, right)) = v.split_at_mut_checked(2) {\n  2179:     ///     assert_eq!(left, [1, 0]);\n  2180:     ///     assert_eq!(right, [3, 0, 5, 6]);\n  2181:     ///     left[1] = 2;\n  2182:     ///     right[1] = 4;\n  2183:     /// }\n  2184:     /// assert_eq!(v, [1, 2, 3, 4, 5, 6]);\n  2185:     ///\n  2186:     /// assert_eq!(None, v.split_at_mut_checked(7));\n  2187:     /// ```\n  2188:     #[stable(feature = \"split_at_checked\", since = \"1.80.0\")]\n  2189:     #[rustc_const_stable(feature = \"const_slice_split_at_mut\", since = \"1.83.0\")]\n  2190:     #[inline]\n  2191:     #[must_use]\n  2192:     pub const fn split_at_mut_checked(&mut self, mid: usize) -> Option<(&mut [T], &mut [T])> {\n  2193:         if mid <= self.len() {\n  2194:             // SAFETY: `[ptr; mid]` and `[mid; len]` are inside `self`, which\n  2195:             // fulfills the requirements of `split_at_unchecked`.\n  2196:             Some(unsafe { self.split_at_mut_unchecked(mid) })\n  2197:         } else {\n  2198:             None",
+    "span": {
+      "begin": [
+        2153,
+        5
+      ],
+      "end": [
+        2161,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn split_at_checked(&self, mid: usize) -> Option<(&[T], &[T])> {\n        if mid <= self.len() {\n            // SAFETY: `[ptr; mid]` and `[mid; len]` are inside `self`, which\n            // fulfills the requirements of `split_at_unchecked`.\n            Some(unsafe { self.split_at_unchecked(mid) })\n        } else {\n            None\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller standard-library API <[T]>::split_at_unchecked returns the prefix and suffix subranges when mid <= slice.len()."
+  ],
+  "rationale": "The exact conditional and unsafe split_at_unchecked call are preserved; its lower-level contract directly establishes both returned slice views.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__split_at_checked__12463fbde055"
+}

@@ -1,0 +1,119 @@
+{
+  "batch": 165,
+  "group": "ownership_or_uninitialized_model",
+  "duration_ms": 236437,
+  "targets": [
+    "alloc::rc::Rc::new_zeroed_slice",
+    "alloc::rc::Rc::pin",
+    "alloc::rc::Rc::ptr_eq",
+    "alloc::rc::Rc::strong_count",
+    "alloc::rc::Rc::unwrap_or_clone",
+    "alloc::rc::Rc::weak_count"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::rc::Rc::new_zeroed_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd cannot express the defining guarantee that each element's storage contains zero bytes; a length-only contract would be insufficient.",
+      "risks": [
+        "missing byte-level initialization model",
+        "element validity depends on T"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::pin",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source allocates value in an Rc and pins it, but current vstd has no Pin pointee or allocation-identity abstraction relating the result to value.",
+      "risks": [
+        "missing Pin abstraction",
+        "pinned allocation identity is unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::ptr_eq",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on allocation identity, while current vstd exposes only Rc's pointee and cannot distinguish equal values in distinct allocations.",
+      "risks": [
+        "hidden Rc allocation identity",
+        "fat-pointer metadata is intentionally ignored"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads Rc's private strong-reference counter, which has no public representation in the current vstd Rc model.",
+      "risks": [
+        "hidden Rc strong-count state",
+        "aliasing changes are unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::unwrap_or_clone",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Clone, A: Allocator>[ Rc::<T, A>::unwrap_or_clone ](this: Rc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this, result),\n;",
+      "requires": [],
+      "ensures": [
+        "cloned::<T>(*this, result)"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::alloc::Allocator",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The result is either the moved inner value or produced by T::clone; vstd::cloned captures both cases without modeling Rc uniqueness.",
+      "risks": [
+        "does not distinguish unwrapping from cloning",
+        "Clone may unwind"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::weak_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads Rc's private weak-reference counter and removes its implicit weak reference; current vstd exposes no weak-count state.",
+      "risks": [
+        "hidden Rc weak-count state",
+        "implicit weak reference is unmodeled"
+      ]
+    }
+  ]
+}

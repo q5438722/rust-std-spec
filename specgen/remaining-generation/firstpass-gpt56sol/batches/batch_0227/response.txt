@@ -1,0 +1,83 @@
+{
+  "candidates": [
+    {
+      "target": "std::process::Command::get_envs",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result iterates hidden command environment configuration, for which vstd provides no public Command or CommandEnvs model.",
+      "risks": ["external_or_hidden_runtime_state", "missing_command_environment_abstraction"]
+    },
+    {
+      "target": "std::process::Command::get_program",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned OsStr reference to the program stored by Command requires unavailable public views for Command and OsStr; reference identity alone is not useful.",
+      "risks": ["external_or_hidden_runtime_state", "reference_identity_vs_view", "missing_command_model"]
+    },
+    {
+      "target": "std::process::Command::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor stores program.as_ref() in hidden platform-specific Command state, with no existing vstd abstraction through which to describe that state.",
+      "risks": ["external_or_hidden_runtime_state", "missing_command_model", "missing_os_str_view"]
+    },
+    {
+      "target": "std::process::Command::output",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and mutation depend on spawning an external process and collecting runtime-dependent status and byte streams, which current vstd vocabulary does not model.",
+      "risks": ["external_or_hidden_runtime_state", "unmodeled_process_effects", "nondeterministic_output"]
+    },
+    {
+      "target": "std::process::Command::spawn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Process creation, failure, returned Child state, and effects on Command are runtime-dependent and lack a public vstd process model.",
+      "risks": ["external_or_hidden_runtime_state", "unmodeled_process_creation", "missing_child_process_abstraction"]
+    },
+    {
+      "target": "std::process::Command::status",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method spawns and waits for an external process, so both the I/O result and exit status depend on unmodeled runtime behavior.",
+      "risks": ["external_or_hidden_runtime_state", "unmodeled_process_effects", "nondeterministic_exit_status"]
+    }
+  ]
+}
+

@@ -1,0 +1,115 @@
+{
+  "batch": 220,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 26310,
+  "targets": [
+    "std::os::unix::net::UnixListener::incoming",
+    "std::os::unix::net::UnixListener::local_addr",
+    "std::os::unix::net::UnixListener::set_nonblocking",
+    "std::os::unix::net::UnixListener::take_error",
+    "std::os::unix::net::UnixListener::try_clone",
+    "std::os::unix::net::UnixStream::connect"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::unix::net::UnixListener::incoming",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator borrows the listener, but its connection behavior depends on external socket state; vstd has no public model relating Incoming to that listener or future accepts.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixListener::local_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result comes from getsockname and depends on hidden OS socket state; vstd provides no listener-address relation that could characterize the returned SocketAddr.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixListener::set_nonblocking",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This mutates an OS socket option through shared access, and no public vstd state model can express either successful mode changes or failure behavior.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "interior_mutation",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixListener::take_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reads and may clear the hidden SO_ERROR state, whose value and transition are not represented in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_dependent_behavior",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixListener::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must express that a successful clone refers to the same underlying socket and shares options, but vstd has no public socket identity or resource-sharing abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "resource_aliasing",
+        "missing_socket_identity_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::connect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the resulting connection depend on filesystem and OS networking state; vstd cannot relate the returned stream to the supplied path or remote endpoint.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "filesystem_dependent_behavior",
+        "missing_connection_state_abstraction"
+      ]
+    }
+  ]
+}

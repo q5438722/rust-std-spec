@@ -1,0 +1,175 @@
+{
+  "id": "std_specs__slice.rs__L243__T__copy_within__R",
+  "api_path": "core::slice::copy_within",
+  "raw_target": "<[T]>::copy_within::<R>",
+  "contract_source_file": "std_specs/slice.rs",
+  "contract_source_line": 243,
+  "rust_declaration": {
+    "declaration_id": "core:51858",
+    "name": "copy_within",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 37, patch: 0 })},\nfeature: \"copy_within\"}}]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/slice/mod.rs",
+      "begin": [
+        4354,
+        5
+      ],
+      "end": [
+        4370,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "src",
+          {
+            "generic": "R"
+          }
+        ],
+        [
+          "dest",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "R",
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "RangeBounds",
+                      "id": 23612,
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "primitive": "usize"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      }
+                    },
+                    "generic_params": [],
+                    "modifier": "none"
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "T"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "Copy",
+                    "id": 6,
+                    "args": null
+                  },
+                  "generic_params": [],
+                  "modifier": "none"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:51877",
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": null,
+      "resolved_owner_path": null
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  4334:     /// must be less than or equal to `self.len()`.\n  4335:     ///\n  4336:     /// # Panics\n  4337:     ///\n  4338:     /// This function will panic if either range exceeds the end of the slice,\n  4339:     /// or if the end of `src` is before the start.\n  4340:     ///\n  4341:     /// # Examples\n  4342:     ///\n  4343:     /// Copying four bytes within a slice:\n  4344:     ///\n  4345:     /// ```\n  4346:     /// let mut bytes = *b\"Hello, World!\";\n  4347:     ///\n  4348:     /// bytes.copy_within(1..5, 8);\n  4349:     ///\n  4350:     /// assert_eq!(&bytes, b\"Hello, Wello!\");\n  4351:     /// ```\n  4352:     #[stable(feature = \"copy_within\", since = \"1.37.0\")]\n  4353:     #[track_caller]\n  4354:     pub fn copy_within<R: RangeBounds<usize>>(&mut self, src: R, dest: usize)\n  4355:     where\n  4356:         T: Copy,\n  4357:     {\n  4358:         let Range { start: src_start, end: src_end } = slice::range(src, ..self.len());\n  4359:         let count = src_end - src_start;\n  4360:         assert!(dest <= self.len() - count, \"dest is out of bounds\");\n  4361:         // SAFETY: the conditions for `ptr::copy` have all been checked above,\n  4362:         // as have those for `ptr::add`.\n  4363:         unsafe {\n  4364:             // Derive both `src_ptr` and `dest_ptr` from the same loan\n  4365:             let ptr = self.as_mut_ptr();\n  4366:             let src_ptr = ptr.add(src_start);\n  4367:             let dest_ptr = ptr.add(dest);\n  4368:             ptr::copy(src_ptr, dest_ptr, count);\n  4369:         }\n  4370:     }\n  4371: \n  4372:     /// Swaps all elements in `self` with those in `other`.\n  4373:     ///\n  4374:     /// The length of `other` must be the same as `self`.",
+    "source_text": "pub fn copy_within<R: RangeBounds<usize>>(&mut self, src: R, dest: usize)\n    where\n        T: Copy,\n    {\n        let Range { start: src_start, end: src_end } = slice::range(src, ..self.len());\n        let count = src_end - src_start;\n        assert!(dest <= self.len() - count, \"dest is out of bounds\");\n        // SAFETY: the conditions for `ptr::copy` have all been checked above,\n        // as have those for `ptr::add`.\n        unsafe {\n            // Derive both `src_ptr` and `dest_ptr` from the same loan\n            let ptr = self.as_mut_ptr();\n            let src_ptr = ptr.add(src_start);\n            let dest_ptr = ptr.add(dest);\n            ptr::copy(src_ptr, dest_ptr, count);\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "core::slice::range returns the slice_range_start/slice_range_end normalization for valid bounds (local assume_specification)."
+  ],
+  "rationale": "The copied range normalization and bounds check are followed by a source-faithful memmove desugaring whose directional loops prove overlap-safe copying from the original slice.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__slice.rs__L243__T__copy_within__R"
+}

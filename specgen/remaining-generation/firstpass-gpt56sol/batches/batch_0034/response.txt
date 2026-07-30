@@ -1,0 +1,227 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicU8::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The atomic value and linearization point are not exposed by an ordinary vstd view, so the returned Result and possible update cannot be related soundly to modeled state.",
+      "risks": [
+        "concurrent interference",
+        "hidden atomic state",
+        "closure may be invoked repeatedly",
+        "memory-ordering semantics"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the returned atomic reference to the same storage and value as v, but current vstd exposes neither AtomicU8 state nor a suitable mutable-reference identity abstraction.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-reference return",
+        "reference identity and aliasing"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing this conversion requires an elementwise storage-identity relation between the mutable slices and a model of each AtomicU8 value, neither of which is available in current vstd vocabulary.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-slice return",
+        "elementwise reference identity and aliasing"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound contract needs pointer validity, alignment, lifetime, storage identity, and atomic-access obligations. The signature and current vstd vocabulary do not provide a sufficient abstraction for these requirements.",
+      "risks": [
+        "unsafe raw-pointer validity",
+        "alignment and lifetime obligations",
+        "hidden atomic state",
+        "reference identity"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned u8 reference must be related to the exclusively borrowed atomic storage, but AtomicU8 has no ordinary spec view through which that value or the final mutation can be expressed.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-reference return",
+        "missing atomic-to-value relation"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful postcondition requires an elementwise relation between the returned u8 slice and the final atomic slice state, but current vstd provides no AtomicU8 view or mutable-slice identity model for it.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-slice return",
+        "missing elementwise state relation",
+        "reference identity and aliasing"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicU8::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The atomic value and linearization point are not exposed by an ordinary vstd
+view, so the returned Result and possible update cannot be related soundly to modeled state.",
+      "risks": [
+        "concurrent interference",
+        "hidden atomic state",
+        "closure may be invoked repeatedly",
+        "memory-ordering semantics"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the returned atomic reference to the same storage
+ and value as v, but current vstd exposes neither AtomicU8 state nor a suitable mutable-reference
+identity abstraction.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-reference return",
+        "reference identity and aliasing"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing this conversion requires an elementwise storage-identity relation
+between the mutable slices and a model of each AtomicU8 value, neither of which is available in
+current vstd vocabulary.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-slice return",
+        "elementwise reference identity and aliasing"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound contract needs pointer validity, alignment, lifetime, storage identity,
+and atomic-access obligations. The signature and current vstd vocabulary do not provide a sufficient
+ abstraction for these requirements.",
+      "risks": [
+        "unsafe raw-pointer validity",
+        "alignment and lifetime obligations",
+        "hidden atomic state",
+        "reference identity"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned u8 reference must be related to the exclusively borrowed atomic
+storage, but AtomicU8 has no ordinary spec view through which that value or the final mutation can
+be expressed.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-reference return",
+        "missing atomic-to-value relation"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU8::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful postcondition requires an elementwise relation between the returned u8
+slice and the final atomic slice state, but current vstd provides no AtomicU8 view or mutable-slice
+identity model for it.",
+      "risks": [
+        "hidden atomic state",
+        "mutable-slice return",
+        "missing elementwise state relation",
+        "reference identity and aliasing"
+      ]
+    } ]
+}
+

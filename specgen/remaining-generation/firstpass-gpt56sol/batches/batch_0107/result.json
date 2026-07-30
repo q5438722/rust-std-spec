@@ -1,0 +1,111 @@
+{
+  "batch": 107,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 39803,
+  "targets": [
+    "alloc::collections::btree_map::OccupiedEntry::key",
+    "alloc::collections::btree_map::OccupiedEntry::remove",
+    "alloc::collections::btree_map::OccupiedEntry::remove_entry",
+    "alloc::collections::btree_map::VacantEntry::insert_entry",
+    "alloc::collections::btree_map::VacantEntry::into_key",
+    "alloc::collections::btree_map::VacantEntry::key"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference points to a key reachable only through the entry's private handle. Without a public logical view for OccupiedEntry, no useful key relation is expressible.",
+      "risks": [
+        "missing_occupied_entry_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::remove",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the hidden entry value and removes the entry from its backing map. Neither the entry contents nor the affected map state is exposed by an existing vstd abstraction.",
+      "risks": [
+        "missing_occupied_entry_abstraction",
+        "hidden_backing_map_state"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::remove_entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned pair to the removed key-value binding requires a logical view of both OccupiedEntry and its backing BTreeMap, which current vstd vocabulary lacks.",
+      "risks": [
+        "missing_occupied_entry_abstraction",
+        "hidden_backing_map_state"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::VacantEntry::insert_entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is insertion of the private vacant key and supplied value into the backing map, with a corresponding OccupiedEntry returned. Those relationships require missing entry and map abstractions.",
+      "risks": [
+        "missing_vacant_entry_abstraction",
+        "missing_occupied_entry_abstraction",
+        "hidden_backing_map_state"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::VacantEntry::into_key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns the private key field, but VacantEntry has no public logical view with which to identify the returned value.",
+      "risks": [
+        "missing_vacant_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::VacantEntry::key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source borrows the private key field. Without a VacantEntry logical view, current vocabulary cannot express which key is referenced without an unsupported identity claim.",
+      "risks": [
+        "missing_vacant_entry_abstraction",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is future ordered production of disjoint mutable references into self, which current public vstd vocabulary cannot model.",
+      "risks": [
+        "Requires a missing prophetic mutable-iterator model",
+        "Needs disjoint mutable-borrow semantics"
+      ]
+    },
+    {
+      "target": "core::slice::rchunks",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source establishes the nonzero chunk-size condition and reverse chunk order, but current vstd cannot relate the returned iterator's future sequence to the source slice; a precondition alone is not useful.",
+      "risks": [
+        "Requires a missing prophetic iterator model"
+      ]
+    },
+    {
+      "target": "core::slice::rchunks_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing reverse exact chunks and the separately observable remainder requires an evolving iterator-state model absent from current public vstd vocabulary.",
+      "risks": [
+        "Requires a missing prophetic iterator and remainder model"
+      ]
+    },
+    {
+      "target": "core::slice::rchunks_exact_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator lends disjoint mutable chunks and exposes omitted elements through its remainder; this future mutation and aliasing behavior cannot be captured with old(self) and final(self) alone.",
+      "risks": [
+        "Requires a missing prophetic mutable-iterator model",
+        "Needs disjoint mutable-borrow and remainder semantics"
+      ]
+    },
+    {
+      "target": "core::slice::rchunks_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is future reverse production of disjoint mutable chunks, including a final short chunk, for which current vstd has no public prophetic mutable-iterator abstraction.",
+      "risks": [
+        "Requires a missing prophetic mutable-iterator model",
+        "Needs disjoint mutable-borrow semantics"
+      ]
+    },
+    {
+      "target": "core::slice::split",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a lazy iterator whose subslices depend on future stateful FnMut predicate calls; current vstd cannot express that emitted sequence or predicate evolution.",
+      "risks": [
+        "Requires a missing prophetic iterator model",
+        "Requires a model for deferred FnMut calls and state"
+      ]
+    }
+  ]
+}
+

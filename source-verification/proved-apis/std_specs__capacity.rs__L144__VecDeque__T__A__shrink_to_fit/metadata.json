@@ -1,0 +1,149 @@
+{
+  "id": "std_specs__capacity.rs__L144__VecDeque__T__A__shrink_to_fit",
+  "api_path": "alloc::collections::VecDeque::shrink_to_fit",
+  "raw_target": "VecDeque::<T, A>::shrink_to_fit",
+  "contract_source_file": "std_specs/capacity.rs",
+  "contract_source_line": 144,
+  "rust_declaration": {
+    "declaration_id": "alloc:3085",
+    "name": "shrink_to_fit",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 5, patch: 0 })},\nfeature: \"deque_extras_15\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        1185,
+        5
+      ],
+      "end": [
+        1187,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1165:         Ok(())\n  1166:     }\n  1167: \n  1168:     /// Shrinks the capacity of the deque as much as possible.\n  1169:     ///\n  1170:     /// It will drop down as close as possible to the length but the allocator may still inform the\n  1171:     /// deque that there is space for a few more elements.\n  1172:     ///\n  1173:     /// # Examples\n  1174:     ///\n  1175:     /// ```\n  1176:     /// use std::collections::VecDeque;\n  1177:     ///\n  1178:     /// let mut buf = VecDeque::with_capacity(15);\n  1179:     /// buf.extend(0..4);\n  1180:     /// assert_eq!(buf.capacity(), 15);\n  1181:     /// buf.shrink_to_fit();\n  1182:     /// assert!(buf.capacity() >= 4);\n  1183:     /// ```\n  1184:     #[stable(feature = \"deque_extras_15\", since = \"1.5.0\")]\n  1185:     pub fn shrink_to_fit(&mut self) {\n  1186:         self.shrink_to(0);\n  1187:     }\n  1188: \n  1189:     /// Shrinks the capacity of the deque with a lower bound.\n  1190:     ///\n  1191:     /// The capacity will remain at least as large as both the length\n  1192:     /// and the supplied value.\n  1193:     ///\n  1194:     /// If the current capacity is less than the lower limit, this is a no-op.\n  1195:     ///\n  1196:     /// # Examples\n  1197:     ///\n  1198:     /// ```\n  1199:     /// use std::collections::VecDeque;\n  1200:     ///\n  1201:     /// let mut buf = VecDeque::with_capacity(15);\n  1202:     /// buf.extend(0..4);\n  1203:     /// assert_eq!(buf.capacity(), 15);\n  1204:     /// buf.shrink_to(6);\n  1205:     /// assert!(buf.capacity() >= 6);",
+    "source_text": "pub fn shrink_to_fit(&mut self) {\n        self.shrink_to(0);\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for VecDeque::<T, A>::shrink_to"
+  ],
+  "rationale": "The ordinary exec function copies the Rust 1.96 body exactly; the smaller shrink_to contract proves all postconditions.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__capacity.rs__L144__VecDeque__T__A__shrink_to_fit"
+}

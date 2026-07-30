@@ -1,0 +1,123 @@
+{
+  "batch": 299,
+  "group": "trait_contract_integration",
+  "duration_ms": 278108,
+  "targets": [
+    "std::io::Read::by_ref",
+    "std::io::Read::bytes",
+    "std::io::Read::chain",
+    "std::io::Read::read",
+    "std::io::Read::read_exact",
+    "std::io::Read::read_to_end"
+  ],
+  "candidates": [
+    {
+      "target": "std::io::Read::by_ref",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee is that the returned mutable reference aliases self; current vstd value relations cannot express that identity and mutation provenance.",
+      "risks": [
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view",
+        "alias_provenance"
+      ]
+    },
+    {
+      "target": "std::io::Read::bytes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Bytes is a lazy adapter over hidden reader state, and current vstd has no Read-to-Iterator abstraction relating its yielded results to the consumed reader.",
+      "risks": [
+        "lazy_io_effects",
+        "private_adapter_state",
+        "missing_read_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Read::chain",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned adapter's behavior depends on two hidden reader states and its private first-reader completion flag, none of which has a public vstd model.",
+      "risks": [
+        "lazy_io_effects",
+        "private_adapter_state",
+        "missing_read_stream_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Read::read",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Reader contents and advancement are unmodeled, and the source explicitly warns that safe callers cannot even rely on a custom implementation returning n no greater than buf.len().",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "arbitrary_safe_trait_implementations",
+        "buffer_contents_unmodeled",
+        "io_errors_unmodeled"
+      ]
+    },
+    {
+      "target": "std::io::Read::read_exact",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success fills the buffer from unmodeled reader state, while the source leaves buffer contents unspecified on error; existing vstd vocabulary provides no useful value relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_read_state_abstraction",
+        "error_buffer_contents_unspecified"
+      ]
+    },
+    {
+      "target": "std::io::Read::read_to_end",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExRead {\n    type ExternalTraitSpecificationFor: std::io::Read;\n\n    fn read_to_end(\n        &mut self,\n        buf: &mut std::vec::Vec<u8>,\n    ) -> (result: std::io::Result<usize>)\n        default_ensures\n            old(buf)@.is_prefix_of(final(buf)@),\n            result is Ok ==>\n                final(buf)@.len() == old(buf)@.len() + result->Ok_0,\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)",
+        "result is Ok ==> final(buf)@.len() == old(buf)@.len() + result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The provided implementation only appends to the Vec, and on success returns the appended byte count; Vec's sequence view expresses both guarantees without modeling reader contents.",
+      "risks": [
+        "default_ensures_does_not_constrain_overrides",
+        "reader_contents_unmodeled",
+        "blocking_and_io_errors_unmodeled"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "candidates": [
+    {
+      "target": "std::sync::Barrier::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on hidden barrier counts, generations, and concurrent arrivals; vstd has no barrier-round model supporting a useful postcondition.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_barrier_protocol_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::BarrierWaitResult::is_leader",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes a private flag assigned by Barrier::wait, but no public vstd view relates BarrierWaitResult to that hidden flag or its barrier round.",
+      "risks": [
+        "hidden_private_representation",
+        "concurrency_or_hidden_state",
+        "missing_public_view"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Construction only initializes hidden platform condition-variable state, for which current vstd provides no observable predicate or view.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_condvar_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::notify_all",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning method affects only hidden scheduler and waiter state; without a condvar protocol model, any expressible contract would be vacuous.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "unit_return_variant",
+        "missing_condvar_protocol_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::notify_one",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning method selects a hidden current waiter and notifications are not buffered; vstd cannot express that runtime effect without a condvar protocol.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "unit_return_variant",
+        "missing_condvar_protocol_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "It atomically releases and reacquires a hidden mutex, may wake spuriously, and reports hidden poison state; current vstd lacks the required mutex-condvar protocol model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "spurious_wakeup",
+        "hidden_poison_state",
+        "missing_mutex_condvar_protocol_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::sync::Barrier::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on hidden barrier counts, generations, and concurrent
+arrivals; vstd has no barrier-round model supporting a useful postcondition.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_barrier_protocol_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::BarrierWaitResult::is_leader",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes a private flag assigned by Barrier::wait, but no public vstd
+view relates BarrierWaitResult to that hidden flag or its barrier round.",
+      "risks": [
+        "hidden_private_representation",
+        "concurrency_or_hidden_state",
+        "missing_public_view"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Construction only initializes hidden platform condition-variable state, for
+which current vstd provides no observable predicate or view.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_condvar_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::notify_all",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning method affects only hidden scheduler and waiter state;
+without a condvar protocol model, any expressible contract would be vacuous.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "unit_return_variant",
+        "missing_condvar_protocol_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::notify_one",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning method selects a hidden current waiter and notifications are
+not buffered; vstd cannot express that runtime effect without a condvar protocol.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "unit_return_variant",
+        "missing_condvar_protocol_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Condvar::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "It atomically releases and reacquires a hidden mutex, may wake spuriously, and
+reports hidden poison state; current vstd lacks the required mutex-condvar protocol model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "spurious_wakeup",
+        "hidden_poison_state",
+        "missing_mutex_condvar_protocol_abstraction"
+      ]
+    } ]
+}
+

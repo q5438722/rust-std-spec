@@ -1,0 +1,146 @@
+{
+  "id": "std_specs__net.rs__L544__Ipv6Addr__new",
+  "api_path": "core::net::Ipv6Addr::new",
+  "normalized_api_path": "core::net::Ipv6Addr::new",
+  "raw_target": "Ipv6Addr::new",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 544,
+  "rust_declaration": {
+    "declaration_id": "core:27821",
+    "name": "new",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 32, patch: 0 })},\nfeature: \"const_ip_32\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/ip_addr.rs",
+      "begin": [
+        1347,
+        5
+      ],
+      "end": [
+        1363,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "a",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "b",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "c",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "d",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "e",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "f",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "g",
+          {
+            "primitive": "u16"
+          }
+        ],
+        [
+          "h",
+          {
+            "primitive": "u16"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27837",
+      "for": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9949",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "ip_addr",
+        "Ipv6Addr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1327:         IpAddr::V4(Ipv4Addr::from(octets))\n  1328:     }\n  1329: }\n  1330: \n  1331: impl Ipv6Addr {\n  1332:     /// Creates a new IPv6 address from eight 16-bit segments.\n  1333:     ///\n  1334:     /// The result will represent the IP address `a:b:c:d:e:f:g:h`.\n  1335:     ///\n  1336:     /// # Examples\n  1337:     ///\n  1338:     /// ```\n  1339:     /// use std::net::Ipv6Addr;\n  1340:     ///\n  1341:     /// let addr = Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff);\n  1342:     /// ```\n  1343:     #[rustc_const_stable(feature = \"const_ip_32\", since = \"1.32.0\")]\n  1344:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1345:     #[must_use]\n  1346:     #[inline]\n  1347:     pub const fn new(a: u16, b: u16, c: u16, d: u16, e: u16, f: u16, g: u16, h: u16) -> Ipv6Addr {\n  1348:         let addr16 = [\n  1349:             a.to_be(),\n  1350:             b.to_be(),\n  1351:             c.to_be(),\n  1352:             d.to_be(),\n  1353:             e.to_be(),\n  1354:             f.to_be(),\n  1355:             g.to_be(),\n  1356:             h.to_be(),\n  1357:         ];\n  1358:         Ipv6Addr {\n  1359:             // All elements in `addr16` are big endian.\n  1360:             // SAFETY: `[u16; 8]` is always safe to transmute to `[u8; 16]`.\n  1361:             octets: unsafe { transmute::<_, [u8; 16]>(addr16) },\n  1362:         }\n  1363:     }\n  1364: \n  1365:     /// The size of an IPv6 address in bits.\n  1366:     ///\n  1367:     /// # Examples",
+    "source_text": "pub const fn new(a: u16, b: u16, c: u16, d: u16, e: u16, f: u16, g: u16, h: u16) -> Ipv6Addr {\n        let addr16 = [\n            a.to_be(),\n            b.to_be(),\n            c.to_be(),\n            d.to_be(),\n            e.to_be(),\n            f.to_be(),\n            g.to_be(),\n            h.to_be(),\n        ];\n        Ipv6Addr {\n            // All elements in `addr16` are big endian.\n            // SAFETY: `[u16; 8]` is always safe to transmute to `[u8; 16]`.\n            octets: unsafe { transmute::<_, [u8; 16]>(addr16) },\n        }\n    }",
+    "has_body": true
+  }
+}

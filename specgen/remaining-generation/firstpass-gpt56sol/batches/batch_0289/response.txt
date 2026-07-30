@@ -1,0 +1,358 @@
+{
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::map",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMap {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn map<B, F>(self, f: F) -> (r: core::iter::Map<Self, F>)\n    where\n        Self: Sized,\n        F: FnMut(Self::Item) -> B,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && (forall |i: int| 0 <= i < self.remaining().len()\n                ==> f.requires((self.remaining()[i],)))\n            ==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&& r.initial_value_relation(&r)\n                &&& r.remaining().len() <= self.remaining().len()\n                &&& (forall |i: int| 0 <= i < r.remaining().len()\n                    ==> f.ensures((self.remaining()[i],), r.remaining()[i]))\n                &&& (r.will_return_none() ==> {\n                    &&& self.will_return_none()\n                    &&& r.remaining().len() == self.remaining().len()\n                })\n                &&& (r.decrease() is Some <==> self.decrease() is Some)\n            },\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "For a law-obeying, self-related source whose elements satisfy f.requires, the result obeys IteratorSpec and its remaining sequence is a pointwise f.ensures image of a source prefix.",
+        "If the mapped iterator will return None, its remaining length equals the source length and the source will also return None.",
+        "The availability of the iterator decrease metric is preserved."
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "map is lazy, but IteratorSpec's prophetic remaining sequence can describe its future outputs through the public closure contract without exposing Map fields.",
+      "risks": [
+        "The useful relation is conditional on the source IteratorSpec laws and closure call preconditions.",
+        "Current Verus closure contracts do not model evolving FnMut mutable captures.",
+        "The remaining sequence may be a strict prefix when a future closure invocation does not return.",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::map_while",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied source explicitly states that MapWhile is not fused and leaves behavior after its first None unspecified, while current IteratorSpec models iterators that remain exhausted after None.",
+      "risks": [
+        "Using IteratorSpec would impose a stronger post-None behavior than Rust specifies.",
+        "A useful contract needs a missing abstraction for non-fused iterator state."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::max",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMax {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn max(self) -> (r: Option<Self::Item>)\n    where\n        Self: Sized,\n        Self::Item: Ord,\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> {\n            let s = self.remaining();\n            &&& (r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==> s.contains(r.unwrap()))\n        },\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as OrdSpec>::obeys_cmp_spec()\n            ==> {\n                let s = self.remaining();\n                r == if s.len() == 0 {\n                    None\n                } else {\n                    Some(s.drop_first().fold_left(\n                        s[0],\n                        |x: Self::Item, y: Self::Item| if <Self::Item as OrdSpec>::cmp_spec(&x, &y) == Ordering::Greater { x } else { y },\n                    ))\n                }\n            },\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "For an obeying iterator, None is returned exactly for an empty remaining sequence and every Some result belongs to that sequence.",
+        "When OrdSpec is obeyed, the result equals the left fold that retains the later element on Equal."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use super::cmp::OrdSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to max_by(Ord::cmp); Seq::fold_left and OrdSpec express that fold, including its last-on-ties behavior.",
+      "risks": [
+        "Exact ordering semantics are conditional on OrdSpec::obeys_cmp_spec().",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::max_by",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMaxBy {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn max_by<F>(self, compare: F) -> (r: Option<Self::Item>)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item, &Self::Item) -> Ordering,\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> {\n            let s = self.remaining();\n            &&& (r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==> s.contains(r.unwrap()))\n        },\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && ({\n                let s = self.remaining();\n                forall |i: int, j: int|\n                    0 <= i < s.len() && 0 <= j < s.len()\n                        ==> compare.requires((&s[i], &s[j]))\n            })\n            ==> ({\n                let s = self.remaining();\n                s.len() > 0 ==> exists |acc: Seq<Self::Item>| {\n                    &&& acc.len() == s.len()\n                    &&& acc[0] == s[0]\n                    &&& (forall |i: int| 1 <= i < s.len() ==> exists |o: Ordering| {\n                        &&& compare.ensures((&acc[i - 1], &s[i]), o)\n                        &&& acc[i] == if o == Ordering::Greater { acc[i - 1] } else { s[i] }\n                    })\n                    &&& r == Some(acc[s.len() - 1])\n                }\n            }),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "None corresponds exactly to an empty source; a Some result is a source element.",
+        "When the comparator accepts all source-element pairs, an existential accumulator trace relates every comparison through compare.ensures and selects the later element unless the accumulator compares Greater."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;"
+      ],
+      "useful": true,
+      "rationale": "The source is a reduce using cmp::max_by. An existential accumulator sequence captures nondeterministic comparator postconditions without assuming a deterministic closure.",
+      "risks": [
+        "The detailed trace is conditional on sufficient compare.requires facts.",
+        "Current Verus closure contracts do not model evolving FnMut mutable captures.",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::max_by_key",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMaxByKey {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn max_by_key<B: Ord, F>(self, f: F) -> (r: Option<Self::Item>)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item) -> B,\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> {\n            let s = self.remaining();\n            &&& (r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==> s.contains(r.unwrap()))\n        },\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <B as OrdSpec>::obeys_cmp_spec()\n            && ({\n                let s = self.remaining();\n                forall |i: int| 0 <= i < s.len() ==> f.requires((&s[i],))\n            })\n            ==> ({\n                let s = self.remaining();\n                s.len() > 0 ==> exists |keys: Seq<B>, winners: Seq<int>| {\n                    &&& keys.len() == s.len()\n                    &&& (forall |i: int| 0 <= i < s.len() ==> f.ensures((&s[i],), keys[i]))\n                    &&& winners.len() == s.len()\n                    &&& winners[0] == 0\n                    &&& (forall |i: int| 1 <= i < s.len() ==> {\n                        &&& 0 <= winners[i - 1] < i\n                        &&& winners[i] == if <B as OrdSpec>::cmp_spec(&keys[winners[i - 1]], &keys[i]) == Ordering::Greater {\n                            winners[i - 1]\n                        } else {\n                            i\n                        }\n                    })\n                    &&& 0 <= winners[s.len() - 1] < s.len()\n                    &&& r == Some(s[winners[s.len() - 1]])\n                }\n            }),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "None corresponds exactly to an empty source; a Some result is a source element.",
+        "Under f.requires and OrdSpec, existential key and winner sequences model one key evaluation per item and last-on-ties selection."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use super::cmp::OrdSpec;"
+      ],
+      "useful": true,
+      "rationale": "The supplied body maps each item to a key-item pair and applies max_by, so public Seq, closure requires/ensures, and OrdSpec can describe the selected original item.",
+      "risks": [
+        "Detailed key semantics require f's precondition for every source item.",
+        "Current Verus closure contracts do not model evolving FnMut mutable captures.",
+        "Exact comparison behavior is conditional on OrdSpec::obeys_cmp_spec().",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::min",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMin {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn min(self) -> (r: Option<Self::Item>)\n    where\n        Self: Sized,\n        Self::Item: Ord,\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> {\n            let s = self.remaining();\n            &&& (r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==> s.contains(r.unwrap()))\n        },\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as OrdSpec>::obeys_cmp_spec()\n            ==> {\n                let s = self.remaining();\n                r == if s.len() == 0 {\n                    None\n                } else {\n                    Some(s.drop_first().fold_left(\n                        s[0],\n                        |x: Self::Item, y: Self::Item| if <Self::Item as OrdSpec>::cmp_spec(&x, &y) == Ordering::Greater { y } else { x },\n                    ))\n                }\n            },\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "For an obeying iterator, None is returned exactly for an empty remaining sequence and every Some result belongs to that sequence.",
+        "When OrdSpec is obeyed, the result equals the left fold that retains the earlier element on Equal."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use super::cmp::OrdSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to min_by(Ord::cmp); Seq::fold_left and OrdSpec express the documented first-on-ties minimum.",
+      "risks": [
+        "Exact ordering semantics are conditional on OrdSpec::obeys_cmp_spec().",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::iter::Iterator::map",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMap {\n
+type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn map<B, F>(self,
+f: F) -> (r: core::iter::Map<Self, F>)\n    where\n        Self: Sized,\n        F:
+FnMut(Self::Item) -> B,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n
+&& self.initial_value_relation(&self)\n            && (forall |i: int| 0 <= i <
+self.remaining().len()\n                ==> f.requires((self.remaining()[i],)))\n            ==> {\n
+                &&& r.obeys_prophetic_iter_laws()\n                &&&
+r.initial_value_relation(&r)\n                &&& r.remaining().len() <= self.remaining().len()\n
+             &&& (forall |i: int| 0 <= i < r.remaining().len()\n                    ==>
+f.ensures((self.remaining()[i],), r.remaining()[i]))\n                &&& (r.will_return_none() ==>
+{\n                    &&& self.will_return_none()\n                    &&& r.remaining().len() ==
+self.remaining().len()\n                })\n                &&& (r.decrease() is Some <==>
+self.decrease() is Some)\n            },\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "For a law-obeying, self-related source whose elements satisfy f.requires, the result obeys
+IteratorSpec and its remaining sequence is a pointwise f.ensures image of a source prefix.",
+        "If the mapped iterator will return None, its remaining length equals the source length and
+the source will also return None.",
+        "The availability of the iterator decrease metric is preserved."
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "map is lazy, but IteratorSpec's prophetic remaining sequence can describe its
+future outputs through the public closure contract without exposing Map fields.",
+      "risks": [
+        "The useful relation is conditional on the source IteratorSpec laws and closure call
+preconditions.",
+        "Current Verus closure contracts do not model evolving FnMut mutable captures.",
+        "The remaining sequence may be a strict prefix when a future closure invocation does not
+return.",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::map_while",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied source explicitly states that MapWhile is not fused and leaves
+behavior after its first None unspecified, while current IteratorSpec models iterators that remain
+exhausted after None.",
+      "risks": [
+        "Using IteratorSpec would impose a stronger post-None behavior than Rust specifies.",
+        "A useful contract needs a missing abstraction for non-fused iterator state."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::max",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMax {\n
+type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn max(self) -> (r:
+ Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        Self: Sized,\n        Self::Item: Ord,\n    default_ensures\n]8;;
+        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() &&
+self.initial_value_relation(&self) ==> {\n            let s = self.remaining();\n            &&&
+(r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==> s.contains(r.unwrap()))\n
+},\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n
+         && <Self::Item as OrdSpec>::obeys_cmp_spec()\n            ==> {\n                let s =
+self.remaining();\n                r == if s.len() == 0 {\n                    None\n
+ } else {\n                    Some(s.drop_first().fold_left(\n                        s[0],\n
+                  |x: Self::Item, y: Self::Item| if <Self::Item as OrdSpec>::cmp_spec(&x, &y) ==
+Ordering::Greater { x } else { y },\n                    ))\n                }\n            },\n
+;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "For an obeying iterator, None is returned exactly for an empty remaining sequence and every
+ Some result belongs to that sequence.",
+        "When OrdSpec is obeyed, the result equals the left fold that retains the later element on
+Equal."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use super::cmp::OrdSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to max_by(Ord::cmp); Seq::fold_left and OrdSpec express
+that fold, including its last-on-ties behavior.",
+      "risks": [
+        "Exact ordering semantics are conditional on OrdSpec::obeys_cmp_spec().",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::max_by",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMaxBy {\n
+type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn max_by<F>(self,
+compare: F) -> (r: Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item,]8;;
+ &Self::Item) -> Ordering,\n    default_ensures\n        self.will_return_none(),\n
+self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> {\n            let s =
+self.remaining();\n            &&& (r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==>
+ s.contains(r.unwrap()))\n        },\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self)\n            && ({\n                let s = self.remaining();\n
+              forall |i: int, j: int|\n                    0 <= i < s.len() && 0 <= j < s.len()\n
+                     ==> compare.requires((&s[i], &s[j]))\n            })\n            ==> ({\n
+           let s = self.remaining();\n                s.len() > 0 ==> exists |acc: Seq]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;| ]8;;
+{\n                    &&& acc.len() == s.len()\n                    &&& acc[0] == s[0]\n
+         &&& (forall |i: int| 1 <= i < s.len() ==> exists |o: Ordering| {\n
+&&& compare.ensures((&acc[i - 1], &s[i]), o)\n                        &&& acc[i] == if o ==
+Ordering::Greater { acc[i - 1] } else { s[i] }\n                    })\n                    &&& r ==
+ Some(acc[s.len() - 1])\n                }\n            }),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "None corresponds exactly to an empty source; a Some result is a source element.",
+        "When the comparator accepts all source-element pairs, an existential accumulator trace
+relates every comparison through compare.ensures and selects the later element unless the
+accumulator compares Greater."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;"
+      ],
+      "useful": true,
+      "rationale": "The source is a reduce using cmp::max_by. An existential accumulator sequence
+captures nondeterministic comparator postconditions without assuming a deterministic closure.",
+      "risks": [
+        "The detailed trace is conditional on sufficient compare.requires facts.",
+        "Current Verus closure contracts do not model evolving FnMut mutable captures.",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::max_by_key",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMaxByKey {\n
+   type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn max_by_key<B:
+ Ord, F>(self, f: F) -> (r: Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        Self: Sized,\n        F: ]8;;
+FnMut(&Self::Item) -> B,\n    default_ensures\n        self.will_return_none(),\n
+self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> {\n            let s =
+self.remaining();\n            &&& (r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==>
+ s.contains(r.unwrap()))\n        },\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self)\n            && <B as OrdSpec>::obeys_cmp_spec()\n            &&
+({\n                let s = self.remaining();\n                forall |i: int| 0 <= i < s.len() ==>
+f.requires((&s[i],))\n            })\n            ==> ({\n                let s =
+self.remaining();\n                s.len() > 0 ==> exists |keys: Seq<B>, winners: Seq<int>| {\n
+               &&& keys.len() == s.len()\n                    &&& (forall |i: int| 0 <= i < s.len()
+==> f.ensures((&s[i],), keys[i]))\n                    &&& winners.len() == s.len()\n
+     &&& winners[0] == 0\n                    &&& (forall |i: int| 1 <= i < s.len() ==> {\n
+               &&& 0 <= winners[i - 1] < i\n                        &&& winners[i] == if <B as
+OrdSpec>::cmp_spec(&keys[winners[i - 1]], &keys[i]) == Ordering::Greater {\n
+    winners[i - 1]\n                        } else {\n                            i\n
+         }\n                    })\n                    &&& 0 <= winners[s.len() - 1] < s.len()\n
+                 &&& r == Some(s[winners[s.len() - 1]])\n                }\n            }),\n
+;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "None corresponds exactly to an empty source; a Some result is a source element.",
+        "Under f.requires and OrdSpec, existential key and winner sequences model one key evaluation
+ per item and last-on-ties selection."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use super::cmp::OrdSpec;"
+      ],
+      "useful": true,
+      "rationale": "The supplied body maps each item to a key-item pair and applies max_by, so
+public Seq, closure requires/ensures, and OrdSpec can describe the selected original item.",
+      "risks": [
+        "Detailed key semantics require f's precondition for every source item.",
+        "Current Verus closure contracts do not model evolving FnMut mutable captures.",
+        "Exact comparison behavior is conditional on OrdSpec::obeys_cmp_spec().",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::min",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorMin {\n
+type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn min(self) -> (r:
+ Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        Self: Sized,\n        Self::Item: Ord,\n    default_ensures\n]8;;
+        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() &&
+self.initial_value_relation(&self) ==> {\n            let s = self.remaining();\n            &&&
+(r.is_none() <==> s.len() == 0)\n            &&& (r.is_some() ==> s.contains(r.unwrap()))\n
+},\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n
+         && <Self::Item as OrdSpec>::obeys_cmp_spec()\n            ==> {\n                let s =
+self.remaining();\n                r == if s.len() == 0 {\n                    None\n
+ } else {\n                    Some(s.drop_first().fold_left(\n                        s[0],\n
+                  |x: Self::Item, y: Self::Item| if <Self::Item as OrdSpec>::cmp_spec(&x, &y) ==
+Ordering::Greater { y } else { x },\n                    ))\n                }\n            },\n
+;\n}",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "For an obeying iterator, None is returned exactly for an empty remaining sequence and every
+ Some result belongs to that sequence.",
+        "When OrdSpec is obeyed, the result equals the left fold that retains the earlier element on
+ Equal."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use super::cmp::OrdSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to min_by(Ord::cmp); Seq::fold_left and OrdSpec express the
+ documented first-on-ties minimum.",
+      "risks": [
+        "Exact ordering semantics are conditional on OrdSpec::obeys_cmp_spec().",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    } ]
+}
+

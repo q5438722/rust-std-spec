@@ -1,0 +1,122 @@
+{
+  "batch": 254,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 34445,
+  "targets": [
+    "std::thread::LocalKey::replace",
+    "std::thread::LocalKey::set",
+    "std::thread::LocalKey::take",
+    "std::thread::LocalKey::try_with",
+    "std::thread::LocalKey::update",
+    "std::thread::LocalKey::with"
+  ],
+  "candidates": [
+    {
+      "target": "std::thread::LocalKey::replace",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the prior value stored in thread-local runtime state, for which vstd provides no public state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_thread_local_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "std::thread::LocalKey::set",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This unit-returning method only changes hidden thread-local runtime state, so no useful observable relation is expressible.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_thread_local_state_abstraction",
+        "unit_return_variant",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "std::thread::LocalKey::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned old value and replacement with Default both concern unmodeled thread-local state; the signature exposes no state that a contract can relate.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_thread_local_state_abstraction",
+        "unmodeled_default_value",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "std::thread::LocalKey::try_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether access succeeds and which value is passed to the closure depend on hidden TLS lifecycle and storage state unavailable in vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_thread_local_state_abstraction",
+        "closure_argument_is_hidden_runtime_value",
+        "access_error_depends_on_tls_lifecycle"
+      ]
+    },
+    {
+      "target": "std::thread::LocalKey::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure consumes the hidden current TLS value and its result is written back to hidden state; neither value is contract-observable.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_thread_local_state_abstraction",
+        "closure_argument_is_hidden_runtime_value",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "std::thread::LocalKey::with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result comes from applying the closure to an unmodeled thread-local value, and successful access depends on hidden TLS lifecycle state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_thread_local_state_abstraction",
+        "closure_argument_is_hidden_runtime_value",
+        "panic_behavior_depends_on_tls_lifecycle"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::btree_map::Entry::or_insert_with_key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a mutable reference to either an existing or newly inserted value. Relating that reference to the consumed Entry and the key-dependent closure requires an Entry/map model and mutable-reference result support absent from the current vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_btree_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a mutable borrow of the occupied entry's hidden value. Current vstd has no public OccupiedEntry view that can identify this borrow, and mutable-reference returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_occupied_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::into_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The consumed OccupiedEntry yields a mutable reference into its backing map. Expressing that ownership transfer and reference identity requires an entry-to-map abstraction unavailable in current vstd, in addition to unsupported mutable-reference output.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_entry_to_map_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::VacantEntry::insert",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates the backing map through a consumed VacantEntry and returns a mutable reference to the inserted value. Current vstd cannot relate that reference to the hidden map update.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_vacant_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is Some only when the Rc allocation is uniquely owned and then contains a mutable reference into that allocation. Modeling this requires observable Rc alias state and supported mutable-reference results, neither of which is available.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_rc_alias_state"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::make_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method may preserve, clone, or move the allocation depending on hidden strong and weak counts, then returns a mutable reference. Current vstd lacks the aliasing and clone-on-write abstractions needed for a useful sound relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_rc_alias_state",
+        "missing_clone_on_write_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::collections::btree_map::Entry::or_insert_with_key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a mutable reference to either an existing or newly inserted
+value. Relating that reference to the consumed Entry and the key-dependent closure requires an
+Entry/map model and mutable-reference result support absent from the current vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_btree_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a mutable borrow of the occupied entry's hidden value. Current
+vstd has no public OccupiedEntry view that can identify this borrow, and mutable-reference returns
+are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_occupied_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::OccupiedEntry::into_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The consumed OccupiedEntry yields a mutable reference into its backing map.
+Expressing that ownership transfer and reference identity requires an entry-to-map abstraction
+unavailable in current vstd, in addition to unsupported mutable-reference output.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_entry_to_map_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::VacantEntry::insert",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates the backing map through a consumed VacantEntry and returns a
+mutable reference to the inserted value. Current vstd cannot relate that reference to the hidden map
+ update.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_vacant_entry_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is Some only when the Rc allocation is uniquely owned and then
+contains a mutable reference into that allocation. Modeling this requires observable Rc alias state
+and supported mutable-reference results, neither of which is available.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_rc_alias_state"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::make_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method may preserve, clone, or move the allocation depending on hidden
+strong and weak counts, then returns a mutable reference. Current vstd lacks the aliasing and
+clone-on-write abstractions needed for a useful sound relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_rc_alias_state",
+        "missing_clone_on_write_abstraction"
+      ]
+    } ]
+}
+

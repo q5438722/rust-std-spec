@@ -1,0 +1,111 @@
+{
+  "id": "std_specs__option.rs__L341__Option__T__as__Ord__cmp",
+  "api_path": "core::cmp::Ord::cmp",
+  "raw_target": "<Option<T> as Ord>::cmp",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 341,
+  "rust_declaration": {
+    "declaration_id": "core:8415",
+    "name": "cmp",
+    "visibility": "default",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"ord_cmp_method\")]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/cmp.rs",
+      "begin": [
+        999,
+        5
+      ],
+      "end": [
+        999,
+        45
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "other",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Ordering",
+          "id": 1682,
+          "args": null
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "trait",
+      "item_id": "core:50",
+      "name": "Ord",
+      "path": [
+        "core",
+        "cmp",
+        "Ord"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   979: #[rustc_diagnostic_item = \"Ord\"]\n   980: #[rustc_const_unstable(feature = \"const_cmp\", issue = \"143800\")]\n   981: pub const trait Ord: [const] Eq + [const] PartialOrd<Self> + PointeeSized {\n   982:     /// This method returns an [`Ordering`] between `self` and `other`.\n   983:     ///\n   984:     /// By convention, `self.cmp(&other)` returns the ordering matching the expression\n   985:     /// `self <operator> other` if true.\n   986:     ///\n   987:     /// # Examples\n   988:     ///\n   989:     /// ```\n   990:     /// use std::cmp::Ordering;\n   991:     ///\n   992:     /// assert_eq!(5.cmp(&10), Ordering::Less);\n   993:     /// assert_eq!(10.cmp(&5), Ordering::Greater);\n   994:     /// assert_eq!(5.cmp(&5), Ordering::Equal);\n   995:     /// ```\n   996:     #[must_use]\n   997:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   998:     #[rustc_diagnostic_item = \"ord_cmp_method\"]\n   999:     fn cmp(&self, other: &Self) -> Ordering;\n  1000: \n  1001:     /// Compares and returns the maximum of two values.\n  1002:     ///\n  1003:     /// Returns the second argument if the comparison determines them to be equal.\n  1004:     ///\n  1005:     /// # Examples\n  1006:     ///\n  1007:     /// ```\n  1008:     /// assert_eq!(1.max(2), 2);\n  1009:     /// assert_eq!(2.max(2), 2);\n  1010:     /// ```\n  1011:     /// ```\n  1012:     /// use std::cmp::Ordering;\n  1013:     ///\n  1014:     /// #[derive(Eq)]\n  1015:     /// struct Equal(&'static str);\n  1016:     ///\n  1017:     /// impl PartialEq for Equal {\n  1018:     ///     fn eq(&self, other: &Self) -> bool { true }\n  1019:     /// }",
+    "source_text": "fn cmp(&self, other: &Self) -> Ordering;",
+    "has_body": false
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd OrdSpec contract for T::cmp when T::obeys_cmp_spec() holds."
+  ],
+  "rationale": "Copies Rust 1.96's four-arm Option ordering match and uses only the smaller generic T::cmp contract.",
+  "run_target_dir": "source-verification/bulk-proof/runs/no-body-full/targets/std_specs__option.rs__L341__Option__T__as__Ord__cmp"
+}

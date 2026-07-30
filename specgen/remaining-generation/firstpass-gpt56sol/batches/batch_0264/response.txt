@@ -1,0 +1,217 @@
+{
+  "candidates": [
+    {
+      "target": "std::thread::spawn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Spawning executes an FnOnce asynchronously and returns an opaque JoinHandle; vstd has no thread lifecycle or scheduler abstraction capable of relating the handle to the closure result.",
+      "risks": [
+        "concurrency",
+        "external runtime state",
+        "missing thread abstraction",
+        "spawn may panic on OS failure"
+      ]
+    },
+    {
+      "target": "std::thread::yield_now",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function only requests an OS scheduling action and has no modeled output or public state change expressible in vstd.",
+      "risks": [
+        "scheduler-dependent effect",
+        "external runtime state",
+        "unit return"
+      ]
+    },
+    {
+      "target": "std::time::Instant::checked_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on platform-specific Instant representation bounds, and vstd exposes no Instant value model or representability predicate for stating the documented relation.",
+      "risks": [
+        "hidden platform representation",
+        "missing Instant arithmetic abstraction"
+      ]
+    },
+    {
+      "target": "std::time::Instant::checked_duration_since",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires a modeled ordering and difference for Instant; these are absent from public vstd vocabulary, and the source explicitly permits None due to monotonicity anomalies.",
+      "risks": [
+        "hidden clock representation",
+        "monotonicity anomalies",
+        "missing Instant difference abstraction"
+      ]
+    },
+    {
+      "target": "std::time::Instant::checked_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The success condition depends on platform-specific Instant bounds, with no public vstd view or representability predicate available to describe the resulting instant.",
+      "risks": [
+        "hidden platform representation",
+        "missing Instant arithmetic abstraction"
+      ]
+    },
+    {
+      "target": "std::time::Instant::duration_since",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the implementation defaults a failed checked difference to zero, vstd lacks an Instant ordering/difference model needed to characterize when and by how much the result differs.",
+      "risks": [
+        "hidden clock representation",
+        "monotonicity anomalies",
+        "missing Instant difference abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std:🧵:spawn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Spawning executes an FnOnce asynchronously and returns an opaque JoinHandle;
+vstd has no thread lifecycle or scheduler abstraction capable of relating the handle to the closure
+result.",
+      "risks": [
+        "concurrency",
+        "external runtime state",
+        "missing thread abstraction",
+        "spawn may panic on OS failure"
+      ]
+    },
+    {
+      "target": "std:🧵:yield_now",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function only requests an OS scheduling action and has no modeled output or
+public state change expressible in vstd.",
+      "risks": [
+        "scheduler-dependent effect",
+        "external runtime state",
+        "unit return"
+      ]
+    },
+    {
+      "target": "std::time::Instant::checked_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on platform-specific Instant representation bounds, and vstd
+exposes no Instant value model or representability predicate for stating the documented relation.",
+      "risks": [
+        "hidden platform representation",
+        "missing Instant arithmetic abstraction"
+      ]
+    },
+    {
+      "target": "std::time::Instant::checked_duration_since",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires a modeled ordering and difference for Instant; these
+are absent from public vstd vocabulary, and the source explicitly permits None due to monotonicity
+anomalies.",
+      "risks": [
+        "hidden clock representation",
+        "monotonicity anomalies",
+        "missing Instant difference abstraction"
+      ]
+    },
+    {
+      "target": "std::time::Instant::checked_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The success condition depends on platform-specific Instant bounds, with no
+public vstd view or representability predicate available to describe the resulting instant.",
+      "risks": [
+        "hidden platform representation",
+        "missing Instant arithmetic abstraction"
+      ]
+    },
+    {
+      "target": "std::time::Instant::duration_since",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the implementation defaults a failed checked difference to zero, vstd
+lacks an Instant ordering/difference model needed to characterize when and by how much the result
+differs.",
+      "risks": [
+        "hidden clock representation",
+        "monotonicity anomalies",
+        "missing Instant difference abstraction"
+      ]
+    } ]
+}
+

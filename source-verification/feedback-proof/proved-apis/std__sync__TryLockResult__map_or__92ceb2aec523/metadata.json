@@ -1,0 +1,232 @@
+{
+  "id": "std__sync__TryLockResult__map_or__92ceb2aec523",
+  "api_path": "std::sync::TryLockResult::map_or",
+  "raw_target": "Result::<T, E>::map_or",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 41, patch: 0 })},\nfeature: \"result_map_or\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      },
+      {
+        "must_use": {
+          "reason": "if you don't need the returned value, use `if let` instead"
+        }
+      }
+    ],
+    "declaration_id": "core:29288",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "generic": "U"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "E"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "U"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "map_or",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "default",
+          {
+            "generic": "U"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "U"
+      }
+    },
+    "source_context": "   818:     /// ```\n   819:     /// let line = \"1\\n2\\n3\\n4\\n\";\n   820:     ///\n   821:     /// for num in line.lines() {\n   822:     ///     match num.parse::<i32>().map(|i| i * 2) {\n   823:     ///         Ok(n) => println!(\"{n}\"),\n   824:     ///         Err(..) => {}\n   825:     ///     }\n   826:     /// }\n   827:     /// ```\n   828:     #[inline]\n   829:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   830:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   831:     pub const fn map<U, F>(self, op: F) -> Result<U, E>\n   832:     where\n   833:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   834:     {\n   835:         match self {\n   836:             Ok(t) => Ok(op(t)),\n   837:             Err(e) => Err(e),\n   838:         }\n   839:     }\n   840: \n   841:     /// Returns the provided default (if [`Err`]), or\n   842:     /// applies a function to the contained value (if [`Ok`]).\n   843:     ///\n   844:     /// Arguments passed to `map_or` are eagerly evaluated; if you are passing\n   845:     /// the result of a function call, it is recommended to use [`map_or_else`],\n   846:     /// which is lazily evaluated.\n   847:     ///\n   848:     /// [`map_or_else`]: Result::map_or_else\n   849:     ///\n   850:     /// # Examples\n   851:     ///\n   852:     /// ```\n   853:     /// let x: Result<_, &str> = Ok(\"foo\");\n   854:     /// assert_eq!(x.map_or(42, |v| v.len()), 3);\n   855:     ///\n   856:     /// let x: Result<&str, _> = Err(\"bar\");\n   857:     /// assert_eq!(x.map_or(42, |v| v.len()), 42);\n   858:     /// ```\n   859:     #[inline]\n   860:     #[stable(feature = \"result_map_or\", since = \"1.41.0\")]\n   861:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   862:     #[must_use = \"if you don't need the returned value, use `if let` instead\"]\n   863:     pub const fn map_or<U, F>(self, default: U, f: F) -> U\n   864:     where\n   865:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   866:         T: [const] Destruct,\n   867:         E: [const] Destruct,\n   868:         U: [const] Destruct,\n   869:     {\n   870:         match self {\n   871:             Ok(t) => f(t),\n   872:             Err(_) => default,\n   873:         }\n   874:     }\n   875: \n   876:     /// Maps a `Result<T, E>` to `U` by applying fallback function `default` to\n   877:     /// a contained [`Err`] value, or function `f` to a contained [`Ok`] value.\n   878:     ///\n   879:     /// This function can be used to unpack a successful result\n   880:     /// while handling an error.\n   881:     ///\n   882:     ///\n   883:     /// # Examples\n   884:     ///\n   885:     /// ```\n   886:     /// let k = 21;\n   887:     ///\n   888:     /// let x : Result<_, &str> = Ok(\"foo\");\n   889:     /// assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 3);\n   890:     ///\n   891:     /// let x : Result<&str, _> = Err(\"bar\");\n   892:     /// assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 42);\n   893:     /// ```\n   894:     #[inline]\n   895:     #[stable(feature = \"result_map_or_else\", since = \"1.41.0\")]\n   896:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   897:     pub const fn map_or_else<U, D, F>(self, default: D, f: F) -> U\n   898:     where\n   899:         D: [const] FnOnce(E) -> U + [const] Destruct,\n   900:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   901:     {\n   902:         match self {\n   903:             Ok(t) => f(t),\n   904:             Err(e) => default(e),\n   905:         }\n   906:     }\n   907: \n   908:     /// Maps a `Result<T, E>` to a `U` by applying function `f` to the contained",
+    "span": {
+      "begin": [
+        863,
+        5
+      ],
+      "end": [
+        874,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn map_or<U, F>(self, default: U, f: F) -> U\n    where\n        F: [const] FnOnce(T) -> U + [const] Destruct,\n        T: [const] Destruct,\n        E: [const] Destruct,\n        U: [const] Destruct,\n    {\n        match self {\n            Ok(t) => f(t),\n            Err(_) => default,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The executable body exactly copies the source match and verifies directly from the supplied FnOnce contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/std__sync__TryLockResult__map_or__92ceb2aec523"
+}

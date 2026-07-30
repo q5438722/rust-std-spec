@@ -1,0 +1,136 @@
+{
+  "batch": 260,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 246471,
+  "targets": [
+    "std::thread::Result::transpose",
+    "std::thread::Result::unwrap",
+    "std::thread::Result::unwrap_err",
+    "std::thread::Result::unwrap_err_unchecked",
+    "std::thread::Result::unwrap_or",
+    "std::thread::Result::unwrap_or_default"
+  ],
+  "candidates": [
+    {
+      "target": "std::thread::Result::transpose",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<Option<T>, E>::transpose ](\n    result: Result<Option<T>, E>,\n) -> (transposed: Option<Result<T, E>>)\n    ensures\n        transposed == match result {\n            Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)),\n            Result::Ok(Option::None) => Option::None,\n            Result::Err(error) => Option::Some(Result::Err(error)),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "transposed == match result { Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)), Result::Ok(Option::None) => Option::None, Result::Err(error) => Option::Some(Result::Err(error)), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The alias-qualified target resolves to core::result::Result, and the source performs an exact structural rearrangement without observing thread runtime state.",
+      "risks": [
+        "The declaration registers the underlying generic Result method.",
+        "Any hidden state inside an error payload remains opaque."
+      ]
+    },
+    {
+      "target": "std::thread::Result::unwrap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This resolves to Result::unwrap, whose Ok precondition and returned-payload postcondition are already specified in vstd.",
+      "risks": [
+        "duplicate_existing_result_specification",
+        "The Err panic and Debug formatting remain outside the existing contract."
+      ]
+    },
+    {
+      "target": "std::thread::Result::unwrap_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This resolves to Result::unwrap_err, whose Err precondition and returned-payload postcondition are already specified in vstd.",
+      "risks": [
+        "duplicate_existing_result_specification",
+        "The Ok panic and Debug formatting remain outside the existing contract."
+      ]
+    },
+    {
+      "target": "std::thread::Result::unwrap_err_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::unwrap_err_unchecked ](\n    result: Result<T, E>,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The Err precondition is exactly the source safety requirement, after which the public error payload is returned.",
+      "risks": [
+        "Violating the precondition is undefined behavior.",
+        "The declaration registers the underlying generic Result method."
+      ]
+    },
+    {
+      "target": "std::thread::Result::unwrap_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::unwrap_or ](\n    result: Result<T, E>,\n    default: T,\n) -> (value: T)\n    ensures\n        result is Ok ==> value == result->Ok_0,\n        result is Err ==> value == default,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> value == result->Ok_0",
+        "result is Err ==> value == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source selects the public Ok payload or the supplied default and does not inspect thread runtime state.",
+      "risks": [
+        "Discarded values may run destructors with unmodeled effects.",
+        "The declaration registers the underlying generic Result method."
+      ]
+    },
+    {
+      "target": "std::thread::Result::unwrap_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::default::Default, E>[ Result::<T, E>::unwrap_or_default ](\n    result: Result<T, E>,\n) -> (value: T)\n    ensures\n        result is Ok ==> value == result->Ok_0,\n        result is Err ==> T::default.ensures((), value),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> value == result->Ok_0",
+        "result is Err ==> T::default.ensures((), value)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the Ok payload or invokes Default::default; vstd's callable-contract vocabulary expresses the latter without assuming a deterministic default.",
+      "risks": [
+        "Err-branch precision depends on the registered Default specification.",
+        "Effects or panics from Default and destructors are not modeled."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "id": "std_specs__net.rs__L298__Ipv6Addr__is_unicast_link_local",
+  "api_path": "core::net::Ipv6Addr::is_unicast_link_local",
+  "raw_target": "Ipv6Addr::is_unicast_link_local",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 298,
+  "rust_declaration": {
+    "declaration_id": "core:27828",
+    "name": "is_unicast_link_local",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"ipv6_is_unique_local\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"ipv6_is_unique_local\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/ip_addr.rs",
+      "begin": [
+        1784,
+        5
+      ],
+      "end": [
+        1786,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27837",
+      "for": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9949",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "ip_addr",
+        "Ipv6Addr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1764:     /// # Examples\n  1765:     ///\n  1766:     /// ```\n  1767:     /// use std::net::Ipv6Addr;\n  1768:     ///\n  1769:     /// // The loopback address (`::1`) does not actually have link-local scope.\n  1770:     /// assert_eq!(Ipv6Addr::LOCALHOST.is_unicast_link_local(), false);\n  1771:     ///\n  1772:     /// // Only addresses in `fe80::/10` have link-local scope.\n  1773:     /// assert_eq!(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 0).is_unicast_link_local(), false);\n  1774:     /// assert_eq!(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0).is_unicast_link_local(), true);\n  1775:     ///\n  1776:     /// // Addresses outside the stricter `fe80::/64` also have link-local scope.\n  1777:     /// assert_eq!(Ipv6Addr::new(0xfe80, 0, 0, 1, 0, 0, 0, 0).is_unicast_link_local(), true);\n  1778:     /// assert_eq!(Ipv6Addr::new(0xfe81, 0, 0, 0, 0, 0, 0, 0).is_unicast_link_local(), true);\n  1779:     /// ```\n  1780:     #[must_use]\n  1781:     #[inline]\n  1782:     #[stable(feature = \"ipv6_is_unique_local\", since = \"1.84.0\")]\n  1783:     #[rustc_const_stable(feature = \"ipv6_is_unique_local\", since = \"1.84.0\")]\n  1784:     pub const fn is_unicast_link_local(&self) -> bool {\n  1785:         (self.segments()[0] & 0xffc0) == 0xfe80\n  1786:     }\n  1787: \n  1788:     /// Returns [`true`] if this is an address reserved for documentation\n  1789:     /// (`2001:db8::/32` and `3fff::/20`).\n  1790:     ///\n  1791:     /// This property is defined by [IETF RFC 3849] and [IETF RFC 9637].\n  1792:     ///\n  1793:     /// [IETF RFC 3849]: https://tools.ietf.org/html/rfc3849\n  1794:     /// [IETF RFC 9637]: https://tools.ietf.org/html/rfc9637\n  1795:     ///\n  1796:     /// # Examples\n  1797:     ///\n  1798:     /// ```\n  1799:     /// #![feature(ip)]\n  1800:     ///\n  1801:     /// use std::net::Ipv6Addr;\n  1802:     ///\n  1803:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff).is_documentation(), false);\n  1804:     /// assert_eq!(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 0).is_documentation(), true);",
+    "source_text": "pub const fn is_unicast_link_local(&self) -> bool {\n        (self.segments()[0] & 0xffc0) == 0xfe80\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's specification of core::net::Ipv6Addr::segments",
+    "vstd::std_specs::net::axiom_ipv6_view_len"
+  ],
+  "rationale": "Preserves the exact segments()[0] mask computation and proves its equivalence to the modeled byte predicate using the smaller segments contract.",
+  "run_target_dir": "source-verification/fidelity-retry/runs/full-gpt56sol/targets/std_specs__net.rs__L298__Ipv6Addr__is_unicast_link_local",
+  "fidelity_retry": {
+    "accepted": true,
+    "audit_reason": "The executable segments()[0] mask comparison is exact after introducing a local; all range/bit-vector reasoning is proof-only. Ipv6Addr::segments and view facts are smaller acyclic contracts.",
+    "source_run": "/home/chentianyu/nanvix-rust-std-spec-survey/source-verification/fidelity-retry/proved-apis/std_specs__net.rs__L298__Ipv6Addr__is_unicast_link_local"
+  }
+}

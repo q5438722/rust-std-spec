@@ -1,0 +1,107 @@
+{
+  "id": "std_specs__convert.rs__L101__T__as__TryInto__U__try_into",
+  "api_path": "core::convert::TryInto::try_into",
+  "normalized_api_path": "core::convert::TryInto::try_into",
+  "raw_target": "<T as TryInto<U>>::try_into",
+  "contract_source_file": "std_specs/convert.rs",
+  "contract_source_line": 101,
+  "rust_declaration": {
+    "declaration_id": "core:12269",
+    "name": "try_into",
+    "visibility": "default",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 34, patch: 0 })},\nfeature: \"try_from\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/convert/mod.rs",
+      "begin": [
+        622,
+        5
+      ],
+      "end": [
+        622,
+        49
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "qualified_path": {
+                      "name": "Error",
+                      "args": null,
+                      "self_type": {
+                        "generic": "Self"
+                      },
+                      "trait": {
+                        "path": "",
+                        "id": 208,
+                        "args": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "trait",
+      "item_id": "core:208",
+      "name": "TryInto",
+      "path": [
+        "core",
+        "convert",
+        "TryInto"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   602: /// standard library. For more information on this, see the\n   603: /// documentation for [`Into`].\n   604: ///\n   605: /// Prefer using [`TryInto`] over [`TryFrom`] when specifying trait bounds on a generic function\n   606: /// to ensure that types that only implement [`TryInto`] can be used as well.\n   607: ///\n   608: /// # Implementing `TryInto`\n   609: ///\n   610: /// This suffers the same restrictions and reasoning as implementing\n   611: /// [`Into`], see there for details.\n   612: #[rustc_diagnostic_item = \"TryInto\"]\n   613: #[stable(feature = \"try_from\", since = \"1.34.0\")]\n   614: #[rustc_const_unstable(feature = \"const_convert\", issue = \"143773\")]\n   615: pub const trait TryInto<T>: Sized {\n   616:     /// The type returned in the event of a conversion error.\n   617:     #[stable(feature = \"try_from\", since = \"1.34.0\")]\n   618:     type Error;\n   619: \n   620:     /// Performs the conversion.\n   621:     #[stable(feature = \"try_from\", since = \"1.34.0\")]\n   622:     fn try_into(self) -> Result<T, Self::Error>;\n   623: }\n   624: \n   625: /// Simple and safe type conversions that may fail in a controlled\n   626: /// way under some circumstances. It is the reciprocal of [`TryInto`].\n   627: ///\n   628: /// This is useful when you are doing a type conversion that may\n   629: /// trivially succeed but may also need special handling.\n   630: /// For example, there is no way to convert an [`i64`] into an [`i32`]\n   631: /// using the [`From`] trait, because an [`i64`] may contain a value\n   632: /// that an [`i32`] cannot represent and so the conversion would lose data.\n   633: /// This might be handled by truncating the [`i64`] to an [`i32`] or by\n   634: /// simply returning [`i32::MAX`], or by some other method.  The [`From`]\n   635: /// trait is intended for perfect conversions, so the `TryFrom` trait\n   636: /// informs the programmer when a type conversion could go bad and lets\n   637: /// them decide how to handle it.\n   638: ///\n   639: /// # Generic Implementations\n   640: ///\n   641: /// - `TryFrom<T> for U` implies [`TryInto`]`<U> for T`\n   642: /// - [`try_from`] is reflexive, which means that `TryFrom<T> for T`",
+    "source_text": "fn try_into(self) -> Result<T, Self::Error>;",
+    "has_body": false
+  }
+}

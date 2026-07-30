@@ -1,0 +1,97 @@
+{
+  "id": "std_specs__slice.rs__L158__a__T__as__core__iter__IntoIterator__into_iter",
+  "api_path": "core::iter::IntoIterator::into_iter",
+  "raw_target": "<&'a [T] as core::iter::IntoIterator>::into_iter",
+  "contract_source_file": "std_specs/slice.rs",
+  "contract_source_line": 158,
+  "rust_declaration": {
+    "declaration_id": "core:26948",
+    "name": "into_iter",
+    "visibility": "default",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Lang(IntoIterIntoIter)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/iter/traits/collect.rs",
+      "begin": [
+        312,
+        5
+      ],
+      "end": [
+        312,
+        42
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "qualified_path": {
+          "name": "IntoIter",
+          "args": null,
+          "self_type": {
+            "generic": "Self"
+          },
+          "trait": {
+            "path": "",
+            "id": 80,
+            "args": null
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "trait",
+      "item_id": "core:80",
+      "name": "IntoIterator",
+      "path": [
+        "core",
+        "iter",
+        "traits",
+        "collect",
+        "IntoIterator"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   292: \n   293:     /// Creates an iterator from a value.\n   294:     ///\n   295:     /// See the [module-level documentation] for more.\n   296:     ///\n   297:     /// [module-level documentation]: crate::iter\n   298:     ///\n   299:     /// # Examples\n   300:     ///\n   301:     /// ```\n   302:     /// let v = [1, 2, 3];\n   303:     /// let mut iter = v.into_iter();\n   304:     ///\n   305:     /// assert_eq!(Some(1), iter.next());\n   306:     /// assert_eq!(Some(2), iter.next());\n   307:     /// assert_eq!(Some(3), iter.next());\n   308:     /// assert_eq!(None, iter.next());\n   309:     /// ```\n   310:     #[lang = \"into_iter\"]\n   311:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   312:     fn into_iter(self) -> Self::IntoIter;\n   313: }\n   314: \n   315: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   316: #[rustc_const_unstable(feature = \"const_iter\", issue = \"92476\")]\n   317: impl<I: [const] Iterator> const IntoIterator for I {\n   318:     type Item = I::Item;\n   319:     type IntoIter = I;\n   320: \n   321:     #[inline]\n   322:     fn into_iter(self) -> I {\n   323:         self\n   324:     }\n   325: }\n   326: \n   327: /// Extend a collection with the contents of an iterator.\n   328: ///\n   329: /// Iterators produce a series of values, and collections can also be thought\n   330: /// of as a series of values. The `Extend` trait bridges this gap, allowing you\n   331: /// to extend a collection by including the contents of that iterator. When\n   332: /// extending a collection with an already existing key, that entry is updated",
+    "source_text": "fn into_iter(self) -> Self::IntoIter;",
+    "has_body": false
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd specification of <[T]>::iter, the smaller standard-library API delegated to by Rust 1.96."
+  ],
+  "rationale": "The Rust 1.96 implementation is exactly self.iter(). Its existing vstd contract directly establishes all target postconditions. Verus reports 1 verified, 0 errors.",
+  "run_target_dir": "source-verification/bulk-proof/runs/no-body-full/targets/std_specs__slice.rs__L158__a__T__as__core__iter__IntoIterator__into_iter"
+}

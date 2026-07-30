@@ -1,0 +1,152 @@
+{
+  "id": "core__ptr__as_mut_array__00d80f965170",
+  "api_path": "core::ptr::as_mut_array",
+  "raw_target": "<*mut [T]>::as_mut_array::<N>",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 93, patch: 0 })},\nfeature: \"core_slice_as_array\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 93, patch: 0 })},\nfeature: \"core_slice_as_array\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51712",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "const": {
+              "default": null,
+              "type": {
+                "primitive": "usize"
+              }
+            }
+          },
+          "name": "N"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "as_mut_array",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": true,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": true,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51719",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "raw_pointer": {
+                      "is_mutable": true,
+                      "type": {
+                        "array": {
+                          "len": "N",
+                          "type": {
+                            "generic": "T"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  1719:     ///\n  1720:     /// The returned value is the number of **elements**, not the number of bytes.\n  1721:     ///\n  1722:     /// This function is safe, even when the raw slice cannot be cast to a slice\n  1723:     /// reference because the pointer is null or unaligned.\n  1724:     ///\n  1725:     /// # Examples\n  1726:     ///\n  1727:     /// ```rust\n  1728:     /// use std::ptr;\n  1729:     ///\n  1730:     /// let slice: *mut [i8] = ptr::slice_from_raw_parts_mut(ptr::null_mut(), 3);\n  1731:     /// assert_eq!(slice.len(), 3);\n  1732:     /// ```\n  1733:     #[inline(always)]\n  1734:     #[stable(feature = \"slice_ptr_len\", since = \"1.79.0\")]\n  1735:     #[rustc_const_stable(feature = \"const_slice_ptr_len\", since = \"1.79.0\")]\n  1736:     pub const fn len(self) -> usize {\n  1737:         metadata(self)\n  1738:     }\n  1739: \n  1740:     /// Returns `true` if the raw slice has a length of 0.\n  1741:     ///\n  1742:     /// # Examples\n  1743:     ///\n  1744:     /// ```\n  1745:     /// use std::ptr;\n  1746:     ///\n  1747:     /// let slice: *mut [i8] = ptr::slice_from_raw_parts_mut(ptr::null_mut(), 3);\n  1748:     /// assert!(!slice.is_empty());\n  1749:     /// ```\n  1750:     #[inline(always)]\n  1751:     #[stable(feature = \"slice_ptr_len\", since = \"1.79.0\")]\n  1752:     #[rustc_const_stable(feature = \"const_slice_ptr_len\", since = \"1.79.0\")]\n  1753:     pub const fn is_empty(self) -> bool {\n  1754:         self.len() == 0\n  1755:     }\n  1756: \n  1757:     /// Gets a raw, mutable pointer to the underlying array.\n  1758:     ///\n  1759:     /// If `N` is not exactly equal to the length of `self`, then this method returns `None`.\n  1760:     #[stable(feature = \"core_slice_as_array\", since = \"1.93.0\")]\n  1761:     #[rustc_const_stable(feature = \"core_slice_as_array\", since = \"1.93.0\")]\n  1762:     #[inline]\n  1763:     #[must_use]\n  1764:     pub const fn as_mut_array<const N: usize>(self) -> Option<*mut [T; N]> {\n  1765:         if self.len() == N {\n  1766:             let me = self.as_mut_ptr() as *mut [T; N];\n  1767:             Some(me)\n  1768:         } else {\n  1769:             None\n  1770:         }\n  1771:     }\n  1772: \n  1773:     /// Divides one mutable raw slice into two at an index.\n  1774:     ///\n  1775:     /// The first will contain all indices from `[0, mid)` (excluding\n  1776:     /// the index `mid` itself) and the second will contain all\n  1777:     /// indices from `[mid, len)` (excluding the index `len` itself).\n  1778:     ///\n  1779:     /// # Panics\n  1780:     ///\n  1781:     /// Panics if `mid > len`.\n  1782:     ///\n  1783:     /// # Safety\n  1784:     ///\n  1785:     /// `mid` must be [in-bounds] of the underlying [allocation].\n  1786:     /// Which means `self` must be dereferenceable and span a single allocation\n  1787:     /// that is at least `mid * size_of::<T>()` bytes long. Not upholding these\n  1788:     /// requirements is *[undefined behavior]* even if the resulting pointers are not used.\n  1789:     ///\n  1790:     /// Since `len` being in-bounds is not a safety invariant of `*mut [T]` the\n  1791:     /// safety requirements of this method are the same as for [`split_at_mut_unchecked`].\n  1792:     /// The explicit bounds check is only as useful as `len` is correct.\n  1793:     ///\n  1794:     /// [`split_at_mut_unchecked`]: #method.split_at_mut_unchecked\n  1795:     /// [in-bounds]: #method.add\n  1796:     /// [allocation]: crate::ptr#allocation\n  1797:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  1798:     ///\n  1799:     /// # Examples\n  1800:     ///\n  1801:     /// ```\n  1802:     /// #![feature(raw_slice_split)]\n  1803:     ///\n  1804:     /// let mut v = [1, 0, 3, 0, 5, 6];\n  1805:     /// let ptr = &mut v as *mut [_];\n  1806:     /// unsafe {\n  1807:     ///     let (left, right) = ptr.split_at_mut(2);\n  1808:     ///     assert_eq!(&*left, [1, 0]);\n  1809:     ///     assert_eq!(&*right, [3, 0, 5, 6]);",
+    "span": {
+      "begin": [
+        1764,
+        5
+      ],
+      "end": [
+        1771,
+        6
+      ],
+      "filename": "core/src/ptr/mut_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn as_mut_array<const N: usize>(self) -> Option<*mut [T; N]> {\n        if self.len() == N {\n            let me = self.as_mut_ptr() as *mut [T; N];\n            Some(me)\n        } else {\n            None\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller std API <*mut [T]>::len returns the slice pointer metadata.",
+    "The smaller std API <*mut [T]>::as_mut_ptr preserves address and provenance while removing slice metadata."
+  ],
+  "rationale": "The exact implementation control flow and executable operations verify compositionally from the two smaller raw-slice pointer contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__as_mut_array__00d80f965170"
+}

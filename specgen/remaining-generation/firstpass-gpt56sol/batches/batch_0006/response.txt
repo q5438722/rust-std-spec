@@ -1,0 +1,236 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::sort_unstable",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Ord>[ <[T]>::sort_unstable ](\n    slice: &mut [T],\n)\n    requires\n        obeys_cmp::<T>(),\n    ensures\n        final(slice)@.to_multiset() =~= old(slice)@.to_multiset(),\n        sorted_by(\n            final(slice)@,\n            |x: T, y: T| x.cmp_spec(&y) != Ordering::Greater,\n        ),\n;",
+      "requires": [
+        "obeys_cmp::<T>()"
+      ],
+      "ensures": [
+        "final(slice)@.to_multiset() =~= old(slice)@.to_multiset()",
+        "sorted_by(final(slice)@, |x: T, y: T| x.cmp_spec(&y) != Ordering::Greater)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::{Ord, Ordering}",
+        "vstd::laws_cmp::obeys_cmp",
+        "vstd::prelude::*",
+        "vstd::relations::sorted_by",
+        "vstd::seq_lib::*",
+        "vstd::std_specs::cmp::OrdSpec"
+      ],
+      "useful": true,
+      "rationale": "The source sorts in place using T::lt. Existing vstd ordering, sequence, and multiset vocabulary expresses ascending order and element preservation while leaving equal-element order unconstrained.",
+      "risks": [
+        "The ordering guarantee requires obeys_cmp::<T>() to connect runtime Ord behavior to cmp_spec.",
+        "The contract describes normal return; comparator panics are not modeled."
+      ]
+    },
+    {
+      "target": "core::str::contains",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is defined by Pattern::is_contained_in, but current vstd has no logical model shared by string, character, character-slice, and predicate patterns.",
+      "risks": [
+        "missing_pattern_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::find",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing Some or None requires the first-match semantics of Pattern::Searcher::next_match. Current vstd exposes no pattern/searcher relation; a bounds-only result would not specify finding or absence.",
+      "risks": [
+        "missing_pattern_abstraction",
+        "unmodeled_first_match_semantics"
+      ]
+    },
+    {
+      "target": "core::str::split_once",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned subranges are selected by the start and end of the first generic-pattern match. Current vstd has no match-boundary model with which to characterize the Option branch and both borrowed slices.",
+      "risks": [
+        "missing_pattern_abstraction",
+        "unmodeled_match_boundaries",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::starts_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to Pattern::is_prefix_of, whose semantics differ across supported pattern types and have no common logical representation in current vstd.",
+      "risks": [
+        "missing_pattern_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::strip_prefix",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Option branch and exact returned suffix depend on whether the generic pattern matches and on its match width. Current vstd models string views but not generic Pattern matching.",
+      "risks": [
+        "missing_pattern_abstraction",
+        "unmodeled_match_width",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::slice::sort_unstable",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Ord>[ <[T]>::sort_unstable ](\n    slice: &mut
+[T],\n)\n    requires\n        obeys_cmp::<T>(),\n    ensures\n        final(slice)@.to_multiset()
+=~= old(slice)@.to_multiset(),\n        sorted_by(\n            final(slice)@,\n            |x: T,
+y: T| x.cmp_spec(&y) != Ordering::Greater,\n        ),\n;",
+      "requires": [
+        "obeys_cmp::<T>()"
+      ],
+      "ensures": [
+        "final(slice)@.to_multiset() =~= old(slice)@.to_multiset()",
+        "sorted_by(final(slice)@, |x: T, y: T| x.cmp_spec(&y) != Ordering::Greater)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::{Ord, Ordering}",
+        "vstd::laws_cmp::obeys_cmp",
+        "vstd::prelude::",
+        "vstd::relations::sorted_by",
+        "vstd::seq_lib::",
+        "vstd::std_specs::cmp::OrdSpec"
+      ],
+      "useful": true,
+      "rationale": "The source sorts in place using T::lt. Existing vstd ordering, sequence, and
+multiset vocabulary expresses ascending order and element preservation while leaving equal-element
+order unconstrained.",
+      "risks": [
+        "The ordering guarantee requires obeys_cmp::<T>() to connect runtime Ord behavior to
+cmp_spec.",
+        "The contract describes normal return; comparator panics are not modeled."
+      ]
+    },
+    {
+      "target": "core::str::contains",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is defined by Pattern::is_contained_in, but current vstd has no
+logical model shared by string, character, character-slice, and predicate patterns.",
+      "risks": [
+        "missing_pattern_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::find",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing Some or None requires the first-match semantics of
+Pattern::Searcher::next_match. Current vstd exposes no pattern/searcher relation; a bounds-only
+result would not specify finding or absence.",
+      "risks": [
+        "missing_pattern_abstraction",
+        "unmodeled_first_match_semantics"
+      ]
+    },
+    {
+      "target": "core::str::split_once",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned subranges are selected by the start and end of the first
+generic-pattern match. Current vstd has no match-boundary model with which to characterize the
+Option branch and both borrowed slices.",
+      "risks": [
+        "missing_pattern_abstraction",
+        "unmodeled_match_boundaries",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::starts_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to Pattern::is_prefix_of, whose semantics differ
+across supported pattern types and have no common logical representation in current vstd.",
+      "risks": [
+        "missing_pattern_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::strip_prefix",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Option branch and exact returned suffix depend on whether the generic
+pattern matches and on its match width. Current vstd models string views but not generic Pattern
+matching.",
+      "risks": [
+        "missing_pattern_abstraction",
+        "unmodeled_match_width",
+        "reference_identity_vs_view"
+      ]
+    } ]
+}
+

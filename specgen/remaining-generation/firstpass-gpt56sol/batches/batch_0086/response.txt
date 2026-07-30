@@ -1,0 +1,224 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::BinaryHeap::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The final heap depends on stateful FnMut results in an explicitly unspecified visitation order; current vstd lacks both a BinaryHeap logical view and a callback-trace model.",
+      "risks": [
+        "missing BinaryHeap view",
+        "missing FnMut call-history model",
+        "unspecified visitation order",
+        "unit return"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::extract_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Extraction and mutable predicate calls occur lazily, so yielded elements and the list's final state depend on partial consumption and early drop; no corresponding prophetic adapter model exists.",
+      "risks": [
+        "missing ExtractIf iterator model",
+        "stateful FnMut effects",
+        "mutable callback arguments",
+        "partial consumption"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd has neither a public LinkedList sequence view nor a type-specific prophetic model connecting the returned Iter to the list's ordered elements.",
+      "risks": [
+        "missing LinkedList view",
+        "missing LinkedList Iter model"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "IterMut lazily yields mutable references whose later writes determine the list's final contents; current vstd lacks the required mutable-iterator prophecy and LinkedList view.",
+      "risks": [
+        "missing prophetic mutable-iterator model",
+        "unsupported yielded mutable references",
+        "missing LinkedList view",
+        "partial consumption"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::drain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Drain defers element movement and deque repair to iteration and drop, with different behavior if leaked; vstd also lacks a generic RangeBounds normalization contract.",
+      "risks": [
+        "missing Drain iterator model",
+        "drop-dependent mutation",
+        "iterator leak semantics",
+        "missing generic RangeBounds model"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator exposes mutable references across the deque's two internal slices, and their later writes determine the final sequence; current vstd has no suitable prophetic IterMut model.",
+      "risks": [
+        "missing prophetic mutable-iterator model",
+        "unsupported yielded mutable references",
+        "partial consumption"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::collections::BinaryHeap::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The final heap depends on stateful FnMut results in an explicitly unspecified
+visitation order; current vstd lacks both a BinaryHeap logical view and a callback-trace model.",
+      "risks": [
+        "missing BinaryHeap view",
+        "missing FnMut call-history model",
+        "unspecified visitation order",
+        "unit return"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::extract_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Extraction and mutable predicate calls occur lazily, so yielded elements and the
+ list's final state depend on partial consumption and early drop; no corresponding prophetic adapter
+ model exists.",
+      "risks": [
+        "missing ExtractIf iterator model",
+        "stateful FnMut effects",
+        "mutable callback arguments",
+        "partial consumption"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd has neither a public LinkedList sequence view nor a type-specific
+prophetic model connecting the returned Iter to the list's ordered elements.",
+      "risks": [
+        "missing LinkedList view",
+        "missing LinkedList Iter model"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "IterMut lazily yields mutable references whose later writes determine the list's
+ final contents; current vstd lacks the required mutable-iterator prophecy and LinkedList view.",
+      "risks": [
+        "missing prophetic mutable-iterator model",
+        "unsupported yielded mutable references",
+        "missing LinkedList view",
+        "partial consumption"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::drain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Drain defers element movement and deque repair to iteration and drop, with
+different behavior if leaked; vstd also lacks a generic RangeBounds normalization contract.",
+      "risks": [
+        "missing Drain iterator model",
+        "drop-dependent mutation",
+        "iterator leak semantics",
+        "missing generic RangeBounds model"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator exposes mutable references across the deque's two internal
+ slices, and their later writes determine the final sequence; current vstd has no suitable prophetic
+ IterMut model.",
+      "risks": [
+        "missing prophetic mutable-iterator model",
+        "unsupported yielded mutable references",
+        "partial consumption"
+      ]
+    } ]
+}
+

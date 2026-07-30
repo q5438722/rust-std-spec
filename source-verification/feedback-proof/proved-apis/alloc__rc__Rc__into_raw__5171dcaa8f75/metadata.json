@@ -1,0 +1,141 @@
+{
+  "id": "alloc__rc__Rc__into_raw__5171dcaa8f75",
+  "api_path": "alloc::rc::Rc::into_raw",
+  "raw_target": "Rc::<T>::into_raw",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "losing the pointer will leak memory"
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 17, patch: 0 })},\nfeature: \"rc_raw\"}}]"
+      },
+      {
+        "other": "#[attr = RustcNeverReturnsNullPtr]"
+      }
+    ],
+    "declaration_id": "alloc:3591",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "into_raw",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": true,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 302,
+          "path": "Rc"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "maybe",
+                      "trait": {
+                        "args": null,
+                        "id": 29,
+                        "path": "Sized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:3598",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:302",
+      "resolved_owner_path": [
+        "alloc",
+        "rc",
+        "Rc"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "this",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      }
+    },
+    "source_context": "  1481:     ///\n  1482:     ///     // Further calls to `Rc::from_raw(x_ptr)` would be memory-unsafe.\n  1483:     /// }\n  1484:     ///\n  1485:     /// // The memory was freed when `x` went out of scope above, so `x_ptr` is now dangling!\n  1486:     /// ```\n  1487:     ///\n  1488:     /// Convert a slice back into its original array:\n  1489:     ///\n  1490:     /// ```\n  1491:     /// use std::rc::Rc;\n  1492:     ///\n  1493:     /// let x: Rc<[u32]> = Rc::new([1, 2, 3]);\n  1494:     /// let x_ptr: *const [u32] = Rc::into_raw(x);\n  1495:     ///\n  1496:     /// unsafe {\n  1497:     ///     let x: Rc<[u32; 3]> = Rc::from_raw(x_ptr.cast::<[u32; 3]>());\n  1498:     ///     assert_eq!(&*x, &[1, 2, 3]);\n  1499:     /// }\n  1500:     /// ```\n  1501:     #[inline]\n  1502:     #[stable(feature = \"rc_raw\", since = \"1.17.0\")]\n  1503:     pub unsafe fn from_raw(ptr: *const T) -> Self {\n  1504:         unsafe { Self::from_raw_in(ptr, Global) }\n  1505:     }\n  1506: \n  1507:     /// Consumes the `Rc`, returning the wrapped pointer.\n  1508:     ///\n  1509:     /// To avoid a memory leak the pointer must be converted back to an `Rc` using\n  1510:     /// [`Rc::from_raw`].\n  1511:     ///\n  1512:     /// # Examples\n  1513:     ///\n  1514:     /// ```\n  1515:     /// use std::rc::Rc;\n  1516:     ///\n  1517:     /// let x = Rc::new(\"hello\".to_owned());\n  1518:     /// let x_ptr = Rc::into_raw(x);\n  1519:     /// assert_eq!(unsafe { &*x_ptr }, \"hello\");\n  1520:     /// # // Prevent leaks for Miri.\n  1521:     /// # drop(unsafe { Rc::from_raw(x_ptr) });\n  1522:     /// ```\n  1523:     #[must_use = \"losing the pointer will leak memory\"]\n  1524:     #[stable(feature = \"rc_raw\", since = \"1.17.0\")]\n  1525:     #[rustc_never_returns_null_ptr]\n  1526:     pub fn into_raw(this: Self) -> *const T {\n  1527:         let this = ManuallyDrop::new(this);\n  1528:         Self::as_ptr(&*this)\n  1529:     }\n  1530: \n  1531:     /// Increments the strong reference count on the `Rc<T>` associated with the\n  1532:     /// provided pointer by one.\n  1533:     ///\n  1534:     /// # Safety\n  1535:     ///\n  1536:     /// The pointer must have been obtained through `Rc::into_raw` and must satisfy the\n  1537:     /// same layout requirements specified in [`Rc::from_raw_in`][from_raw_in].\n  1538:     /// The associated `Rc` instance must be valid (i.e. the strong count must be at\n  1539:     /// least 1) for the duration of this method, and `ptr` must point to a block of memory\n  1540:     /// allocated by the global allocator.\n  1541:     ///\n  1542:     /// [from_raw_in]: Rc::from_raw_in\n  1543:     ///\n  1544:     /// # Examples\n  1545:     ///\n  1546:     /// ```\n  1547:     /// use std::rc::Rc;\n  1548:     ///\n  1549:     /// let five = Rc::new(5);\n  1550:     ///\n  1551:     /// unsafe {\n  1552:     ///     let ptr = Rc::into_raw(five);\n  1553:     ///     Rc::increment_strong_count(ptr);\n  1554:     ///\n  1555:     ///     let five = Rc::from_raw(ptr);\n  1556:     ///     assert_eq!(2, Rc::strong_count(&five));\n  1557:     /// #   // Prevent leaks for Miri.\n  1558:     /// #   Rc::decrement_strong_count(ptr);\n  1559:     /// }\n  1560:     /// ```\n  1561:     #[inline]\n  1562:     #[stable(feature = \"rc_mutate_strong_count\", since = \"1.53.0\")]\n  1563:     pub unsafe fn increment_strong_count(ptr: *const T) {\n  1564:         unsafe { Self::increment_strong_count_in(ptr, Global) }\n  1565:     }\n  1566: \n  1567:     /// Decrements the strong reference count on the `Rc<T>` associated with the\n  1568:     /// provided pointer by one.\n  1569:     ///\n  1570:     /// # Safety\n  1571:     ///",
+    "span": {
+      "begin": [
+        1526,
+        5
+      ],
+      "end": [
+        1529,
+        6
+      ],
+      "filename": "alloc/src/rc.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn into_raw(this: Self) -> *const T {\n        let this = ManuallyDrop::new(this);\n        Self::as_ptr(&*this)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contracts for ManuallyDrop::new and ManuallyDrop::deref.",
+    "The lower-level Rc::<T, A>::as_ptr contract guaranteeing a nonzero address."
+  ],
+  "rationale": "The executable body mechanically copies the two source operations; the postcondition follows from the smaller as_ptr contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__rc__Rc__into_raw__5171dcaa8f75"
+}

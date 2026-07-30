@@ -1,0 +1,162 @@
+{
+  "batch": 79,
+  "group": "higher_order_contract",
+  "duration_ms": 340986,
+  "targets": [
+    "core::result::Result::map_or_default",
+    "core::result::Result::map_or_else",
+    "core::result::Result::or_else",
+    "core::result::Result::unwrap_or_else",
+    "core::slice::binary_search_by",
+    "core::slice::binary_search_by_key"
+  ],
+  "candidates": [
+    {
+      "target": "core::result::Result::map_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U: core::default::Default, F: FnOnce(T) -> U>[ Result::<T, E>::map_or_default ](\n    result: Result<T, E>,\n    f: F,\n) -> (res: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), res),\n        result is Err ==> U::default.ensures((), res),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), res)",
+        "result is Err ==> U::default.ensures((), res)"
+      ],
+      "feature_gates": [
+        "result_option_map_or_default"
+      ],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source invokes f for Ok and Default::default for Err; both calls are expressible through vstd callable contracts.",
+      "risks": [
+        "Precision depends on the supplied FnOnce and Default contracts."
+      ]
+    },
+    {
+      "target": "core::result::Result::map_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, D: FnOnce(E) -> U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or_else ](\n    result: Result<T, E>,\n    default: D,\n    f: F,\n) -> (res: U)\n    requires\n        result is Err ==> default.requires((result->Err_0,)),\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Err ==> default.ensures((result->Err_0,), res),\n        result is Ok ==> f.ensures((result->Ok_0,), res),\n;",
+      "requires": [
+        "result is Err ==> default.requires((result->Err_0,))",
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Err ==> default.ensures((result->Err_0,), res)",
+        "result is Ok ==> f.ensures((result->Ok_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Each source branch invokes exactly one FnOnce with the corresponding payload.",
+      "risks": [
+        "Precision depends on the supplied closure contracts."
+      ]
+    },
+    {
+      "target": "core::result::Result::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> Result<T, F>>[ Result::<T, E>::or_else ](\n    result: Result<T, E>,\n    op: O,\n) -> (res: Result<T, F>)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source preserves an Ok payload and invokes op only for Err.",
+      "risks": [
+        "Precision on the Err branch depends on the supplied closure contract."
+      ]
+    },
+    {
+      "target": "core::result::Result::unwrap_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(E) -> T>[ Result::<T, E>::unwrap_or_else ](\n    result: Result<T, E>,\n    op: F,\n) -> (res: T)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == result->Ok_0,\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == result->Ok_0",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the Ok payload directly and invokes op only for Err.",
+      "risks": [
+        "Precision on the Err branch depends on the supplied closure contract."
+      ]
+    },
+    {
+      "target": "core::slice::binary_search_by",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, F: FnMut(&'a T) -> Ordering>[ <[T]>::binary_search_by ](\n    slice: &'a [T],\n    f: F,\n) -> (result: Result<usize, usize>)\n    requires\n        forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice@[i],)),\n    ensures\n        slice.len() == 0 ==> result == Result::<usize, usize>::Err(0),\n        result is Ok ==> {\n            &&& result->Ok_0 < slice.len()\n            &&& f.ensures((&slice@[result->Ok_0 as int],), Ordering::Equal)\n        },\n        result is Err ==> result->Err_0 <= slice.len(),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice@[i],))"
+      ],
+      "ensures": [
+        "slice.len() == 0 ==> result == Result::<usize, usize>::Err(0)",
+        "result is Ok ==> result->Ok_0 < slice.len() && f.ensures((&slice@[result->Ok_0 as int],), Ordering::Equal)",
+        "result is Err ==> result->Err_0 <= slice.len()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::Ordering",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source guarantees a bounded index and returns Ok only after an Equal comparison; this remains valid without assuming sortedness.",
+      "risks": [
+        "Precision depends on the supplied FnMut contract.",
+        "Insertion-order semantics require an additional comparator-consistency abstraction."
+      ]
+    },
+    {
+      "target": "core::slice::binary_search_by_key",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, B: core::cmp::Ord, F: FnMut(&'a T) -> B>[ <[T]>::binary_search_by_key ](\n    slice: &'a [T],\n    b: &B,\n    f: F,\n) -> (result: Result<usize, usize>)\n    requires\n        forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice@[i],)),\n    ensures\n        slice.len() == 0 ==> result == Result::<usize, usize>::Err(0),\n        result is Ok ==> {\n            &&& result->Ok_0 < slice.len()\n            &&& exists|key: B| {\n                &&& f.ensures((&slice@[result->Ok_0 as int],), key)\n                &&& call_ensures(\n                    <B as core::cmp::Ord>::cmp,\n                    (&key, b),\n                    Ordering::Equal,\n                )\n            }\n        },\n        result is Err ==> result->Err_0 <= slice.len(),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice@[i],))"
+      ],
+      "ensures": [
+        "slice.len() == 0 ==> result == Result::<usize, usize>::Err(0)",
+        "result is Ok ==> result->Ok_0 < slice.len() && exists|key: B| f.ensures((&slice@[result->Ok_0 as int],), key) && call_ensures(<B as core::cmp::Ord>::cmp, (&key, b), Ordering::Equal)",
+        "result is Err ==> result->Err_0 <= slice.len()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::cmp::Ordering",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation delegates to binary_search_by using the extracted key's Ord comparison, which callable ensures relations can expose.",
+      "risks": [
+        "Precision depends on the key extractor and Ord::cmp contracts.",
+        "Sorted-key insertion semantics require an additional consistency abstraction."
+      ]
+    }
+  ]
+}

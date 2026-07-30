@@ -1,0 +1,212 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::RChunksExact::remainder",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private rem field; without a public model of RChunksExact state or chunk size, no useful relation is expressible.",
+      "risks": [
+        "missing_iterator_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::CharIndices::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes the private character iterator's remaining substring, but CharIndices has no public vstd state abstraction to relate it to.",
+      "risks": [
+        "missing_char_indices_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::CharIndices::offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned private front_offset is meaningful only relative to the original string and future iterator output, neither of which has an available CharIndices model.",
+      "risks": [
+        "missing_char_indices_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::Chars::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned string to the unconsumed characters requires the missing Chars iterator-state abstraction; the str view alone cannot identify that suffix.",
+      "risks": [
+        "missing_chars_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::Utf8Chunk::invalid",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[core::str::Utf8Chunk::<'a>::invalid](\n    this: &core::str::Utf8Chunk<'a>,\n) -> (result: &'a [u8])\n    ensures\n        result@.len() <= 3,\n;",
+      "requires": [],
+      "ensures": [
+        "result@.len() <= 3"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The documentation explicitly guarantees a maximum length of three, which is expressible using the existing slice view without modeling private fields.",
+      "risks": [
+        "reference_identity_vs_view",
+        "source_adjacency_not_modeled"
+      ]
+    },
+    {
+      "target": "core::str::Utf8Chunk::valid",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a private field, and being valid UTF-8 is already inherent in its str type; relating it to the input chunk requires a new abstraction.",
+      "risks": [
+        "missing_utf8_chunk_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::slice::RChunksExact::remainder",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private rem field; without a public model of RChunksExact
+state or chunk size, no useful relation is expressible.",
+      "risks": [
+        "missing_iterator_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::CharIndices::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes the private character iterator's remaining substring, but
+CharIndices has no public vstd state abstraction to relate it to.",
+      "risks": [
+        "missing_char_indices_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::CharIndices::offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned private front_offset is meaningful only relative to the original
+string and future iterator output, neither of which has an available CharIndices model.",
+      "risks": [
+        "missing_char_indices_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::Chars::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned string to the unconsumed characters requires the missing
+Chars iterator-state abstraction; the str view alone cannot identify that suffix.",
+      "risks": [
+        "missing_chars_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::str::Utf8Chunk::invalid",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[core::str::Utf8Chunk::<'a>::invalid](\n
+this: &core::str::Utf8Chunk<'a>,\n) -> (result: &'a [u8])\n    ensures\n        result@.len() <=
+3,\n;",
+      "requires": [],
+      "ensures": [
+        "result@.len() <= 3"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The documentation explicitly guarantees a maximum length of three, which is
+expressible using the existing slice view without modeling private fields.",
+      "risks": [
+        "reference_identity_vs_view",
+        "source_adjacency_not_modeled"
+      ]
+    },
+    {
+      "target": "core::str::Utf8Chunk::valid",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a private field, and being valid UTF-8 is already inherent in its
+str type; relating it to the input chunk requires a new abstraction.",
+      "risks": [
+        "missing_utf8_chunk_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    } ]
+}
+

@@ -1,0 +1,1862 @@
+{
+  "metadata": {
+    "model": "gpt-5.6-sol",
+    "manifest": "/home/chentianyu/nanvix-rust-std-spec-survey/specgen/remaining-generation/groups/associated_type_or_projection.json",
+    "vstd_root": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd",
+    "verus_bin": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu",
+    "feedback_rounds": 1,
+    "contract_soundness": "unverified_trusted_external_contract",
+    "seed_candidates": "/home/chentianyu/nanvix-rust-std-spec-survey/specgen/remaining-generation/firstpass-gpt56sol/seed-candidates.json",
+    "include_non_suitable": true,
+    "include_unavailable": true
+  },
+  "counts": {
+    "targets": 19,
+    "add_spec": 2,
+    "skip": 17,
+    "raw_reward": 1,
+    "guarded_reward": 0,
+    "static_skip": 0,
+    "llm_errors": 0
+  },
+  "results": [
+    {
+      "target": "alloc::borrow::Cow::into_owned",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<'a, B: 'a + ?Sized + ToOwned>[ Cow::into_owned ](\n    cow: Cow<'a, B>,\n) -> (res: <B as ToOwned>::Owned)\n    ensures\n        cow matches Cow::Owned(owned) ==> res == owned,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "cow matches Cow::Owned(owned) ==> res == owned"
+            ],
+            "feature_gates": [
+              "alloc"
+            ],
+            "imports": [
+              "alloc::borrow::{Cow, ToOwned}",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source moves the Owned payload out unchanged. The Borrowed arm cannot be related generically because vstd lacks a public ToOwned::to_owned relation.",
+            "requires": [],
+            "risks": [
+              "Borrowed-case output remains unspecified"
+            ],
+            "target": "alloc::borrow::Cow::into_owned",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 1,
+              "duration_ms": 454,
+              "stderr_tail": "error: assume_specification trait bound mismatch\n  --> specgen/remaining-generation/evaluated-gpt56sol/associated_type_or_projection/targets/alloc__borrow__Cow__into_owned/round_00/contract_harness.rs:9:1\n   |\n 9 | / pub assume_specification<'a, B: 'a + ?Sized + ToOwned>[ Cow::into_owned ](\n10 | |     cow: Cow<'a, B>,\n11 | | ) -> (res: <B as ToOwned>::Owned)\n   | |________________________________^\n   |\n   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds\n           but the proxy function's trait bounds are:\n             - B: std::marker::MetaSized\n             - B: 'a\n             - B: std::borrow::ToOwned\n           the external function's trait bounds are:\n             - B: std::marker::MetaSized\n             - B: std::borrow::ToOwned\n\nerror: aborting due to 1 previous error\n\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection",
+            "contract_typecheck_failed"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 24746,
+          "candidate": {
+            "contract_code": "pub assume_specification<'a, B: ?Sized + ToOwned>[ Cow::into_owned ](\n    cow: Cow<'a, B>,\n) -> (res: <B as ToOwned>::Owned)\n    ensures\n        cow matches Cow::Owned(owned) ==> res == owned,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "cow matches Cow::Owned(owned) ==> res == owned"
+            ],
+            "feature_gates": [
+              "alloc"
+            ],
+            "imports": [
+              "alloc::borrow::{Cow, ToOwned}",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The exact external signature does not require B: 'a. For Cow::Owned, the source moves the payload out unchanged, deterministically relating the observable result to the input. Generic borrowed conversion cannot be expressed using existing public vstd ToOwned vocabulary.",
+            "requires": [],
+            "risks": [
+              "Borrowed-case output remains unspecified"
+            ],
+            "target": "alloc::borrow::Cow::into_owned",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 527,
+              "stderr_tail": "warning: the feature `alloc` has been stable since 1.36.0 and no longer requires an attribute to enable\n --> specgen/remaining-generation/evaluated-gpt56sol/associated_type_or_projection/targets/alloc__borrow__Cow__into_owned/recheck_final/contract_harness.rs:2:12\n  |\n2 | #![feature(alloc)]\n  |            ^^^^^\n  |\n  = note: `#[warn(stable_features)]` on by default\n\nwarning: 1 warning emitted\n\n"
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "cow matches Cow::Owned(owned) ==> res == owned"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 24746,
+        "candidate": {
+          "contract_code": "pub assume_specification<'a, B: ?Sized + ToOwned>[ Cow::into_owned ](\n    cow: Cow<'a, B>,\n) -> (res: <B as ToOwned>::Owned)\n    ensures\n        cow matches Cow::Owned(owned) ==> res == owned,\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "cow matches Cow::Owned(owned) ==> res == owned"
+          ],
+          "feature_gates": [
+            "alloc"
+          ],
+          "imports": [
+            "alloc::borrow::{Cow, ToOwned}",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The exact external signature does not require B: 'a. For Cow::Owned, the source moves the payload out unchanged, deterministically relating the observable result to the input. Generic borrowed conversion cannot be expressed using existing public vstd ToOwned vocabulary.",
+          "requires": [],
+          "risks": [
+            "Borrowed-case output remains unspecified"
+          ],
+          "target": "alloc::borrow::Cow::into_owned",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 527,
+            "stderr_tail": "warning: the feature `alloc` has been stable since 1.36.0 and no longer requires an attribute to enable\n --> specgen/remaining-generation/evaluated-gpt56sol/associated_type_or_projection/targets/alloc__borrow__Cow__into_owned/recheck_final/contract_harness.rs:2:12\n  |\n2 | #![feature(alloc)]\n  |            ^^^^^\n  |\n  = note: `#[warn(stable_features)]` on by default\n\nwarning: 1 warning emitted\n\n"
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "cow matches Cow::Owned(owned) ==> res == owned"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "core::option::Option::as_deref",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T: Deref>[ Option::<T>::as_deref ](\n    option: &Option<T>,\n) -> (res: Option<&T::Target>)\n    ensures\n        match option {\n            Some(value) => res is Some && call_ensures(\n                <T as Deref>::deref,\n                (value,),\n                res->0,\n            ),\n            None => res is None,\n        },\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "match option { Some(value) => res is Some && call_ensures(<T as Deref>::deref, (value,), res->0), None => res is None }"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "core::ops::Deref",
+              "core::option::Option",
+              "vstd::prelude::*"
+            ],
+            "rationale": "This captures variant preservation and delegates the Some payload relation to the existing Deref contract, exactly following as_ref().map(Deref::deref).",
+            "requires": [],
+            "risks": [
+              "reference_identity_vs_view",
+              "Some-case precision depends on the concrete Deref specification"
+            ],
+            "target": "core::option::Option::as_deref",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 581,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "match option {\n            Some(value) => res is Some && call_ensures(\n                <T as Deref>::deref,\n                (value,),\n                res->0,\n            ),\n            None => res is None,\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection",
+            "determinism_not_proved:unknown",
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 102474,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The generic Deref specification exposes no functional model for the returned reference. call_ensures is relational and does not determine the Some payload; variant preservation alone is insufficient, while view equality would lose reference identity.",
+            "requires": [],
+            "risks": [
+              "Missing generic Deref result model.",
+              "Reference identity cannot be replaced by view equality."
+            ],
+            "target": "core::option::Option::as_deref",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 102474,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The generic Deref specification exposes no functional model for the returned reference. call_ensures is relational and does not determine the Some payload; variant preservation alone is insufficient, while view equality would lose reference identity.",
+          "requires": [],
+          "risks": [
+            "Missing generic Deref result model.",
+            "Reference identity cannot be replaced by view equality."
+          ],
+          "target": "core::option::Option::as_deref",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::pin::Pin::as_ref",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source derives the result through Pin's private pointer. vstd has no public Pin pointee/view relation that can connect the returned Pin reference to that pointer.",
+            "requires": [],
+            "risks": [
+              "reference_identity_vs_view",
+              "missing Pin pointee abstraction"
+            ],
+            "target": "core::pin::Pin::as_ref",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source derives the result through Pin's private pointer. vstd has no public Pin pointee/view relation that can connect the returned Pin reference to that pointer.",
+          "requires": [],
+          "risks": [
+            "reference_identity_vs_view",
+            "missing Pin pointee abstraction"
+          ],
+          "target": "core::pin::Pin::as_ref",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::pin::Pin::set",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "A useful postcondition must describe mutation of the pinned pointee while preserving its location, but current vstd exposes neither Pin's pointer nor a suitable generic DerefMut mutation relation.",
+            "requires": [],
+            "risks": [
+              "unit_return_variant",
+              "missing Pin/DerefMut mutation abstraction"
+            ],
+            "target": "core::pin::Pin::set",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "A useful postcondition must describe mutation of the pinned pointee while preserving its location, but current vstd exposes neither Pin's pointer nor a suitable generic DerefMut mutation relation.",
+          "requires": [],
+          "risks": [
+            "unit_return_variant",
+            "missing Pin/DerefMut mutation abstraction"
+          ],
+          "target": "core::pin::Pin::set",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::result::Result::as_deref",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T: Deref, E>[ Result::<T, E>::as_deref ](\n    result: &Result<T, E>,\n) -> (res: Result<&T::Target, &E>)\n    ensures\n        match result {\n            Ok(value) => res is Ok && call_ensures(\n                <T as Deref>::deref,\n                (value,),\n                res->Ok_0,\n            ),\n            Err(error) => res is Err && res->Err_0 == error,\n        },\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "match result { Ok(value) => res is Ok && call_ensures(<T as Deref>::deref, (value,), res->Ok_0), Err(error) => res is Err && res->Err_0 == error }"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "core::ops::Deref",
+              "core::result::Result",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The contract follows as_ref().map(Deref::deref): Ok delegates to the registered Deref contract, while Err preserves the original error reference.",
+            "requires": [],
+            "risks": [
+              "reference_identity_vs_view",
+              "Ok-case precision depends on the concrete Deref specification"
+            ],
+            "target": "core::result::Result::as_deref",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 576,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "match result {\n            Ok(value) => res is Ok && call_ensures(\n                <T as Deref>::deref,\n                (value,),\n                res->Ok_0,\n            ),\n            Err(error) => res is Err && res->Err_0 == error,\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection",
+            "determinism_not_proved:unknown",
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 82638,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The Ok output depends on generic Deref::deref semantics over the associated type T::Target. Delegating through call_ensures does not provide a deterministic ordinary contract, while a weaker contract would leave the observable Ok reference unspecified.",
+            "requires": [],
+            "risks": [
+              "Missing deterministic generic Deref result model.",
+              "Variant preservation alone would not meaningfully specify the Ok output."
+            ],
+            "target": "core::result::Result::as_deref",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 82638,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The Ok output depends on generic Deref::deref semantics over the associated type T::Target. Delegating through call_ensures does not provide a deterministic ordinary contract, while a weaker contract would leave the observable Ok reference unspecified.",
+          "requires": [],
+          "risks": [
+            "Missing deterministic generic Deref result model.",
+            "Variant preservation alone would not meaningfully specify the Ok output."
+          ],
+          "target": "core::result::Result::as_deref",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::ends_with",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The implementation delegates to Pattern::is_suffix_of, but current vstd has no public Pattern/ReverseSearcher specification. A generic pattern therefore cannot be related to the string's Seq<char> view.",
+            "requires": [],
+            "risks": [
+              "missing Pattern abstraction",
+              "associated Searcher projection and ReverseSearcher behavior are unmodeled"
+            ],
+            "target": "core::str::ends_with",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The implementation delegates to Pattern::is_suffix_of, but current vstd has no public Pattern/ReverseSearcher specification. A generic pattern therefore cannot be related to the string's Seq<char> view.",
+          "requires": [],
+          "risks": [
+            "missing Pattern abstraction",
+            "associated Searcher projection and ReverseSearcher behavior are unmodeled"
+          ],
+          "target": "core::str::ends_with",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::get",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<I>[ str::get::<I> ](\n    s: &str,\n    i: I,\n) -> (res: Option<&<I as SliceIndex<str>>::Output>) where I: SliceIndex<str>\n    ensures\n        res == spec_slice_get(s, i),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "res == spec_slice_get(s, i)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "core::slice::SliceIndex",
+              "vstd::slice::spec_slice_get"
+            ],
+            "rationale": "The source delegates to SliceIndex::get, and vstd already provides the projection-aware spec_slice_get model for possibly-unsized indexed types, including str.",
+            "requires": [],
+            "risks": [
+              "Concrete reasoning requires specifications for the chosen SliceIndex<str> implementation.",
+              "Reference identity must not be weakened to view equality."
+            ],
+            "target": "core::str::get",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 606,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "res == spec_slice_get(s, i)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 202745,
+          "candidate": {
+            "contract_code": "pub assume_specification<I>[ str::get::<I> ](\n    s: &str,\n    i: I,\n) -> (res: Option<&<I as SliceIndex<str>>::Output>) where I: SliceIndex<str>\n    ensures\n        res == spec_slice_get(s, i),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "res == spec_slice_get(s, i)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "core::slice::SliceIndex",
+              "vstd::slice::spec_slice_get"
+            ],
+            "rationale": "The associated projection is inherent in the exact API and cannot be constrained without narrowing its domain. spec_slice_get already supports T: ?Sized with the matching SliceIndex projection, and the source directly delegates to i.get(self), so this relation models the full observable Option/reference result without extra preconditions.",
+            "requires": [],
+            "risks": [
+              "Concrete range reasoning requires bridge axioms for the relevant SliceIndex<str> implementations.",
+              "Reference equality is intentional and must not be weakened to view equality."
+            ],
+            "target": "core::str::get",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 502,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "res == spec_slice_get(s, i)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 202745,
+        "candidate": {
+          "contract_code": "pub assume_specification<I>[ str::get::<I> ](\n    s: &str,\n    i: I,\n) -> (res: Option<&<I as SliceIndex<str>>::Output>) where I: SliceIndex<str>\n    ensures\n        res == spec_slice_get(s, i),\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "res == spec_slice_get(s, i)"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "core::slice::SliceIndex",
+            "vstd::slice::spec_slice_get"
+          ],
+          "rationale": "The associated projection is inherent in the exact API and cannot be constrained without narrowing its domain. spec_slice_get already supports T: ?Sized with the matching SliceIndex projection, and the source directly delegates to i.get(self), so this relation models the full observable Option/reference result without extra preconditions.",
+          "requires": [],
+          "risks": [
+            "Concrete range reasoning requires bridge axioms for the relevant SliceIndex<str> implementations.",
+            "Reference equality is intentional and must not be weakened to view equality."
+          ],
+          "target": "core::str::get",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 502,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "res == spec_slice_get(s, i)"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 1,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "core::str::parse",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source only delegates to FromStr::from_str, but vstd has no FromStr model relating the input to F or F::Err.",
+            "requires": [],
+            "risks": [
+              "Missing FromStr external trait specification.",
+              "Unmodeled associated type F::Err."
+            ],
+            "target": "core::str::parse",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source only delegates to FromStr::from_str, but vstd has no FromStr model relating the input to F or F::Err.",
+          "requires": [],
+          "risks": [
+            "Missing FromStr external trait specification.",
+            "Unmodeled associated type F::Err."
+          ],
+          "target": "core::str::parse",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rfind",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The result depends on Pattern and ReverseSearcher semantics, for which vstd has no match abstraction.",
+            "requires": [],
+            "risks": [
+              "Missing Pattern and ReverseSearcher specifications.",
+              "Unmodeled GAT projection P::Searcher<'a>.",
+              "Naming Pattern requires the unstable pattern feature."
+            ],
+            "target": "core::str::rfind",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The result depends on Pattern and ReverseSearcher semantics, for which vstd has no match abstraction.",
+          "requires": [],
+          "risks": [
+            "Missing Pattern and ReverseSearcher specifications.",
+            "Unmodeled GAT projection P::Searcher<'a>.",
+            "Naming Pattern requires the unstable pattern feature."
+          ],
+          "target": "core::str::rfind",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rmatch_indices",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Neither generic Pattern semantics nor the remaining sequence of RMatchIndices is modeled in vstd.",
+            "requires": [],
+            "risks": [
+              "Missing Pattern and ReverseSearcher specifications.",
+              "Unmodeled GAT projection P::Searcher<'a>.",
+              "Missing IteratorSpec model for RMatchIndices.",
+              "Private iterator state cannot be exposed."
+            ],
+            "target": "core::str::rmatch_indices",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Neither generic Pattern semantics nor the remaining sequence of RMatchIndices is modeled in vstd.",
+          "requires": [],
+          "risks": [
+            "Missing Pattern and ReverseSearcher specifications.",
+            "Unmodeled GAT projection P::Searcher<'a>.",
+            "Missing IteratorSpec model for RMatchIndices.",
+            "Private iterator state cannot be exposed."
+          ],
+          "target": "core::str::rmatch_indices",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rmatches",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Current vstd cannot describe generic Pattern matching or the remaining match sequence represented by RMatches.",
+            "requires": [],
+            "risks": [
+              "Missing Pattern and ReverseSearcher specifications.",
+              "Unmodeled GAT projection P::Searcher<'a>.",
+              "Missing IteratorSpec model for RMatches.",
+              "Private iterator state cannot be exposed."
+            ],
+            "target": "core::str::rmatches",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Current vstd cannot describe generic Pattern matching or the remaining match sequence represented by RMatches.",
+          "requires": [],
+          "risks": [
+            "Missing Pattern and ReverseSearcher specifications.",
+            "Unmodeled GAT projection P::Searcher<'a>.",
+            "Missing IteratorSpec model for RMatches.",
+            "Private iterator state cannot be exposed."
+          ],
+          "target": "core::str::rmatches",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rsplit",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "A useful contract requires Pattern semantics and an RSplit remaining-substrings model, neither of which exists in vstd.",
+            "requires": [],
+            "risks": [
+              "Missing Pattern and ReverseSearcher specifications.",
+              "Unmodeled GAT projection P::Searcher<'a>.",
+              "Missing IteratorSpec model for RSplit.",
+              "Private iterator state cannot be exposed."
+            ],
+            "target": "core::str::rsplit",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "A useful contract requires Pattern semantics and an RSplit remaining-substrings model, neither of which exists in vstd.",
+          "requires": [],
+          "risks": [
+            "Missing Pattern and ReverseSearcher specifications.",
+            "Unmodeled GAT projection P::Searcher<'a>.",
+            "Missing IteratorSpec model for RSplit.",
+            "Private iterator state cannot be exposed."
+          ],
+          "target": "core::str::rsplit",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rsplit_once",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The result and last-match boundary depend on unmodeled Pattern/ReverseSearcher semantics; current vstd cannot faithfully characterize either Option branch or the borrowed substrings.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "reference_identity_vs_view"
+            ],
+            "target": "core::str::rsplit_once",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The result and last-match boundary depend on unmodeled Pattern/ReverseSearcher semantics; current vstd cannot faithfully characterize either Option branch or the borrowed substrings.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "reference_identity_vs_view"
+          ],
+          "target": "core::str::rsplit_once",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rsplit_terminator",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "A useful contract requires models for generic reverse pattern matching and the RSplitTerminator iterator's remaining substrings, neither of which current vstd provides.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "missing_iterator_model",
+              "private_iterator_state"
+            ],
+            "target": "core::str::rsplit_terminator",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "A useful contract requires models for generic reverse pattern matching and the RSplitTerminator iterator's remaining substrings, neither of which current vstd provides.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "missing_iterator_model",
+            "private_iterator_state"
+          ],
+          "target": "core::str::rsplit_terminator",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::rsplitn",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Current vstd cannot express the pattern-dependent reverse splits, the n-item remainder rule, or the logical contents of the returned RSplitN iterator.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "missing_iterator_model",
+              "private_iterator_state"
+            ],
+            "target": "core::str::rsplitn",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Current vstd cannot express the pattern-dependent reverse splits, the n-item remainder rule, or the logical contents of the returned RSplitN iterator.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "missing_iterator_model",
+            "private_iterator_state"
+          ],
+          "target": "core::str::rsplitn",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::strip_circumfix",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The implementation composes generic strip_prefix and strip_suffix operations, but vstd has no Pattern search model with which to determine success or the exact borrowed middle slice.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "reference_identity_vs_view"
+            ],
+            "target": "core::str::strip_circumfix",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The implementation composes generic strip_prefix and strip_suffix operations, but vstd has no Pattern search model with which to determine success or the exact borrowed middle slice.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "reference_identity_vs_view"
+          ],
+          "target": "core::str::strip_circumfix",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::trim_end_matches",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The exact prefix is selected through Pattern::Searcher::next_reject_back; current vstd cannot express repeated pattern matching or the maximal trim boundary.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "unexpressible_maximal_trim_boundary",
+              "reference_identity_vs_view"
+            ],
+            "target": "core::str::trim_end_matches",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The exact prefix is selected through Pattern::Searcher::next_reject_back; current vstd cannot express repeated pattern matching or the maximal trim boundary.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "unexpressible_maximal_trim_boundary",
+            "reference_identity_vs_view"
+          ],
+          "target": "core::str::trim_end_matches",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::trim_matches",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The returned middle slice depends on forward and reverse rejection boundaries from an unmodeled DoubleEndedSearcher, so no useful faithful relation to pat is available.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "unexpressible_maximal_trim_boundaries",
+              "reference_identity_vs_view"
+            ],
+            "target": "core::str::trim_matches",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The returned middle slice depends on forward and reverse rejection boundaries from an unmodeled DoubleEndedSearcher, so no useful faithful relation to pat is available.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "unexpressible_maximal_trim_boundaries",
+            "reference_identity_vs_view"
+          ],
+          "target": "core::str::trim_matches",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::str::trim_right_matches",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The behavior depends on generic Pattern matching through the associated Searcher projection. Current vstd has no public abstraction for Pattern/ReverseSearcher semantics, so the exact trimmed prefix cannot be related usefully to the input and pattern.",
+            "requires": [],
+            "risks": [
+              "missing_pattern_abstraction",
+              "associated_type_projection",
+              "reference_identity_vs_view"
+            ],
+            "target": "core::str::trim_right_matches",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:associated_type_or_projection"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The behavior depends on generic Pattern matching through the associated Searcher projection. Current vstd has no public abstraction for Pattern/ReverseSearcher semantics, so the exact trimmed prefix cannot be related usefully to the input and pattern.",
+          "requires": [],
+          "risks": [
+            "missing_pattern_abstraction",
+            "associated_type_projection",
+            "reference_identity_vs_view"
+          ],
+          "target": "core::str::trim_right_matches",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:associated_type_or_projection"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    }
+  ],
+  "final_candidates": [
+    {
+      "target": "alloc::borrow::Cow::into_owned",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::option::Option::as_deref",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::pin::Pin::as_ref",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::pin::Pin::set",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::result::Result::as_deref",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::ends_with",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::get",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::parse",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rfind",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rmatch_indices",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rmatches",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rsplit",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rsplit_once",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rsplit_terminator",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::rsplitn",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::strip_circumfix",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::trim_end_matches",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::trim_matches",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::str::trim_right_matches",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:associated_type_or_projection"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    }
+  ]
+}

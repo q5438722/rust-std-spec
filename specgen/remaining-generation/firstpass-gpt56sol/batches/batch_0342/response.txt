@@ -1,0 +1,54 @@
+I’m checking the local contract corpus and vstd APIs to ground each decision in supported vocabulary.
+
+The UTF-8 model is available; I’m now resolving whether pointer/reference identity can be stated soundly or whether those APIs need a missing abstraction.
+
+I found candidate models for unchecked slicing and generic indexing; I’m typechecking the exact declarations against the Rust 1.96 Verus toolchain.I found candidate models for unchecked slicing and generic indexing; I’m typechecking the exact
+declarations against the Rust 1.96 Verus toolchain.
+
+{"candidates":[{"target":"core::str::as_mut_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns a pointer aliasing the first byte, but vstd cannot relate a mutable str reference to that pointer's address and provenance. Non-nullness and an immediate frame condition alone do not characterize the result usefully.","risks":["raw_pointer_equality","pointer_provenance","mutable_aliasing","missing_reference_to_pointer_abstraction"]},{"target":"core::str::as_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the result is non-null, the useful behavior is its identity as the first-byte pointer. Current vstd cannot express the required reference-to-pointer provenance relation.","risks":["raw_pointer_equality","pointer_provenance","missing_reference_to_pointer_abstraction"]},{"target":"core::str::from_utf8","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"vstd can express UTF-8 validity and successful string bytes, but core::str::Utf8Error is unsupported. A contract therefore requires an additional external type specification not present in current vstd.","risks":["unsupported_Utf8Error","requires_external_type_specification","multiple_rust_declarations_share_path","reference_identity_vs_view"]},{"target":"core::str::get_unchecked","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<I>[ str::get_unchecked::<I> ](\n    s: &str,\n    i: I,\n) -> (res: &<I as SliceIndex<str>>::Output) where I: SliceIndex<str>\n    requires\n        spec_slice_get(s, i).is_some(),\n    ensures\n        spec_slice_get(s, i) == Some(res),\n;","requires":["spec_slice_get(s, i).is_some()"],"ensures":["spec_slice_get(s, i) == Some(res)"],"feature_gates":[],"imports":["core::slice::SliceIndex","vstd::prelude::*","vstd::slice::spec_slice_get"],"useful":true,"rationale":"The source directly dereferences i.get_unchecked(self). The existing projection-aware spec_slice_get model expresses validity and preserves the returned reference identity.","risks":["Concrete reasoning requires bridge specifications for the selected SliceIndex<str> implementation."]},{"target":"core::str::slice_unchecked","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification[ str::slice_unchecked ](\n    s: &str,\n    begin: usize,\n    end: usize,\n) -> (res: &str)\n    requires\n        begin <= end,\n        end <= s.spec_bytes().len(),\n        is_char_boundary(s.spec_bytes(), begin as int),\n        is_char_boundary(s.spec_bytes(), end as int),\n    ensures\n        spec_slice_get(s, begin..end) == Some(res),\n        res.spec_bytes() =~= s.spec_bytes().subrange(begin as int, end as int),\n;","requires":["begin <= end","end <= s.spec_bytes().len()","is_char_boundary(s.spec_bytes(), begin as int)","is_char_boundary(s.spec_bytes(), end as int)"],"ensures":["spec_slice_get(s, begin..end) == Some(res)","res.spec_bytes() =~= s.spec_bytes().subrange(begin as int, end as int)"],"feature_gates":[],"imports":["vstd::prelude::*","vstd::slice::spec_slice_get","vstd::string::StringSliceAdditionalSpecFns","vstd::utf8::is_char_boundary"],"useful":true,"rationale":"The documented safety conditions are expressible with byte boundaries, and the source delegates to get_unchecked(begin..end). The contract captures both reference identity and the exact byte subrange.","risks":["deprecated_api","reference_identity_vs_view"]},{"target":"std::ffi::OsStr::from_encoded_bytes_unchecked","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"OsStr is unsupported and vstd has no encoded-byte view or origin predicate. Thus neither the source's origin-sensitive safety condition nor the returned reference relation can be expressed.","risks":["unsupported_OsStr","missing_os_str_encoding_view","origin_sensitive_safety_precondition","platform_specific_encoding","reference_identity_vs_view"]}]}{"candidates":[{"target":"core::str::as_mut_ptr","decision":"skip","contract_form":"assume_specifica
+tion","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"
+rationale":"The source returns a pointer aliasing the first byte, but vstd cannot relate a mutable
+str reference to that pointer's address and provenance. Non-nullness and an immediate frame
+condition alone do not characterize the result usefully.","risks":["raw_pointer_equality","pointer_p
+rovenance","mutable_aliasing","missing_reference_to_pointer_abstraction"]},{"target":"core::str::as_
+ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensu
+res":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the result is non-null,
+ the useful behavior is its identity as the first-byte pointer. Current vstd cannot express the
+required reference-to-pointer provenance relation.","risks":["raw_pointer_equality","pointer_provena
+nce","missing_reference_to_pointer_abstraction"]},{"target":"core::str::from_utf8","decision":"skip"
+,"contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates
+":[],"imports":[],"useful":false,"rationale":"vstd can express UTF-8 validity and successful string
+bytes, but core::str::Utf8Error is unsupported. A contract therefore requires an additional external
+ type specification not present in current
+vstd.","risks":["unsupported_Utf8Error","requires_external_type_specification","multiple_rust_declar
+ations_share_path","reference_identity_vs_view"]},{"target":"core::str::get_unchecked","decision":"a
+dd_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<I>[
+str::get_unchecked::<I> ](\n    s: &str,\n    i: I,\n) -> (res: &<I as SliceIndex<str>>::Output)
+where I: SliceIndex<str>\n    requires\n        spec_slice_get(s, i).is_some(),\n    ensures\n
+  spec_slice_get(s, i) == Some(res),\n;","requires":["spec_slice_get(s,
+i).is_some()"],"ensures":["spec_slice_get(s, i) == Some(res)"],"feature_gates":[],"imports":["core::
+slice::SliceIndex","vstd::prelude::","vstd::slice::spec_slice_get"],"useful":true,"rationale":"The
+source directly dereferences i.get_unchecked(self). The existing projection-aware spec_slice_get
+model expresses validity and preserves the returned reference identity.","risks":["Concrete
+reasoning requires bridge specifications for the selected SliceIndex<str>
+implementation."]},{"target":"core::str::slice_unchecked","decision":"add_spec","contract_form":"ass
+ume_specification","contract_code":"pub assume_specification[ str::slice_unchecked ](\n    s:
+&str,\n    begin: usize,\n    end: usize,\n) -> (res: &str)\n    requires\n        begin <= end,\n
+      end <= s.spec_bytes().len(),\n        is_char_boundary(s.spec_bytes(), begin as int),\n
+ is_char_boundary(s.spec_bytes(), end as int),\n    ensures\n        spec_slice_get(s, begin..end)
+== Some(res),\n        res.spec_bytes() =~= s.spec_bytes().subrange(begin as int, end as
+int),\n;","requires":["begin <= end","end <= s.spec_bytes().len()","is_char_boundary(s.spec_bytes(),
+ begin as int)","is_char_boundary(s.spec_bytes(), end as int)"],"ensures":["spec_slice_get(s,
+begin..end) == Some(res)","res.spec_bytes() =~= s.spec_bytes().subrange(begin as int, end as
+int)"],"feature_gates":[],"imports":["vstd::prelude::","vstd::slice::spec_slice_get","vstd::string::
+StringSliceAdditionalSpecFns","vstd::utf8::is_char_boundary"],"useful":true,"rationale":"The
+documented safety conditions are expressible with byte boundaries, and the source delegates to
+get_unchecked(begin..end). The contract captures both reference identity and the exact byte
+subrange.","risks":["deprecated_api","reference_identity_vs_view"]},{"target":"std::ffi::OsStr::from
+_encoded_bytes_unchecked","decision":"skip","contract_form":"assume_specification","contract_code":"
+","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"OsStr is
+unsupported and vstd has no encoded-byte view or origin predicate. Thus neither the source's
+origin-sensitive safety condition nor the returned reference relation can be
+expressed.","risks":["unsupported_OsStr","missing_os_str_encoding_view","origin_sensitive_safety_pre
+condition","platform_specific_encoding","reference_identity_vs_view"]}]}
+

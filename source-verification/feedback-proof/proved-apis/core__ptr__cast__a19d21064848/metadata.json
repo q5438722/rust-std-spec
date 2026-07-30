@@ -1,0 +1,136 @@
+{
+  "id": "core__ptr__cast__a19d21064848",
+  "api_path": "core::ptr::cast",
+  "raw_target": "<*const T>::cast::<U>",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 38, patch: 0 })},\nfeature: \"ptr_cast\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 38, patch: 0 })},\nfeature: \"const_ptr_cast\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"const_ptr_cast\")]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "declaration_id": "core:51432",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "cast",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": true,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51637",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "U"
+          }
+        }
+      }
+    },
+    "source_context": "     3: use crate::intrinsics::const_eval_select;\n     4: use crate::mem::{self, SizedTypeProperties};\n     5: use crate::slice::{self, SliceIndex};\n     6: \n     7: impl<T: PointeeSized> *const T {\n     8:     #[doc = include_str!(\"docs/is_null.md\")]\n     9:     ///\n    10:     /// # Examples\n    11:     ///\n    12:     /// ```\n    13:     /// let s: &str = \"Follow the rabbit\";\n    14:     /// let ptr: *const u8 = s.as_ptr();\n    15:     /// assert!(!ptr.is_null());\n    16:     /// ```\n    17:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n    18:     #[rustc_const_stable(feature = \"const_ptr_is_null\", since = \"1.84.0\")]\n    19:     #[rustc_diagnostic_item = \"ptr_const_is_null\"]\n    20:     #[inline]\n    21:     #[rustc_allow_const_fn_unstable(const_eval_select)]\n    22:     pub const fn is_null(self) -> bool {\n    23:         // Compare via a cast to a thin pointer, so fat pointers are only\n    24:         // considering their \"data\" part for null-ness.\n    25:         let ptr = self as *const u8;\n    26:         const_eval_select!(\n    27:             @capture { ptr: *const u8 } -> bool:\n    28:             // This use of `const_raw_ptr_comparison` has been explicitly blessed by t-lang.\n    29:             if const #[rustc_allow_const_fn_unstable(const_raw_ptr_comparison)] {\n    30:                 match (ptr).guaranteed_eq(null_mut()) {\n    31:                     Some(res) => res,\n    32:                     // To remain maximally conservative, we stop execution when we don't\n    33:                     // know whether the pointer is null or not.\n    34:                     // We can *not* return `false` here, that would be unsound in `NonNull::new`!\n    35:                     None => panic!(\"null-ness of this pointer cannot be determined in const context\"),\n    36:                 }\n    37:             } else {\n    38:                 ptr.addr() == 0\n    39:             }\n    40:         )\n    41:     }\n    42: \n    43:     /// Casts to a pointer of another type.\n    44:     #[stable(feature = \"ptr_cast\", since = \"1.38.0\")]\n    45:     #[rustc_const_stable(feature = \"const_ptr_cast\", since = \"1.38.0\")]\n    46:     #[rustc_diagnostic_item = \"const_ptr_cast\"]\n    47:     #[inline(always)]\n    48:     pub const fn cast<U>(self) -> *const U {\n    49:         self as _\n    50:     }\n    51: \n    52:     /// Try to cast to a pointer of another type by checking alignment.\n    53:     ///\n    54:     /// If the pointer is properly aligned to the target type, it will be\n    55:     /// cast to the target type. Otherwise, `None` is returned.\n    56:     ///\n    57:     /// # Examples\n    58:     ///\n    59:     /// ```rust\n    60:     /// #![feature(pointer_try_cast_aligned)]\n    61:     ///\n    62:     /// let x = 0u64;\n    63:     ///\n    64:     /// let aligned: *const u64 = &x;\n    65:     /// let unaligned = unsafe { aligned.byte_add(1) };\n    66:     ///\n    67:     /// assert!(aligned.try_cast_aligned::<u32>().is_some());\n    68:     /// assert!(unaligned.try_cast_aligned::<u32>().is_none());\n    69:     /// ```\n    70:     #[unstable(feature = \"pointer_try_cast_aligned\", issue = \"141221\")]\n    71:     #[must_use = \"this returns the result of the operation, \\\n    72:                   without modifying the original\"]\n    73:     #[inline]\n    74:     pub fn try_cast_aligned<U>(self) -> Option<*const U> {\n    75:         if self.is_aligned_to(align_of::<U>()) { Some(self.cast()) } else { None }\n    76:     }\n    77: \n    78:     /// Uses the address value in a new pointer of another type.\n    79:     ///\n    80:     /// This operation will ignore the address part of its `meta` operand and discard existing\n    81:     /// metadata of `self`. For pointers to a sized types (thin pointers), this has the same effect\n    82:     /// as a simple cast. For pointers to an unsized type (fat pointers) this recombines the address\n    83:     /// with new metadata such as slice lengths or `dyn`-vtable.\n    84:     ///\n    85:     /// The resulting pointer will have provenance of `self`. This operation is semantically the\n    86:     /// same as creating a new pointer with the data pointer value of `self` but the metadata of\n    87:     /// `meta`, being fat or thin depending on the `meta` operand.\n    88:     ///\n    89:     /// # Examples\n    90:     ///\n    91:     /// This function is primarily useful for enabling pointer arithmetic on potentially fat\n    92:     /// pointers. The pointer is cast to a sized pointee to utilize offset operations and then\n    93:     /// recombined with its own original metadata.",
+    "span": {
+      "begin": [
+        48,
+        5
+      ],
+      "end": [
+        50,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn cast<U>(self) -> *const U {\n        self as _\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The body exactly copies the standard-library pointer cast, and Verus proves the PtrData reconstruction postcondition directly.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__cast__a19d21064848"
+}

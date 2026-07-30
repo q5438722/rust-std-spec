@@ -1,0 +1,35 @@
+{"candidates":[{"target":"core::ptr::NonNull::with_addr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source changes the address while preserving provenance, but vstd has no public NonNull view connecting it to the raw-pointer provenance model.","risks":["Missing NonNull-to-raw-pointer abstraction","An address-only contract would omit required provenance preservation"]},{"target":"core::ptr::NonNull::with_exposed_provenance","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result picks up ambient previously exposed provenance, while the signature carries no exposure witness and vstd has no NonNull pointer view.","risks":["Ambient exposed-provenance choice is not modeled by this signature","Missing NonNull-to-raw-pointer abstraction"]},{"target":"core::ptr::NonNull::without_provenance","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Its defining behavior is the supplied address with null provenance, which cannot be stated without a public logical representation of NonNull.","risks":["Missing NonNull logical view","Pointer provenance and representation must not be inferred from transmute"]},{"target":"core::slice::ChunksExact::remainder","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns the private rem field, but current vstd exposes no ChunksExact view relating that field to the original slice and chunk size.","risks":["Required remainder state is hidden","No existing ChunksExact iterator abstraction"]},{"target":"core::slice::Iter::as_slice","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<'a, T>[ Iter::<'a, T>::as_slice ](\n    iter: &Iter<'a, T>,\n) -> (res: &'a [T])\n    ensures\n        res@ == IteratorSpec::remaining(iter).unref(),\n;","requires":[],"ensures":["res@ == IteratorSpec::remaining(iter).unref()"],"feature_gates":[],"imports":["use core::slice::Iter;","use vstd::std_specs::iter::IteratorSpec;"],"useful":true,"rationale":"vstd already models slice Iter through IteratorSpec::remaining, and the source returns exactly the iterator's unconsumed slice.","risks":["The contract specifies element-view equality, not reference identity"]},{"target":"core::slice::IterMut::as_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source exposes the iterator's hidden remaining region, but current vstd has no IterMut view or IteratorSpec model with which to describe its current contents.","risks":["Missing mutable-slice iterator abstraction","Aliasing and mutations through yielded references are ownership-sensitive"]}]}{"candidates":[{"target":"core::ptr::NonNull::with_addr","decision":"skip","contract_form":"assume_s
+pecification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful"
+:false,"rationale":"The source changes the address while preserving provenance, but vstd has no
+public NonNull view connecting it to the raw-pointer provenance model.","risks":["Missing
+NonNull-to-raw-pointer abstraction","An address-only contract would omit required provenance
+preservation"]},{"target":"core::ptr::NonNull::with_exposed_provenance","decision":"skip","contract_
+form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"impor
+ts":[],"useful":false,"rationale":"The result picks up ambient previously exposed provenance, while
+the signature carries no exposure witness and vstd has no NonNull pointer view.","risks":["Ambient
+exposed-provenance choice is not modeled by this signature","Missing NonNull-to-raw-pointer
+abstraction"]},{"target":"core::ptr::NonNull::without_provenance","decision":"skip","contract_form":
+"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[]
+,"useful":false,"rationale":"Its defining behavior is the supplied address with null provenance,
+which cannot be stated without a public logical representation of NonNull.","risks":["Missing
+NonNull logical view","Pointer provenance and representation must not be inferred from
+transmute"]},{"target":"core::slice::ChunksExact::remainder","decision":"skip","contract_form":"assu
+me_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"use
+ful":false,"rationale":"The source returns the private rem field, but current vstd exposes no
+ChunksExact view relating that field to the original slice and chunk size.","risks":["Required
+remainder state is hidden","No existing ChunksExact iterator abstraction"]},{"target":"core::slice::
+Iter::as_slice","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub
+assume_specification<'a, T>[ Iter::<'a, T>::as_slice ](\n    iter: &Iter<'a, T>,\n) -> (res: &'a
+[T])\n    ensures\n        res@ ==
+IteratorSpec::remaining(iter).unref(),\n;","requires":[],"ensures":["res@ ==
+IteratorSpec::remaining(iter).unref()"],"feature_gates":[],"imports":["use core::slice::Iter;","use
+vstd::std_specs::iter::IteratorSpec;"],"useful":true,"rationale":"vstd already models slice Iter
+through IteratorSpec::remaining, and the source returns exactly the iterator's unconsumed
+slice.","risks":["The contract specifies element-view equality, not reference identity"]},{"target":
+"core::slice::IterMut::as_slice","decision":"skip","contract_form":"assume_specification","contract_
+code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+source exposes the iterator's hidden remaining region, but current vstd has no IterMut view or
+IteratorSpec model with which to describe its current contents.","risks":["Missing mutable-slice
+iterator abstraction","Aliasing and mutations through yielded references are
+ownership-sensitive"]}]}
+

@@ -1,0 +1,111 @@
+{
+  "batch": 135,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 59443,
+  "targets": [
+    "core::panic::PanicInfo::payload",
+    "core::panic::PanicMessage::as_str",
+    "core::pin::Pin::get_ref",
+    "core::pin::Pin::into_inner",
+    "core::pin::Pin::into_ref",
+    "core::pin::Pin::new"
+  ],
+  "candidates": [
+    {
+      "target": "core::panic::PanicInfo::payload",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains a private local NoPayload value; current vstd cannot usefully characterize its dynamic type or reference identity.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_payload_abstraction"
+      ]
+    },
+    {
+      "target": "core::panic::PanicMessage::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result delegates to hidden fmt::Arguments state, for which no public vstd model relates the optional string to PanicMessage.",
+      "risks": [
+        "reference_identity_vs_view",
+        "hidden_format_arguments_state"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::get_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee is that the returned reference is the exact pointer wrapped by Pin, but current vstd has no Pin or suitable reference-identity abstraction.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_pin_abstraction"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns Pin's private pointer field, but no public vstd observation relates an opaque Pin<Ptr> to its underlying Ptr.",
+      "risks": [
+        "missing_pin_abstraction",
+        "opaque_private_representation"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::into_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method preserves the pinned allocation while weakening a mutable reference, which requires a Pin and reference-identity model unavailable in current vstd.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_pin_abstraction"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps pointer unchanged, but current public vstd vocabulary cannot observe the pointer stored inside the resulting opaque Pin<Ptr>.",
+      "risks": [
+        "missing_pin_abstraction",
+        "opaque_private_representation"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "id": "std_specs__vecdeque.rs__L374__VecDeque__T__A__truncate",
+  "api_path": "alloc::collections::vec_deque::VecDeque::truncate",
+  "normalized_api_path": "alloc::collections::VecDeque::truncate",
+  "raw_target": "VecDeque::<T, A>::truncate",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 374,
+  "rust_declaration": {
+    "declaration_id": "alloc:3087",
+    "name": "truncate",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 16, patch: 0 })},\nfeature: \"deque_extras\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        1370,
+        5
+      ],
+      "end": [
+        1412,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "len",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1350:     /// Shortens the deque, keeping the first `len` elements and dropping\n  1351:     /// the rest.\n  1352:     ///\n  1353:     /// If `len` is greater or equal to the deque's current length, this has\n  1354:     /// no effect.\n  1355:     ///\n  1356:     /// # Examples\n  1357:     ///\n  1358:     /// ```\n  1359:     /// use std::collections::VecDeque;\n  1360:     ///\n  1361:     /// let mut buf = VecDeque::new();\n  1362:     /// buf.push_back(5);\n  1363:     /// buf.push_back(10);\n  1364:     /// buf.push_back(15);\n  1365:     /// assert_eq!(buf, [5, 10, 15]);\n  1366:     /// buf.truncate(1);\n  1367:     /// assert_eq!(buf, [5]);\n  1368:     /// ```\n  1369:     #[stable(feature = \"deque_extras\", since = \"1.16.0\")]\n  1370:     pub fn truncate(&mut self, len: usize) {\n  1371:         /// Runs the destructor for all items in the slice when it gets dropped (normally or\n  1372:         /// during unwinding).\n  1373:         struct Dropper<'a, T>(&'a mut [T]);\n  1374: \n  1375:         impl<'a, T> Drop for Dropper<'a, T> {\n  1376:             fn drop(&mut self) {\n  1377:                 unsafe {\n  1378:                     ptr::drop_in_place(self.0);\n  1379:                 }\n  1380:             }\n  1381:         }\n  1382: \n  1383:         // Safe because:\n  1384:         //\n  1385:         // * Any slice passed to `drop_in_place` is valid; the second case has\n  1386:         //   `len <= front.len()` and returning on `len > self.len()` ensures\n  1387:         //   `begin <= back.len()` in the first case\n  1388:         // * The head of the VecDeque is moved before calling `drop_in_place`,\n  1389:         //   so no value is dropped twice if `drop_in_place` panics\n  1390:         unsafe {",
+    "source_text": "pub fn truncate(&mut self, len: usize) {\n        /// Runs the destructor for all items in the slice when it gets dropped (normally or\n        /// during unwinding).\n        struct Dropper<'a, T>(&'a mut [T]);\n\n        impl<'a, T> Drop for Dropper<'a, T> {\n            fn drop(&mut self) {\n                unsafe {\n                    ptr::drop_in_place(self.0);\n                }\n            }\n        }\n\n        // Safe because:\n        //\n        // * Any slice passed to `drop_in_place` is valid; the second case has\n        //   `len <= front.len()` and returning on `len > self.len()` ensures\n        //   `begin <= back.len()` in the first case\n        // * The head of the VecDeque is moved before calling `drop_in_place`,\n        //   so no value is dropped twice if `drop_in_place` panics\n        unsafe {\n            if len >= self.len {\n                return;\n            }\n\n            let (front, back) = self.as_mut_slices();\n            if len > front.len() {\n                let begin = len - front.len();\n                let drop_back = back.get_unchecked_mut(begin..) as *mut _;\n                self.len = len;\n                ptr::drop_in_place(drop_back);\n            } else {\n                let drop_back = back as *mut _;\n                let drop_front = front.get_unchecked_mut(len..) as *mut _;\n                self.len = len;\n\n                // Make sure the second half is dropped even when a destructor\n                // in the first one panics.\n                let _back_dropper = Dropper(&mut *drop_back);\n                ptr::drop_in_place(drop_front);\n            }\n        }\n    }",
+    "has_body": true
+  }
+}

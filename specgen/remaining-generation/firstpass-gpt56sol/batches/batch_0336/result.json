@@ -1,0 +1,127 @@
+{
+  "batch": 336,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 215866,
+  "targets": [
+    "core::ptr::replace",
+    "core::ptr::slice_from_raw_parts",
+    "core::ptr::slice_from_raw_parts_mut",
+    "core::ptr::sub",
+    "core::ptr::swap",
+    "core::ptr::swap_nonoverlapping"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::replace",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation returns the old pointee and writes src, but the exact raw-pointer signature carries no PointsTo permission through which vstd can observe or update memory.",
+      "risks": [
+        "missing_typed_memory_permission",
+        "unsafe_ownership_effect",
+        "multiple_declarations_share_target_path"
+      ]
+    },
+    {
+      "target": "core::ptr::slice_from_raw_parts",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ core::ptr::slice_from_raw_parts::<T> ](\n    data: *const T,\n    len: usize,\n) -> (res: *const [T])\n    ensures\n        res@.addr == data@.addr,\n        res@.provenance == data@.provenance,\n        res@.metadata == len,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "res@.addr == data@.addr",
+        "res@.provenance == data@.provenance",
+        "res@.metadata == len"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a wide slice pointer from data and len; vstd publicly models its address, provenance, and slice metadata, completely characterizing the result.",
+      "risks": [
+        "does_not_establish_dereference_validity",
+        "does_not_establish_non_nullness"
+      ]
+    },
+    {
+      "target": "core::ptr::slice_from_raw_parts_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ core::ptr::slice_from_raw_parts_mut::<T> ](\n    data: *mut T,\n    len: usize,\n) -> (res: *mut [T])\n    ensures\n        res@.addr == data@.addr,\n        res@.provenance == data@.provenance,\n        res@.metadata == len,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "res@.addr == data@.addr",
+        "res@.provenance == data@.provenance",
+        "res@.metadata == len"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a mutable wide slice pointer while preserving the data pointer and using len as metadata; vstd exposes all three components.",
+      "risks": [
+        "does_not_establish_dereference_validity",
+        "does_not_establish_aliasing_or_uniqueness"
+      ]
+    },
+    {
+      "target": "core::ptr::sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although vstd can express the resulting address, Rust's safety contract also requires same-allocation and in-bounds reasoning. PtrData exposes abstract provenance but no allocation bounds, and the signature carries no range permission.",
+      "risks": [
+        "missing_same_allocation_predicate",
+        "missing_in_bounds_abstraction",
+        "unsafe_pointer_arithmetic"
+      ]
+    },
+    {
+      "target": "core::ptr::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning operation mutates two raw-pointer locations and permits overlap. Its exact signature exposes neither pointee contents nor transferable memory permissions, so vstd cannot state the swap effect.",
+      "risks": [
+        "missing_typed_memory_permissions",
+        "overlapping_memory_effect",
+        "multiple_declarations_share_target_path"
+      ]
+    },
+    {
+      "target": "core::ptr::swap_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires initialized sequence permissions for both count-element ranges and a modeled exchange of their contents. The raw-pointer signature carries no such permissions, and PointsToRaw does not model initialized sequences.",
+      "risks": [
+        "missing_range_content_abstraction",
+        "missing_nonoverlap_permission",
+        "unobservable_unit_returning_memory_effect"
+      ]
+    }
+  ]
+}

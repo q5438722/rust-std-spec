@@ -1,0 +1,160 @@
+{
+  "id": "std_specs__smart_ptrs.rs__L60__Rc__T__A__try_unwrap",
+  "api_path": "alloc::rc::Rc::try_unwrap",
+  "normalized_api_path": "alloc::rc::Rc::try_unwrap",
+  "raw_target": "Rc::<T, A>::try_unwrap",
+  "contract_source_file": "std_specs/smart_ptrs.rs",
+  "contract_source_line": 60,
+  "rust_declaration": {
+    "declaration_id": "alloc:3570",
+    "name": "try_unwrap",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 4, patch: 0 })},\nfeature: \"rc_unique\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/rc.rs",
+      "begin": [
+        1054,
+        5
+      ],
+      "end": [
+        1071,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "this",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 46,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "Self"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3573",
+      "for": {
+        "resolved_path": {
+          "path": "Rc",
+          "id": 302,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:302",
+      "resolved_owner_path": [
+        "alloc",
+        "rc",
+        "Rc"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1034:     ///\n  1035:     /// Otherwise, an [`Err`] is returned with the same `Rc` that was\n  1036:     /// passed in.\n  1037:     ///\n  1038:     /// This will succeed even if there are outstanding weak references.\n  1039:     ///\n  1040:     /// # Examples\n  1041:     ///\n  1042:     /// ```\n  1043:     /// use std::rc::Rc;\n  1044:     ///\n  1045:     /// let x = Rc::new(3);\n  1046:     /// assert_eq!(Rc::try_unwrap(x), Ok(3));\n  1047:     ///\n  1048:     /// let x = Rc::new(4);\n  1049:     /// let _y = Rc::clone(&x);\n  1050:     /// assert_eq!(*Rc::try_unwrap(x).unwrap_err(), 4);\n  1051:     /// ```\n  1052:     #[inline]\n  1053:     #[stable(feature = \"rc_unique\", since = \"1.4.0\")]\n  1054:     pub fn try_unwrap(this: Self) -> Result<T, Self> {\n  1055:         if Rc::strong_count(&this) == 1 {\n  1056:             let this = ManuallyDrop::new(this);\n  1057: \n  1058:             let val: T = unsafe { ptr::read(&**this) }; // copy the contained object\n  1059:             let alloc: A = unsafe { ptr::read(&this.alloc) }; // copy the allocator\n  1060: \n  1061:             // Indicate to Weaks that they can't be promoted by decrementing\n  1062:             // the strong count, and then remove the implicit \"strong weak\"\n  1063:             // pointer while also handling drop logic by just crafting a\n  1064:             // fake Weak.\n  1065:             this.inner().dec_strong();\n  1066:             let _weak = Weak { ptr: this.ptr, alloc };\n  1067:             Ok(val)\n  1068:         } else {\n  1069:             Err(this)\n  1070:         }\n  1071:     }\n  1072: \n  1073:     /// Returns the inner value, if the `Rc` has exactly one strong reference.\n  1074:     ///",
+    "source_text": "pub fn try_unwrap(this: Self) -> Result<T, Self> {\n        if Rc::strong_count(&this) == 1 {\n            let this = ManuallyDrop::new(this);\n\n            let val: T = unsafe { ptr::read(&**this) }; // copy the contained object\n            let alloc: A = unsafe { ptr::read(&this.alloc) }; // copy the allocator\n\n            // Indicate to Weaks that they can't be promoted by decrementing\n            // the strong count, and then remove the implicit \"strong weak\"\n            // pointer while also handling drop logic by just crafting a\n            // fake Weak.\n            this.inner().dec_strong();\n            let _weak = Weak { ptr: this.ptr, alloc };\n            Ok(val)\n        } else {\n            Err(this)\n        }\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "id": "std_specs__collections_extra.rs__L51__BinaryHeap__T__A__len",
+  "api_path": "alloc::collections::BinaryHeap::len",
+  "raw_target": "BinaryHeap::<T, A>::len",
+  "contract_source_file": "std_specs/collections_extra.rs",
+  "contract_source_line": 51,
+  "rust_declaration": {
+    "declaration_id": "alloc:1013",
+    "name": "len",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConfusables {symbols: [\"length\", \"size\"]}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/binary_heap/mod.rs",
+      "begin": [
+        1443,
+        5
+      ],
+      "end": [
+        1445,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "usize"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:1018",
+      "for": {
+        "resolved_path": {
+          "path": "BinaryHeap",
+          "id": 979,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:979",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "binary_heap",
+        "BinaryHeap"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1423:     #[inline]\n  1424:     pub fn allocator(&self) -> &A {\n  1425:         self.data.allocator()\n  1426:     }\n  1427: \n  1428:     /// Returns the length of the binary heap.\n  1429:     ///\n  1430:     /// # Examples\n  1431:     ///\n  1432:     /// Basic usage:\n  1433:     ///\n  1434:     /// ```\n  1435:     /// use std::collections::BinaryHeap;\n  1436:     /// let heap = BinaryHeap::from([1, 3]);\n  1437:     ///\n  1438:     /// assert_eq!(heap.len(), 2);\n  1439:     /// ```\n  1440:     #[must_use]\n  1441:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1442:     #[rustc_confusables(\"length\", \"size\")]\n  1443:     pub fn len(&self) -> usize {\n  1444:         self.data.len()\n  1445:     }\n  1446: \n  1447:     /// Checks if the binary heap is empty.\n  1448:     ///\n  1449:     /// # Examples\n  1450:     ///\n  1451:     /// Basic usage:\n  1452:     ///\n  1453:     /// ```\n  1454:     /// use std::collections::BinaryHeap;\n  1455:     /// let mut heap = BinaryHeap::new();\n  1456:     ///\n  1457:     /// assert!(heap.is_empty());\n  1458:     ///\n  1459:     /// heap.push(3);\n  1460:     /// heap.push(5);\n  1461:     /// heap.push(1);\n  1462:     ///\n  1463:     /// assert!(!heap.is_empty());",
+    "source_text": "pub fn len(&self) -> usize {\n        self.data.len()\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for BinaryHeap::as_slice",
+    "vstd contract for <[T]>::len"
+  ],
+  "rationale": "Uses a typed helper to invoke slice length rather than BinaryHeap::len. BinaryHeap::as_slice exposes the backing elements, and the multiset-length lemma connects that slice to the heap view.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__collections_extra.rs__L51__BinaryHeap__T__A__len"
+}

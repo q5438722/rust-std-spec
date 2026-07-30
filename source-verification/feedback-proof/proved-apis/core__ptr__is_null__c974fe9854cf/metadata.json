@@ -1,0 +1,126 @@
+{
+  "id": "core__ptr__is_null__c974fe9854cf",
+  "api_path": "core::ptr::is_null",
+  "raw_target": "<*const T>::is_null",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"const_ptr_is_null\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"ptr_const_is_null\")]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_eval_select\"])]"
+      }
+    ],
+    "declaration_id": "core:51498",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "is_null",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51637",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "     1: use super::*;\n     2: use crate::cmp::Ordering::{Equal, Greater, Less};\n     3: use crate::intrinsics::const_eval_select;\n     4: use crate::mem::{self, SizedTypeProperties};\n     5: use crate::slice::{self, SliceIndex};\n     6: \n     7: impl<T: PointeeSized> *const T {\n     8:     #[doc = include_str!(\"docs/is_null.md\")]\n     9:     ///\n    10:     /// # Examples\n    11:     ///\n    12:     /// ```\n    13:     /// let s: &str = \"Follow the rabbit\";\n    14:     /// let ptr: *const u8 = s.as_ptr();\n    15:     /// assert!(!ptr.is_null());\n    16:     /// ```\n    17:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n    18:     #[rustc_const_stable(feature = \"const_ptr_is_null\", since = \"1.84.0\")]\n    19:     #[rustc_diagnostic_item = \"ptr_const_is_null\"]\n    20:     #[inline]\n    21:     #[rustc_allow_const_fn_unstable(const_eval_select)]\n    22:     pub const fn is_null(self) -> bool {\n    23:         // Compare via a cast to a thin pointer, so fat pointers are only\n    24:         // considering their \"data\" part for null-ness.\n    25:         let ptr = self as *const u8;\n    26:         const_eval_select!(\n    27:             @capture { ptr: *const u8 } -> bool:\n    28:             // This use of `const_raw_ptr_comparison` has been explicitly blessed by t-lang.\n    29:             if const #[rustc_allow_const_fn_unstable(const_raw_ptr_comparison)] {\n    30:                 match (ptr).guaranteed_eq(null_mut()) {\n    31:                     Some(res) => res,\n    32:                     // To remain maximally conservative, we stop execution when we don't\n    33:                     // know whether the pointer is null or not.\n    34:                     // We can *not* return `false` here, that would be unsound in `NonNull::new`!\n    35:                     None => panic!(\"null-ness of this pointer cannot be determined in const context\"),\n    36:                 }\n    37:             } else {\n    38:                 ptr.addr() == 0\n    39:             }\n    40:         )\n    41:     }\n    42: \n    43:     /// Casts to a pointer of another type.\n    44:     #[stable(feature = \"ptr_cast\", since = \"1.38.0\")]\n    45:     #[rustc_const_stable(feature = \"const_ptr_cast\", since = \"1.38.0\")]\n    46:     #[rustc_diagnostic_item = \"const_ptr_cast\"]\n    47:     #[inline(always)]\n    48:     pub const fn cast<U>(self) -> *const U {\n    49:         self as _\n    50:     }\n    51: \n    52:     /// Try to cast to a pointer of another type by checking alignment.\n    53:     ///\n    54:     /// If the pointer is properly aligned to the target type, it will be\n    55:     /// cast to the target type. Otherwise, `None` is returned.\n    56:     ///\n    57:     /// # Examples\n    58:     ///\n    59:     /// ```rust\n    60:     /// #![feature(pointer_try_cast_aligned)]\n    61:     ///\n    62:     /// let x = 0u64;\n    63:     ///\n    64:     /// let aligned: *const u64 = &x;\n    65:     /// let unaligned = unsafe { aligned.byte_add(1) };\n    66:     ///\n    67:     /// assert!(aligned.try_cast_aligned::<u32>().is_some());",
+    "span": {
+      "begin": [
+        22,
+        5
+      ],
+      "end": [
+        41,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn is_null(self) -> bool {\n        // Compare via a cast to a thin pointer, so fat pointers are only\n        // considering their \"data\" part for null-ness.\n        let ptr = self as *const u8;\n        const_eval_select!(\n            @capture { ptr: *const u8 } -> bool:\n            // This use of `const_raw_ptr_comparison` has been explicitly blessed by t-lang.\n            if const #[rustc_allow_const_fn_unstable(const_raw_ptr_comparison)] {\n                match (ptr).guaranteed_eq(null_mut()) {\n                    Some(res) => res,\n                    // To remain maximally conservative, we stop execution when we don't\n                    // know whether the pointer is null or not.\n                    // We can *not* return `false` here, that would be unsound in `NonNull::new`!\n                    None => panic!(\"null-ness of this pointer cannot be determined in const context\"),\n                }\n            } else {\n                ptr.addr() == 0\n            }\n        )\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd specification of raw-pointer-to-thin-pointer casts preserving the address",
+    "vstd specification of <*const u8>::addr returning the pointer-view address"
+  ],
+  "rationale": "An ordinary exec function cannot run in const evaluation, so mechanically desugaring const_eval_select! selects its runtime arm. The copied cast and addr comparison prove the contract compositionally.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__is_null__c974fe9854cf"
+}

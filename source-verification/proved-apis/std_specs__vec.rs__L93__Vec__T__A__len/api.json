@@ -1,0 +1,152 @@
+{
+  "id": "std_specs__vec.rs__L93__Vec__T__A__len",
+  "api_path": "alloc::vec::Vec::len",
+  "normalized_api_path": "alloc::vec::Vec::len",
+  "raw_target": "Vec::<T, A>::len",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 93,
+  "rust_declaration": {
+    "declaration_id": "alloc:4879",
+    "name": "len",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_vec_string_slice\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcConfusables {symbols: [\"length\", \"size\"]}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        3022,
+        5
+      ],
+      "end": [
+        3031,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "usize"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  3002:         //   some twice.\n  3003:         unsafe {\n  3004:             self.len = 0;\n  3005:             ptr::drop_in_place(elems);\n  3006:         }\n  3007:     }\n  3008: \n  3009:     /// Returns the number of elements in the vector, also referred to\n  3010:     /// as its 'length'.\n  3011:     ///\n  3012:     /// # Examples\n  3013:     ///\n  3014:     /// ```\n  3015:     /// let a = vec![1, 2, 3];\n  3016:     /// assert_eq!(a.len(), 3);\n  3017:     /// ```\n  3018:     #[inline]\n  3019:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  3020:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  3021:     #[rustc_confusables(\"length\", \"size\")]\n  3022:     pub const fn len(&self) -> usize {\n  3023:         let len = self.len;\n  3024: \n  3025:         // SAFETY: The maximum capacity of `Vec<T>` is `isize::MAX` bytes, so the maximum value can\n  3026:         // be returned is `usize::checked_div(size_of::<T>()).unwrap_or(usize::MAX)`, which\n  3027:         // matches the definition of `T::MAX_SLICE_LEN`.\n  3028:         unsafe { intrinsics::assume(len <= T::MAX_SLICE_LEN) };\n  3029: \n  3030:         len\n  3031:     }\n  3032: \n  3033:     /// Returns `true` if the vector contains no elements.\n  3034:     ///\n  3035:     /// # Examples\n  3036:     ///\n  3037:     /// ```\n  3038:     /// let mut v = Vec::new();\n  3039:     /// assert!(v.is_empty());\n  3040:     ///\n  3041:     /// v.push(1);\n  3042:     /// assert!(!v.is_empty());",
+    "source_text": "pub const fn len(&self) -> usize {\n        let len = self.len;\n\n        // SAFETY: The maximum capacity of `Vec<T>` is `isize::MAX` bytes, so the maximum value can\n        // be returned is `usize::checked_div(size_of::<T>()).unwrap_or(usize::MAX)`, which\n        // matches the definition of `T::MAX_SLICE_LEN`.\n        unsafe { intrinsics::assume(len <= T::MAX_SLICE_LEN) };\n\n        len\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "id": "std__sync__TryLockResult__map_or_default__31e6bcdc7357",
+  "api_path": "std::sync::TryLockResult::map_or_default",
+  "raw_target": "Result::<T, E>::map_or_default",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Unstable {reason: None,\nissue: 138099}, feature: \"result_option_map_or_default\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29289",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "generic": "U"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": null,
+                    "id": 70,
+                    "path": "Default"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "U"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "E"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "map_or_default",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "U"
+      }
+    },
+    "source_context": "   883:     /// # Examples\n   884:     ///\n   885:     /// ```\n   886:     /// let k = 21;\n   887:     ///\n   888:     /// let x : Result<_, &str> = Ok(\"foo\");\n   889:     /// assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 3);\n   890:     ///\n   891:     /// let x : Result<&str, _> = Err(\"bar\");\n   892:     /// assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 42);\n   893:     /// ```\n   894:     #[inline]\n   895:     #[stable(feature = \"result_map_or_else\", since = \"1.41.0\")]\n   896:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   897:     pub const fn map_or_else<U, D, F>(self, default: D, f: F) -> U\n   898:     where\n   899:         D: [const] FnOnce(E) -> U + [const] Destruct,\n   900:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   901:     {\n   902:         match self {\n   903:             Ok(t) => f(t),\n   904:             Err(e) => default(e),\n   905:         }\n   906:     }\n   907: \n   908:     /// Maps a `Result<T, E>` to a `U` by applying function `f` to the contained\n   909:     /// value if the result is [`Ok`], otherwise if [`Err`], returns the\n   910:     /// [default value] for the type `U`.\n   911:     ///\n   912:     /// # Examples\n   913:     ///\n   914:     /// ```\n   915:     /// #![feature(result_option_map_or_default)]\n   916:     ///\n   917:     /// let x: Result<_, &str> = Ok(\"foo\");\n   918:     /// let y: Result<&str, _> = Err(\"bar\");\n   919:     ///\n   920:     /// assert_eq!(x.map_or_default(|x| x.len()), 3);\n   921:     /// assert_eq!(y.map_or_default(|y| y.len()), 0);\n   922:     /// ```\n   923:     ///\n   924:     /// [default value]: Default::default\n   925:     #[inline]\n   926:     #[unstable(feature = \"result_option_map_or_default\", issue = \"138099\")]\n   927:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   928:     pub const fn map_or_default<U, F>(self, f: F) -> U\n   929:     where\n   930:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   931:         U: [const] Default,\n   932:         T: [const] Destruct,\n   933:         E: [const] Destruct,\n   934:     {\n   935:         match self {\n   936:             Ok(t) => f(t),\n   937:             Err(_) => U::default(),\n   938:         }\n   939:     }\n   940: \n   941:     /// Maps a `Result<T, E>` to `Result<T, F>` by applying a function to a\n   942:     /// contained [`Err`] value, leaving an [`Ok`] value untouched.\n   943:     ///\n   944:     /// This function can be used to pass through a successful result while handling\n   945:     /// an error.\n   946:     ///\n   947:     ///\n   948:     /// # Examples\n   949:     ///\n   950:     /// ```\n   951:     /// fn stringify(x: u32) -> String { format!(\"error code: {x}\") }\n   952:     ///\n   953:     /// let x: Result<u32, u32> = Ok(2);\n   954:     /// assert_eq!(x.map_err(stringify), Ok(2));\n   955:     ///\n   956:     /// let x: Result<u32, u32> = Err(13);\n   957:     /// assert_eq!(x.map_err(stringify), Err(\"error code: 13\".to_string()));\n   958:     /// ```\n   959:     #[inline]\n   960:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   961:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   962:     pub const fn map_err<F, O>(self, op: O) -> Result<T, F>\n   963:     where\n   964:         O: [const] FnOnce(E) -> F + [const] Destruct,\n   965:     {\n   966:         match self {\n   967:             Ok(t) => Ok(t),\n   968:             Err(e) => Err(op(e)),\n   969:         }\n   970:     }\n   971: \n   972:     /// Calls a function with a reference to the contained value if [`Ok`].\n   973:     ///",
+    "span": {
+      "begin": [
+        928,
+        5
+      ],
+      "end": [
+        939,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn map_or_default<U, F>(self, f: F) -> U\n    where\n        F: [const] FnOnce(T) -> U + [const] Destruct,\n        U: [const] Default,\n        T: [const] Destruct,\n        E: [const] Destruct,\n    {\n        match self {\n            Ok(t) => f(t),\n            Err(_) => U::default(),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The existing callable vstd contract for U::default."
+  ],
+  "rationale": "The exact two-arm match verifies compositionally using the generic Default contract, without new axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/std__sync__TryLockResult__map_or_default__31e6bcdc7357"
+}

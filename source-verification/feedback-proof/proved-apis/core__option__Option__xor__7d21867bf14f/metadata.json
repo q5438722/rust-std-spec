@@ -1,0 +1,165 @@
+{
+  "id": "core__option__Option__xor__7d21867bf14f",
+  "api_path": "core::option::Option::xor",
+  "raw_target": "Option::<T>::xor",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 37, patch: 0 })},\nfeature: \"option_xor\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28044",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "xor",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "optb",
+          {
+            "resolved_path": {
+              "args": {
+                "angle_bracketed": {
+                  "args": [
+                    {
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  ],
+                  "constraints": []
+                }
+              },
+              "id": 84,
+              "path": "Option"
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  1639:     ///\n  1640:     /// assert_eq!(Some(\"barbarians\").or_else(vikings), Some(\"barbarians\"));\n  1641:     /// assert_eq!(None.or_else(vikings), Some(\"vikings\"));\n  1642:     /// assert_eq!(None.or_else(nobody), None);\n  1643:     /// ```\n  1644:     #[inline]\n  1645:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1646:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1647:     pub const fn or_else<F>(self, f: F) -> Option<T>\n  1648:     where\n  1649:         F: [const] FnOnce() -> Option<T> + [const] Destruct,\n  1650:         //FIXME(const_hack): this `T: [const] Destruct` is unnecessary, but even precise live drops can't tell\n  1651:         // no value of type `T` gets dropped here\n  1652:         T: [const] Destruct,\n  1653:     {\n  1654:         match self {\n  1655:             x @ Some(_) => x,\n  1656:             None => f(),\n  1657:         }\n  1658:     }\n  1659: \n  1660:     /// Returns [`Some`] if exactly one of `self`, `optb` is [`Some`], otherwise returns [`None`].\n  1661:     ///\n  1662:     /// # Examples\n  1663:     ///\n  1664:     /// ```\n  1665:     /// let x = Some(2);\n  1666:     /// let y: Option<u32> = None;\n  1667:     /// assert_eq!(x.xor(y), Some(2));\n  1668:     ///\n  1669:     /// let x: Option<u32> = None;\n  1670:     /// let y = Some(2);\n  1671:     /// assert_eq!(x.xor(y), Some(2));\n  1672:     ///\n  1673:     /// let x = Some(2);\n  1674:     /// let y = Some(2);\n  1675:     /// assert_eq!(x.xor(y), None);\n  1676:     ///\n  1677:     /// let x: Option<u32> = None;\n  1678:     /// let y: Option<u32> = None;\n  1679:     /// assert_eq!(x.xor(y), None);\n  1680:     /// ```\n  1681:     #[inline]\n  1682:     #[stable(feature = \"option_xor\", since = \"1.37.0\")]\n  1683:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1684:     pub const fn xor(self, optb: Option<T>) -> Option<T>\n  1685:     where\n  1686:         T: [const] Destruct,\n  1687:     {\n  1688:         match (self, optb) {\n  1689:             (a @ Some(_), None) => a,\n  1690:             (None, b @ Some(_)) => b,\n  1691:             _ => None,\n  1692:         }\n  1693:     }\n  1694: \n  1695:     /////////////////////////////////////////////////////////////////////////\n  1696:     // Entry-like operations to insert a value and return a reference\n  1697:     /////////////////////////////////////////////////////////////////////////\n  1698: \n  1699:     /// Inserts `value` into the option, then returns a mutable reference to it.\n  1700:     ///\n  1701:     /// If the option already contains a value, the old value is dropped.\n  1702:     ///\n  1703:     /// See also [`Option::get_or_insert`], which doesn't update the value if\n  1704:     /// the option already contains [`Some`].\n  1705:     ///\n  1706:     /// # Example\n  1707:     ///\n  1708:     /// ```\n  1709:     /// let mut opt = None;\n  1710:     /// let val = opt.insert(1);\n  1711:     /// assert_eq!(*val, 1);\n  1712:     /// assert_eq!(opt.unwrap(), 1);\n  1713:     /// let val = opt.insert(2);\n  1714:     /// assert_eq!(*val, 2);\n  1715:     /// *val = 3;\n  1716:     /// assert_eq!(opt.unwrap(), 3);\n  1717:     /// ```\n  1718:     #[must_use = \"if you intended to set a value, consider assignment instead\"]\n  1719:     #[inline]\n  1720:     #[stable(feature = \"option_insert\", since = \"1.53.0\")]\n  1721:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1722:     pub const fn insert(&mut self, value: T) -> &mut T\n  1723:     where\n  1724:         T: [const] Destruct,\n  1725:     {\n  1726:         *self = Some(value);\n  1727: \n  1728:         // SAFETY: the code above just filled the option\n  1729:         unsafe { self.as_mut().unwrap_unchecked() }",
+    "span": {
+      "begin": [
+        1684,
+        5
+      ],
+      "end": [
+        1693,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn xor(self, optb: Option<T>) -> Option<T>\n    where\n        T: [const] Destruct,\n    {\n        match (self, optb) {\n            (a @ Some(_), None) => a,\n            (None, b @ Some(_)) => b,\n            _ => None,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact tuple match and binding patterns prove the contract directly without axioms or lower-level contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__xor__7d21867bf14f"
+}

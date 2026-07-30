@@ -1,0 +1,115 @@
+{
+  "batch": 62,
+  "group": "formatting_effect",
+  "duration_ms": 115954,
+  "targets": [
+    "core::fmt::Formatter::flags",
+    "core::fmt::Formatter::pad",
+    "core::fmt::Formatter::pad_integral",
+    "core::fmt::Formatter::precision",
+    "core::fmt::Formatter::sign_aware_zero_pad",
+    "core::fmt::Formatter::sign_minus"
+  ],
+  "candidates": [
+    {
+      "target": "core::fmt::Formatter::flags",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[core::fmt::Formatter::<'a>::flags](\n    formatter: &core::fmt::Formatter<'a>,\n) -> (result: u32)\n    ensures\n        result <= 0x3f,\n;",
+      "requires": [],
+      "ensures": [
+        "result <= 0x3f"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source masks the shifted value with 0x3F, providing a useful six-bit range guarantee without modeling formatter state.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "flag_meanings_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::pad",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and output depend on the hidden formatting options and writer buffer, for which vstd has no public state model.",
+      "risks": [
+        "formatting_effect",
+        "hidden_formatter_state",
+        "unmodeled_writer_effect"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::pad_integral",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Sign, prefix, padding, and write behavior depend on hidden formatter options and an unmodeled writer.",
+      "risks": [
+        "formatting_effect",
+        "hidden_formatter_state",
+        "unmodeled_writer_effect"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::precision",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned option is determined entirely by private flags and precision state; without a formatter model, only type-level facts are expressible.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "hidden_formatter_state"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::sign_aware_zero_pad",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The boolean reflects a private formatter flag, and no public vstd abstraction relates that hidden state to the result.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "hidden_formatter_state"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::sign_minus",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The boolean reflects a private formatter flag, and no public vstd abstraction relates that hidden state to the result.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "hidden_formatter_state"
+      ]
+    }
+  ]
+}

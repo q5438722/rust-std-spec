@@ -1,0 +1,116 @@
+{
+  "id": "std_specs__net.rs__L575__Ipv6Addr__segments",
+  "api_path": "core::net::Ipv6Addr::segments",
+  "raw_target": "Ipv6Addr::segments",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 575,
+  "rust_declaration": {
+    "declaration_id": "core:27825",
+    "name": "segments",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 50, patch: 0 })},\nfeature: \"const_ip_50\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/ip_addr.rs",
+      "begin": [
+        1495,
+        5
+      ],
+      "end": [
+        1510,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "array": {
+          "type": {
+            "primitive": "u16"
+          },
+          "len": "8"
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27837",
+      "for": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9949",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "ip_addr",
+        "Ipv6Addr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1475:     /// ```\n  1476:     #[doc(alias = \"IN6ADDR_ANY_INIT\")]\n  1477:     #[doc(alias = \"in6addr_any\")]\n  1478:     #[stable(feature = \"ip_constructors\", since = \"1.30.0\")]\n  1479:     pub const UNSPECIFIED: Self = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);\n  1480: \n  1481:     /// Returns the eight 16-bit segments that make up this address.\n  1482:     ///\n  1483:     /// # Examples\n  1484:     ///\n  1485:     /// ```\n  1486:     /// use std::net::Ipv6Addr;\n  1487:     ///\n  1488:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff).segments(),\n  1489:     ///            [0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff]);\n  1490:     /// ```\n  1491:     #[rustc_const_stable(feature = \"const_ip_50\", since = \"1.50.0\")]\n  1492:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1493:     #[must_use]\n  1494:     #[inline]\n  1495:     pub const fn segments(&self) -> [u16; 8] {\n  1496:         // All elements in `self.octets` must be big endian.\n  1497:         // SAFETY: `[u8; 16]` is always safe to transmute to `[u16; 8]`.\n  1498:         let [a, b, c, d, e, f, g, h] = unsafe { transmute::<_, [u16; 8]>(self.octets) };\n  1499:         // We want native endian u16\n  1500:         [\n  1501:             u16::from_be(a),\n  1502:             u16::from_be(b),\n  1503:             u16::from_be(c),\n  1504:             u16::from_be(d),\n  1505:             u16::from_be(e),\n  1506:             u16::from_be(f),\n  1507:             u16::from_be(g),\n  1508:             u16::from_be(h),\n  1509:         ]\n  1510:     }\n  1511: \n  1512:     /// Creates an `Ipv6Addr` from an eight element 16-bit array.\n  1513:     ///\n  1514:     /// # Examples\n  1515:     ///",
+    "source_text": "pub const fn segments(&self) -> [u16; 8] {\n        // All elements in `self.octets` must be big endian.\n        // SAFETY: `[u8; 16]` is always safe to transmute to `[u16; 8]`.\n        let [a, b, c, d, e, f, g, h] = unsafe { transmute::<_, [u16; 8]>(self.octets) };\n        // We want native endian u16\n        [\n            u16::from_be(a),\n            u16::from_be(b),\n            u16::from_be(c),\n            u16::from_be(d),\n            u16::from_be(e),\n            u16::from_be(f),\n            u16::from_be(g),\n            u16::from_be(h),\n        ]\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's specification of core::net::Ipv6Addr::octets"
+  ],
+  "rationale": "The private field read uses the smaller octets accessor, while transmute followed by from_be is faithfully fused into endian-independent byte-pair decoding.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__net.rs__L575__Ipv6Addr__segments"
+}

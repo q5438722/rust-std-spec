@@ -1,0 +1,167 @@
+{
+  "id": "std_specs__vecdeque.rs__L160__VecDeque__T__A__pop_front",
+  "api_path": "alloc::collections::vec_deque::VecDeque::pop_front",
+  "raw_target": "VecDeque::<T, A>::pop_front",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 160,
+  "rust_declaration": {
+    "declaration_id": "alloc:3065",
+    "name": "pop_front",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        2070,
+        5
+      ],
+      "end": [
+        2082,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 181,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2050:         self.get_mut(self.len.wrapping_sub(1))\n  2051:     }\n  2052: \n  2053:     /// Removes the first element and returns it, or `None` if the deque is\n  2054:     /// empty.\n  2055:     ///\n  2056:     /// # Examples\n  2057:     ///\n  2058:     /// ```\n  2059:     /// use std::collections::VecDeque;\n  2060:     ///\n  2061:     /// let mut d = VecDeque::new();\n  2062:     /// d.push_back(1);\n  2063:     /// d.push_back(2);\n  2064:     ///\n  2065:     /// assert_eq!(d.pop_front(), Some(1));\n  2066:     /// assert_eq!(d.pop_front(), Some(2));\n  2067:     /// assert_eq!(d.pop_front(), None);\n  2068:     /// ```\n  2069:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2070:     pub fn pop_front(&mut self) -> Option<T> {\n  2071:         if self.is_empty() {\n  2072:             None\n  2073:         } else {\n  2074:             let old_head = self.head;\n  2075:             self.head = self.to_physical_idx(1);\n  2076:             self.len -= 1;\n  2077:             unsafe {\n  2078:                 core::hint::assert_unchecked(self.len < self.capacity());\n  2079:                 Some(self.buffer_read(old_head))\n  2080:             }\n  2081:         }\n  2082:     }\n  2083: \n  2084:     /// Removes the last element from the deque and returns it, or `None` if\n  2085:     /// it is empty.\n  2086:     ///\n  2087:     /// # Examples\n  2088:     ///\n  2089:     /// ```\n  2090:     /// use std::collections::VecDeque;",
+    "source_text": "pub fn pop_front(&mut self) -> Option<T> {\n        if self.is_empty() {\n            None\n        } else {\n            let old_head = self.head;\n            self.head = self.to_physical_idx(1);\n            self.len -= 1;\n            unsafe {\n                core::hint::assert_unchecked(self.len < self.capacity());\n                Some(self.buffer_read(old_head))\n            }\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for VecDeque::<T, A>::is_empty",
+    "vstd contract for VecDeque::<T, A>::remove"
+  ],
+  "rationale": "Preserves the empty/nonempty control flow and desugars the private front read, head advance, and length decrement as remove(0).",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vecdeque.rs__L160__VecDeque__T__A__pop_front"
+}

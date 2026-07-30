@@ -1,0 +1,108 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::split_at_mut_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API returns two disjoint mutable subslices and requires mid <= self.len(). Mutable-reference returns are unsupported, and sequence views cannot express the returned references' disjoint identity and write-back relationship to self.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_disjoint_mutable_borrow_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::split_first_chunk_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result condition depends on whether self.len() >= N and, on success, returns disjoint mutable references to the first array chunk and tail. Current vstd views cannot capture their aliasing and write-back behavior.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_disjoint_mutable_borrow_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::split_first_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "On a nonempty slice this returns disjoint mutable references to the first element and tail. Mutable-reference results are unsupported, and their coordinated write-back into the original slice is not representable by sequence views alone.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_disjoint_mutable_borrow_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::split_last_chunk_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The successful result consists of disjoint mutable references to the prefix and final N-element array. Existing public vstd vocabulary cannot model their reference identity, separation, and write-back to self.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_disjoint_mutable_borrow_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::split_last_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "On a nonempty slice this returns disjoint mutable references to the last element and preceding slice. Sequence equality would omit the essential alias separation and write-back semantics, while mutable-reference returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_disjoint_mutable_borrow_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::split_off_first_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This updates the outer mutable slice reference to its tail while returning a mutable reference to the removed first element with the original lifetime. Current vstd lacks an abstraction for this reference reassignment, alias separation, and shared write-back provenance.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "nested_mutable_reference_reassignment",
+        "missing_borrow_provenance_abstraction"
+      ]
+    }
+  ]
+}
+

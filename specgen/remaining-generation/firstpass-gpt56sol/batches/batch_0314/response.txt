@@ -1,0 +1,37 @@
+{"candidates":[{"target":"alloc::boxed::Box::assume_init","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator>[\n    Box::<MaybeUninit<T>, A>::assume_init\n](\n    boxed: Box<MaybeUninit<T>, A>,\n) -> (res: Box<T, A>)\n    requires\n        boxed.mem_contents().is_init(),\n    ensures\n        *res == boxed.mem_contents().value(),\n;","requires":["boxed.mem_contents().is_init()"],"ensures":["*res == boxed.mem_contents().value()"],"feature_gates":["allocator_api"],"imports":["alloc::boxed::Box","core::alloc::Allocator","core::mem::MaybeUninit","vstd::prelude::*"],"useful":true,"rationale":"The source performs a layout-preserving conversion, while vstd's MaybeUninit contents model expresses initializedness and the resulting value.","risks":["Allocation and allocator identity remain unmodeled.","The explicit receiver type is needed to disambiguate the slice overload."]},{"target":"alloc::boxed::Box::downcast","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source branches on Any::is::<T>(), but vstd has no dynamic-type model relating the erased pointee to Box<T, A>.","risks":["missing dyn Any and TypeId abstraction","allocation-preserving type cast is unmodeled"]},{"target":"alloc::boxed::Box::from_raw","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Reconstructing Box requires valid allocation provenance, layout, initialization, and unique ownership, none of which the raw-pointer argument carries in current vstd.","risks":["missing raw-allocation ownership token","pointer provenance and layout","double-free risk"]},{"target":"alloc::boxed::Box::into_raw","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The defining behavior transfers Box ownership to a pointer for the same allocation; current vstd cannot relate Box allocation identity or return an ownership permission. Non-nullness alone is insufficient.","risks":["missing raw-allocation ownership abstraction","raw pointer identity and provenance","pointee preservation is unmodeled"]},{"target":"alloc::ffi::CString::from_raw","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source requires a pointer produced by CString::into_raw with unchanged terminating nul and allocation size. Current vstd models neither that ownership history nor CString contents.","risks":["missing CString contents abstraction","missing raw-allocation ownership token","unmodeled C-side length mutation"]},{"target":"alloc::ffi::CString::from_vec_unchecked","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Vec's view can express the documented no-nul safety condition, but current vstd has no CString contents view to relate the resulting string to the consumed bytes; a precondition-only contract is insufficient.","risks":["missing CString external contents abstraction","result contents and appended terminator are unmodeled"]}]}{"candidates":[{"target":"alloc::boxed::Box::assume_init","decision":"add_spec","contract_form":"ass
+ume_specification","contract_code":"pub assume_specification<T, A: Allocator>[\n
+Box::<MaybeUninit<T>, A>::assume_init\n](\n    boxed: Box<MaybeUninit<T>, A>,\n) -> (res: Box<T,
+A>)\n    requires\n        boxed.mem_contents().is_init(),\n    ensures\n        *res ==
+boxed.mem_contents().value(),\n;","requires":["boxed.mem_contents().is_init()"],"ensures":["res ==
+boxed.mem_contents().value()"],"feature_gates":["allocator_api"],"imports":["alloc::boxed::Box","cor
+e::alloc::Allocator","core::mem::MaybeUninit","vstd::prelude::"],"useful":true,"rationale":"The
+source performs a layout-preserving conversion, while vstd's MaybeUninit contents model expresses
+initializedness and the resulting value.","risks":["Allocation and allocator identity remain
+unmodeled.","The explicit receiver type is needed to disambiguate the slice overload."]},{"target":"
+alloc::boxed::Box::downcast","decision":"skip","contract_form":"assume_specification","contract_code
+":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+source branches on Any::is::<T>(), but vstd has no dynamic-type model relating the erased pointee to
+ Box<T, A>.","risks":["missing dyn Any and TypeId abstraction","allocation-preserving type cast is
+unmodeled"]},{"target":"alloc::boxed::Box::from_raw","decision":"skip","contract_form":"assume_speci
+fication","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":fal
+se,"rationale":"Reconstructing Box requires valid allocation provenance, layout, initialization, and
+ unique ownership, none of which the raw-pointer argument carries in current
+vstd.","risks":["missing raw-allocation ownership token","pointer provenance and
+layout","double-free risk"]},{"target":"alloc::boxed::Box::into_raw","decision":"skip","contract_for
+m":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports"
+:[],"useful":false,"rationale":"The defining behavior transfers Box ownership to a pointer for the
+same allocation; current vstd cannot relate Box allocation identity or return an ownership
+permission. Non-nullness alone is insufficient.","risks":["missing raw-allocation ownership
+abstraction","raw pointer identity and provenance","pointee preservation is unmodeled"]},{"target":"
+alloc::ffi::CString::from_raw","decision":"skip","contract_form":"assume_specification","contract_co
+de":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+source requires a pointer produced by CString::into_raw with unchanged terminating nul and
+allocation size. Current vstd models neither that ownership history nor CString
+contents.","risks":["missing CString contents abstraction","missing raw-allocation ownership
+token","unmodeled C-side length mutation"]},{"target":"alloc::ffi::CString::from_vec_unchecked","dec
+ision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"
+feature_gates":[],"imports":[],"useful":false,"rationale":"Vec's view can express the documented
+no-nul safety condition, but current vstd has no CString contents view to relate the resulting
+string to the consumed bytes; a precondition-only contract is insufficient.","risks":["missing
+CString external contents abstraction","result contents and appended terminator are unmodeled"]}]}
+

@@ -1,0 +1,109 @@
+{
+  "batch": 131,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 30235,
+  "targets": [
+    "core::net::SocketAddrV6::port",
+    "core::net::SocketAddrV6::scope_id",
+    "core::net::SocketAddrV6::set_flowinfo",
+    "core::net::SocketAddrV6::set_ip",
+    "core::net::SocketAddrV6::set_port",
+    "core::net::SocketAddrV6::set_scope_id"
+  ],
+  "candidates": [
+    {
+      "target": "core::net::SocketAddrV6::port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation reads a private field, but vstd provides no public SocketAddrV6 view or port projection with which to relate the result.",
+      "risks": [
+        "missing SocketAddrV6 field abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::scope_id",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private scope_id field, which cannot be described using an existing public vstd abstraction.",
+      "risks": [
+        "missing SocketAddrV6 field abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::set_flowinfo",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source assigns the private flowinfo field, vstd has no SocketAddrV6 view for expressing that update or preservation of the other fields.",
+      "risks": [
+        "missing SocketAddrV6 update abstraction",
+        "cannot express frame conditions"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::set_ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source replaces the private IP field, but no existing vstd SocketAddrV6 projection or update model can relate final(self) to new_ip while preserving the other components.",
+      "risks": [
+        "missing SocketAddrV6 update abstraction",
+        "cannot express frame conditions"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::set_port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The private port assignment requires a SocketAddrV6 field/update abstraction; the unmodeled port method cannot itself serve as a specification-level projection.",
+      "risks": [
+        "missing SocketAddrV6 update abstraction",
+        "cannot express frame conditions"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::set_scope_id",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The private scope_id assignment cannot be expressed as a useful final(self) relation without a public SocketAddrV6 view and update semantics.",
+      "risks": [
+        "missing SocketAddrV6 update abstraction",
+        "cannot express frame conditions"
+      ]
+    }
+  ]
+}

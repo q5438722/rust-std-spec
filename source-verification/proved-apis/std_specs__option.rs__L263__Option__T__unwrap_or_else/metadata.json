@@ -1,0 +1,168 @@
+{
+  "id": "std_specs__option.rs__L263__Option__T__unwrap_or_else",
+  "api_path": "core::option::Option::unwrap_or_else",
+  "raw_target": "Option::<T>::unwrap_or_else",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 263,
+  "rust_declaration": {
+    "declaration_id": "core:28025",
+    "name": "unwrap_or_else",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        1061,
+        5
+      ],
+      "end": [
+        1069,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "T"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "F",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "F"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "FnOnce",
+                    "id": 24,
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [],
+                        "output": {
+                          "generic": "T"
+                        }
+                      }
+                    }
+                  },
+                  "generic_params": [],
+                  "modifier": "maybe_const"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1041:     {\n  1042:         match self {\n  1043:             Some(x) => x,\n  1044:             None => default,\n  1045:         }\n  1046:     }\n  1047: \n  1048:     /// Returns the contained [`Some`] value or computes it from a closure.\n  1049:     ///\n  1050:     /// # Examples\n  1051:     ///\n  1052:     /// ```\n  1053:     /// let k = 10;\n  1054:     /// assert_eq!(Some(4).unwrap_or_else(|| 2 * k), 4);\n  1055:     /// assert_eq!(None.unwrap_or_else(|| 2 * k), 20);\n  1056:     /// ```\n  1057:     #[inline]\n  1058:     #[track_caller]\n  1059:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1060:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1061:     pub const fn unwrap_or_else<F>(self, f: F) -> T\n  1062:     where\n  1063:         F: [const] FnOnce() -> T + [const] Destruct,\n  1064:     {\n  1065:         match self {\n  1066:             Some(x) => x,\n  1067:             None => f(),\n  1068:         }\n  1069:     }\n  1070: \n  1071:     /// Returns the contained [`Some`] value or a default.\n  1072:     ///\n  1073:     /// Consumes the `self` argument then, if [`Some`], returns the contained\n  1074:     /// value, otherwise if [`None`], returns the [default value] for that\n  1075:     /// type.\n  1076:     ///\n  1077:     /// # Examples\n  1078:     ///\n  1079:     /// ```\n  1080:     /// let x: Option<u32> = None;\n  1081:     /// let y: Option<u32> = Some(12);",
+    "source_text": "pub const fn unwrap_or_else<F>(self, f: F) -> T\n    where\n        F: [const] FnOnce() -> T + [const] Destruct,\n    {\n        match self {\n            Some(x) => x,\n            None => f(),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The copied enum match directly proves both branches of the supplied contract without calling the target API or relying on trusted axioms.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__option.rs__L263__Option__T__unwrap_or_else"
+}

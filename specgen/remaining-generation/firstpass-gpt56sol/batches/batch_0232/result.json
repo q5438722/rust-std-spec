@@ -1,0 +1,128 @@
+{
+  "batch": 232,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 234423,
+  "targets": [
+    "std::sync::LazyLock::get",
+    "std::sync::LazyLock::get_mut",
+    "std::sync::LazyLock::new",
+    "std::sync::LockResult::and",
+    "std::sync::LockResult::and_then",
+    "std::sync::LockResult::as_deref"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::LazyLock::get",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden Once completion and poisoning state, for which vstd has no public LazyLock model.",
+      "risks": [
+        "hidden concurrent initialization state",
+        "missing LazyLock view",
+        "returned-reference identity"
+      ]
+    },
+    {
+      "target": "std::sync::LazyLock::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the mutable result requires both a model of hidden initialization state and framing that relates final(result) to the stored value.",
+      "risks": [
+        "hidden initialization and poisoning state",
+        "unsupported mutable-reference framing",
+        "missing LazyLock view"
+      ]
+    },
+    {
+      "target": "std::sync::LazyLock::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor stores the initializer in hidden state; vstd has no abstraction connecting that closure to later initialization or force operations.",
+      "risks": [
+        "hidden stored initializer",
+        "missing LazyLock state abstraction",
+        "future concurrent initialization"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U>[ Result::<T, E>::and ](\n    result: Result<T, E>,\n    res: Result<U, E>,\n) -> (out: Result<U, E>)\n    ensures\n        result is Ok ==> out == res,\n        result is Err ==> out == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> out == res",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "LockResult resolves to Result, and the source gives a complete public variant-level relation without inspecting poisoning state.",
+      "risks": [
+        "the specification attaches to the underlying generic Result method"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::and_then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> Result<U, E>>[\n    Result::<T, E>::and_then\n](\n    result: Result<T, E>,\n    op: F,\n) -> (out: Result<U, E>)\n    requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> op.ensures((result->Ok_0,), out),\n        result is Err ==> out == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> op.ensures((result->Ok_0,), out)",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The underlying Result implementation is fully expressible using public variant access and the existing FnOnce requires/ensures vocabulary.",
+      "risks": [
+        "the specification attaches to the underlying generic Result method",
+        "the closure may unwind"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The essential Ok-value relation depends on arbitrary Deref behavior, for which current vstd has no generic value or reference-identity abstraction.",
+      "risks": [
+        "missing generic Deref specification",
+        "reference identity versus value view",
+        "a variant-only contract would omit the method's essential behavior"
+      ]
+    }
+  ]
+}

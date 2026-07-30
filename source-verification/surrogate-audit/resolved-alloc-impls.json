@@ -1,0 +1,285 @@
+{
+  "summary": {
+    "expected_records": 25,
+    "actual_records": 25,
+    "scope_prefixes": [
+      "std_specs__alloc.rs",
+      "std_specs__btree.rs",
+      "std_specs__hash.rs",
+      "std_specs__smart_ptrs.rs",
+      "std_specs__vec.rs",
+      "std_specs__vecdeque.rs",
+      "string.rs"
+    ],
+    "body_fidelity_totals": {
+      "alternate_implementation": 9,
+      "exact_body": 10,
+      "mechanical_desugaring": 5,
+      "source_unavailable": 1
+    },
+    "proof_admissibility_totals": {
+      "ordinary_acyclic": 13,
+      "target_equivalent_axiom": 2,
+      "unresolved": 1,
+      "wrong_or_missing_target": 9
+    },
+    "strict_outcome_totals": {
+      "faithful_and_admissible": 13,
+      "faithful_but_inadmissible": 2,
+      "mismatch": 9,
+      "unresolved": 1
+    }
+  },
+  "records": [
+    {
+      "id": "std_specs__alloc.rs__L15__alloc__boxed__box_assume_init_into_vec_unsafe",
+      "api_path": "alloc::boxed::box_assume_init_into_vec_unsafe",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/boxed.rs",
+      "resolved_source_lines": "264-268",
+      "source_kind": "inherent_function",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The Rust body is `unsafe { (b.assume_init() as Box<[T]>).into_vec() }`; the proof only names the initialized box and unsized box separately. The called Box<[T]>::into_vec is concrete at alloc/src/slice.rs:480-485, so this is an acyclic mechanical expansion."
+    },
+    {
+      "id": "std_specs__alloc.rs__L26__alloc__intrinsics__write_box_via_move",
+      "api_path": "alloc::intrinsics::write_box_via_move",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/intrinsics.rs",
+      "resolved_source_lines": "14-15",
+      "source_kind": "compiler_intrinsic_declaration",
+      "body_fidelity": "source_unavailable",
+      "proof_admissibility": "unresolved",
+      "reason": "Rust 1.96 library source contains only the #[rustc_intrinsic] declaration and no executable Rust body. The proof assignment may describe intended semantics, but fidelity to the compiler intrinsic cannot be established from rust/library."
+    },
+    {
+      "id": "std_specs__btree.rs__L404__BTreeMap__K__V__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/btree/map.rs",
+      "resolved_source_lines": "2598-2602",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both the concrete Default impl and source_btree_map_default return BTreeMap::new() with identical executable control flow."
+    },
+    {
+      "id": "std_specs__btree.rs__L765__BTreeSet__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/btree/set.rs",
+      "resolved_source_lines": "1640-1644",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both the concrete Default impl and source_btree_set_default return BTreeSet::new() with identical executable control flow."
+    },
+    {
+      "id": "std_specs__hash.rs__L634__HashMap__K__V__S__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/std/src/collections/hash/map.rs",
+      "resolved_source_lines": "1489-1497",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete impl is exactly HashMap::with_hasher(Default::default()); the proof copies that call and only adds a helper contract."
+    },
+    {
+      "id": "std_specs__hash.rs__L1012__HashSet__T__S__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/std/src/collections/hash/set.rs",
+      "resolved_source_lines": "1279-1287",
+      "source_kind": "trait_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The concrete impl constructs HashSet { base: base::HashSet::with_hasher(Default::default()) }. The proof substitutes public HashSet::with_hasher (defined at lines 246-248) for the private base operation, which strict fidelity explicitly rejects."
+    },
+    {
+      "id": "std_specs__smart_ptrs.rs__L12__T__into_vec",
+      "api_path": "core::slice::into_vec",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/slice.rs",
+      "resolved_source_lines": "480-485",
+      "source_kind": "inherent_function",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The executable sequence matches: obtain len, consume the Box into raw pointer plus allocator, then Vec::from_raw_parts_in(ptr, len, len, alloc). However axiom_box_slice_token_view and axiom_box_slice_into_vec_parts supply the allocation/view preservation that is effectively the target result relation."
+    },
+    {
+      "id": "std_specs__smart_ptrs.rs__L22__Box__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/boxed.rs",
+      "resolved_source_lines": "2010-2028",
+      "source_kind": "trait_impl",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The source allocates Box<MaybeUninit<T>>, evaluates T::default(), writes it with ptr::write, and assumes initialization. The proof uses a local value and assignment to MaybeUninit; because MaybeUninit has no destructor, this is a mechanical store desugaring with the same unwind behavior."
+    },
+    {
+      "id": "std_specs__smart_ptrs.rs__L34__Rc__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/rc.rs",
+      "resolved_source_lines": "2527-2549",
+      "source_kind": "trait_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The concrete impl directly allocates RcInner with strong=1 and weak=1 via Box::new_uninit/Box::write/Box::leak and Self::from_inner. The proof replaces all private allocation and counter initialization with Rc::new(T::default())."
+    },
+    {
+      "id": "std_specs__smart_ptrs.rs__L46__Arc__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/sync.rs",
+      "resolved_source_lines": "3744-3770",
+      "source_kind": "trait_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The concrete impl directly builds ArcInner with atomic strong=1 and weak=1 and converts it with Self::from_inner. The proof substitutes Arc::new(T::default()) for those private operations."
+    },
+    {
+      "id": "std_specs__smart_ptrs.rs__L53__Box__T__A__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/boxed.rs",
+      "resolved_source_lines": "2071-2094",
+      "source_kind": "trait_impl_with_specialized_helper",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The source clones allocator field self.1 and invokes CloneToUninit. Its sized helper dispatches through core/src/clone.rs:648-653 to core/src/clone/uninit.rs:12-82, including a TrivialClone bulk-copy specialization. The proof uses public allocator(), T::clone, and MaybeUninit assignment instead of that private/specialized path."
+    },
+    {
+      "id": "std_specs__vec.rs__L105__Vec__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "4311-4317",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both bodies return Vec::new() exactly."
+    },
+    {
+      "id": "std_specs__vec.rs__L184__Vec__T__A__index",
+      "api_path": "alloc::vec::Vec::index",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3874-3880",
+      "source_kind": "macro_independent_trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete Index impl and proof both execute Index::index(&**vec, index); only receiver naming and proof annotations differ."
+    },
+    {
+      "id": "std_specs__vec.rs__L248__Vec__T__A__as__core__ops__Deref__deref",
+      "api_path": "core::ops::Deref::deref",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3792-3798",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both bodies return self.as_slice() exactly."
+    },
+    {
+      "id": "std_specs__vec.rs__L255__Vec__T__A__as__core__ops__DerefMut__deref_mut",
+      "api_path": "core::ops::DerefMut::deref_mut",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3803-3807",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both bodies return self.as_mut_slice() exactly."
+    },
+    {
+      "id": "std_specs__vec.rs__L278__Vec__T__A__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3815-3827",
+      "source_kind": "trait_impl_with_specialized_helper",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The source calls <[T]>::to_vec_in. That helper at alloc/src/slice.rs:396-460 uses spare-capacity writes plus a DropGuard, or a TrivialClone bulk copy. The proof substitutes an indexed clone-and-Vec::push loop, changing the private algorithm and specialization path."
+    },
+    {
+      "id": "std_specs__vec.rs__L343__Vec__T__A1__as__PartialEq__Vec__U__A2__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/partial_eq.rs",
+      "resolved_source_lines": "6-22",
+      "source_kind": "macro_generated_trait_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The macro expands eq to self[..] == other[..]. Slice equality at core/src/slice/cmp.rs:14-27 dispatches to SlicePartialEq, including the BytewiseEq compare_bytes specialization at lines 146-160. The proof hard-codes only an element-by-element loop, so it is not the full concrete implementation."
+    },
+    {
+      "id": "std_specs__vec.rs__L409__alloc__vec__from_elem",
+      "api_path": "alloc::vec::from_elem",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3713-3719",
+      "source_kind": "specialization_dispatch_function",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The concrete function dispatches to SpecFromElem. alloc/src/vec/spec_from_elem.rs:8-74 has generic, IsZero, i8, u8, and unit specializations; the generic helper further uses private extend_with at vec/mod.rs:3655-3685. The proof supplies one Vec::push algorithm and misses those paths."
+    },
+    {
+      "id": "std_specs__vec.rs__L457__a__Vec__T__A__as__core__iter__IntoIterator__into_iter",
+      "api_path": "core::iter::IntoIterator::into_iter",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3985-3991",
+      "source_kind": "trait_impl",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "self.iter() resolves through Vec deref to slice iteration; the proof makes that autoderef explicit. But axiom_vec_iter_model_coherence directly equates the borrowed-Vec iterator model with the slice iterator model needed for the target postcondition."
+    },
+    {
+      "id": "std_specs__vecdeque.rs__L71__VecDeque__T__A__index",
+      "api_path": "alloc::collections::vec_deque::VecDeque::index",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/vec_deque/mod.rs",
+      "resolved_source_lines": "3806-3812",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both bodies execute get(index).expect(\"Out of bounds access\") with the same panic text and control flow."
+    },
+    {
+      "id": "std_specs__vecdeque.rs__L364__VecDeque__T__A__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/vec_deque/mod.rs",
+      "resolved_source_lines": "119-124",
+      "source_kind": "trait_impl_with_specialized_helper",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "The source calls deq.extend(self.iter().cloned()). Extend dispatches through SpecExtend; the TrustedLen path at collections/vec_deque/spec_extend.rs:44-76 reserves once and uses write_iter_wrapping/private writes. The proof replaces it with indexed clone and public push_back calls."
+    },
+    {
+      "id": "string.rs__L94__str__to_owned",
+      "api_path": "core::str::to_owned",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/str.rs",
+      "resolved_source_lines": "246-252",
+      "source_kind": "trait_impl",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete expression is unsafe String::from_utf8_unchecked(self.as_bytes().to_owned()). The proof only introduces locals and ghost UTF-8 reasoning while retaining the identical executable helper calls; slice ToOwned is concrete at alloc/src/slice.rs:838-843."
+    },
+    {
+      "id": "string.rs__L339__String__as__core__ops__Deref__deref",
+      "api_path": "core::ops::Deref::deref",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/string.rs",
+      "resolved_source_lines": "2845-2851",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both bodies return self.as_str() exactly."
+    },
+    {
+      "id": "string.rs__L351__String__as__PartialEq__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/string.rs",
+      "resolved_source_lines": "350-355",
+      "source_kind": "derive_generated_trait_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "derive(PartialEq) compares the sole vec field through Vec<u8>::eq. That macro-generated impl is at alloc/src/vec/partial_eq.rs:6-22 and reaches the BytewiseEq compare_bytes specialization in core/src/slice/cmp.rs:146-160. The proof substitutes a manual byte loop, changing the concrete algorithm."
+    },
+    {
+      "id": "string.rs__L363__String__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/string.rs",
+      "resolved_source_lines": "2727-2732",
+      "source_kind": "trait_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Both bodies return String::new() exactly."
+    }
+  ]
+}

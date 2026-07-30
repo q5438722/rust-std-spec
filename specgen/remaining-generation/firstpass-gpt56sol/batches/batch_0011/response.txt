@@ -1,0 +1,218 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its essential behavior aliases a bool as atomic state, but AtomicBool has no ordinary public view relating that hidden state to the returned mutable reference.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate every bool to the corresponding hidden atomic state across a returned mutable slice, for which current vstd provides no suitable public abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source requires pointer validity, writable lifetime, alignment, and atomic memory-model discipline; current public vstd vocabulary cannot express these obligations and the resulting atomic alias faithfully.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_validity",
+        "reference_identity_vs_view",
+        "atomic_memory_model_not_expressible"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned bool aliases the atomic's hidden storage, but no ordinary AtomicBool view can connect old(self), final(self), and the mutable-reference result.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful semantics require an elementwise relation between hidden atomic storage and the returned mutable bool slice, which current public vstd vocabulary cannot state.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although consuming self excludes concurrent access, AtomicBool exposes no ordinary view with which to relate the returned bool to its hidden pre-consumption value.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its essential behavior aliases a bool as atomic state, but AtomicBool has no
+ordinary public view relating that hidden state to the returned mutable reference.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate every bool to the corresponding hidden atomic
+state across a returned mutable slice, for which current vstd provides no suitable public
+abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source requires pointer validity, writable lifetime, alignment, and atomic
+memory-model discipline; current public vstd vocabulary cannot express these obligations and the
+resulting atomic alias faithfully.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_validity",
+        "reference_identity_vs_view",
+        "atomic_memory_model_not_expressible"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned bool aliases the atomic's hidden storage, but no ordinary
+AtomicBool view can connect old(self), final(self), and the mutable-reference result.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful semantics require an elementwise relation between hidden atomic
+storage and the returned mutable bool slice, which current public vstd vocabulary cannot state.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although consuming self excludes concurrent access, AtomicBool exposes no
+ordinary view with which to relate the returned bool to its hidden pre-consumption value.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    } ]
+}
+

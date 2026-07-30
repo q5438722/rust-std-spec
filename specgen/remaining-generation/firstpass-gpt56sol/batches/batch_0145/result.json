@@ -1,0 +1,111 @@
+{
+  "batch": 145,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 214278,
+  "targets": [
+    "core::time::Duration::saturating_add",
+    "core::time::Duration::saturating_mul",
+    "core::time::Duration::saturating_sub",
+    "core::time::Duration::subsec_micros",
+    "core::time::Duration::subsec_millis",
+    "core::time::Duration::subsec_nanos"
+  ],
+  "candidates": [
+    {
+      "target": "core::time::Duration::saturating_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the normalized sum, overflow condition, and Duration::MAX result requires a logical Duration value model absent from current vstd.",
+      "risks": [
+        "Missing Duration abstraction",
+        "Overflow and normalization cannot be characterized"
+      ]
+    },
+    {
+      "target": "core::time::Duration::saturating_mul",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing the normalized product and saturation at Duration::MAX requires a logical Duration value model absent from current vstd.",
+      "risks": [
+        "Missing Duration abstraction",
+        "Overflow and normalization cannot be characterized"
+      ]
+    },
+    {
+      "target": "core::time::Duration::saturating_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the duration difference and saturation at Duration::ZERO requires an ordering and value model for Duration that current vstd lacks.",
+      "risks": [
+        "Missing Duration abstraction",
+        "Underflow and subtraction cannot be characterized"
+      ]
+    },
+    {
+      "target": "core::time::Duration::subsec_micros",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The defining relation divides the private nanoseconds component by 1,000; current vstd exposes no Duration component view. The documented range alone does not relate the result to the receiver.",
+      "risks": [
+        "Missing Duration component view",
+        "Private representation"
+      ]
+    },
+    {
+      "target": "core::time::Duration::subsec_millis",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The defining relation divides the private nanoseconds component by 1,000,000; current vstd exposes no Duration component view. The documented range alone does not relate the result to the receiver.",
+      "risks": [
+        "Missing Duration component view",
+        "Private representation"
+      ]
+    },
+    {
+      "target": "core::time::Duration::subsec_nanos",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private nanoseconds component, but current vstd has no public Duration view with which to state that relation. The documented range alone is not a useful functional specification.",
+      "risks": [
+        "Missing Duration component view",
+        "Private representation"
+      ]
+    }
+  ]
+}

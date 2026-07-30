@@ -1,0 +1,110 @@
+{
+  "id": "core__str__trim_ascii_start__8c541bb43487",
+  "api_path": "core::str::trim_ascii_start",
+  "raw_target": "str::trim_ascii_start",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "this returns the trimmed string as a new slice, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"byte_slice_trim_ascii\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"byte_slice_trim_ascii\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "declaration_id": "core:51930",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "trim_ascii_start",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "primitive": "str"
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:51935",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "borrowed_ref": {
+          "is_mutable": false,
+          "lifetime": null,
+          "type": {
+            "primitive": "str"
+          }
+        }
+      }
+    },
+    "source_context": "  2870:     /// ASCII letters 'A' to 'Z' are mapped to 'a' to 'z',\n  2871:     /// but non-ASCII letters are unchanged.\n  2872:     ///\n  2873:     /// To return a new lowercased value without modifying the existing one, use\n  2874:     /// [`to_ascii_lowercase()`].\n  2875:     ///\n  2876:     /// [`to_ascii_lowercase()`]: #method.to_ascii_lowercase\n  2877:     ///\n  2878:     /// # Examples\n  2879:     ///\n  2880:     /// ```\n  2881:     /// let mut s = String::from(\"GR\u00dc\u00dfE, J\u00dcRGEN \u2764\");\n  2882:     ///\n  2883:     /// s.make_ascii_lowercase();\n  2884:     ///\n  2885:     /// assert_eq!(\"gr\u00dc\u00dfe, j\u00dcrgen \u2764\", s);\n  2886:     /// ```\n  2887:     #[stable(feature = \"ascii_methods_on_intrinsics\", since = \"1.23.0\")]\n  2888:     #[rustc_const_stable(feature = \"const_make_ascii\", since = \"1.84.0\")]\n  2889:     #[inline]\n  2890:     pub const fn make_ascii_lowercase(&mut self) {\n  2891:         // SAFETY: changing ASCII letters only does not invalidate UTF-8.\n  2892:         let me = unsafe { self.as_bytes_mut() };\n  2893:         me.make_ascii_lowercase()\n  2894:     }\n  2895: \n  2896:     /// Returns a string slice with leading ASCII whitespace removed.\n  2897:     ///\n  2898:     /// 'Whitespace' refers to the definition used by\n  2899:     /// [`u8::is_ascii_whitespace`].\n  2900:     ///\n  2901:     /// [`u8::is_ascii_whitespace`]: u8::is_ascii_whitespace\n  2902:     ///\n  2903:     /// # Examples\n  2904:     ///\n  2905:     /// ```\n  2906:     /// assert_eq!(\" \\t \\u{3000}hello world\\n\".trim_ascii_start(), \"\\u{3000}hello world\\n\");\n  2907:     /// assert_eq!(\"  \".trim_ascii_start(), \"\");\n  2908:     /// assert_eq!(\"\".trim_ascii_start(), \"\");\n  2909:     /// ```\n  2910:     #[must_use = \"this returns the trimmed string as a new slice, \\\n  2911:                   without modifying the original\"]\n  2912:     #[stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n  2913:     #[rustc_const_stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n  2914:     #[inline]\n  2915:     pub const fn trim_ascii_start(&self) -> &str {\n  2916:         // SAFETY: Removing ASCII characters from a `&str` does not invalidate\n  2917:         // UTF-8.\n  2918:         unsafe { core::str::from_utf8_unchecked(self.as_bytes().trim_ascii_start()) }\n  2919:     }\n  2920: \n  2921:     /// Returns a string slice with trailing ASCII whitespace removed.\n  2922:     ///\n  2923:     /// 'Whitespace' refers to the definition used by\n  2924:     /// [`u8::is_ascii_whitespace`].\n  2925:     ///\n  2926:     /// [`u8::is_ascii_whitespace`]: u8::is_ascii_whitespace\n  2927:     ///\n  2928:     /// # Examples\n  2929:     ///\n  2930:     /// ```\n  2931:     /// assert_eq!(\"\\r hello world\\u{3000}\\n \".trim_ascii_end(), \"\\r hello world\\u{3000}\");\n  2932:     /// assert_eq!(\"  \".trim_ascii_end(), \"\");\n  2933:     /// assert_eq!(\"\".trim_ascii_end(), \"\");\n  2934:     /// ```\n  2935:     #[must_use = \"this returns the trimmed string as a new slice, \\\n  2936:                   without modifying the original\"]\n  2937:     #[stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n  2938:     #[rustc_const_stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n  2939:     #[inline]\n  2940:     pub const fn trim_ascii_end(&self) -> &str {\n  2941:         // SAFETY: Removing ASCII characters from a `&str` does not invalidate\n  2942:         // UTF-8.\n  2943:         unsafe { core::str::from_utf8_unchecked(self.as_bytes().trim_ascii_end()) }\n  2944:     }\n  2945: \n  2946:     /// Returns a string slice with leading and trailing ASCII whitespace\n  2947:     /// removed.\n  2948:     ///\n  2949:     /// 'Whitespace' refers to the definition used by\n  2950:     /// [`u8::is_ascii_whitespace`].\n  2951:     ///\n  2952:     /// [`u8::is_ascii_whitespace`]: u8::is_ascii_whitespace\n  2953:     ///\n  2954:     /// # Examples\n  2955:     ///\n  2956:     /// ```\n  2957:     /// assert_eq!(\"\\r hello world\\n \".trim_ascii(), \"hello world\");\n  2958:     /// assert_eq!(\"  \".trim_ascii(), \"\");\n  2959:     /// assert_eq!(\"\".trim_ascii(), \"\");\n  2960:     /// ```",
+    "span": {
+      "begin": [
+        2915,
+        5
+      ],
+      "end": [
+        2919,
+        6
+      ],
+      "filename": "core/src/str/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn trim_ascii_start(&self) -> &str {\n        // SAFETY: Removing ASCII characters from a `&str` does not invalidate\n        // UTF-8.\n        unsafe { core::str::from_utf8_unchecked(self.as_bytes().trim_ascii_start()) }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd str::as_bytes specification: the returned byte slice views as encode_utf8(s@)",
+    "<[u8]>::trim_ascii_start lower-level standard-library contract declared in this file",
+    "core::str::from_utf8_unchecked lower-level standard-library contract: valid UTF-8 bytes are preserved by the returned str view"
+  ],
+  "rationale": "The exact as_bytes -> byte-slice trim_ascii_start -> from_utf8_unchecked composition is preserved. Proved UTF-8 sequence lemmas translate the byte-level witness into the supplied character-level witness; no axiom or target call is used.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__str__trim_ascii_start__8c541bb43487"
+}

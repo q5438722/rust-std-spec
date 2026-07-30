@@ -1,0 +1,136 @@
+{
+  "id": "core__result__Result__unwrap_err_unchecked__46686f2080eb",
+  "api_path": "core::result::Result::unwrap_err_unchecked",
+  "raw_target": "Result::<T, E>::unwrap_err_unchecked",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 58, patch: 0 })},\nfeature: \"option_result_unwrap_unchecked\"}}]"
+      }
+    ],
+    "declaration_id": "core:29309",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": true
+    },
+    "name": "unwrap_err_unchecked",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "E"
+      }
+    },
+    "source_context": "  1640:     /// ```\n  1641:     ///\n  1642:     /// ```no_run\n  1643:     /// let x: Result<u32, &str> = Err(\"emergency failure\");\n  1644:     /// unsafe { x.unwrap_unchecked() }; // Undefined behavior!\n  1645:     /// ```\n  1646:     #[inline]\n  1647:     #[track_caller]\n  1648:     #[stable(feature = \"option_result_unwrap_unchecked\", since = \"1.58.0\")]\n  1649:     #[rustc_const_unstable(feature = \"const_result_unwrap_unchecked\", issue = \"148714\")]\n  1650:     pub const unsafe fn unwrap_unchecked(self) -> T {\n  1651:         match self {\n  1652:             Ok(t) => t,\n  1653:             Err(e) => {\n  1654:                 // FIXME(const-hack): to avoid E: const Destruct bound\n  1655:                 super::mem::forget(e);\n  1656:                 // SAFETY: the safety contract must be upheld by the caller.\n  1657:                 unsafe { hint::unreachable_unchecked() }\n  1658:             }\n  1659:         }\n  1660:     }\n  1661: \n  1662:     /// Returns the contained [`Err`] value, consuming the `self` value,\n  1663:     /// without checking that the value is not an [`Ok`].\n  1664:     ///\n  1665:     /// # Safety\n  1666:     ///\n  1667:     /// Calling this method on an [`Ok`] is *[undefined behavior]*.\n  1668:     ///\n  1669:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  1670:     ///\n  1671:     /// # Examples\n  1672:     ///\n  1673:     /// ```no_run\n  1674:     /// let x: Result<u32, &str> = Ok(2);\n  1675:     /// unsafe { x.unwrap_err_unchecked() }; // Undefined behavior!\n  1676:     /// ```\n  1677:     ///\n  1678:     /// ```\n  1679:     /// let x: Result<u32, &str> = Err(\"emergency failure\");\n  1680:     /// assert_eq!(unsafe { x.unwrap_err_unchecked() }, \"emergency failure\");\n  1681:     /// ```\n  1682:     #[inline]\n  1683:     #[track_caller]\n  1684:     #[stable(feature = \"option_result_unwrap_unchecked\", since = \"1.58.0\")]\n  1685:     pub unsafe fn unwrap_err_unchecked(self) -> E {\n  1686:         match self {\n  1687:             // SAFETY: the safety contract must be upheld by the caller.\n  1688:             Ok(_) => unsafe { hint::unreachable_unchecked() },\n  1689:             Err(e) => e,\n  1690:         }\n  1691:     }\n  1692: }\n  1693: \n  1694: impl<T, E> Result<&T, E> {\n  1695:     /// Maps a `Result<&T, E>` to a `Result<T, E>` by copying the contents of the\n  1696:     /// `Ok` part.\n  1697:     ///\n  1698:     /// # Examples\n  1699:     ///\n  1700:     /// ```\n  1701:     /// let val = 12;\n  1702:     /// let x: Result<&i32, i32> = Ok(&val);\n  1703:     /// assert_eq!(x, Ok(&12));\n  1704:     /// let copied = x.copied();\n  1705:     /// assert_eq!(copied, Ok(12));\n  1706:     /// ```\n  1707:     #[inline]\n  1708:     #[stable(feature = \"result_copied\", since = \"1.59.0\")]\n  1709:     #[rustc_const_stable(feature = \"const_result\", since = \"1.83.0\")]\n  1710:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1711:     pub const fn copied(self) -> Result<T, E>\n  1712:     where\n  1713:         T: Copy,\n  1714:     {\n  1715:         // FIXME(const-hack): this implementation, which sidesteps using `Result::map` since it's not const\n  1716:         // ready yet, should be reverted when possible to avoid code repetition\n  1717:         match self {\n  1718:             Ok(&v) => Ok(v),\n  1719:             Err(e) => Err(e),\n  1720:         }\n  1721:     }\n  1722: \n  1723:     /// Maps a `Result<&T, E>` to a `Result<T, E>` by cloning the contents of the\n  1724:     /// `Ok` part.\n  1725:     ///\n  1726:     /// # Examples\n  1727:     ///\n  1728:     /// ```\n  1729:     /// let val = 12;\n  1730:     /// let x: Result<&i32, i32> = Ok(&val);",
+    "span": {
+      "begin": [
+        1685,
+        5
+      ],
+      "end": [
+        1691,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub unsafe fn unwrap_err_unchecked(self) -> E {\n        match self {\n            // SAFETY: the safety contract must be upheld by the caller.\n            Ok(_) => unsafe { hint::unreachable_unchecked() },\n            Err(e) => e,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "Verus/vstd contract for core::hint::unreachable_unchecked"
+  ],
+  "rationale": "The body preserves the standard-library match exactly. The precondition excludes Ok, and the Err arm returns the contained error.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__result__Result__unwrap_err_unchecked__46686f2080eb"
+}

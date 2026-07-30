@@ -1,0 +1,135 @@
+{
+  "id": "core__slice__is_sorted__ec382db3c8f5",
+  "api_path": "core::slice::is_sorted",
+  "raw_target": "<[T]>::is_sorted",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 82, patch: 0 })},\nfeature: \"is_sorted\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51863",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 58,
+                    "path": "PartialOrd"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "is_sorted",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "  4683:     /// At the time of writing, the trait restrictions on `Simd<T, LANES>` keeps\n  4684:     /// that from ever happening, as only power-of-two numbers of lanes are\n  4685:     /// supported.  It's possible that, in the future, those restrictions might\n  4686:     /// be lifted in a way that would make it possible to see panics from this\n  4687:     /// method for something like `LANES == 3`.\n  4688:     #[unstable(feature = \"portable_simd\", issue = \"86656\")]\n  4689:     #[must_use]\n  4690:     pub fn as_simd_mut<const LANES: usize>(&mut self) -> (&mut [T], &mut [Simd<T, LANES>], &mut [T])\n  4691:     where\n  4692:         Simd<T, LANES>: AsMut<[T; LANES]>,\n  4693:         T: simd::SimdElement,\n  4694:     {\n  4695:         // These are expected to always match, as vector types are laid out like\n  4696:         // arrays per <https://llvm.org/docs/LangRef.html#vector-type>, but we\n  4697:         // might as well double-check since it'll optimize away anyhow.\n  4698:         assert_eq!(size_of::<Simd<T, LANES>>(), size_of::<[T; LANES]>());\n  4699: \n  4700:         // SAFETY: The simd types have the same layout as arrays, just with\n  4701:         // potentially-higher alignment, so the de-facto transmutes are sound.\n  4702:         unsafe { self.align_to_mut() }\n  4703:     }\n  4704: \n  4705:     /// Checks if the elements of this slice are sorted.\n  4706:     ///\n  4707:     /// That is, for each element `a` and its following element `b`, `a <= b` must hold. If the\n  4708:     /// slice yields exactly zero or one element, `true` is returned.\n  4709:     ///\n  4710:     /// Note that if `Self::Item` is only `PartialOrd`, but not `Ord`, the above definition\n  4711:     /// implies that this function returns `false` if any two consecutive items are not\n  4712:     /// comparable.\n  4713:     ///\n  4714:     /// # Examples\n  4715:     ///\n  4716:     /// ```\n  4717:     /// let empty: [i32; 0] = [];\n  4718:     ///\n  4719:     /// assert!([1, 2, 2, 9].is_sorted());\n  4720:     /// assert!(![1, 3, 2, 4].is_sorted());\n  4721:     /// assert!([0].is_sorted());\n  4722:     /// assert!(empty.is_sorted());\n  4723:     /// assert!(![0.0, 1.0, f32::NAN].is_sorted());\n  4724:     /// ```\n  4725:     #[inline]\n  4726:     #[stable(feature = \"is_sorted\", since = \"1.82.0\")]\n  4727:     #[must_use]\n  4728:     pub fn is_sorted(&self) -> bool\n  4729:     where\n  4730:         T: PartialOrd,\n  4731:     {\n  4732:         // This odd number works the best. 32 + 1 extra due to overlapping chunk boundaries.\n  4733:         const CHUNK_SIZE: usize = 33;\n  4734:         if self.len() < CHUNK_SIZE {\n  4735:             return self.windows(2).all(|w| w[0] <= w[1]);\n  4736:         }\n  4737:         let mut i = 0;\n  4738:         // Check in chunks for autovectorization.\n  4739:         while i < self.len() - CHUNK_SIZE {\n  4740:             let chunk = &self[i..i + CHUNK_SIZE];\n  4741:             if !chunk.windows(2).fold(true, |acc, w| acc & (w[0] <= w[1])) {\n  4742:                 return false;\n  4743:             }\n  4744:             // We need to ensure that chunk boundaries are also sorted.\n  4745:             // Overlap the next chunk with the last element of our last chunk.\n  4746:             i += CHUNK_SIZE - 1;\n  4747:         }\n  4748:         self[i..].windows(2).all(|w| w[0] <= w[1])\n  4749:     }\n  4750: \n  4751:     /// Checks if the elements of this slice are sorted using the given comparator function.\n  4752:     ///\n  4753:     /// Instead of using `PartialOrd::partial_cmp`, this function uses the given `compare`\n  4754:     /// function to determine whether two elements are to be considered in sorted order.\n  4755:     ///\n  4756:     /// # Examples\n  4757:     ///\n  4758:     /// ```\n  4759:     /// assert!([1, 2, 2, 9].is_sorted_by(|a, b| a <= b));\n  4760:     /// assert!(![1, 2, 2, 9].is_sorted_by(|a, b| a < b));\n  4761:     ///\n  4762:     /// assert!([0].is_sorted_by(|a, b| true));\n  4763:     /// assert!([0].is_sorted_by(|a, b| false));\n  4764:     ///\n  4765:     /// let empty: [i32; 0] = [];\n  4766:     /// assert!(empty.is_sorted_by(|a, b| false));\n  4767:     /// assert!(empty.is_sorted_by(|a, b| true));\n  4768:     /// ```\n  4769:     #[stable(feature = \"is_sorted\", since = \"1.82.0\")]\n  4770:     #[must_use]\n  4771:     pub fn is_sorted_by<'a, F>(&'a self, mut compare: F) -> bool\n  4772:     where\n  4773:         F: FnMut(&'a T, &'a T) -> bool,",
+    "span": {
+      "begin": [
+        4728,
+        5
+      ],
+      "end": [
+        4749,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn is_sorted(&self) -> bool\n    where\n        T: PartialOrd,\n    {\n        // This odd number works the best. 32 + 1 extra due to overlapping chunk boundaries.\n        const CHUNK_SIZE: usize = 33;\n        if self.len() < CHUNK_SIZE {\n            return self.windows(2).all(|w| w[0] <= w[1]);\n        }\n        let mut i = 0;\n        // Check in chunks for autovectorization.\n        while i < self.len() - CHUNK_SIZE {\n            let chunk = &self[i..i + CHUNK_SIZE];\n            if !chunk.windows(2).fold(true, |acc, w| acc & (w[0] <= w[1])) {\n                return false;\n            }\n            // We need to ensure that chunk boundaries are also sorted.\n            // Overlap the next chunk with the last element of our last chunk.\n            i += CHUNK_SIZE - 1;\n        }\n        self[i..].windows(2).all(|w| w[0] <= w[1])\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd specifications for slice length, indexing, and range slicing",
+    "vstd PartialOrd executable/specification bridge under T::obeys_partial_cmp_spec()"
+  ],
+  "rationale": "The Rust 1.96 chunked control flow is copied, with windows(2).all/fold mechanically expanded into verified loops; no target call or new axiom is used.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__is_sorted__ec382db3c8f5"
+}

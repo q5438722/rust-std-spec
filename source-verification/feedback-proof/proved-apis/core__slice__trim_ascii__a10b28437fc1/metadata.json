@@ -1,0 +1,108 @@
+{
+  "id": "core__slice__trim_ascii__a10b28437fc1",
+  "api_path": "core::slice::trim_ascii",
+  "raw_target": "<[u8]>::trim_ascii",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"byte_slice_trim_ascii\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"byte_slice_trim_ascii\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "declaration_id": "core:51784",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "trim_ascii",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "primitive": "u8"
+        }
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:51785",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "borrowed_ref": {
+          "is_mutable": false,
+          "lifetime": null,
+          "type": {
+            "slice": {
+              "primitive": "u8"
+            }
+          }
+        }
+      }
+    },
+    "source_context": "   251:     /// Returns a byte slice with trailing ASCII whitespace bytes removed.\n   252:     ///\n   253:     /// 'Whitespace' refers to the definition used by\n   254:     /// [`u8::is_ascii_whitespace`].\n   255:     ///\n   256:     /// # Examples\n   257:     ///\n   258:     /// ```\n   259:     /// assert_eq!(b\"\\r hello world\\n \".trim_ascii_end(), b\"\\r hello world\");\n   260:     /// assert_eq!(b\"  \".trim_ascii_end(), b\"\");\n   261:     /// assert_eq!(b\"\".trim_ascii_end(), b\"\");\n   262:     /// ```\n   263:     #[stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   264:     #[rustc_const_stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   265:     #[inline]\n   266:     pub const fn trim_ascii_end(&self) -> &[u8] {\n   267:         let mut bytes = self;\n   268:         // Note: A pattern matching based approach (instead of indexing) allows\n   269:         // making the function const.\n   270:         while let [rest @ .., last] = bytes {\n   271:             if last.is_ascii_whitespace() {\n   272:                 bytes = rest;\n   273:             } else {\n   274:                 break;\n   275:             }\n   276:         }\n   277:         bytes\n   278:     }\n   279: \n   280:     /// Returns a byte slice with leading and trailing ASCII whitespace bytes\n   281:     /// removed.\n   282:     ///\n   283:     /// 'Whitespace' refers to the definition used by\n   284:     /// [`u8::is_ascii_whitespace`].\n   285:     ///\n   286:     /// # Examples\n   287:     ///\n   288:     /// ```\n   289:     /// assert_eq!(b\"\\r hello world\\n \".trim_ascii(), b\"hello world\");\n   290:     /// assert_eq!(b\"  \".trim_ascii(), b\"\");\n   291:     /// assert_eq!(b\"\".trim_ascii(), b\"\");\n   292:     /// ```\n   293:     #[stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   294:     #[rustc_const_stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   295:     #[inline]\n   296:     pub const fn trim_ascii(&self) -> &[u8] {\n   297:         self.trim_ascii_start().trim_ascii_end()\n   298:     }\n   299: }\n   300: \n   301: impl_fn_for_zst! {\n   302:     #[derive(Clone)]\n   303:     struct EscapeByte impl Fn = |byte: &u8| -> ascii::EscapeDefault {\n   304:         ascii::escape_default(*byte)\n   305:     };\n   306: }\n   307: \n   308: /// An iterator over the escaped version of a byte slice.\n   309: ///\n   310: /// This `struct` is created by the [`slice::escape_ascii`] method. See its\n   311: /// documentation for more information.\n   312: #[stable(feature = \"inherent_ascii_escape\", since = \"1.60.0\")]\n   313: #[derive(Clone)]\n   314: #[must_use = \"iterators are lazy and do nothing unless consumed\"]\n   315: pub struct EscapeAscii<'a> {\n   316:     inner: iter::FlatMap<super::Iter<'a, u8>, ascii::EscapeDefault, EscapeByte>,\n   317: }\n   318: \n   319: #[stable(feature = \"inherent_ascii_escape\", since = \"1.60.0\")]\n   320: impl<'a> iter::Iterator for EscapeAscii<'a> {\n   321:     type Item = u8;\n   322:     #[inline]\n   323:     fn next(&mut self) -> Option<u8> {\n   324:         self.inner.next()\n   325:     }\n   326:     #[inline]\n   327:     fn size_hint(&self) -> (usize, Option<usize>) {\n   328:         self.inner.size_hint()\n   329:     }\n   330:     #[inline]\n   331:     fn try_fold<Acc, Fold, R>(&mut self, init: Acc, fold: Fold) -> R\n   332:     where\n   333:         Fold: FnMut(Acc, Self::Item) -> R,\n   334:         R: ops::Try<Output = Acc>,\n   335:     {\n   336:         self.inner.try_fold(init, fold)\n   337:     }\n   338:     #[inline]\n   339:     fn fold<Acc, Fold>(self, init: Acc, fold: Fold) -> Acc\n   340:     where\n   341:         Fold: FnMut(Acc, Self::Item) -> Acc,",
+    "span": {
+      "begin": [
+        296,
+        5
+      ],
+      "end": [
+        298,
+        6
+      ],
+      "filename": "core/src/slice/ascii.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn trim_ascii(&self) -> &[u8] {\n        self.trim_ascii_start().trim_ascii_end()\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The declared contract for <[u8]>::trim_ascii_start, stated deterministically via the returned slice length.",
+    "The declared contract for <[u8]>::trim_ascii_end."
+  ],
+  "rationale": "The method chain is mechanically desugared into the same two calls, and the result follows compositionally from their smaller std API contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__trim_ascii__a10b28437fc1"
+}

@@ -1,0 +1,139 @@
+{
+  "batch": 333,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 182417,
+  "targets": [
+    "core::ptr::dangling_mut",
+    "core::ptr::drop_in_place",
+    "core::ptr::eq",
+    "core::ptr::expose_provenance",
+    "core::ptr::from_mut",
+    "core::ptr::from_ref"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::dangling_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ core::ptr::dangling_mut::<T> ]() -> (result: *mut T)\n    ensures\n        result@.addr != 0,\n        result@.addr as nat % align_of::<T>() == 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr != 0",
+        "result@.addr as nat % align_of::<T>() == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::layout::*",
+        "vstd::raw_ptr::*"
+      ],
+      "useful": true,
+      "rationale": "The documentation guarantees a non-null, well-aligned pointer, both expressible through vstd's raw-pointer and layout models.",
+      "risks": [
+        "does_not_establish_dereference_validity",
+        "pointer_provenance_unconstrained"
+      ]
+    },
+    {
+      "target": "core::ptr::drop_in_place",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Dropping requires consuming initialized-memory ownership and modeling destructor effects, but the exact raw-pointer signature carries no PointsTo permission.",
+      "risks": [
+        "missing_memory_permission",
+        "unmodeled_destructor_effect",
+        "unit_return_variant",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::eq",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[ core::ptr::eq::<T> ](\n    a: *const T,\n    b: *const T,\n) -> (result: bool)\n    ensures\n        result <==> (a@.addr == b@.addr && a@.metadata == b@.metadata),\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> (a@.addr == b@.addr && a@.metadata == b@.metadata)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::*"
+      ],
+      "useful": true,
+      "rationale": "The source performs runtime pointer equality, which vstd models exactly as equality of address and metadata while ignoring provenance.",
+      "risks": [
+        "runtime_equality_ignores_provenance",
+        "does_not_imply_dereference_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::expose_provenance",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation's essential provenance-exposure side effect requires vstd's tracked IsExposed token, which the standard usize-returning signature cannot produce.",
+      "risks": [
+        "hidden_provenance_exposure_effect",
+        "missing_tracked_token_output",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::from_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[ core::ptr::from_mut::<T> ](\n    r: &mut T,\n) -> (result: *mut T)\n    ensures\n        *final(r) == *old(r),\n        result@.addr != 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "*final(r) == *old(r)",
+        "result@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::*"
+      ],
+      "useful": true,
+      "rationale": "The source leaves the referenced value unchanged, and its never-null annotation justifies a nonzero result address.",
+      "risks": [
+        "reference_pointer_identity_unmodeled",
+        "no_memory_permission_produced",
+        "pointer_lifetime_not_expressed"
+      ]
+    },
+    {
+      "target": "core::ptr::from_ref",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[ core::ptr::from_ref::<T> ](\n    r: &T,\n) -> (result: *const T)\n    ensures\n        result@.addr != 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::*"
+      ],
+      "useful": true,
+      "rationale": "The never-null annotation directly supports a useful nonzero-address guarantee in vstd's raw-pointer model.",
+      "risks": [
+        "reference_pointer_identity_unmodeled",
+        "no_memory_permission_produced",
+        "pointer_lifetime_not_expressed"
+      ]
+    }
+  ]
+}

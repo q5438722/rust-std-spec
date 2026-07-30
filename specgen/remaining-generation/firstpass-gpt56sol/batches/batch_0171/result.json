@@ -1,0 +1,140 @@
+{
+  "batch": 171,
+  "group": "representation_or_allocator",
+  "duration_ms": 245992,
+  "targets": [
+    "alloc::collections::VecDeque::try_reserve",
+    "alloc::collections::VecDeque::try_reserve_exact",
+    "alloc::string::String::capacity",
+    "alloc::string::String::reserve",
+    "alloc::string::String::reserve_exact",
+    "alloc::string::String::shrink_to"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::VecDeque::try_reserve",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::try_reserve\n](\n    v: &mut VecDeque<T, A>,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(v)@ == old(v)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::vec_deque::VecDeque;",
+        "use alloc::collections::TryReserveError;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Both successful reservation and the error paths preserve the deque's logical sequence and ordering.",
+      "risks": [
+        "allocation success and resulting capacity remain unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::try_reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::try_reserve_exact\n](\n    v: &mut VecDeque<T, A>,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(v)@ == old(v)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::vec_deque::VecDeque;",
+        "use alloc::collections::TryReserveError;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source changes only allocation and physical layout; success and failure both preserve the logical sequence.",
+      "risks": [
+        "allocation result and exact capacity remain unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[\n    String::capacity\n](s: &String) -> (capacity: usize)\n    ensures\n        encode_utf8(s@).len() <= capacity as int,\n;",
+      "requires": [],
+      "ensures": [
+        "encode_utf8(s@).len() <= capacity as int"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::*;",
+        "use vstd::utf8::encode_utf8;"
+      ],
+      "useful": true,
+      "rationale": "Although exact capacity is hidden, it must accommodate the String view's complete UTF-8 byte encoding.",
+      "risks": [
+        "exact allocator capacity remains unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::reserve",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[\n    String::reserve\n](\n    s: &mut String,\n    additional: usize,\n)\n    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The delegated vector reservation changes capacity only and preserves the String's logical character sequence.",
+      "risks": [
+        "post-call capacity remains unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[\n    String::reserve_exact\n](\n    s: &mut String,\n    additional: usize,\n)\n    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The method changes backing allocation only, so the existing String view can state content preservation.",
+      "risks": [
+        "post-call capacity remains unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::shrink_to",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[\n    String::shrink_to\n](\n    s: &mut String,\n    min_capacity: usize,\n)\n    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Shrinking the backing vector preserves the complete logical String contents.",
+      "risks": [
+        "allocator-dependent resulting capacity remains unmodeled"
+      ]
+    }
+  ]
+}

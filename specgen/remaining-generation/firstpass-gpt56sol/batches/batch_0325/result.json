@@ -1,0 +1,122 @@
+{
+  "batch": 325,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 141201,
+  "targets": [
+    "core::ptr::NonNull::byte_add",
+    "core::ptr::NonNull::byte_offset",
+    "core::ptr::NonNull::byte_offset_from",
+    "core::ptr::NonNull::byte_offset_from_unsigned",
+    "core::ptr::NonNull::byte_sub",
+    "core::ptr::NonNull::copy_from"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::NonNull::byte_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result changes the data address while preserving metadata, but vstd has no public NonNull pointer model or allocation-bounds predicate sufficient to express byte_add's unsafe same-allocation requirements.",
+      "risks": [
+        "missing_nonnull_model",
+        "unexpressible_allocation_bounds",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::byte_offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "An address-only relation would omit the unsafe same-allocation and signed-offset validity requirements, and current vstd provides no public NonNull-to-allocation abstraction that can express them.",
+      "risks": [
+        "missing_nonnull_model",
+        "unexpressible_allocation_bounds",
+        "signed_pointer_arithmetic",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::byte_offset_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The integer difference is defined only for data pointers within the same allocation. Current vstd cannot connect two NonNull values to such an allocation while ignoring their metadata as required.",
+      "risks": [
+        "missing_nonnull_model",
+        "same_allocation_unexpressible",
+        "pointer_provenance",
+        "address_difference_overflow"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::byte_offset_from_unsigned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound contract needs same-allocation provenance and the documented ordering of the data pointers. Those properties cannot be established for NonNull values using the current public vstd vocabulary.",
+      "risks": [
+        "missing_nonnull_model",
+        "same_allocation_unexpressible",
+        "pointer_ordering",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::byte_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to byte subtraction with unsafe allocation-bound requirements. vstd cannot currently relate NonNull to an allocation range, so a deterministic address subtraction contract would be unsoundly incomplete.",
+      "risks": [
+        "missing_nonnull_model",
+        "unexpressible_allocation_bounds",
+        "pointer_provenance",
+        "address_underflow"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::copy_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This operation mutates memory through raw pointers and permits overlap, but its signature carries no tracked PointsTo or PointsToRaw permission through which vstd could express validity and the resulting memory state.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "source_destination_validity",
+        "overlapping_copy_semantics"
+      ]
+    }
+  ]
+}

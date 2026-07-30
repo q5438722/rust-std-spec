@@ -1,0 +1,122 @@
+{
+  "batch": 179,
+  "group": "retry_suitable_skip",
+  "duration_ms": 353298,
+  "targets": [
+    "alloc::collections::BTreeMap::get_key_value",
+    "alloc::collections::BTreeMap::split_off",
+    "alloc::collections::BTreeSet::split_off",
+    "alloc::string::String::replace_range",
+    "alloc::vec::Vec::extend_from_within",
+    "core::mem::discriminant"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::BTreeMap::get_key_value",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Vstd's borrowed-key predicates are opaque and non-functional for generic Borrow<Q>, so they cannot uniquely relate the observable stored-key reference to the query.",
+      "risks": [
+        "missing functional borrowed-entry abstraction",
+        "reference identity versus semantic value"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::split_off",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The exact partition requires comparing each stored key's borrowed Q with key. Vstd models borrowed-key containment but not Borrow::borrow or cross-type ordering, leaving absent-key boundaries underdetermined.",
+      "risks": [
+        "missing borrowed-key ordering abstraction",
+        "underdetermined split boundary"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::split_off",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Vstd cannot express the cross-type ordering between a stored T's borrowed Q and value, so it cannot determine the returned suffix when value is absent.",
+      "risks": [
+        "missing borrowed-value ordering abstraction",
+        "underdetermined split boundary"
+      ]
+    },
+    {
+      "target": "alloc::string::String::replace_range",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<R: core::ops::RangeBounds<usize>>[\n    alloc::string::String::replace_range::<R>\n](\n    s: &mut alloc::string::String,\n    range: R,\n    replace_with: &str,\n)\n    requires\n        slice_range_valid(&range, encode_utf8(old(s)@).len()),\n        is_char_boundary(encode_utf8(old(s)@), slice_range_start(&range)),\n        is_char_boundary(encode_utf8(old(s)@), slice_range_end(&range, encode_utf8(old(s)@).len())),\n    ensures\n        final(s)@ == decode_utf8(encode_utf8(old(s)@).subrange(0, slice_range_start(&range)))\n            + replace_with@\n            + decode_utf8(encode_utf8(old(s)@).subrange(\n                slice_range_end(&range, encode_utf8(old(s)@).len()),\n                encode_utf8(old(s)@).len() as int,\n            )),\n;",
+      "requires": [
+        "slice_range_valid(&range, encode_utf8(old(s)@).len())",
+        "is_char_boundary(encode_utf8(old(s)@), slice_range_start(&range))",
+        "is_char_boundary(encode_utf8(old(s)@), slice_range_end(&range, encode_utf8(old(s)@).len()))"
+      ],
+      "ensures": [
+        "final(s)@ == decode_utf8(encode_utf8(old(s)@).subrange(0, slice_range_start(&range))) + replace_with@ + decode_utf8(encode_utf8(old(s)@).subrange(slice_range_end(&range, encode_utf8(old(s)@).len()), encode_utf8(old(s)@).len() as int))"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::range::{slice_range_end, slice_range_start, slice_range_valid}",
+        "vstd::utf8::{decode_utf8, encode_utf8, is_char_boundary}"
+      ],
+      "useful": true,
+      "rationale": "The current RangeBoundsSpec-backed normalization and UTF-8 vocabulary precisely describe the checked byte range and the resulting prefix, replacement, and suffix.",
+      "risks": [
+        "indices are byte offsets rather than character indices",
+        "relies on the trusted RangeBoundsSpec model",
+        "allocation failure is not modeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::extend_from_within",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "For arbitrary T: Clone, vstd provides only the non-functional cloned relation, which cannot uniquely determine the appended elements or final Vec view.",
+      "risks": [
+        "non-functional Clone specification",
+        "underdetermined mutable post-state"
+      ]
+    },
+    {
+      "target": "core::mem::discriminant",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Discriminant<T> is opaque and vstd has no generic active-variant model relating it to an arbitrary T.",
+      "risks": [
+        "missing generic variant abstraction",
+        "opaque Discriminant representation"
+      ]
+    }
+  ]
+}

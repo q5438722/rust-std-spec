@@ -1,0 +1,204 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::rc::Weak::upgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether upgrade returns Some depends on hidden strong-reference state, and current vstd has no Weak/Rc ownership or allocation-identity abstraction.",
+      "risks": [
+        "missing_rc_ownership_abstraction",
+        "hidden_reference_count_state"
+      ]
+    },
+    {
+      "target": "alloc::rc::Weak::weak_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result exposes hidden allocation reference counts, including implicit-weak-pointer behavior, which cannot be related to Weak using current vstd vocabulary.",
+      "risks": [
+        "missing_rc_ownership_abstraction",
+        "hidden_reference_count_state"
+      ]
+    },
+    {
+      "target": "alloc::string::Drain::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the returned str to Drain's remaining iterator state, but Drain has no public vstd view exposing that state.",
+      "risks": [
+        "missing_drain_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::string::FromUtf8Error::as_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although slices have views, current vstd provides no FromUtf8Error abstraction identifying its stored input bytes, so the returned slice cannot be usefully characterized.",
+      "risks": [
+        "missing_from_utf8_error_view",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::string::FromUtf8Error::into_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source moves out the error's private byte vector, but no current vstd view exposes those bytes for relating self to the returned Vec.",
+      "risks": [
+        "missing_from_utf8_error_view",
+        "hidden_owned_bytes"
+      ]
+    },
+    {
+      "target": "alloc::string::FromUtf8Error::utf8_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method copies a private Utf8Error field, but current vstd has no FromUtf8Error model connecting that field or its validity information to the stored bytes.",
+      "risks": [
+        "missing_from_utf8_error_view",
+        "missing_utf8_failure_relation"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::rc::Weak::upgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether upgrade returns Some depends on hidden strong-reference state, and
+current vstd has no Weak/Rc ownership or allocation-identity abstraction.",
+      "risks": [
+        "missing_rc_ownership_abstraction",
+        "hidden_reference_count_state"
+      ]
+    },
+    {
+      "target": "alloc::rc::Weak::weak_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result exposes hidden allocation reference counts, including
+implicit-weak-pointer behavior, which cannot be related to Weak using current vstd vocabulary.",
+      "risks": [
+        "missing_rc_ownership_abstraction",
+        "hidden_reference_count_state"
+      ]
+    },
+    {
+      "target": "alloc::string::Drain::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the returned str to Drain's remaining iterator
+state, but Drain has no public vstd view exposing that state.",
+      "risks": [
+        "missing_drain_state_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::string::FromUtf8Error::as_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although slices have views, current vstd provides no FromUtf8Error abstraction
+identifying its stored input bytes, so the returned slice cannot be usefully characterized.",
+      "risks": [
+        "missing_from_utf8_error_view",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::string::FromUtf8Error::into_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source moves out the error's private byte vector, but no current vstd view
+exposes those bytes for relating self to the returned Vec.",
+      "risks": [
+        "missing_from_utf8_error_view",
+        "hidden_owned_bytes"
+      ]
+    },
+    {
+      "target": "alloc::string::FromUtf8Error::utf8_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method copies a private Utf8Error field, but current vstd has no
+FromUtf8Error model connecting that field or its validity information to the stored bytes.",
+      "risks": [
+        "missing_from_utf8_error_view",
+        "missing_utf8_failure_relation"
+      ]
+    } ]
+}
+

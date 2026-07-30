@@ -1,0 +1,182 @@
+{
+  "id": "std__sync__LockResult__cloned__a60f4a9a8489",
+  "api_path": "std::sync::LockResult::cloned",
+  "raw_target": "Result::<&'a T, E>::cloned",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 59, patch: 0 })},\nfeature: \"result_cloned\"}}]"
+      }
+    ],
+    "declaration_id": "core:29312",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 42,
+                    "path": "Clone"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "cloned",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "is_mutable": false,
+                      "lifetime": null,
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29313",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "  1692: }\n  1693: \n  1694: impl<T, E> Result<&T, E> {\n  1695:     /// Maps a `Result<&T, E>` to a `Result<T, E>` by copying the contents of the\n  1696:     /// `Ok` part.\n  1697:     ///\n  1698:     /// # Examples\n  1699:     ///\n  1700:     /// ```\n  1701:     /// let val = 12;\n  1702:     /// let x: Result<&i32, i32> = Ok(&val);\n  1703:     /// assert_eq!(x, Ok(&12));\n  1704:     /// let copied = x.copied();\n  1705:     /// assert_eq!(copied, Ok(12));\n  1706:     /// ```\n  1707:     #[inline]\n  1708:     #[stable(feature = \"result_copied\", since = \"1.59.0\")]\n  1709:     #[rustc_const_stable(feature = \"const_result\", since = \"1.83.0\")]\n  1710:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1711:     pub const fn copied(self) -> Result<T, E>\n  1712:     where\n  1713:         T: Copy,\n  1714:     {\n  1715:         // FIXME(const-hack): this implementation, which sidesteps using `Result::map` since it's not const\n  1716:         // ready yet, should be reverted when possible to avoid code repetition\n  1717:         match self {\n  1718:             Ok(&v) => Ok(v),\n  1719:             Err(e) => Err(e),\n  1720:         }\n  1721:     }\n  1722: \n  1723:     /// Maps a `Result<&T, E>` to a `Result<T, E>` by cloning the contents of the\n  1724:     /// `Ok` part.\n  1725:     ///\n  1726:     /// # Examples\n  1727:     ///\n  1728:     /// ```\n  1729:     /// let val = 12;\n  1730:     /// let x: Result<&i32, i32> = Ok(&val);\n  1731:     /// assert_eq!(x, Ok(&12));\n  1732:     /// let cloned = x.cloned();\n  1733:     /// assert_eq!(cloned, Ok(12));\n  1734:     /// ```\n  1735:     #[inline]\n  1736:     #[stable(feature = \"result_cloned\", since = \"1.59.0\")]\n  1737:     pub fn cloned(self) -> Result<T, E>\n  1738:     where\n  1739:         T: Clone,\n  1740:     {\n  1741:         self.map(|t| t.clone())\n  1742:     }\n  1743: }\n  1744: \n  1745: impl<T, E> Result<&mut T, E> {\n  1746:     /// Maps a `Result<&mut T, E>` to a `Result<T, E>` by copying the contents of the\n  1747:     /// `Ok` part.\n  1748:     ///\n  1749:     /// # Examples\n  1750:     ///\n  1751:     /// ```\n  1752:     /// let mut val = 12;\n  1753:     /// let x: Result<&mut i32, i32> = Ok(&mut val);\n  1754:     /// assert_eq!(x, Ok(&mut 12));\n  1755:     /// let copied = x.copied();\n  1756:     /// assert_eq!(copied, Ok(12));\n  1757:     /// ```\n  1758:     #[inline]\n  1759:     #[stable(feature = \"result_copied\", since = \"1.59.0\")]\n  1760:     #[rustc_const_stable(feature = \"const_result\", since = \"1.83.0\")]\n  1761:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1762:     pub const fn copied(self) -> Result<T, E>\n  1763:     where\n  1764:         T: Copy,\n  1765:     {\n  1766:         // FIXME(const-hack): this implementation, which sidesteps using `Result::map` since it's not const\n  1767:         // ready yet, should be reverted when possible to avoid code repetition\n  1768:         match self {\n  1769:             Ok(&mut v) => Ok(v),\n  1770:             Err(e) => Err(e),\n  1771:         }\n  1772:     }\n  1773: \n  1774:     /// Maps a `Result<&mut T, E>` to a `Result<T, E>` by cloning the contents of the\n  1775:     /// `Ok` part.\n  1776:     ///\n  1777:     /// # Examples\n  1778:     ///\n  1779:     /// ```\n  1780:     /// let mut val = 12;\n  1781:     /// let x: Result<&mut i32, i32> = Ok(&mut val);\n  1782:     /// assert_eq!(x, Ok(&mut 12));",
+    "span": {
+      "begin": [
+        1737,
+        5
+      ],
+      "end": [
+        1742,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn cloned(self) -> Result<T, E>\n    where\n        T: Clone,\n    {\n        self.map(|t| t.clone())\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's Result::map specification correctly models the lower standard-library call.",
+    "vstd's Clone::clone specification correctly relates the cloned value through cloned."
+  ],
+  "rationale": "The executable body preserves the exact map call and clone closure; only the closure postcondition is added as proof annotation.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/std__sync__LockResult__cloned__a60f4a9a8489"
+}

@@ -1,0 +1,532 @@
+{
+  "metadata": {
+    "module_file": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd/std_specs/ffi.rs",
+    "imports": [
+      "core::ffi::*",
+      "alloc::ffi::*",
+      "alloc::string::*",
+      "alloc::vec::Vec",
+      "alloc::boxed::Box",
+      "vstd::std_specs::ffi::*",
+      "vstd::utf8::*",
+      "vstd::prelude::*"
+    ]
+  },
+  "counts": {
+    "targets": 26,
+    "status": {
+      "ok": 26
+    },
+    "r0_z3": {
+      "unsat": 25,
+      "unknown": 1
+    },
+    "classification": {
+      "complete": 25,
+      "ok_inconclusive": 1
+    }
+  },
+  "results": [
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == value@.len()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 1243,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::count_bytes",
+      "source_line": 163
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result <==> value@.len() == 0"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 639,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::is_empty",
+      "source_line": 168
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 972,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::to_bytes",
+      "source_line": 173
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@.push(0)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 903,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::to_bytes_with_nul",
+      "source_line": 178
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "c_string_bytes_with_nul_valid(bytes@) ==>\n            (result matches Ok(value) && value@ == bytes@.drop_last())",
+        "!c_string_bytes_with_nul_valid(bytes@) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 23,
+      "verus_returncode": 0,
+      "verus_ms": 1014,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::from_bytes_with_nul",
+      "source_line": 183
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "contains_nul(bytes@) ==>\n            (result matches Ok(value)\n                && value@ == bytes@.subrange(0, first_nul_index(bytes@)))",
+        "!contains_nul(bytes@) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 23,
+      "verus_returncode": 0,
+      "verus_ms": 1116,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::from_bytes_until_nul",
+      "source_line": 192
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_utf8(value@) ==>\n            (result matches Ok(string) && string@ == decode_utf8(value@))",
+        "!valid_utf8(value@) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 11,
+      "verus_returncode": 0,
+      "verus_ms": 1535,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CStr::to_str",
+      "source_line": 202
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == error@.valid_up_to"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 1272,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "core::str::Utf8Error::valid_up_to",
+      "source_line": 211
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == error@.error_len"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 579,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "core::str::Utf8Error::error_len",
+      "source_line": 218
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 1216,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::as_bytes",
+      "source_line": 226
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@.push(0)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 1025,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::as_bytes_with_nul",
+      "source_line": 232
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 1,
+      "verus_ms": 444,
+      "r0_z3": "unknown",
+      "n_rounds": 2,
+      "assumes": [
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "CString::as_c_str",
+      "source_line": 238
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 946,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::into_bytes",
+      "source_line": 244
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == value@.push(0)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 1331,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::into_bytes_with_nul",
+      "source_line": 250
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "(*result)@ == value@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 1061,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::into_boxed_c_str",
+      "source_line": 256
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "c_string_bytes_with_nul_valid(bytes@) ==>\n            (result matches Ok(value) && value@ == bytes@.drop_last())",
+        "!c_string_bytes_with_nul_valid(bytes@) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 23,
+      "verus_returncode": 0,
+      "verus_ms": 1252,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::from_vec_with_nul",
+      "source_line": 262
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_utf8(value@) ==>\n            (result matches Ok(string) && string@ == decode_utf8(value@))",
+        "!valid_utf8(value@) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 11,
+      "verus_returncode": 0,
+      "verus_ms": 685,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "CString::into_string",
+      "source_line": 272
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@.bytes"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 2451,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "FromUtf8Error::as_bytes",
+      "source_line": 282
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@.bytes"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 815,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "FromUtf8Error::into_bytes",
+      "source_line": 290
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@.error"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 789,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "FromUtf8Error::utf8_error",
+      "source_line": 298
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == error@.position"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 842,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "alloc::ffi::NulError::nul_position",
+      "source_line": 306
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@.bytes"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 1034,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "alloc::ffi::NulError::into_vec",
+      "source_line": 314
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 1339,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "alloc::ffi::FromVecWithNulError::as_bytes",
+      "source_line": 322
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 37,
+      "verus_returncode": 0,
+      "verus_ms": 1674,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "alloc::ffi::FromVecWithNulError::into_bytes",
+      "source_line": 330
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@.value"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 774,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "alloc::ffi::IntoStringError::into_cstring",
+      "source_line": 338
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == error@.error"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 998,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "alloc::ffi::IntoStringError::utf8_error",
+      "source_line": 346
+    }
+  ]
+}

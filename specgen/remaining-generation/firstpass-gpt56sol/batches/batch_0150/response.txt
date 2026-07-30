@@ -1,0 +1,217 @@
+{
+  "candidates": [
+    {
+      "target": "std::panic::PanicHookInfo::location",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[std::panic::PanicHookInfo::location](\n    info: &std::panic::PanicHookInfo<'a>,\n) -> (result: Option<&std::panic::Location<'_>>)\n    ensures\n        result.is_some(),\n;",
+      "requires": [],
+      "ensures": [
+        "result.is_some()"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The Rust 1.96 body unconditionally returns Some(&self.location), so the public Option discriminant can be specified without modeling the private location value.",
+      "risks": [
+        "Does not model the returned reference's identity or Location contents.",
+        "The documentation warns that always returning Some may change in later Rust versions."
+      ]
+    },
+    {
+      "target": "std::panic::PanicHookInfo::payload",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The body returns a private payload reference, while current vstd provides no public model for its identity or dyn Any runtime type.",
+      "risks": [
+        "reference identity is unmodeled",
+        "dyn Any type information and downcasting are unmodeled"
+      ]
+    },
+    {
+      "target": "std::panic::PanicHookInfo::payload_as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on downcasting the private payload to &str or String; current vstd cannot relate that hidden dynamic type and content to the returned Option<&str>.",
+      "risks": [
+        "dyn Any downcasting is unmodeled",
+        "returned reference identity and payload content cannot be related"
+      ]
+    },
+    {
+      "target": "std::panic::PanicInfo::location",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[std::panic::PanicHookInfo::location](\n    info: &std::panic::PanicHookInfo<'a>,\n) -> (result: Option<&std::panic::Location<'_>>)\n    ensures\n        result.is_some(),\n;",
+      "requires": [],
+      "ensures": [
+        "result.is_some()"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The metadata resolves this alias target to PanicHookInfo::location, whose Rust 1.96 body unconditionally returns Some.",
+      "risks": [
+        "This is the same underlying method as PanicHookInfo::location and the declaration must be deduplicated.",
+        "The returned reference's identity and Location contents remain unmodeled."
+      ]
+    },
+    {
+      "target": "std::panic::PanicInfo::payload",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias resolves to PanicHookInfo::payload, whose private referent identity and dyn Any runtime type lack a current vstd abstraction.",
+      "risks": [
+        "reference identity is unmodeled",
+        "dyn Any type information and downcasting are unmodeled"
+      ]
+    },
+    {
+      "target": "std::panic::PanicInfo::payload_as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias resolves to the implementation that downcasts a private dyn Any payload; current vstd cannot express the necessary dynamic-type and string-content relation.",
+      "risks": [
+        "dyn Any downcasting is unmodeled",
+        "returned reference identity and payload content cannot be related"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::panic::PanicHookInfo::location",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[std::panic::PanicHookInfo::location](\n
+info: &std::panic::PanicHookInfo<'a>,\n) -> (result: Option<&std::panic::Location<'_>>)\n
+ensures\n        result.is_some(),\n;",
+      "requires": [],
+      "ensures": [
+        "result.is_some()"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The Rust 1.96 body unconditionally returns Some(&self.location), so the public
+Option discriminant can be specified without modeling the private location value.",
+      "risks": [
+        "Does not model the returned reference's identity or Location contents.",
+        "The documentation warns that always returning Some may change in later Rust versions."
+      ]
+    },
+    {
+      "target": "std::panic::PanicHookInfo::payload",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The body returns a private payload reference, while current vstd provides no
+public model for its identity or dyn Any runtime type.",
+      "risks": [
+        "reference identity is unmodeled",
+        "dyn Any type information and downcasting are unmodeled"
+      ]
+    },
+    {
+      "target": "std::panic::PanicHookInfo::payload_as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on downcasting the private payload to &str or String; current
+ vstd cannot relate that hidden dynamic type and content to the returned Option<&str>.",
+      "risks": [
+        "dyn Any downcasting is unmodeled",
+        "returned reference identity and payload content cannot be related"
+      ]
+    },
+    {
+      "target": "std::panic::PanicInfo::location",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[std::panic::PanicHookInfo::location](\n
+info: &std::panic::PanicHookInfo<'a>,\n) -> (result: Option<&std::panic::Location<'_>>)\n
+ensures\n        result.is_some(),\n;",
+      "requires": [],
+      "ensures": [
+        "result.is_some()"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The metadata resolves this alias target to PanicHookInfo::location, whose Rust
+1.96 body unconditionally returns Some.",
+      "risks": [
+        "This is the same underlying method as PanicHookInfo::location and the declaration must be
+deduplicated.",
+        "The returned reference's identity and Location contents remain unmodeled."
+      ]
+    },
+    {
+      "target": "std::panic::PanicInfo::payload",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias resolves to PanicHookInfo::payload, whose private referent identity
+and dyn Any runtime type lack a current vstd abstraction.",
+      "risks": [
+        "reference identity is unmodeled",
+        "dyn Any type information and downcasting are unmodeled"
+      ]
+    },
+    {
+      "target": "std::panic::PanicInfo::payload_as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias resolves to the implementation that downcasts a private dyn Any
+payload; current vstd cannot express the necessary dynamic-type and string-content relation.",
+      "risks": [
+        "dyn Any downcasting is unmodeled",
+        "returned reference identity and payload content cannot be related"
+      ]
+    } ]
+}
+

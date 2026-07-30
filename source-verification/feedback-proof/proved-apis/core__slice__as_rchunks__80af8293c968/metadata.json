@@ -1,0 +1,159 @@
+{
+  "id": "core__slice__as_rchunks__80af8293c968",
+  "api_path": "core::slice::as_rchunks",
+  "raw_target": "<[T]>::as_rchunks::<N>",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 88, patch: 0 })},\nfeature: \"slice_as_chunks\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 88, patch: 0 })},\nfeature: \"slice_as_chunks\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51814",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "const": {
+              "default": null,
+              "type": {
+                "primitive": "usize"
+              }
+            }
+          },
+          "name": "N"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "as_rchunks",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "tuple": [
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "slice": {
+                  "generic": "T"
+                }
+              }
+            }
+          },
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "slice": {
+                  "array": {
+                    "len": "N",
+                    "type": {
+                      "generic": "T"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "source_context": "  1398:         let len_rounded_down = self.len() / N * N;\n  1399:         // SAFETY: The rounded-down value is always the same or smaller than the\n  1400:         // original length, and thus must be in-bounds of the slice.\n  1401:         let (multiple_of_n, remainder) = unsafe { self.split_at_unchecked(len_rounded_down) };\n  1402:         // SAFETY: We already panicked for zero, and ensured by construction\n  1403:         // that the length of the subslice is a multiple of N.\n  1404:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };\n  1405:         (array_slice, remainder)\n  1406:     }\n  1407: \n  1408:     /// Splits the slice into a slice of `N`-element arrays,\n  1409:     /// starting at the end of the slice,\n  1410:     /// and a remainder slice with length strictly less than `N`.\n  1411:     ///\n  1412:     /// The remainder is meaningful in the division sense.  Given\n  1413:     /// `let (remainder, chunks) = slice.as_rchunks()`, then:\n  1414:     /// - `remainder.len()` equals `slice.len() % N`,\n  1415:     /// - `chunks.len()` equals `slice.len() / N`, and\n  1416:     /// - `slice.len()` equals `chunks.len() * N + remainder.len()`.\n  1417:     ///\n  1418:     /// You can flatten the chunks back into a slice-of-`T` with [`as_flattened`].\n  1419:     ///\n  1420:     /// [`as_flattened`]: slice::as_flattened\n  1421:     ///\n  1422:     /// # Panics\n  1423:     ///\n  1424:     /// Panics if `N` is zero.\n  1425:     ///\n  1426:     /// Note that this check is against a const generic parameter, not a runtime\n  1427:     /// value, and thus a particular monomorphization will either always panic\n  1428:     /// or it will never panic.\n  1429:     ///\n  1430:     /// # Examples\n  1431:     ///\n  1432:     /// ```\n  1433:     /// let slice = ['l', 'o', 'r', 'e', 'm'];\n  1434:     /// let (remainder, chunks) = slice.as_rchunks();\n  1435:     /// assert_eq!(remainder, &['l']);\n  1436:     /// assert_eq!(chunks, &[['o', 'r'], ['e', 'm']]);\n  1437:     /// ```\n  1438:     #[stable(feature = \"slice_as_chunks\", since = \"1.88.0\")]\n  1439:     #[rustc_const_stable(feature = \"slice_as_chunks\", since = \"1.88.0\")]\n  1440:     #[inline]\n  1441:     #[track_caller]\n  1442:     #[must_use]\n  1443:     pub const fn as_rchunks<const N: usize>(&self) -> (&[T], &[[T; N]]) {\n  1444:         assert!(N != 0, \"chunk size must be non-zero\");\n  1445:         let len = self.len() / N;\n  1446:         let (remainder, multiple_of_n) = self.split_at(self.len() - len * N);\n  1447:         // SAFETY: We already panicked for zero, and ensured by construction\n  1448:         // that the length of the subslice is a multiple of N.\n  1449:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };\n  1450:         (remainder, array_slice)\n  1451:     }\n  1452: \n  1453:     /// Splits the slice into a slice of `N`-element arrays,\n  1454:     /// assuming that there's no remainder.\n  1455:     ///\n  1456:     /// This is the inverse operation to [`as_flattened_mut`].\n  1457:     ///\n  1458:     /// [`as_flattened_mut`]: slice::as_flattened_mut\n  1459:     ///\n  1460:     /// As this is `unsafe`, consider whether you could use [`as_chunks_mut`] or\n  1461:     /// [`as_rchunks_mut`] instead, perhaps via something like\n  1462:     /// `if let (chunks, []) = slice.as_chunks_mut()` or\n  1463:     /// `let (chunks, []) = slice.as_chunks_mut() else { unreachable!() };`.\n  1464:     ///\n  1465:     /// [`as_chunks_mut`]: slice::as_chunks_mut\n  1466:     /// [`as_rchunks_mut`]: slice::as_rchunks_mut\n  1467:     ///\n  1468:     /// # Safety\n  1469:     ///\n  1470:     /// This may only be called when\n  1471:     /// - The slice splits exactly into `N`-element chunks (aka `self.len() % N == 0`).\n  1472:     /// - `N != 0`.\n  1473:     ///\n  1474:     /// # Examples\n  1475:     ///\n  1476:     /// ```\n  1477:     /// let slice: &mut [char] = &mut ['l', 'o', 'r', 'e', 'm', '!'];\n  1478:     /// let chunks: &mut [[char; 1]] =\n  1479:     ///     // SAFETY: 1-element chunks never have remainder\n  1480:     ///     unsafe { slice.as_chunks_unchecked_mut() };\n  1481:     /// chunks[0] = ['L'];\n  1482:     /// assert_eq!(chunks, &[['L'], ['o'], ['r'], ['e'], ['m'], ['!']]);\n  1483:     /// let chunks: &mut [[char; 3]] =\n  1484:     ///     // SAFETY: The slice length (6) is a multiple of 3\n  1485:     ///     unsafe { slice.as_chunks_unchecked_mut() };\n  1486:     /// chunks[1] = ['a', 'x', '?'];\n  1487:     /// assert_eq!(slice, &['L', 'o', 'r', 'a', 'x', '?']);\n  1488:     ///",
+    "span": {
+      "begin": [
+        1443,
+        5
+      ],
+      "end": [
+        1451,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn as_rchunks<const N: usize>(&self) -> (&[T], &[[T; N]]) {\n        assert!(N != 0, \"chunk size must be non-zero\");\n        let len = self.len() / N;\n        let (remainder, multiple_of_n) = self.split_at(self.len() - len * N);\n        // SAFETY: We already panicked for zero, and ensured by construction\n        // that the length of the subslice is a multiple of N.\n        let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };\n        (remainder, array_slice)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower-level vstd contract for <[T]>::as_chunks_unchecked::<N>: for nonzero N and divisible input length, it returns consecutive N-element array chunks with the stated views.",
+    "The existing vstd slice View, len, and split_at specifications faithfully model Rust slices."
+  ],
+  "rationale": "The source-faithful assert/divide/split/as_chunks_unchecked body verifies; arithmetic establishes the remainder split point and sequence extensionality establishes the exact right-aligned chunk sequence. This is Level B because it composes trusted smaller slice API contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__as_rchunks__80af8293c968"
+}

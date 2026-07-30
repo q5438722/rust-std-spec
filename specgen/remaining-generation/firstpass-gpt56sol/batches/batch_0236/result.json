@@ -1,0 +1,112 @@
+{
+  "batch": 236,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 113718,
+  "targets": [
+    "std::sync::LockResult::map_err",
+    "std::sync::LockResult::map_or",
+    "std::sync::LockResult::map_or_default",
+    "std::sync::LockResult::map_or_else",
+    "std::sync::LockResult::ok",
+    "std::sync::LockResult::or"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::LockResult::map_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The metadata resolves this alias method to generic core::result::Result::map_err, which already has a vstd specification. LockResult has no distinct method to specify.",
+      "risks": [
+        "duplicate_existing_result_specification",
+        "alias_specification_would_apply_to_all_results"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::map_or",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "LockResult is an alias and the metadata resolves this to generic core::result::Result::map_or. An assume_specification would affect every Result rather than provide a contract for the classified lock-related target.",
+      "risks": [
+        "alias_cannot_have_a_distinct_contract",
+        "canonical_specification_would_cover_all_results"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::map_or_default",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The target resolves to generic core::result::Result::map_or_default, not a distinct LockResult method. An alias-specific trusted declaration cannot be registered, and the Err branch additionally depends on the generic Default contract.",
+      "risks": [
+        "alias_cannot_have_a_distinct_contract",
+        "generic_default_contract_dependency",
+        "canonical_specification_would_cover_all_results"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::map_or_else",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied metadata identifies generic core::result::Result::map_or_else as the owner. LockResult provides no separate function on which to place a lock-specific contract.",
+      "risks": [
+        "alias_cannot_have_a_distinct_contract",
+        "canonical_specification_would_cover_all_results"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::ok",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias resolves to core::result::Result::ok, which already has a vstd specification describing the exact Ok-to-Some and Err-to-None mapping.",
+      "risks": [
+        "duplicate_existing_result_specification",
+        "alias_specification_would_apply_to_all_results"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::or",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "LockResult is only a Result alias, and the metadata resolves this method to generic core::result::Result::or. A declaration would be a global Result contract rather than a contract for this hidden-state-classified alias target.",
+      "risks": [
+        "alias_cannot_have_a_distinct_contract",
+        "canonical_specification_would_cover_all_results"
+      ]
+    }
+  ]
+}

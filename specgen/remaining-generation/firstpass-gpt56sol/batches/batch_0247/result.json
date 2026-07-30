@@ -1,0 +1,140 @@
+{
+  "batch": 247,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 269573,
+  "targets": [
+    "std::sync::TryLockResult::is_err_and",
+    "std::sync::TryLockResult::is_ok",
+    "std::sync::TryLockResult::is_ok_and",
+    "std::sync::TryLockResult::iter",
+    "std::sync::TryLockResult::iter_mut",
+    "std::sync::TryLockResult::map"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::TryLockResult::is_err_and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(E) -> bool>[ Result::<T, E>::is_err_and ](\n    result: Result<T, E>,\n    f: F,\n) -> (ret: bool)\n    requires\n        result is Err ==> f.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> !ret,\n        result is Err ==> f.ensures((result->Err_0,), ret),\n;",
+      "requires": [
+        "result is Err ==> f.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> !ret",
+        "result is Err ==> f.ensures((result->Err_0,), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The metadata resolves the alias method to Result<T, E>; the source invokes the predicate only for Err(e), which is expressible through the public discriminant and FnOnce contract.",
+      "risks": [
+        "The predicate may have effects or unwind.",
+        "No lock-state fact follows from the Result variant."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::is_ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::is_ok ](\n    result: &Result<T, E>,\n) -> (ret: bool)\n    ensures\n        ret <==> result is Ok,\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "ret <==> result is Ok"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "This is Result::is_ok through a type alias, and the source only inspects the public enum discriminant without consulting synchronization state.",
+      "risks": [
+        "The variant reflects prior concurrent activity, but the contract does not predict it."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::is_ok_and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(T) -> bool>[ Result::<T, E>::is_ok_and ](\n    result: Result<T, E>,\n    f: F,\n) -> (ret: bool)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Err ==> !ret,\n        result is Ok ==> f.ensures((result->Ok_0,), ret),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Err ==> !ret",
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source invokes the predicate exactly on Ok(x); Result projections and existing FnOnce requires/ensures vocabulary capture that behavior.",
+      "risks": [
+        "The predicate may have effects or unwind.",
+        "The contract exposes no guarded-state invariant."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned core::result::Iter is opaque and lacks a current vstd IteratorSpec/view model relating its remaining items to the Result. A useful contract therefore needs an additional iterator abstraction.",
+      "risks": [
+        "opaque iterator state",
+        "missing IteratorSpec model",
+        "a shape-only postcondition would not describe yielded references"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The opaque IterMut yields mutable references and requires a prophetic iterator model tying mutations back to final(self); that abstraction is absent from current vstd.",
+      "risks": [
+        "opaque mutable iterator state",
+        "mutable-reference yields",
+        "missing final-state and IteratorSpec model"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::map",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> U>[ Result::<T, E>::map ](\n    result: Result<T, E>,\n    op: F,\n) -> (mapped_result: Result<U, E>)\n    requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> mapped_result is Ok && op.ensures(\n            (result->Ok_0,),\n            mapped_result->Ok_0,\n        ),\n        result is Err ==> mapped_result == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> mapped_result is Ok && op.ensures((result->Ok_0,), mapped_result->Ok_0)",
+        "result is Err ==> mapped_result == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source maps only Ok(t) through the FnOnce operation and preserves Err(e) exactly; both relations use existing Result and closure-contract vocabulary.",
+      "risks": [
+        "The mapper may have effects or unwind.",
+        "The contract does not model synchronization state inside the values."
+      ]
+    }
+  ]
+}

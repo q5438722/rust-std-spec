@@ -1,0 +1,160 @@
+{
+  "id": "std_specs__vec.rs__L236__Vec__T__A__as_slice",
+  "api_path": "alloc::vec::Vec::as_slice",
+  "normalized_api_path": "alloc::vec::Vec::as_slice",
+  "raw_target": "Vec::<T, A>::as_slice",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 236,
+  "rust_declaration": {
+    "declaration_id": "alloc:4910",
+    "name": "as_slice",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 7, patch: 0 })},\nfeature: \"vec_as_slice\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"vec_as_slice\")]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_vec_string_slice\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        1823,
+        5
+      ],
+      "end": [
+        1842,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": false,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1803:             self.len = len;\n  1804:             ptr::drop_in_place(s);\n  1805:         }\n  1806:     }\n  1807: \n  1808:     /// Extracts a slice containing the entire vector.\n  1809:     ///\n  1810:     /// Equivalent to `&s[..]`.\n  1811:     ///\n  1812:     /// # Examples\n  1813:     ///\n  1814:     /// ```\n  1815:     /// use std::io::{self, Write};\n  1816:     /// let buffer = vec![1, 2, 3, 5, 8];\n  1817:     /// io::sink().write(buffer.as_slice()).unwrap();\n  1818:     /// ```\n  1819:     #[inline]\n  1820:     #[stable(feature = \"vec_as_slice\", since = \"1.7.0\")]\n  1821:     #[rustc_diagnostic_item = \"vec_as_slice\"]\n  1822:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1823:     pub const fn as_slice(&self) -> &[T] {\n  1824:         // SAFETY: `slice::from_raw_parts` requires pointee is a contiguous, aligned buffer of size\n  1825:         // `len` containing properly-initialized `T`s. Data must not be mutated for the returned\n  1826:         // lifetime. Further, `len * size_of::<T>` <= `isize::MAX`, and allocation does not\n  1827:         // \"wrap\" through overflowing memory addresses.\n  1828:         //\n  1829:         // * Vec API guarantees that self.buf:\n  1830:         //      * contains only properly-initialized items within 0..len\n  1831:         //      * is aligned, contiguous, and valid for `len` reads\n  1832:         //      * obeys size and address-wrapping constraints\n  1833:         //\n  1834:         // * We only construct `&mut` references to `self.buf` through `&mut self` methods; borrow-\n  1835:         //   check ensures that it is not possible to mutably alias `self.buf` within the\n  1836:         //   returned lifetime.\n  1837:         unsafe {\n  1838:             // normally this would use `slice::from_raw_parts`, but it's\n  1839:             // instantiated often enough that avoiding the UB check is worth it\n  1840:             &*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)\n  1841:         }\n  1842:     }\n  1843: ",
+    "source_text": "pub const fn as_slice(&self) -> &[T] {\n        // SAFETY: `slice::from_raw_parts` requires pointee is a contiguous, aligned buffer of size\n        // `len` containing properly-initialized `T`s. Data must not be mutated for the returned\n        // lifetime. Further, `len * size_of::<T>` <= `isize::MAX`, and allocation does not\n        // \"wrap\" through overflowing memory addresses.\n        //\n        // * Vec API guarantees that self.buf:\n        //      * contains only properly-initialized items within 0..len\n        //      * is aligned, contiguous, and valid for `len` reads\n        //      * obeys size and address-wrapping constraints\n        //\n        // * We only construct `&mut` references to `self.buf` through `&mut self` methods; borrow-\n        //   check ensures that it is not possible to mutably alias `self.buf` within the\n        //   returned lifetime.\n        unsafe {\n            // normally this would use `slice::from_raw_parts`, but it's\n            // instantiated often enough that avoiding the UB check is worth it\n            &*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)\n        }\n    }",
+    "has_body": true
+  }
+}

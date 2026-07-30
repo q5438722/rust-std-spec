@@ -1,0 +1,157 @@
+{
+  "id": "std_specs__option.rs__L395__Option__insert",
+  "api_path": "core::option::Option::insert",
+  "raw_target": "Option::insert",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 395,
+  "rust_declaration": {
+    "declaration_id": "core:28046",
+    "name": "insert",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "if you intended to set a value, consider assignment instead"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 53, patch: 0 })},\nfeature: \"option_insert\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        1722,
+        5
+      ],
+      "end": [
+        1730,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "value",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": true,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "T"
+            },
+            "bounds": [],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": true,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1702:     ///\n  1703:     /// See also [`Option::get_or_insert`], which doesn't update the value if\n  1704:     /// the option already contains [`Some`].\n  1705:     ///\n  1706:     /// # Example\n  1707:     ///\n  1708:     /// ```\n  1709:     /// let mut opt = None;\n  1710:     /// let val = opt.insert(1);\n  1711:     /// assert_eq!(*val, 1);\n  1712:     /// assert_eq!(opt.unwrap(), 1);\n  1713:     /// let val = opt.insert(2);\n  1714:     /// assert_eq!(*val, 2);\n  1715:     /// *val = 3;\n  1716:     /// assert_eq!(opt.unwrap(), 3);\n  1717:     /// ```\n  1718:     #[must_use = \"if you intended to set a value, consider assignment instead\"]\n  1719:     #[inline]\n  1720:     #[stable(feature = \"option_insert\", since = \"1.53.0\")]\n  1721:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1722:     pub const fn insert(&mut self, value: T) -> &mut T\n  1723:     where\n  1724:         T: [const] Destruct,\n  1725:     {\n  1726:         *self = Some(value);\n  1727: \n  1728:         // SAFETY: the code above just filled the option\n  1729:         unsafe { self.as_mut().unwrap_unchecked() }\n  1730:     }\n  1731: \n  1732:     /// Inserts `value` into the option if it is [`None`], then\n  1733:     /// returns a mutable reference to the contained value.\n  1734:     ///\n  1735:     /// See also [`Option::insert`], which updates the value even if\n  1736:     /// the option already contains [`Some`].\n  1737:     ///\n  1738:     /// # Examples\n  1739:     ///\n  1740:     /// ```\n  1741:     /// let mut x = None;\n  1742:     ///",
+    "source_text": "pub const fn insert(&mut self, value: T) -> &mut T\n    where\n        T: [const] Destruct,\n    {\n        *self = Some(value);\n\n        // SAFETY: the code above just filled the option\n        unsafe { self.as_mut().unwrap_unchecked() }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The existing vstd contract for Option::as_mut.",
+    "The smaller Option::unwrap_unchecked contract: a Some input returns its payload."
+  ],
+  "rationale": "The executable operations and control flow are preserved exactly after receiver-to-parameter desugaring; the proof composes the two smaller Option contracts.",
+  "run_target_dir": "source-verification/fidelity-retry/runs/full-gpt56sol/targets/std_specs__option.rs__L395__Option__insert"
+}

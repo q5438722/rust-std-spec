@@ -1,0 +1,114 @@
+{
+  "id": "layout.rs__L101__core__mem__align_of_val__V",
+  "api_path": "core::mem::align_of_val",
+  "raw_target": "core::mem::align_of_val::<V>",
+  "contract_source_file": "layout.rs",
+  "contract_source_line": 101,
+  "rust_declaration": {
+    "declaration_id": "core:36",
+    "name": "align_of_val",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 85, patch: 0 })},\nfeature: \"const_align_of_val\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/mem/mod.rs",
+      "begin": [
+        547,
+        1
+      ],
+      "end": [
+        550,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "val",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "T"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "usize"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "T",
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "Sized",
+                      "id": 12,
+                      "args": null
+                    },
+                    "generic_params": [],
+                    "modifier": "maybe"
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   527: pub const fn align_of<T>() -> usize {\n   528:     <T as SizedTypeProperties>::ALIGN\n   529: }\n   530: \n   531: /// Returns the [ABI]-required minimum alignment of the type of the value that `val` points to in\n   532: /// bytes.\n   533: ///\n   534: /// Every reference to a value of the type `T` must be a multiple of this number.\n   535: ///\n   536: /// [ABI]: https://en.wikipedia.org/wiki/Application_binary_interface\n   537: ///\n   538: /// # Examples\n   539: ///\n   540: /// ```\n   541: /// assert_eq!(4, align_of_val(&5i32));\n   542: /// ```\n   543: #[inline]\n   544: #[must_use]\n   545: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   546: #[rustc_const_stable(feature = \"const_align_of_val\", since = \"1.85.0\")]\n   547: pub const fn align_of_val<T: ?Sized>(val: &T) -> usize {\n   548:     // SAFETY: val is a reference, so it's a valid raw pointer\n   549:     unsafe { intrinsics::align_of_val(val) }\n   550: }\n   551: \n   552: /// Returns the [ABI]-required minimum alignment of the type of the value that `val` points to in\n   553: /// bytes.\n   554: ///\n   555: /// Every reference to a value of the type `T` must be a multiple of this number.\n   556: ///\n   557: /// [ABI]: https://en.wikipedia.org/wiki/Application_binary_interface\n   558: ///\n   559: /// # Safety\n   560: ///\n   561: /// This function is only safe to call if the following conditions hold:\n   562: ///\n   563: /// - If `T` is `Sized`, this function is always safe to call.\n   564: /// - If the unsized tail of `T` is:\n   565: ///     - a [slice], then the length of the slice tail must be an initialized\n   566: ///       integer, and the size of the *entire value*\n   567: ///       (dynamic tail length + statically sized prefix) must fit in `isize`.",
+    "source_text": "pub const fn align_of_val<T: ?Sized>(val: &T) -> usize {\n    // SAFETY: val is a reference, so it's a valid raw pointer\n    unsafe { intrinsics::align_of_val(val) }\n}",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "core::ptr::from_ref::<V> returns the modeled raw pointer spec_ptr_from_ref::<V>(val).",
+    "core::intrinsics::align_of_val::<V> returns spec_align_of_val_raw::<V>(ptr).",
+    "axiom_align_of_val_from_ref: converting a valid reference to a raw pointer preserves the value alignment represented by vstd::layout::spec_align_of_val."
+  ],
+  "rationale": "The implicit reference-to-raw-pointer coercion is source-faithfully desugared through core::ptr::from_ref, and the copied intrinsic call proves the postcondition using one explicit compiler-representation bridge.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/layout.rs__L101__core__mem__align_of_val__V"
+}

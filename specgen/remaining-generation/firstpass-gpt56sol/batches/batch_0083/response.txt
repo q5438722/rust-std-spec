@@ -1,0 +1,171 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::BTreeMap::entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Entry retains a mutable borrow and can later mutate the map; vstd lacks a public prophetic model relating Entry operations to the map's final state.",
+      "risks": ["missing_entry_adapter_model", "prophetic_mutable_borrow"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::extract_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Extraction and predicate-driven value mutation occur lazily during iteration, with behavior depending on consumption and early drop; no suitable prophetic iterator model exists in vstd.",
+      "risks": ["missing_prophetic_iterator_model", "closure_side_effects", "partial_consumption"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::into_keys",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result wraps the map's consuming iterator, but vstd provides no public model for the future ordered sequence produced by IntoKeys.",
+      "risks": ["missing_consuming_iterator_model", "unmodeled_key_order"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::into_values",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result wraps the map's consuming iterator, but vstd provides no public model relating IntoValues' ordered output sequence to the consumed map.",
+      "risks": ["missing_consuming_iterator_model", "unmodeled_key_order"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "IterMut yields mutable references and determines the map's final values through later, possibly partial iteration; this requires unsupported prophetic iterator and mutable-borrow modeling.",
+      "risks": ["missing_prophetic_iterator_model", "unsupported_yielded_mutable_references", "partial_consumption"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must characterize the ordered elements subsequently yielded within generic Borrow and RangeBounds limits, for which vstd lacks a public Range iterator model.",
+      "risks": ["missing_range_iterator_model", "unmodeled_generic_order_and_bounds"]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::collections::BTreeMap::entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Entry retains a mutable borrow and can later mutate the map; vstd
+lacks a public prophetic model relating Entry operations to the map's final state.",
+      "risks": ["missing_entry_adapter_model", "prophetic_mutable_borrow"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::extract_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Extraction and predicate-driven value mutation occur lazily during iteration,
+with behavior depending on consumption and early drop; no suitable prophetic iterator model exists
+in vstd.",
+      "risks": ["missing_prophetic_iterator_model", "closure_side_effects", "partial_consumption"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::into_keys",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result wraps the map's consuming iterator, but vstd provides no public model
+ for the future ordered sequence produced by IntoKeys.",
+      "risks": ["missing_consuming_iterator_model", "unmodeled_key_order"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::into_values",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result wraps the map's consuming iterator, but vstd provides no public model
+ relating IntoValues' ordered output sequence to the consumed map.",
+      "risks": ["missing_consuming_iterator_model", "unmodeled_key_order"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "IterMut yields mutable references and determines the map's final values through
+later, possibly partial iteration; this requires unsupported prophetic iterator and mutable-borrow
+modeling.",
+      "risks": ["missing_prophetic_iterator_model", "unsupported_yielded_mutable_references",
+"partial_consumption"]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must characterize the ordered elements subsequently yielded
+within generic Borrow and RangeBounds limits, for which vstd lacks a public Range iterator model.",
+      "risks": ["missing_range_iterator_model", "unmodeled_generic_order_and_bounds"]
+    } ]
+}
+

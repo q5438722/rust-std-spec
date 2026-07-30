@@ -1,0 +1,113 @@
+{
+  "id": "alloc__string__String__is_empty__8b19e6aa602c",
+  "api_path": "alloc::string::String::is_empty",
+  "raw_target": "String::is_empty",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_vec_string_slice\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcNoImplicitAutorefs]"
+      }
+    ],
+    "declaration_id": "alloc:4062",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "is_empty",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": null,
+          "id": 119,
+          "path": "String"
+        }
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:4074",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:119",
+      "resolved_owner_path": [
+        "alloc",
+        "string",
+        "String"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "  1835:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1836:     pub const unsafe fn as_mut_vec(&mut self) -> &mut Vec<u8> {\n  1837:         &mut self.vec\n  1838:     }\n  1839: \n  1840:     /// Returns the length of this `String`, in bytes, not [`char`]s or\n  1841:     /// graphemes. In other words, it might not be what a human considers the\n  1842:     /// length of the string.\n  1843:     ///\n  1844:     /// # Examples\n  1845:     ///\n  1846:     /// ```\n  1847:     /// let a = String::from(\"foo\");\n  1848:     /// assert_eq!(a.len(), 3);\n  1849:     ///\n  1850:     /// let fancy_f = String::from(\"\u0192oo\");\n  1851:     /// assert_eq!(fancy_f.len(), 4);\n  1852:     /// assert_eq!(fancy_f.chars().count(), 3);\n  1853:     /// ```\n  1854:     #[inline]\n  1855:     #[must_use]\n  1856:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1857:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1858:     #[rustc_confusables(\"length\", \"size\")]\n  1859:     #[rustc_no_implicit_autorefs]\n  1860:     pub const fn len(&self) -> usize {\n  1861:         self.vec.len()\n  1862:     }\n  1863: \n  1864:     /// Returns `true` if this `String` has a length of zero, and `false` otherwise.\n  1865:     ///\n  1866:     /// # Examples\n  1867:     ///\n  1868:     /// ```\n  1869:     /// let mut v = String::new();\n  1870:     /// assert!(v.is_empty());\n  1871:     ///\n  1872:     /// v.push('a');\n  1873:     /// assert!(!v.is_empty());\n  1874:     /// ```\n  1875:     #[inline]\n  1876:     #[must_use]\n  1877:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1878:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1879:     #[rustc_no_implicit_autorefs]\n  1880:     pub const fn is_empty(&self) -> bool {\n  1881:         self.len() == 0\n  1882:     }\n  1883: \n  1884:     /// Splits the string into two at the given byte index.\n  1885:     ///\n  1886:     /// Returns a newly allocated `String`. `self` contains bytes `[0, at)`, and\n  1887:     /// the returned `String` contains bytes `[at, len)`. `at` must be on the\n  1888:     /// boundary of a UTF-8 code point.\n  1889:     ///\n  1890:     /// Note that the capacity of `self` does not change.\n  1891:     ///\n  1892:     /// # Panics\n  1893:     ///\n  1894:     /// Panics if `at` is not on a `UTF-8` code point boundary, or if it is beyond the last\n  1895:     /// code point of the string.\n  1896:     ///\n  1897:     /// # Examples\n  1898:     ///\n  1899:     /// ```\n  1900:     /// # fn main() {\n  1901:     /// let mut hello = String::from(\"Hello, World!\");\n  1902:     /// let world = hello.split_off(7);\n  1903:     /// assert_eq!(hello, \"Hello, \");\n  1904:     /// assert_eq!(world, \"World!\");\n  1905:     /// # }\n  1906:     /// ```\n  1907:     #[cfg(not(no_global_oom_handling))]\n  1908:     #[inline]\n  1909:     #[track_caller]\n  1910:     #[stable(feature = \"string_split_off\", since = \"1.16.0\")]\n  1911:     #[must_use = \"use `.truncate()` if you don't need the other half\"]\n  1912:     pub fn split_off(&mut self, at: usize) -> String {\n  1913:         assert!(self.is_char_boundary(at));\n  1914:         let other = self.vec.split_off(at);\n  1915:         unsafe { String::from_utf8_unchecked(other) }\n  1916:     }\n  1917: \n  1918:     /// Truncates this `String`, removing all contents.\n  1919:     ///\n  1920:     /// While this means the `String` will have a length of zero, it does not\n  1921:     /// touch its capacity.\n  1922:     ///\n  1923:     /// # Examples\n  1924:     ///\n  1925:     /// ```",
+    "span": {
+      "begin": [
+        1880,
+        5
+      ],
+      "end": [
+        1882,
+        6
+      ],
+      "filename": "alloc/src/string.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn is_empty(&self) -> bool {\n        self.len() == 0\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller String::len contract: its result equals the length of encode_utf8(s@)."
+  ],
+  "rationale": "The copied body calls String::len and compares it with zero; UTF-8 encoding is empty exactly when the String character view is empty.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__string__String__is_empty__8b19e6aa602c"
+}

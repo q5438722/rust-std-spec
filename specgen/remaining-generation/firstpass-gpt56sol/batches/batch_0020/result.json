@@ -1,0 +1,115 @@
+{
+  "batch": 20,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 20844,
+  "targets": [
+    "core::sync::atomic::AtomicI64::into_inner",
+    "core::sync::atomic::AtomicI64::try_update",
+    "core::sync::atomic::AtomicI64::update",
+    "core::sync::atomic::AtomicI8::as_ptr",
+    "core::sync::atomic::AtomicI8::compare_and_swap",
+    "core::sync::atomic::AtomicI8::fetch_update"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicI64::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the consumed atomic's hidden value, but AtomicI64 has no ordinary public view in the current vstd vocabulary with which to relate that value.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI64::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and closure invocations depend on hidden atomic state and possible interference; current vstd lacks a public abstraction expressing the operation's atomic transition.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "closure_may_be_invoked_multiple_times"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI64::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned prior value and installed value depend on an unmodeled atomic transition, potentially with repeated closure calls under interference.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "closure_may_be_invoked_multiple_times"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source returns a pointer to internal storage, expressing its provenance, aliasing, and relationship to the atomic would require exposing private hidden state absent from public vstd vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_pointer_provenance_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned previous value and conditional update are determined by hidden concurrent atomic state, for which no suitable public vstd view or transition abstraction exists.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its Result and closure behavior depend on an unmodeled atomic state transition and interference, including potentially repeated closure invocations.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "closure_may_be_invoked_multiple_times"
+      ]
+    }
+  ]
+}

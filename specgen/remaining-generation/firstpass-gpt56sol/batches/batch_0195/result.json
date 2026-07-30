@@ -1,0 +1,116 @@
+{
+  "batch": 195,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 21671,
+  "targets": [
+    "std::fs::create_dir",
+    "std::fs::create_dir_all",
+    "std::fs::exists",
+    "std::fs::hard_link",
+    "std::fs::metadata",
+    "std::fs::read"
+  ],
+  "candidates": [
+    {
+      "target": "std::fs::create_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and filesystem mutation depend on unmodeled OS state, permissions, and path existence; vstd has no filesystem-state abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_model"
+      ]
+    },
+    {
+      "target": "std::fs::create_dir_all",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The recursive, non-atomic filesystem effects and possible partial creation cannot be represented in the current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "partial_runtime_effects",
+        "missing_filesystem_model"
+      ]
+    },
+    {
+      "target": "std::fs::exists",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on current filesystem state, symlink traversal, and permissions, with explicit TOCTOU exposure and no vstd filesystem snapshot model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "toctou",
+        "missing_filesystem_model"
+      ]
+    },
+    {
+      "target": "std::fs::hard_link",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Creating a hard link mutates unmodeled filesystem topology and depends on external path, permission, and platform state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_dependent_effects",
+        "missing_filesystem_model"
+      ]
+    },
+    {
+      "target": "std::fs::metadata",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Metadata and success depend on mutable OS filesystem state, while no public vstd model relates a path to Metadata.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "opaque_metadata",
+        "missing_filesystem_model"
+      ]
+    },
+    {
+      "target": "std::fs::read",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating returned bytes to file contents requires an absent filesystem-content model; I/O errors and concurrent changes are external runtime state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrent_filesystem_changes",
+        "missing_filesystem_model"
+      ]
+    }
+  ]
+}

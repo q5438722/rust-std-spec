@@ -1,0 +1,105 @@
+{
+  "batch": 125,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 85974,
+  "targets": [
+    "core::net::Ipv4Addr::is_unspecified",
+    "core::net::Ipv4Addr::new",
+    "core::net::Ipv4Addr::octets",
+    "core::net::Ipv4Addr::to_bits",
+    "core::net::Ipv4Addr::to_ipv6_compatible",
+    "core::net::Ipv4Addr::to_ipv6_mapped"
+  ],
+  "candidates": [
+    {
+      "target": "core::net::Ipv4Addr::is_unspecified",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The zero-address predicate cannot be related to the opaque receiver without an existing Ipv4Addr octet/view abstraction.",
+      "risks": [
+        "Any deterministic contract would require inventing an Ipv4Addr representation model."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source initializes private octets, but current vstd has no public logical view through which to characterize the returned address.",
+      "risks": [
+        "Referencing private fields or introducing a new octet observer would exceed current vstd vocabulary."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::octets",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the result copies the private octet array, no existing Ipv4Addr model can relate that array to the receiver.",
+      "risks": [
+        "A useful postcondition requires a new trusted Ipv4Addr view abstraction."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::to_bits",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The big-endian u32 result depends on private octets, which are not represented by any existing vstd observer.",
+      "risks": [
+        "Modeling the result requires a missing Ipv4Addr octet/view abstraction."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::to_ipv6_compatible",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the zero-prefixed IPv6 result requires logical octet models for both Ipv4Addr and Ipv6Addr, neither of which exists in current vstd vocabulary.",
+      "risks": [
+        "A contract would otherwise invent representations for two opaque standard-library types."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::to_ipv6_mapped",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the ::ffff-prefixed result requires missing logical octet models for both the IPv4 receiver and IPv6 result.",
+      "risks": [
+        "A useful deterministic relation needs new Ipv4Addr and Ipv6Addr abstractions."
+      ]
+    }
+  ]
+}

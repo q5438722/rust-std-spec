@@ -1,0 +1,136 @@
+{
+  "batch": 250,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 218081,
+  "targets": [
+    "std::sync::TryLockResult::unwrap_or_default",
+    "std::sync::TryLockResult::unwrap_or_else",
+    "std::sync::TryLockResult::unwrap_unchecked",
+    "std::sync::WaitTimeoutResult::timed_out",
+    "std::sync::mpsc::Receiver::iter",
+    "std::sync::mpsc::Receiver::recv"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::TryLockResult::unwrap_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::default::Default, E>[ Result::<T, E>::unwrap_or_default ](\n    result: Result<T, E>,\n) -> (res: T)\n    ensures\n        result is Ok ==> res == result->Ok_0,\n        result is Err ==> T::default.ensures((), res),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res == result->Ok_0",
+        "result is Err ==> T::default.ensures((), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The alias resolves to Result<T, E>; the source returns the Ok payload or calls Default::default, both expressible using existing Result and callable-contract vocabulary.",
+      "risks": [
+        "The Err branch is only as informative as T::default's specification.",
+        "The contract describes normal return and does not exclude effects or panics from Default or destructors."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::unwrap_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(E) -> T>[ Result::<T, E>::unwrap_or_else ](\n    result: Result<T, E>,\n    op: F,\n) -> (res: T)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == result->Ok_0,\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == result->Ok_0",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source branches only on the materialized Result, returning its Ok payload or invoking op on its Err payload; FnOnce requires/ensures captures this exactly.",
+      "risks": [
+        "Usefulness on the Err branch depends on the closure having a usable contract.",
+        "The contract does not assert termination or absence of panic."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::unwrap_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::unwrap_unchecked ](\n    result: Result<T, E>,\n) -> (res: T)\n    requires\n        result is Ok,\n    ensures\n        res == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "res == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the Ok payload and declares Err usage undefined behavior, directly supporting the Ok precondition and payload equality.",
+      "risks": [
+        "Calling the API on Err remains undefined behavior and is excluded by the precondition."
+      ]
+    },
+    {
+      "target": "std::sync::WaitTimeoutResult::timed_out",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned boolean reflects a private timeout flag originating from condition-variable runtime behavior, and current vstd has no public WaitTimeoutResult model to relate it to.",
+      "risks": [
+        "Private hidden state",
+        "OS timing and scheduling dependence",
+        "Missing public vstd abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Receiver::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The body creates an iterator borrowing the receiver, but useful facts about yielded values and blocking require an unavailable model of channel state and concurrent sends.",
+      "risks": [
+        "Unmodeled channel contents",
+        "Concurrent state changes",
+        "Blocking iterator behavior",
+        "Private iterator representation"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Receiver::recv",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and termination depend on hidden buffered messages, sender liveness, and concurrent execution; current vstd provides no channel-state or receive-history abstraction.",
+      "risks": [
+        "Blocking and possible nontermination",
+        "Concurrent sender behavior",
+        "Hidden channel buffer and disconnection state",
+        "Missing public vstd abstraction"
+      ]
+    }
+  ]
+}

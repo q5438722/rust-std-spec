@@ -1,0 +1,235 @@
+{
+  "candidates": [
+    {
+      "target": "core::ops::BitXor::bitxor",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(BitXorSpec via BitXorSpecImpl)]\npub trait ExBitXor<Rhs = Self> {\n    type ExternalTraitSpecificationFor: core::ops::BitXor<Rhs>;\n\n    type Output;\n\n    spec fn obeys_bitxor_spec() -> bool;\n\n    spec fn bitxor_req(self, rhs: Rhs) -> bool\n        where Self: Sized;\n\n    spec fn bitxor_spec(self, rhs: Rhs) -> Self::Output\n        where Self: Sized;\n\n    fn bitxor(self, rhs: Rhs) -> (ret: Self::Output)\n        requires\n            self.bitxor_req(rhs),\n        ensures\n            Self::obeys_bitxor_spec() ==> ret == self.bitxor_spec(rhs);\n}",
+      "requires": [
+        "self.bitxor_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_bitxor_spec() ==> ret == self.bitxor_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The public vstd BitXor obeys-pattern models the returned value while avoiding claims about custom implementations that do not opt into the model.",
+      "risks": [
+        "conditional_obeys_pattern"
+      ]
+    },
+    {
+      "target": "core::ops::BitXorAssign::bitxor_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The primitive implementations use ^=, but the trait does not require a corresponding BitXor implementation or constrain arbitrary mutations. An assignment-effect abstraction is missing.",
+      "risks": [
+        "unit_return_variant",
+        "missing_assignment_effect_abstraction"
+      ]
+    },
+    {
+      "target": "core::ops::DivAssign::div_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The primitive macro does not constrain arbitrary DivAssign implementations, and the trait has no Div supertrait from which a justified old/final relation or division domain can be derived.",
+      "risks": [
+        "unit_return_variant",
+        "missing_assignment_effect_abstraction",
+        "division_panics"
+      ]
+    },
+    {
+      "target": "core::ops::Drop::drop",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Drop implementations may perform implementation-defined resource cleanup and may panic; the signature exposes no abstract resource state supporting a useful universal postcondition.",
+      "risks": [
+        "unit_return_variant",
+        "runtime_effects",
+        "hidden_resource_state",
+        "panic_unwinding"
+      ]
+    },
+    {
+      "target": "core::ops::IndexMut::index_mut",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns an identity-sensitive mutable reference. Current vstd lacks a general lens or reference-identity abstraction capable of relating mutations through that reference back to self.",
+      "risks": [
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_lens_abstraction"
+      ]
+    },
+    {
+      "target": "core::ops::MulAssign::mul_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The primitive macro does not constrain arbitrary MulAssign implementations, and the trait has no Mul supertrait supporting a justified old/final multiplication relation.",
+      "risks": [
+        "unit_return_variant",
+        "missing_assignment_effect_abstraction",
+        "overflow_behavior"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ops::BitXor::bitxor",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code":
+"#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(BitXorSpec via
+BitXorSpecImpl)]\npub trait ExBitXor<Rhs = Self> {\n    type ExternalTraitSpecificationFor:
+core::ops::BitXor<Rhs>;\n\n    type Output;\n\n    spec fn obeys_bitxor_spec() -> bool;\n\n    spec
+fn bitxor_req(self, rhs: Rhs) -> bool\n        where Self: Sized;\n\n    spec fn bitxor_spec(self,
+rhs: Rhs) -> Self::Output\n        where Self: Sized;\n\n    fn bitxor(self, rhs: Rhs) -> (ret:
+Self::Output)\n        requires\n            self.bitxor_req(rhs),\n        ensures\n
+Self::obeys_bitxor_spec() ==> ret == self.bitxor_spec(rhs);\n}",
+      "requires": [
+        "self.bitxor_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_bitxor_spec() ==> ret == self.bitxor_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The public vstd BitXor obeys-pattern models the returned value while avoiding
+claims about custom implementations that do not opt into the model.",
+      "risks": [
+        "conditional_obeys_pattern"
+      ]
+    },
+    {
+      "target": "core::ops::BitXorAssign::bitxor_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The primitive implementations use ^=, but the trait does not require a
+corresponding BitXor implementation or constrain arbitrary mutations. An assignment-effect
+abstraction is missing.",
+      "risks": [
+        "unit_return_variant",
+        "missing_assignment_effect_abstraction"
+      ]
+    },
+    {
+      "target": "core::ops::DivAssign::div_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The primitive macro does not constrain arbitrary DivAssign implementations, and
+the trait has no Div supertrait from which a justified old/final relation or division domain can be
+derived.",
+      "risks": [
+        "unit_return_variant",
+        "missing_assignment_effect_abstraction",
+        "division_panics"
+      ]
+    },
+    {
+      "target": "core::ops::Drop::drop",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Drop implementations may perform implementation-defined resource cleanup and may
+ panic; the signature exposes no abstract resource state supporting a useful universal
+postcondition.",
+      "risks": [
+        "unit_return_variant",
+        "runtime_effects",
+        "hidden_resource_state",
+        "panic_unwinding"
+      ]
+    },
+    {
+      "target": "core::ops::IndexMut::index_mut",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns an identity-sensitive mutable reference. Current vstd lacks a
+ general lens or reference-identity abstraction capable of relating mutations through that reference
+ back to self.",
+      "risks": [
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_lens_abstraction"
+      ]
+    },
+    {
+      "target": "core::ops::MulAssign::mul_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The primitive macro does not constrain arbitrary MulAssign implementations, and
+the trait has no Mul supertrait supporting a justified old/final multiplication relation.",
+      "risks": [
+        "unit_return_variant",
+        "missing_assignment_effect_abstraction",
+        "overflow_behavior"
+      ]
+    } ]
+}
+

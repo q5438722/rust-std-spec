@@ -1,0 +1,121 @@
+{
+  "batch": 310,
+  "group": "trait_contract_integration",
+  "duration_ms": 35145,
+  "targets": [
+    "std::os::windows::fs::MetadataExt::last_write_time",
+    "std::os::windows::fs::OpenOptionsExt::access_mode",
+    "std::os::windows::fs::OpenOptionsExt::attributes",
+    "std::os::windows::fs::OpenOptionsExt::custom_flags",
+    "std::os::windows::fs::OpenOptionsExt::security_qos_flags",
+    "std::os::windows::fs::OpenOptionsExt::share_mode"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::windows::fs::MetadataExt::last_write_time",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned FILETIME value comes from hidden Metadata state, for which vstd provides no public specification view or accessor relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_metadata_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::OpenOptionsExt::access_mode",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method updates a hidden CreateFile access-mode option and returns a mutable reference; vstd exposes neither the option state nor a suitable mutable-reference result relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_open_options_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::OpenOptionsExt::attributes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method stores Windows file attributes in hidden OpenOptions state and returns a mutable reference, so no useful public-vocabulary state relation is available.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_open_options_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::OpenOptionsExt::custom_flags",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source says this overwrites previously set custom flags, that field is hidden and vstd has no OpenOptions view; the mutable-reference return also lacks a useful supported relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_open_options_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::OpenOptionsExt::security_qos_flags",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The security-QoS flags are stored in hidden Windows-specific option state, and the mutable-reference return cannot yield a useful contract without an OpenOptions abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_open_options_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::OpenOptionsExt::share_mode",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method changes a hidden CreateFile share-mode setting and returns a mutable reference; current vstd vocabulary cannot observe or relate that state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_open_options_abstraction"
+      ]
+    }
+  ]
+}

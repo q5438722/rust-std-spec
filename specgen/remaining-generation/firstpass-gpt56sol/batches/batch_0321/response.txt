@@ -1,0 +1,227 @@
+{
+  "candidates": [
+    {
+      "target": "core::ffi::CStr::from_bytes_with_nul_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The NUL-shape precondition is expressible over bytes@, but vstd has no public CStr view or supported slice-to-CStr representation relation with which to constrain the returned reference.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_cstr_view",
+        "unconstrained_reference_result"
+      ]
+    },
+    {
+      "target": "core::ffi::CStr::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source scans raw memory and returns a reference whose validity depends on readable, NUL-terminated, stable storage. Those permissions and contents are absent from the signature, and CStr lacks a public view.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_raw_memory_footprint",
+        "missing_cstr_view",
+        "lifetime_and_aliasing"
+      ]
+    },
+    {
+      "target": "core::hint::assert_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::hint::assert_unchecked ](cond: bool)\n    requires\n        cond,\n;",
+      "requires": [
+        "cond"
+      ],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source explicitly requires the caller-provided condition to hold and otherwise performs no modeled state change.",
+      "risks": [
+        "unsafe_precondition_must_be_enforced"
+      ]
+    },
+    {
+      "target": "core::intrinsics::copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its memmove-like effect and safety conditions require source and destination memory permissions and byte-range post-state, none of which are exposed by this raw-pointer signature.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "overlap_semantics"
+      ]
+    },
+    {
+      "target": "core::intrinsics::copy_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract needs readable and writable range permissions, disjointness, alignment, initialization, and destination post-state; the exact signature carries none of that ghost state.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "nonoverlap_precondition"
+      ]
+    },
+    {
+      "target": "core::intrinsics::transmute",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating arbitrary Src and Dst values requires a generic bit-representation and validity abstraction. Equal size alone cannot constrain the returned value usefully.",
+      "risks": [
+        "missing_bit_representation_abstraction",
+        "destination_validity",
+        "ownership_and_provenance"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ffi::CStr::from_bytes_with_nul_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The NUL-shape precondition is expressible over bytes@, but vstd has no public
+CStr view or supported slice-to-CStr representation relation with which to constrain the returned
+reference.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_cstr_view",
+        "unconstrained_reference_result"
+      ]
+    },
+    {
+      "target": "core::ffi::CStr::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source scans raw memory and returns a reference whose validity depends on
+readable, NUL-terminated, stable storage. Those permissions and contents are absent from the
+signature, and CStr lacks a public view.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_raw_memory_footprint",
+        "missing_cstr_view",
+        "lifetime_and_aliasing"
+      ]
+    },
+    {
+      "target": "core::hint::assert_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::hint::assert_unchecked ](cond: bool)\n
+requires\n        cond,\n;",
+      "requires": [
+        "cond"
+      ],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source explicitly requires the caller-provided condition to hold and
+otherwise performs no modeled state change.",
+      "risks": [
+        "unsafe_precondition_must_be_enforced"
+      ]
+    },
+    {
+      "target": "core::intrinsics::copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its memmove-like effect and safety conditions require source and destination
+memory permissions and byte-range post-state, none of which are exposed by this raw-pointer
+signature.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "overlap_semantics"
+      ]
+    },
+    {
+      "target": "core::intrinsics::copy_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract needs readable and writable range permissions, disjointness,
+alignment, initialization, and destination post-state; the exact signature carries none of that
+ghost state.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "nonoverlap_precondition"
+      ]
+    },
+    {
+      "target": "core::intrinsics::transmute",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating arbitrary Src and Dst values requires a generic bit-representation and
+validity abstraction. Equal size alone cannot constrain the returned value usefully.",
+      "risks": [
+        "missing_bit_representation_abstraction",
+        "destination_validity",
+        "ownership_and_provenance"
+      ]
+    } ]
+}
+

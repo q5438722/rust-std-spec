@@ -1,0 +1,116 @@
+{
+  "batch": 194,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 32976,
+  "targets": [
+    "std::fs::OpenOptions::truncate",
+    "std::fs::OpenOptions::write",
+    "std::fs::Permissions::readonly",
+    "std::fs::Permissions::set_readonly",
+    "std::fs::canonicalize",
+    "std::fs::copy"
+  ],
+  "candidates": [
+    {
+      "target": "std::fs::OpenOptions::truncate",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates opaque OpenOptions state and returns an aliased mutable reference. vstd provides neither an OpenOptions view nor a suitable mutable-reference identity abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "std::fs::OpenOptions::write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The write flag is stored in opaque OpenOptions state, and the returned &mut Self aliases the receiver. No public vstd model exposes either relation usefully.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "std::fs::Permissions::readonly",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although this observes in-memory permission state, Permissions has no public vstd view connecting that opaque platform-specific state to the returned boolean.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_permissions_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::Permissions::set_readonly",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method changes opaque in-memory permission state, but vstd has no Permissions view with which to relate old(self), final(self), and the requested flag.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unit_return_variant",
+        "missing_permissions_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::canonicalize",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and errors depend on filesystem contents, symbolic links, the current directory, and platform behavior, none of which has a current vstd world-state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_abstraction",
+        "platform_dependent_behavior"
+      ]
+    },
+    {
+      "target": "std::fs::copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Copy mutates external filesystem state, and both success and the returned byte count depend on unmodeled files, permissions, and platform behavior.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_abstraction",
+        "platform_dependent_behavior"
+      ]
+    }
+  ]
+}

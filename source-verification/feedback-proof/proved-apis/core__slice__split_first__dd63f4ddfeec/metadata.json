@@ -1,0 +1,151 @@
+{
+  "id": "core__slice__split_first__dd63f4ddfeec",
+  "api_path": "core::slice::split_first",
+  "raw_target": "<[T]>::split_first",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 5, patch: 0 })},\nfeature: \"slice_splits\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 56, patch: 0 })},\nfeature: \"const_slice_first_last_not_mut\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51788",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "split_first",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "tuple": [
+                      {
+                        "borrowed_ref": {
+                          "is_mutable": false,
+                          "lifetime": null,
+                          "type": {
+                            "generic": "T"
+                          }
+                        }
+                      },
+                      {
+                        "borrowed_ref": {
+                          "is_mutable": false,
+                          "lifetime": null,
+                          "type": {
+                            "slice": {
+                              "generic": "T"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "   153:     #[inline]\n   154:     #[must_use]\n   155:     pub const fn first(&self) -> Option<&T> {\n   156:         if let [first, ..] = self { Some(first) } else { None }\n   157:     }\n   158: \n   159:     /// Returns a mutable reference to the first element of the slice, or `None` if it is empty.\n   160:     ///\n   161:     /// # Examples\n   162:     ///\n   163:     /// ```\n   164:     /// let x = &mut [0, 1, 2];\n   165:     ///\n   166:     /// if let Some(first) = x.first_mut() {\n   167:     ///     *first = 5;\n   168:     /// }\n   169:     /// assert_eq!(x, &[5, 1, 2]);\n   170:     ///\n   171:     /// let y: &mut [i32] = &mut [];\n   172:     /// assert_eq!(None, y.first_mut());\n   173:     /// ```\n   174:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   175:     #[rustc_const_stable(feature = \"const_slice_first_last\", since = \"1.83.0\")]\n   176:     #[inline]\n   177:     #[must_use]\n   178:     pub const fn first_mut(&mut self) -> Option<&mut T> {\n   179:         if let [first, ..] = self { Some(first) } else { None }\n   180:     }\n   181: \n   182:     /// Returns the first and all the rest of the elements of the slice, or `None` if it is empty.\n   183:     ///\n   184:     /// # Examples\n   185:     ///\n   186:     /// ```\n   187:     /// let x = &[0, 1, 2];\n   188:     ///\n   189:     /// if let Some((first, elements)) = x.split_first() {\n   190:     ///     assert_eq!(first, &0);\n   191:     ///     assert_eq!(elements, &[1, 2]);\n   192:     /// }\n   193:     /// ```\n   194:     #[stable(feature = \"slice_splits\", since = \"1.5.0\")]\n   195:     #[rustc_const_stable(feature = \"const_slice_first_last_not_mut\", since = \"1.56.0\")]\n   196:     #[inline]\n   197:     #[must_use]\n   198:     pub const fn split_first(&self) -> Option<(&T, &[T])> {\n   199:         if let [first, tail @ ..] = self { Some((first, tail)) } else { None }\n   200:     }\n   201: \n   202:     /// Returns the first and all the rest of the elements of the slice, or `None` if it is empty.\n   203:     ///\n   204:     /// # Examples\n   205:     ///\n   206:     /// ```\n   207:     /// let x = &mut [0, 1, 2];\n   208:     ///\n   209:     /// if let Some((first, elements)) = x.split_first_mut() {\n   210:     ///     *first = 3;\n   211:     ///     elements[0] = 4;\n   212:     ///     elements[1] = 5;\n   213:     /// }\n   214:     /// assert_eq!(x, &[3, 4, 5]);\n   215:     /// ```\n   216:     #[stable(feature = \"slice_splits\", since = \"1.5.0\")]\n   217:     #[rustc_const_stable(feature = \"const_slice_first_last\", since = \"1.83.0\")]\n   218:     #[inline]\n   219:     #[must_use]\n   220:     pub const fn split_first_mut(&mut self) -> Option<(&mut T, &mut [T])> {\n   221:         if let [first, tail @ ..] = self { Some((first, tail)) } else { None }\n   222:     }\n   223: \n   224:     /// Returns the last and all the rest of the elements of the slice, or `None` if it is empty.\n   225:     ///\n   226:     /// # Examples\n   227:     ///\n   228:     /// ```\n   229:     /// let x = &[0, 1, 2];\n   230:     ///\n   231:     /// if let Some((last, elements)) = x.split_last() {\n   232:     ///     assert_eq!(last, &2);\n   233:     ///     assert_eq!(elements, &[0, 1]);\n   234:     /// }\n   235:     /// ```\n   236:     #[stable(feature = \"slice_splits\", since = \"1.5.0\")]\n   237:     #[rustc_const_stable(feature = \"const_slice_first_last_not_mut\", since = \"1.56.0\")]\n   238:     #[inline]\n   239:     #[must_use]\n   240:     pub const fn split_last(&self) -> Option<(&T, &[T])> {\n   241:         if let [init @ .., last] = self { Some((last, init)) } else { None }\n   242:     }\n   243: ",
+    "span": {
+      "begin": [
+        198,
+        5
+      ],
+      "end": [
+        200,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn split_first(&self) -> Option<(&T, &[T])> {\n        if let [first, tail @ ..] = self { Some((first, tail)) } else { None }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd specifications for slice length and usize/range slice indexing."
+  ],
+  "rationale": "The unsupported slice pattern is mechanically desugared into its length test and element/tail projections, preserving control flow without calling split_first.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__split_first__dd63f4ddfeec"
+}

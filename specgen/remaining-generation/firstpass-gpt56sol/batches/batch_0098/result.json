@@ -1,0 +1,118 @@
+{
+  "batch": 98,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 97425,
+  "targets": [
+    "std::collections::HashMap::iter_mut",
+    "std::collections::HashMap::retain",
+    "std::collections::HashMap::values_mut",
+    "std::collections::HashSet::difference",
+    "std::collections::HashSet::drain",
+    "std::collections::HashSet::extract_if"
+  ],
+  "candidates": [
+    {
+      "target": "std::collections::HashMap::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "IterMut lazily yields mutable value references whose later writes determine the map's final state; vstd lacks the required prophetic mutable-iterator model.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "unsupported_yielded_mutable_references",
+        "partial_consumption"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The final map depends on an arbitrarily ordered sequence of stateful FnMut calls that may mutate values and decide removals; current vstd has no callback-trace and mutable-writeback model.",
+      "risks": [
+        "unit_return_variant",
+        "stateful_FnMut_sequence_not_modeled",
+        "mutable_value_writeback_not_modeled",
+        "callback_dependent_removal"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::values_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ValuesMut wraps iter_mut and lazily exposes mutable references whose later writes determine the map's final values; no public prophetic ValuesMut model exists.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "unsupported_yielded_mutable_references",
+        "partial_consumption"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::difference",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although mathematical set difference is expressible, vstd has no public Difference iterator view relating the returned iterator's future outputs to the two set views.",
+      "risks": [
+        "missing_difference_iterator_model",
+        "arbitrary_iteration_order_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::drain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Drain returns a lazy owning iterator while retaining a mutable borrow; relating removed elements and receiver state across iteration and drop requires a prophetic Drain model absent from vstd.",
+      "risks": [
+        "missing_prophetic_drain_model",
+        "yielded_ownership_unmodeled",
+        "partial_consumption_and_drop"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::extract_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Predicate calls and removals occur lazily, so yielded elements and the final set depend on consumption, early drop, and stateful FnMut results; vstd lacks the required prophetic adapter model.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "stateful_FnMut_sequence_not_modeled",
+        "partial_consumption",
+        "callback_dependent_removal"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "candidates": [
+    {
+      "target": "core::cell::Cell::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::Cell::<T>::as_ptr ](\n    this: &core::cell::Cell<T>,\n) -> (ptr: *mut T)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation delegates to UnsafeCell::get and is explicitly marked never-null, so vstd's pointer-address model can expose non-nullness without modeling Cell's private value.",
+      "risks": [
+        "Does not relate the pointer to the Cell contents.",
+        "Provides no PointsTo permission or dereference validity."
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::RefCell::<T>::as_ptr ](\n    this: &core::cell::RefCell<T>,\n) -> (ptr: *mut T)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The returned interior pointer is explicitly marked never-null; this property is expressible without exposing RefCell's private borrow state.",
+      "risks": [
+        "Does not model the pointee or dynamic borrow state.",
+        "Provides no permission to dereference or mutate the pointer."
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::try_borrow_unguarded",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on RefCell's private borrow counter, while relating the returned reference to the private value requires a missing RefCell borrow-state and reference-identity abstraction.",
+      "risks": [
+        "Hidden dynamic borrow state determines the Result variant.",
+        "The caller's no-write lifetime obligation is not expressible in the current vocabulary."
+      ]
+    },
+    {
+      "target": "core::cell::UnsafeCell::get",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::UnsafeCell::<T>::get ](\n    this: &core::cell::UnsafeCell<T>,\n) -> (ptr: *mut T)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The pointer is formed from a valid reference and is explicitly marked never-null, making non-nullness a sound public pointer-model property.",
+      "risks": [
+        "Current vstd cannot relate an ordinary reference's identity to the resulting pointer.",
+        "No memory-access permission is produced."
+      ]
+    },
+    {
+      "target": "core::cell::UnsafeCell::raw_get",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::UnsafeCell::<T>::raw_get ](\n    this: *const core::cell::UnsafeCell<T>,\n) -> (ptr: *mut T)\n    ensures\n        ptr@.addr == this@.addr,\n        ptr@.provenance == this@.provenance,\n        ptr@.metadata == this@.metadata,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr == this@.addr",
+        "ptr@.provenance == this@.provenance",
+        "ptr@.metadata == this@.metadata"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The body is exactly a repr-transparent raw-pointer cast, which vstd can model by preserving address, provenance, and metadata.",
+      "risks": [
+        "The contract grants no validity, alignment, initialization, or ownership permission.",
+        "Fieldwise pointer-model equality must not be confused with runtime pointer equality."
+      ]
+    },
+    {
+      "target": "core::ffi::CStr::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::ffi::CStr::as_ptr ](\n    this: &core::ffi::CStr,\n) -> (ptr: *const core::ffi::c_char)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation returns the inner slice pointer and is explicitly marked never-null; vstd can capture that fact without a CStr byte-sequence model.",
+      "risks": [
+        "Does not relate the pointer to bytes or the terminating NUL.",
+        "Provides no lifetime or dereference permission beyond Rust's type system."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::cell::Cell::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::Cell::<T>::as_ptr ](\n
+this: &core::cell::Cell<T>,\n) -> (ptr: mut T)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The implementation delegates to UnsafeCell::get and is explicitly marked
+never-null, so vstd's pointer-address model can expose non-nullness without modeling Cell's private
+value.",
+      "risks": [
+        "Does not relate the pointer to the Cell contents.",
+        "Provides no PointsTo permission or dereference validity."
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::RefCell::<T>::as_ptr ](\n
+  this: &core::cell::RefCell<T>,\n) -> (ptr: mut T)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The returned interior pointer is explicitly marked never-null; this property is
+expressible without exposing RefCell's private borrow state.",
+      "risks": [
+        "Does not model the pointee or dynamic borrow state.",
+        "Provides no permission to dereference or mutate the pointer."
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::try_borrow_unguarded",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on RefCell's private borrow counter, while relating the returned
+ reference to the private value requires a missing RefCell borrow-state and reference-identity
+abstraction.",
+      "risks": [
+        "Hidden dynamic borrow state determines the Result variant.",
+        "The caller's no-write lifetime obligation is not expressible in the current vocabulary."
+      ]
+    },
+    {
+      "target": "core::cell::UnsafeCell::get",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::UnsafeCell::<T>::get ](\n
+  this: &core::cell::UnsafeCell<T>,\n) -> (ptr: mut T)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The pointer is formed from a valid reference and is explicitly marked
+never-null, making non-nullness a sound public pointer-model property.",
+      "risks": [
+        "Current vstd cannot relate an ordinary reference's identity to the resulting pointer.",
+        "No memory-access permission is produced."
+      ]
+    },
+    {
+      "target": "core::cell::UnsafeCell::raw_get",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ core::cell::UnsafeCell::<T>::raw_get
+](\n    this: *const core::cell::UnsafeCell<T>,\n) -> (ptr: mut T)\n    ensures\n        ptr@.addr
+== this@.addr,\n        ptr@.provenance == this@.provenance,\n        ptr@.metadata ==
+this@.metadata,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr == this@.addr",
+        "ptr@.provenance == this@.provenance",
+        "ptr@.metadata == this@.metadata"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The body is exactly a repr-transparent raw-pointer cast, which vstd can model by
+ preserving address, provenance, and metadata.",
+      "risks": [
+        "The contract grants no validity, alignment, initialization, or ownership permission.",
+        "Fieldwise pointer-model equality must not be confused with runtime pointer equality."
+      ]
+    },
+    {
+      "target": "core::ffi::CStr::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::ffi::CStr::as_ptr ](\n    this:
+&core::ffi::CStr,\n) -> (ptr: const core::ffi::c_char)\n    ensures\n        ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The implementation returns the inner slice pointer and is explicitly marked
+never-null; vstd can capture that fact without a CStr byte-sequence model.",
+      "risks": [
+        "Does not relate the pointer to bytes or the terminating NUL.",
+        "Provides no lifetime or dereference permission beyond Rust's type system."
+      ]
+    } ]
+}
+

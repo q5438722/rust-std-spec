@@ -1,0 +1,3623 @@
+{
+  "metadata": {
+    "model": "gpt-5.6-sol",
+    "manifest": "/home/chentianyu/nanvix-rust-std-spec-survey/specgen/remaining-generation/groups/ownership_or_uninitialized_model.json",
+    "vstd_root": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd",
+    "verus_bin": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu",
+    "feedback_rounds": 1,
+    "contract_soundness": "unverified_trusted_external_contract",
+    "seed_candidates": "/home/chentianyu/nanvix-rust-std-spec-survey/specgen/remaining-generation/firstpass-gpt56sol/seed-candidates.json",
+    "include_non_suitable": true,
+    "include_unavailable": true
+  },
+  "counts": {
+    "targets": 33,
+    "add_spec": 8,
+    "skip": 25,
+    "raw_reward": 1,
+    "guarded_reward": 0,
+    "static_skip": 0,
+    "llm_errors": 0
+  },
+  "results": [
+    {
+      "target": "alloc::boxed::Box::into_pin",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source preserves the boxed allocation while wrapping it in Pin, but current vstd exposes no Pin pointee or allocation-identity model.",
+            "requires": [],
+            "risks": [
+              "Missing Pin abstraction",
+              "Pinned allocation identity is unmodeled"
+            ],
+            "target": "alloc::boxed::Box::into_pin",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source preserves the boxed allocation while wrapping it in Pin, but current vstd exposes no Pin pointee or allocation-identity model.",
+          "requires": [],
+          "risks": [
+            "Missing Pin abstraction",
+            "Pinned allocation identity is unmodeled"
+          ],
+          "target": "alloc::boxed::Box::into_pin",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::boxed::Box::new_uninit_slice",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Box::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Box<[MaybeUninit<T>]>)\n    ensures\n        res@.len() == len,\n        forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "res@.len() == len",
+              "forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::boxed::Box",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The slice view expresses the source-guaranteed length, and vstd's MaybeUninit mem_contents model expresses that every element is initially uninitialized.",
+            "requires": [],
+            "risks": [
+              "Allocation identity and OOM behavior are unmodeled"
+            ],
+            "target": "alloc::boxed::Box::new_uninit_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 789,
+              "stderr_tail": "note: automatically chose triggers for this expression:\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__boxed__Box__new_uninit_slice/round_00/contract_harness.rs:14:9\n   |\n14 |         forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit(),\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nnote:   trigger 1 of 1:\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__boxed__Box__new_uninit_slice/round_00/contract_harness.rs:14:48\n   |\n14 |         forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit(),\n   |                                                ^^^^^^^\n\nnote: Verus printed one or more automatically chosen quantifier triggers\n      because it had low confidence in the chosen triggers.\n      To suppress these messages, do one of the following:\n        (1) manually annotate a single desired trigger using #[trigger]\n            (example: forall|i: int, j: int| f(i) && #[trigger] g(i) && #[trigger] h(j)),\n        (2) manually annotate multiple desired triggers using #![trigger ...]\n            (example: forall|i: int| #![trigger f(i)] #![trigger g(i)] f(i) && g(i)),\n        (3) accept the automatically chosen trigger using #![auto]\n            (example: forall|i: int, j: int| #![auto] f(i) && g(i) && h(j))\n        (4) use the --triggers-mode silent command-line option to suppress all printing of triggers.\n      (Note: triggers are used by the underlying SMT theorem prover to instantiate quantifiers;\n      the theorem prover instantiates a quantifier whenever some expression matches the\n      pattern specified by one of the quantifier's triggers.)\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__boxed__Box__new_uninit_slice/round_00/contract_harness.rs:14:9\n   |\n14 |         forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit(),\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "res@.len() == len",
+                "forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 448628,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Box::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Box<[MaybeUninit<T>]>)\n    ensures\n        res@.len() == len,\n        forall|i: int| #![trigger res@[i]] 0 <= i < len ==> res@[i].mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "res@.len() == len",
+              "forall|i: int| #![trigger res@[i]] 0 <= i < len ==> res@[i].mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::boxed::Box",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source returns a slice of exactly len elements whose storage is uninitialized. The slice view and MaybeUninit mem_contents projection express both observable guarantees. Whole-result determinism is not expected because deep equality includes opaque Box and MaybeUninit representation rather than only these semantic projections.",
+            "requires": [],
+            "risks": [
+              "Deep equality of separate Box allocations is not implied by equal lengths and Uninit projections",
+              "Allocation identity and OOM behavior remain unmodeled"
+            ],
+            "target": "alloc::boxed::Box::new_uninit_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 509,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "res@.len() == len",
+                "forall|i: int| #![trigger res@[i]] 0 <= i < len ==> res@[i].mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 448628,
+        "candidate": {
+          "contract_code": "pub assume_specification<T>[ Box::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Box<[MaybeUninit<T>]>)\n    ensures\n        res@.len() == len,\n        forall|i: int| #![trigger res@[i]] 0 <= i < len ==> res@[i].mem_contents().is_uninit(),\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "res@.len() == len",
+            "forall|i: int| #![trigger res@[i]] 0 <= i < len ==> res@[i].mem_contents().is_uninit()"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "alloc::boxed::Box",
+            "core::mem::MaybeUninit",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The source returns a slice of exactly len elements whose storage is uninitialized. The slice view and MaybeUninit mem_contents projection express both observable guarantees. Whole-result determinism is not expected because deep equality includes opaque Box and MaybeUninit representation rather than only these semantic projections.",
+          "requires": [],
+          "risks": [
+            "Deep equality of separate Box allocations is not implied by equal lengths and Uninit projections",
+            "Allocation identity and OOM behavior remain unmodeled"
+          ],
+          "target": "alloc::boxed::Box::new_uninit_slice",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 509,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "res@.len() == len",
+              "forall|i: int| #![trigger res@[i]] 0 <= i < len ==> res@[i].mem_contents().is_uninit()"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::boxed::Box::new_zeroed",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "vstd's MaybeUninit model distinguishes only Init(T) from Uninit and cannot represent zero-filled bytes that may not encode a valid T.",
+            "requires": [],
+            "risks": [
+              "Missing byte-level initialization model",
+              "Validity depends on T"
+            ],
+            "target": "alloc::boxed::Box::new_zeroed",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "vstd's MaybeUninit model distinguishes only Init(T) from Uninit and cannot represent zero-filled bytes that may not encode a valid T.",
+          "requires": [],
+          "risks": [
+            "Missing byte-level initialization model",
+            "Validity depends on T"
+          ],
+          "target": "alloc::boxed::Box::new_zeroed",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::boxed::Box::new_zeroed_slice",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Although the result length is observable, current vstd cannot express the defining guarantee that every element's storage contains zero bytes; a length-only contract is insufficient.",
+            "requires": [],
+            "risks": [
+              "Missing byte-level initialization model",
+              "Element validity depends on T"
+            ],
+            "target": "alloc::boxed::Box::new_zeroed_slice",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Although the result length is observable, current vstd cannot express the defining guarantee that every element's storage contains zero bytes; a length-only contract is insufficient.",
+          "requires": [],
+          "risks": [
+            "Missing byte-level initialization model",
+            "Element validity depends on T"
+          ],
+          "target": "alloc::boxed::Box::new_zeroed_slice",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::boxed::Box::pin",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source places x in a boxed allocation and pins that allocation, but current vstd has no public Pin pointee model relating the result to x.",
+            "requires": [],
+            "risks": [
+              "Missing Pin abstraction",
+              "Pinned allocation identity is unmodeled"
+            ],
+            "target": "alloc::boxed::Box::pin",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source places x in a boxed allocation and pins that allocation, but current vstd has no public Pin pointee model relating the result to x.",
+          "requires": [],
+          "risks": [
+            "Missing Pin abstraction",
+            "Pinned allocation identity is unmodeled"
+          ],
+          "target": "alloc::boxed::Box::pin",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::boxed::Box::write",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T, A: Allocator>[\n    Box::<MaybeUninit<T>, A>::write\n](\n    boxed: Box<MaybeUninit<T>, A>,\n    value: T,\n) -> (res: Box<T, A>)\n    ensures\n        *res == value,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "*res == value"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::boxed::Box",
+              "core::alloc::Allocator",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source writes value into the supplied allocation and returns it as Box<T, A>; Box dereference directly exposes the resulting value.",
+            "requires": [],
+            "risks": [
+              "Allocation identity and overwritten storage state are unmodeled"
+            ],
+            "target": "alloc::boxed::Box::write",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 793,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "*res == value"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 81249,
+          "candidate": {
+            "contract_code": "pub assume_specification<T, A: Allocator>[\n    Box::<MaybeUninit<T>, A>::write\n](\n    boxed: Box<MaybeUninit<T>, A>,\n    value: T,\n) -> (res: Box<T, A>)\n    ensures\n        *res == value,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "*res == value"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::boxed::Box",
+              "core::alloc::Allocator",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The method consumes the uninitialized box, overwrites its storage with value, and only then converts it to Box<T, A>. Thus the dereferenced result observably equals value. Rust ownership already models consumption of boxed, and no assumption about its uninitialized contents is needed.",
+            "requires": [],
+            "risks": [
+              "Preservation of allocation and allocator identity is not expressible by this ordinary value-level contract"
+            ],
+            "target": "alloc::boxed::Box::write",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 472,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "*res == value"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 81249,
+        "candidate": {
+          "contract_code": "pub assume_specification<T, A: Allocator>[\n    Box::<MaybeUninit<T>, A>::write\n](\n    boxed: Box<MaybeUninit<T>, A>,\n    value: T,\n) -> (res: Box<T, A>)\n    ensures\n        *res == value,\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "*res == value"
+          ],
+          "feature_gates": [
+            "allocator_api"
+          ],
+          "imports": [
+            "alloc::boxed::Box",
+            "core::alloc::Allocator",
+            "core::mem::MaybeUninit",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The method consumes the uninitialized box, overwrites its storage with value, and only then converts it to Box<T, A>. Thus the dereferenced result observably equals value. Rust ownership already models consumption of boxed, and no assumption about its uninitialized contents is needed.",
+          "requires": [],
+          "risks": [
+            "Preservation of allocation and allocator identity is not expressible by this ordinary value-level contract"
+          ],
+          "target": "alloc::boxed::Box::write",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 472,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "*res == value"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 1,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::downcast",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source branches on Any::is::<T>() and preserves the allocation, but vstd has no dynamic type-identity predicate for Any or Rc allocation-identity model.",
+            "requires": [],
+            "risks": [
+              "A successful result cannot be related soundly to the erased input value.",
+              "Specifying only the Result shape would be uninformative."
+            ],
+            "target": "alloc::rc::Rc::downcast",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source branches on Any::is::<T>() and preserves the allocation, but vstd has no dynamic type-identity predicate for Any or Rc allocation-identity model.",
+          "requires": [],
+          "risks": [
+            "A successful result cannot be related soundly to the erased input value.",
+            "Specifying only the Result shape would be uninformative."
+          ],
+          "target": "alloc::rc::Rc::downcast",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::downgrade",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source increments the hidden weak count and returns a Weak for the same allocation. vstd exposes neither Weak-to-Rc allocation identity nor upgradeability/refcount state.",
+            "requires": [],
+            "risks": [
+              "Weak upgradeability and reference counts are hidden state.",
+              "The allocator clone alone does not characterize the returned Weak."
+            ],
+            "target": "alloc::rc::Rc::downgrade",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source increments the hidden weak count and returns a Weak for the same allocation. vstd exposes neither Weak-to-Rc allocation identity nor upgradeability/refcount state.",
+          "requires": [],
+          "risks": [
+            "Weak upgradeability and reference counts are hidden state.",
+            "The allocator clone alone does not characterize the returned Weak."
+          ],
+          "target": "alloc::rc::Rc::downgrade",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::new_cyclic",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The closure receives the particular Weak tied to a fresh, not-yet-initialized allocation. Relating that Weak, the closure contract, and the final Rc requires missing cyclic-allocation and Weak identity abstractions.",
+            "requires": [],
+            "risks": [
+              "The closure precondition must be checked for the actual fresh Weak.",
+              "An arbitrary or existential Weak would not soundly model the invocation."
+            ],
+            "target": "alloc::rc::Rc::new_cyclic",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The closure receives the particular Weak tied to a fresh, not-yet-initialized allocation. Relating that Weak, the closure contract, and the final Rc requires missing cyclic-allocation and Weak identity abstractions.",
+          "requires": [],
+          "risks": [
+            "The closure precondition must be checked for the actual fresh Weak.",
+            "An arbitrary or existential Weak would not soundly model the invocation."
+          ],
+          "target": "alloc::rc::Rc::new_cyclic",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::new_uninit",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Rc::<T>::new_uninit ]() -> (result: Rc<MaybeUninit<T>>)\n    ensures\n        result.mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "result.mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::rc::Rc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source allocates storage without initializing T, which is directly expressible through vstd's public MaybeUninit mem_contents model.",
+            "requires": [],
+            "risks": [
+              "Rc uniqueness, allocation identity, and reference counts remain unmodeled."
+            ],
+            "target": "alloc::rc::Rc::new_uninit",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 799,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "result.mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 208941,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Rc::<T>::new_uninit ]() -> (result: Rc<MaybeUninit<T>>)\n    ensures\n        result.mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "result.mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::rc::Rc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source allocates storage without initializing T, so the public MaybeUninit model precisely fixes the observable contents as Uninit. Determinism is inconclusive because deep equality also observes opaque Rc representation, not because the initialization state is underspecified.",
+            "requires": [],
+            "risks": [
+              "Rc allocation identity and reference counts remain unmodeled.",
+              "Deep equality of separately allocated Rc values is not implied by equal initialization states."
+            ],
+            "target": "alloc::rc::Rc::new_uninit",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 463,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "result.mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 208941,
+        "candidate": {
+          "contract_code": "pub assume_specification<T>[ Rc::<T>::new_uninit ]() -> (result: Rc<MaybeUninit<T>>)\n    ensures\n        result.mem_contents().is_uninit(),\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "result.mem_contents().is_uninit()"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "alloc::rc::Rc",
+            "core::mem::MaybeUninit",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The source allocates storage without initializing T, so the public MaybeUninit model precisely fixes the observable contents as Uninit. Determinism is inconclusive because deep equality also observes opaque Rc representation, not because the initialization state is underspecified.",
+          "requires": [],
+          "risks": [
+            "Rc allocation identity and reference counts remain unmodeled.",
+            "Deep equality of separately allocated Rc values is not implied by equal initialization states."
+          ],
+          "target": "alloc::rc::Rc::new_uninit",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 463,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "result.mem_contents().is_uninit()"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::new_uninit_slice",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Rc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (result: Rc<[MaybeUninit<T>]>)\n    ensures\n        (&*result)@.len() == len,\n        forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "(&*result)@.len() == len",
+              "forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::rc::Rc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source allocates exactly len slice elements and documents each as uninitialized; slice views and MaybeUninit mem_contents express both properties.",
+            "requires": [],
+            "risks": [
+              "Rc uniqueness, allocation identity, and reference counts remain unmodeled."
+            ],
+            "target": "alloc::rc::Rc::new_uninit_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 810,
+              "stderr_tail": "note: automatically chose triggers for this expression:\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__rc__Rc__new_uninit_slice/round_00/contract_harness.rs:14:9\n   |\n14 |         forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nnote:   trigger 1 of 1:\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__rc__Rc__new_uninit_slice/round_00/contract_harness.rs:14:41\n   |\n14 |         forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n   |                                         ^^^^^^^^^^^^^^\n\nnote: Verus printed one or more automatically chosen quantifier triggers\n      because it had low confidence in the chosen triggers.\n      To suppress these messages, do one of the following:\n        (1) manually annotate a single desired trigger using #[trigger]\n            (example: forall|i: int, j: int| f(i) && #[trigger] g(i) && #[trigger] h(j)),\n        (2) manually annotate multiple desired triggers using #![trigger ...]\n            (example: forall|i: int| #![trigger f(i)] #![trigger g(i)] f(i) && g(i)),\n        (3) accept the automatically chosen trigger using #![auto]\n            (example: forall|i: int, j: int| #![auto] f(i) && g(i) && h(j))\n        (4) use the --triggers-mode silent command-line option to suppress all printing of triggers.\n      (Note: triggers are used by the underlying SMT theorem prover to instantiate quantifiers;\n      the theorem prover instantiates a quantifier whenever some expression matches the\n      pattern specified by one of the quantifier's triggers.)\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__rc__Rc__new_uninit_slice/round_00/contract_harness.rs:14:9\n   |\n14 |         forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "(&*result)@.len() == len",
+                "forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 290400,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Rc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (result: Rc<[MaybeUninit<T>]>)\n    ensures\n        (&*result)@.len() == len,\n        forall|i: int| #![trigger (&*result)@[i]] 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "(&*result)@.len() == len",
+              "forall|i: int| #![trigger (&*result)@[i]] 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::rc::Rc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The implementation returns a slice of exactly len elements whose storage is not initialized as T. The slice view and public MaybeUninit mem_contents projection express both observable guarantees. Determinism remains inconclusive because deep equality compares opaque Rc and MaybeUninit representations rather than only these semantic projections.",
+            "requires": [],
+            "risks": [
+              "Deep equality of separate Rc allocations is not implied by equal lengths and Uninit projections.",
+              "Allocation identity, reference counts, and OOM behavior remain unmodeled."
+            ],
+            "target": "alloc::rc::Rc::new_uninit_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 480,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "(&*result)@.len() == len",
+                "forall|i: int| #![trigger (&*result)@[i]] 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 290400,
+        "candidate": {
+          "contract_code": "pub assume_specification<T>[ Rc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (result: Rc<[MaybeUninit<T>]>)\n    ensures\n        (&*result)@.len() == len,\n        forall|i: int| #![trigger (&*result)@[i]] 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "(&*result)@.len() == len",
+            "forall|i: int| #![trigger (&*result)@[i]] 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "alloc::rc::Rc",
+            "core::mem::MaybeUninit",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The implementation returns a slice of exactly len elements whose storage is not initialized as T. The slice view and public MaybeUninit mem_contents projection express both observable guarantees. Determinism remains inconclusive because deep equality compares opaque Rc and MaybeUninit representations rather than only these semantic projections.",
+          "requires": [],
+          "risks": [
+            "Deep equality of separate Rc allocations is not implied by equal lengths and Uninit projections.",
+            "Allocation identity, reference counts, and OOM behavior remain unmodeled."
+          ],
+          "target": "alloc::rc::Rc::new_uninit_slice",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 480,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "(&*result)@.len() == len",
+              "forall|i: int| #![trigger (&*result)@[i]] 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::new_zeroed",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source guarantees zero-filled bytes, but vstd has no generic byte-pattern or all-zero-validity predicate for T. MemContents cannot express the API's distinguishing guarantee.",
+            "requires": [],
+            "risks": [
+              "All-zero bytes are not a valid value for every T.",
+              "Modeling the result merely as uninitialized would erase the useful zero-fill behavior."
+            ],
+            "target": "alloc::rc::Rc::new_zeroed",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source guarantees zero-filled bytes, but vstd has no generic byte-pattern or all-zero-validity predicate for T. MemContents cannot express the API's distinguishing guarantee.",
+          "requires": [],
+          "risks": [
+            "All-zero bytes are not a valid value for every T.",
+            "Modeling the result merely as uninitialized would erase the useful zero-fill behavior."
+          ],
+          "target": "alloc::rc::Rc::new_zeroed",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::new_zeroed_slice",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Current vstd cannot express the defining guarantee that each element's storage contains zero bytes; a length-only contract would be insufficient.",
+            "requires": [],
+            "risks": [
+              "missing byte-level initialization model",
+              "element validity depends on T"
+            ],
+            "target": "alloc::rc::Rc::new_zeroed_slice",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Current vstd cannot express the defining guarantee that each element's storage contains zero bytes; a length-only contract would be insufficient.",
+          "requires": [],
+          "risks": [
+            "missing byte-level initialization model",
+            "element validity depends on T"
+          ],
+          "target": "alloc::rc::Rc::new_zeroed_slice",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::pin",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source allocates value in an Rc and pins it, but current vstd has no Pin pointee or allocation-identity abstraction relating the result to value.",
+            "requires": [],
+            "risks": [
+              "missing Pin abstraction",
+              "pinned allocation identity is unmodeled"
+            ],
+            "target": "alloc::rc::Rc::pin",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source allocates value in an Rc and pins it, but current vstd has no Pin pointee or allocation-identity abstraction relating the result to value.",
+          "requires": [],
+          "risks": [
+            "missing Pin abstraction",
+            "pinned allocation identity is unmodeled"
+          ],
+          "target": "alloc::rc::Rc::pin",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::ptr_eq",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The result depends on allocation identity, while current vstd exposes only Rc's pointee and cannot distinguish equal values in distinct allocations.",
+            "requires": [],
+            "risks": [
+              "hidden Rc allocation identity",
+              "fat-pointer metadata is intentionally ignored"
+            ],
+            "target": "alloc::rc::Rc::ptr_eq",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The result depends on allocation identity, while current vstd exposes only Rc's pointee and cannot distinguish equal values in distinct allocations.",
+          "requires": [],
+          "risks": [
+            "hidden Rc allocation identity",
+            "fat-pointer metadata is intentionally ignored"
+          ],
+          "target": "alloc::rc::Rc::ptr_eq",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::strong_count",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source reads Rc's private strong-reference counter, which has no public representation in the current vstd Rc model.",
+            "requires": [],
+            "risks": [
+              "hidden Rc strong-count state",
+              "aliasing changes are unmodeled"
+            ],
+            "target": "alloc::rc::Rc::strong_count",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source reads Rc's private strong-reference counter, which has no public representation in the current vstd Rc model.",
+          "requires": [],
+          "risks": [
+            "hidden Rc strong-count state",
+            "aliasing changes are unmodeled"
+          ],
+          "target": "alloc::rc::Rc::strong_count",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::unwrap_or_clone",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T: Clone, A: Allocator>[ Rc::<T, A>::unwrap_or_clone ](this: Rc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this, result),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "cloned::<T>(*this, result)"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::rc::Rc",
+              "core::alloc::Allocator",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The result is either the moved inner value or produced by T::clone; vstd::cloned captures both cases without modeling Rc uniqueness.",
+            "requires": [],
+            "risks": [
+              "does not distinguish unwrapping from cloning",
+              "Clone may unwind"
+            ],
+            "target": "alloc::rc::Rc::unwrap_or_clone",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 801,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "cloned::<T>(*this, result)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 483562,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "none",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Rc uniqueness is not modeled in existing vstd vocabulary, so the move and clone branches cannot be distinguished. The only source-justified ordinary relation is cloned::<T>(*this, result), which is non-functional for arbitrary Clone implementations; strengthening it to equality or restricting Clone would be unsound or artificially narrow the API domain.",
+            "requires": [],
+            "risks": [
+              "rc_uniqueness_unmodeled",
+              "generic_clone_relation_not_functional",
+              "Clone may unwind"
+            ],
+            "target": "alloc::rc::Rc::unwrap_or_clone",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_unsupported_contract_form"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 483562,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "none",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Rc uniqueness is not modeled in existing vstd vocabulary, so the move and clone branches cannot be distinguished. The only source-justified ordinary relation is cloned::<T>(*this, result), which is non-functional for arbitrary Clone implementations; strengthening it to equality or restricting Clone would be unsound or artificially narrow the API domain.",
+          "requires": [],
+          "risks": [
+            "rc_uniqueness_unmodeled",
+            "generic_clone_relation_not_functional",
+            "Clone may unwind"
+          ],
+          "target": "alloc::rc::Rc::unwrap_or_clone",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_unsupported_contract_form"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::rc::Rc::weak_count",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source reads Rc's private weak-reference counter and removes its implicit weak reference; current vstd exposes no weak-count state.",
+            "requires": [],
+            "risks": [
+              "hidden Rc weak-count state",
+              "implicit weak reference is unmodeled"
+            ],
+            "target": "alloc::rc::Rc::weak_count",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source reads Rc's private weak-reference counter and removes its implicit weak reference; current vstd exposes no weak-count state.",
+          "requires": [],
+          "risks": [
+            "hidden Rc weak-count state",
+            "implicit weak reference is unmodeled"
+          ],
+          "target": "alloc::rc::Rc::weak_count",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::downcast",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source branches on Any::is::<T>() and casts the allocation on success, but vstd has no dynamic-type model relating the erased pointee to Arc<T, A>. Specifying only Err(self) would leave the successful result unconstrained.",
+            "requires": [],
+            "risks": [
+              "Missing dyn Any and TypeId abstraction",
+              "Successful ownership-preserving type cast is unmodeled"
+            ],
+            "target": "alloc::sync::Arc::downcast",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source branches on Any::is::<T>() and casts the allocation on success, but vstd has no dynamic-type model relating the erased pointee to Arc<T, A>. Specifying only Err(self) would leave the successful result unconstrained.",
+          "requires": [],
+          "risks": [
+            "Missing dyn Any and TypeId abstraction",
+            "Successful ownership-preserving type cast is unmodeled"
+          ],
+          "target": "alloc::sync::Arc::downcast",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::downgrade",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source atomically increments hidden weak-count state. Current vstd cannot identify the returned Weak as referring to the same allocation as this.",
+            "requires": [],
+            "risks": [
+              "Missing Arc/Weak allocation-identity model",
+              "Hidden concurrent reference-count state"
+            ],
+            "target": "alloc::sync::Arc::downgrade",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source atomically increments hidden weak-count state. Current vstd cannot identify the returned Weak as referring to the same allocation as this.",
+          "requires": [],
+          "risks": [
+            "Missing Arc/Weak allocation-identity model",
+            "Hidden concurrent reference-count state"
+          ],
+          "target": "alloc::sync::Arc::downgrade",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::into_inner",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T, A: Allocator>[ Arc::<T, A>::into_inner ](\n    this: Arc<T, A>,\n) -> (result: Option<T>)\n    ensures\n        result matches Some(value) ==> value == *this,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "result matches Some(value) ==> value == *this"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::alloc::Allocator",
+              "vstd::prelude::*"
+            ],
+            "rationale": "When the source obtains the final strong reference, it reads and returns the pointee. Arc dereference vocabulary can relate that successful result without predicting the hidden reference count.",
+            "requires": [],
+            "risks": [
+              "The Some/None condition and exactly-one-winner guarantee remain unmodeled",
+              "Concurrent reference-count state is hidden"
+            ],
+            "target": "alloc::sync::Arc::into_inner",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 790,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "result matches Some(value) ==> value == *this"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 259580,
+          "candidate": {
+            "contract_code": "pub assume_specification<T, A: Allocator>[ Arc::<T, A>::into_inner ](\n    this: Arc<T, A>,\n) -> (result: Option<T>)\n    ensures\n        result matches Some(value) ==> value == *this,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "result matches Some(value) ==> value == *this"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::alloc::Allocator",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The successful source path reads exactly the Arc pointee and returns it, so the Some payload relation is sound and useful. The branch itself depends on hidden atomic strong-count state and cannot be strengthened using current vstd vocabulary; the inconclusive determinism result is therefore expected.",
+            "requires": [],
+            "risks": [
+              "The Some/None condition and exactly-one-winner guarantee remain unmodeled",
+              "The contract intentionally permits both branches because concurrent reference-count state is hidden"
+            ],
+            "target": "alloc::sync::Arc::into_inner",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 463,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "result matches Some(value) ==> value == *this"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 259580,
+        "candidate": {
+          "contract_code": "pub assume_specification<T, A: Allocator>[ Arc::<T, A>::into_inner ](\n    this: Arc<T, A>,\n) -> (result: Option<T>)\n    ensures\n        result matches Some(value) ==> value == *this,\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "result matches Some(value) ==> value == *this"
+          ],
+          "feature_gates": [
+            "allocator_api"
+          ],
+          "imports": [
+            "alloc::sync::Arc",
+            "core::alloc::Allocator",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The successful source path reads exactly the Arc pointee and returns it, so the Some payload relation is sound and useful. The branch itself depends on hidden atomic strong-count state and cannot be strengthened using current vstd vocabulary; the inconclusive determinism result is therefore expected.",
+          "requires": [],
+          "risks": [
+            "The Some/None condition and exactly-one-winner guarantee remain unmodeled",
+            "The contract intentionally permits both branches because concurrent reference-count state is hidden"
+          ],
+          "target": "alloc::sync::Arc::into_inner",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 463,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "result matches Some(value) ==> value == *this"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::new_cyclic",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "A useful closure contract must describe the temporary Weak passed during initialization and relate it to the returned Arc afterward. Current vstd has no Weak lifecycle or shared-allocation identity model.",
+            "requires": [],
+            "risks": [
+              "Missing staged initialization model",
+              "Missing Arc/Weak allocation relation"
+            ],
+            "target": "alloc::sync::Arc::new_cyclic",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "A useful closure contract must describe the temporary Weak passed during initialization and relate it to the returned Arc afterward. Current vstd has no Weak lifecycle or shared-allocation identity model.",
+          "requires": [],
+          "risks": [
+            "Missing staged initialization model",
+            "Missing Arc/Weak allocation relation"
+          ],
+          "target": "alloc::sync::Arc::new_cyclic",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::new_uninit",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Arc::<T>::new_uninit ]() -> (res: Arc<MaybeUninit<T>>)\n    ensures\n        (*res).mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "(*res).mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source allocates uninitialized storage, and vstd's MaybeUninit mem_contents model directly represents that state.",
+            "requires": [],
+            "risks": [
+              "Fresh-allocation uniqueness and reference counts are unmodeled",
+              "OOM behavior is outside the contract"
+            ],
+            "target": "alloc::sync::Arc::new_uninit",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 817,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "(*res).mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 240447,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Arc::<T>::new_uninit ]() -> (res: Arc<MaybeUninit<T>>)\n    ensures\n        (*res).mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "(*res).mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source never initializes the allocated payload, so the public MaybeUninit mem_contents projection is Uninit. Determinism is inconclusive because the checker compares the opaque Arc<MaybeUninit<T>> value rather than only this fully determined semantic projection.",
+            "requires": [],
+            "risks": [
+              "The checker cannot derive opaque MaybeUninit extensional equality from equal MemContents projections",
+              "Allocation identity, reference-count uniqueness, and OOM behavior remain unmodeled"
+            ],
+            "target": "alloc::sync::Arc::new_uninit",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 474,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "(*res).mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 240447,
+        "candidate": {
+          "contract_code": "pub assume_specification<T>[ Arc::<T>::new_uninit ]() -> (res: Arc<MaybeUninit<T>>)\n    ensures\n        (*res).mem_contents().is_uninit(),\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "(*res).mem_contents().is_uninit()"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "alloc::sync::Arc",
+            "core::mem::MaybeUninit",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The source never initializes the allocated payload, so the public MaybeUninit mem_contents projection is Uninit. Determinism is inconclusive because the checker compares the opaque Arc<MaybeUninit<T>> value rather than only this fully determined semantic projection.",
+          "requires": [],
+          "risks": [
+            "The checker cannot derive opaque MaybeUninit extensional equality from equal MemContents projections",
+            "Allocation identity, reference-count uniqueness, and OOM behavior remain unmodeled"
+          ],
+          "target": "alloc::sync::Arc::new_uninit",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 474,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "(*res).mem_contents().is_uninit()"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::new_uninit_slice",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Arc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Arc<[MaybeUninit<T>]>)\n    ensures\n        (&*res)@.len() == len,\n        forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit(),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "(&*res)@.len() == len",
+              "forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit()"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source allocates a slice of the requested length, while the slice view and MaybeUninit mem_contents model express that every element is initially uninitialized.",
+            "requires": [],
+            "risks": [
+              "Fresh-allocation uniqueness and reference counts are unmodeled",
+              "OOM behavior is outside the contract"
+            ],
+            "target": "alloc::sync::Arc::new_uninit_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 800,
+              "stderr_tail": "note: automatically chose triggers for this expression:\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__sync__Arc__new_uninit_slice/round_00/contract_harness.rs:14:9\n   |\n14 |         forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit(),\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nnote:   trigger 1 of 1:\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__sync__Arc__new_uninit_slice/round_00/contract_harness.rs:14:52\n   |\n14 |         forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit(),\n   |                                                    ^^^^^^^^^^^\n\nnote: Verus printed one or more automatically chosen quantifier triggers\n      because it had low confidence in the chosen triggers.\n      To suppress these messages, do one of the following:\n        (1) manually annotate a single desired trigger using #[trigger]\n            (example: forall|i: int, j: int| f(i) && #[trigger] g(i) && #[trigger] h(j)),\n        (2) manually annotate multiple desired triggers using #![trigger ...]\n            (example: forall|i: int| #![trigger f(i)] #![trigger g(i)] f(i) && g(i)),\n        (3) accept the automatically chosen trigger using #![auto]\n            (example: forall|i: int, j: int| #![auto] f(i) && g(i) && h(j))\n        (4) use the --triggers-mode silent command-line option to suppress all printing of triggers.\n      (Note: triggers are used by the underlying SMT theorem prover to instantiate quantifiers;\n      the theorem prover instantiates a quantifier whenever some expression matches the\n      pattern specified by one of the quantifier's triggers.)\n  --> specgen/remaining-generation/evaluated-gpt56sol/ownership_or_uninitialized_model/targets/alloc__sync__Arc__new_uninit_slice/round_00/contract_harness.rs:14:9\n   |\n14 |         forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit(),\n   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "(&*res)@.len() == len",
+                "forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit()"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 310003,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Arc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Arc<[MaybeUninit<T>]>)\n    ensures\n        res.len() == len,\n        forall|i: int| 0 <= i < len ==> (#[trigger] (&*res)@[i]).mem_contents() == MemContents::Uninit,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "res.len() == len",
+              "forall|i: int| 0 <= i < len ==> (#[trigger] (&*res)@[i]).mem_contents() == MemContents::Uninit"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::mem::MaybeUninit",
+              "vstd::prelude::*",
+              "vstd::raw_ptr::MemContents"
+            ],
+            "rationale": "The source constructs slice metadata with exactly len and uses non-zeroing allocation. The contract exposes those normal-return facts through the slice length and vstd's canonical MemContents::Uninit model.",
+            "requires": [],
+            "risks": [
+              "Arc uniqueness, allocation identity, and reference counts remain unmodeled",
+              "The mem_contents abstraction does not determine opaque MaybeUninit value identity, so whole-result determinism is intentionally not claimed",
+              "Layout failure and OOM behavior are outside the normal-return postconditions"
+            ],
+            "target": "alloc::sync::Arc::new_uninit_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 480,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "res.len() == len",
+                "forall|i: int| 0 <= i < len ==> (#[trigger] (&*res)@[i]).mem_contents() == MemContents::Uninit"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 310003,
+        "candidate": {
+          "contract_code": "pub assume_specification<T>[ Arc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Arc<[MaybeUninit<T>]>)\n    ensures\n        res.len() == len,\n        forall|i: int| 0 <= i < len ==> (#[trigger] (&*res)@[i]).mem_contents() == MemContents::Uninit,\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "res.len() == len",
+            "forall|i: int| 0 <= i < len ==> (#[trigger] (&*res)@[i]).mem_contents() == MemContents::Uninit"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "alloc::sync::Arc",
+            "core::mem::MaybeUninit",
+            "vstd::prelude::*",
+            "vstd::raw_ptr::MemContents"
+          ],
+          "rationale": "The source constructs slice metadata with exactly len and uses non-zeroing allocation. The contract exposes those normal-return facts through the slice length and vstd's canonical MemContents::Uninit model.",
+          "requires": [],
+          "risks": [
+            "Arc uniqueness, allocation identity, and reference counts remain unmodeled",
+            "The mem_contents abstraction does not determine opaque MaybeUninit value identity, so whole-result determinism is intentionally not claimed",
+            "Layout failure and OOM behavior are outside the normal-return postconditions"
+          ],
+          "target": "alloc::sync::Arc::new_uninit_slice",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 480,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "res.len() == len",
+              "forall|i: int| 0 <= i < len ==> (#[trigger] (&*res)@[i]).mem_contents() == MemContents::Uninit"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::new_zeroed",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The API guarantees zero-filled bytes, but current MaybeUninit vocabulary cannot represent that byte pattern or determine whether it is a valid T.",
+            "requires": [],
+            "risks": [
+              "Modeling the result as initialized is unsound for types whose all-zero representation is invalid."
+            ],
+            "target": "alloc::sync::Arc::new_zeroed",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The API guarantees zero-filled bytes, but current MaybeUninit vocabulary cannot represent that byte pattern or determine whether it is a valid T.",
+          "requires": [],
+          "risks": [
+            "Modeling the result as initialized is unsound for types whose all-zero representation is invalid."
+          ],
+          "target": "alloc::sync::Arc::new_zeroed",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::new_zeroed_slice",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T>[ Arc::<[T]>::new_zeroed_slice ](\n    len: usize,\n) -> (result: Arc<[MaybeUninit<T>]>)\n    ensures\n        result.len() == len,\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "result.len() == len"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::mem::MaybeUninit"
+            ],
+            "rationale": "The source constructs the slice metadata with exactly len, giving a useful shape guarantee without modeling element bytes.",
+            "requires": [],
+            "risks": [
+              "The zero-filled element contents and their validity as T remain unmodeled."
+            ],
+            "target": "alloc::sync::Arc::new_zeroed_slice",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 809,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "result.len() == len"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 56206,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Current vstd cannot express the defining guarantee that every element's storage contains zero bytes; a length-only contract is insufficient and does not distinguish this API from new_uninit_slice.",
+            "requires": [],
+            "risks": [
+              "Missing byte-level initialization model for MaybeUninit<T>.",
+              "Treating zero-filled storage as initialized is unsound when T has no valid all-zero representation."
+            ],
+            "target": "alloc::sync::Arc::new_zeroed_slice",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 56206,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Current vstd cannot express the defining guarantee that every element's storage contains zero bytes; a length-only contract is insufficient and does not distinguish this API from new_uninit_slice.",
+          "requires": [],
+          "risks": [
+            "Missing byte-level initialization model for MaybeUninit<T>.",
+            "Treating zero-filled storage as initialized is unsound when T has no valid all-zero representation."
+          ],
+          "target": "alloc::sync::Arc::new_zeroed_slice",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::pin",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "Current vstd lacks a public Pin projection and stable-address ownership model needed to relate the result to data and express immovability.",
+            "requires": [],
+            "risks": [
+              "A content-only approximation would omit the defining pinning guarantee."
+            ],
+            "target": "alloc::sync::Arc::pin",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "Current vstd lacks a public Pin projection and stable-address ownership model needed to relate the result to data and express immovability.",
+          "requires": [],
+          "risks": [
+            "A content-only approximation would omit the defining pinning guarantee."
+          ],
+          "target": "alloc::sync::Arc::pin",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::ptr_eq",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The source compares allocation addresses while ignoring metadata, but current Arc vocabulary exposes no allocation-identity or address view.",
+            "requires": [],
+            "risks": [
+              "Pointee equality is not equivalent because distinct allocations may contain equal values."
+            ],
+            "target": "alloc::sync::Arc::ptr_eq",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The source compares allocation addresses while ignoring metadata, but current Arc vocabulary exposes no allocation-identity or address view.",
+          "requires": [],
+          "risks": [
+            "Pointee equality is not equivalent because distinct allocations may contain equal values."
+          ],
+          "target": "alloc::sync::Arc::ptr_eq",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::strong_count",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The result is a relaxed atomic observation of hidden shared reference-count state, for which vstd has no Arc concurrency model.",
+            "requires": [],
+            "risks": [
+              "The count may change concurrently and cannot be related deterministically to public inputs."
+            ],
+            "target": "alloc::sync::Arc::strong_count",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The result is a relaxed atomic observation of hidden shared reference-count state, for which vstd has no Arc concurrency model.",
+          "requires": [],
+          "risks": [
+            "The count may change concurrently and cannot be related deterministically to public inputs."
+          ],
+          "target": "alloc::sync::Arc::strong_count",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::try_unwrap",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T, A: Allocator>[ Arc::<T, A>::try_unwrap ](\n    this: Arc<T, A>,\n) -> (result: Result<T, Arc<T, A>>)\n    ensures\n        match result {\n            Ok(value) => value == *this,\n            Err(returned) => returned == this,\n        },\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "match result { Ok(value) => value == *this, Err(returned) => returned == this }"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::alloc::Allocator"
+            ],
+            "rationale": "The source either reads out the stored T or returns the original Arc unchanged, allowing a useful branch-conditional value-preservation contract without predicting the reference-count race.",
+            "requires": [],
+            "risks": [
+              "The contract intentionally does not characterize which branch succeeds."
+            ],
+            "target": "alloc::sync::Arc::try_unwrap",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 774,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "match result {\n            Ok(value) => value == *this,\n            Err(returned) => returned == this,\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown",
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 221827,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "none",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The observable Ok/Err branch depends on the hidden strong-reference count at the atomic linearization point and may change concurrently. Existing vstd has no Arc uniqueness or reference-count state model. The proposed payload-preservation relation is source-justified but leaves the defining branch nondeterministic, while a uniqueness precondition cannot be expressed soundly in ordinary vocabulary.",
+            "requires": [],
+            "risks": [
+              "arc_uniqueness_unmodeled",
+              "concurrent_reference_count_state",
+              "observable_result_branch_not_determined"
+            ],
+            "target": "alloc::sync::Arc::try_unwrap",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_unsupported_contract_form"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 221827,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "none",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The observable Ok/Err branch depends on the hidden strong-reference count at the atomic linearization point and may change concurrently. Existing vstd has no Arc uniqueness or reference-count state model. The proposed payload-preservation relation is source-justified but leaves the defining branch nondeterministic, while a uniqueness precondition cannot be expressed soundly in ordinary vocabulary.",
+          "requires": [],
+          "risks": [
+            "arc_uniqueness_unmodeled",
+            "concurrent_reference_count_state",
+            "observable_result_branch_not_determined"
+          ],
+          "target": "alloc::sync::Arc::try_unwrap",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_unsupported_contract_form"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::unwrap_or_clone",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "pub assume_specification<T: Clone, A: Allocator>[ Arc::<T, A>::unwrap_or_clone ](this: Arc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this, result),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "cloned::<T>(*this, result)"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::alloc::Allocator",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The result is either the moved inner value or produced by T::clone; vstd::cloned is the reflexive closure of the Clone contract and captures both cases without modeling Arc uniqueness.",
+            "requires": [],
+            "risks": [
+              "Does not distinguish unwrapping from cloning."
+            ],
+            "target": "alloc::sync::Arc::unwrap_or_clone",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 545,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "cloned::<T>(*this, result)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 230050,
+          "candidate": {
+            "contract_code": "pub assume_specification<T: Clone, A: Allocator>[ Arc::<T, A>::unwrap_or_clone ](this: Arc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this, result),\n;",
+            "contract_form": "assume_specification",
+            "decision": "add_spec",
+            "ensures": [
+              "cloned::<T>(*this, result)"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::sync::Arc",
+              "core::alloc::Allocator",
+              "vstd::prelude::*"
+            ],
+            "rationale": "The source either moves out the input pointee, yielding equality, or invokes T::clone; vstd::cloned expresses exactly this union. In an ensures clause, this remains the logical input value despite being consumed at runtime. Generic determinism must not be strengthened because T::clone's contract need not determine a unique result.",
+            "requires": [],
+            "risks": [
+              "Does not distinguish unique unwrapping from cloning.",
+              "Determinism remains dependent on the specification of T::clone."
+            ],
+            "target": "alloc::sync::Arc::unwrap_or_clone",
+            "useful": true
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 509,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "cloned::<T>(*this, result)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model",
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false,
+          "rechecked": true
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 230050,
+        "candidate": {
+          "contract_code": "pub assume_specification<T: Clone, A: Allocator>[ Arc::<T, A>::unwrap_or_clone ](this: Arc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this, result),\n;",
+          "contract_form": "assume_specification",
+          "decision": "add_spec",
+          "ensures": [
+            "cloned::<T>(*this, result)"
+          ],
+          "feature_gates": [
+            "allocator_api"
+          ],
+          "imports": [
+            "alloc::sync::Arc",
+            "core::alloc::Allocator",
+            "vstd::prelude::*"
+          ],
+          "rationale": "The source either moves out the input pointee, yielding equality, or invokes T::clone; vstd::cloned expresses exactly this union. In an ensures clause, this remains the logical input value despite being consumed at runtime. Generic determinism must not be strengthened because T::clone's contract need not determine a unique result.",
+          "requires": [],
+          "risks": [
+            "Does not distinguish unique unwrapping from cloning.",
+            "Determinism remains dependent on the specification of T::clone."
+          ],
+          "target": "alloc::sync::Arc::unwrap_or_clone",
+          "useful": true
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 509,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unknown",
+            "classification": "ok_inconclusive",
+            "requires": [],
+            "ensures": [
+              "cloned::<T>(*this, result)"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model",
+          "determinism_not_proved:unknown"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false,
+        "rechecked": true
+      }
+    },
+    {
+      "target": "alloc::sync::Arc::weak_count",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "The result observes a relaxed atomic reference count that concurrent threads may change, while the public Arc vstd model exposes only the pointee and no weak-count state.",
+            "requires": [],
+            "risks": [
+              "Hidden shared state",
+              "Concurrency"
+            ],
+            "target": "alloc::sync::Arc::weak_count",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "The result observes a relaxed atomic reference count that concurrent threads may change, while the public Arc vstd model exposes only the pointee and no weak-count state.",
+          "requires": [],
+          "risks": [
+            "Hidden shared state",
+            "Concurrency"
+          ],
+          "target": "alloc::sync::Arc::weak_count",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::mem::MaybeUninit::zeroed",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 0,
+          "candidate": {
+            "contract_code": "",
+            "contract_form": "assume_specification",
+            "decision": "skip",
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "rationale": "vstd's MaybeUninit model distinguishes only Init(T) from Uninit and cannot represent zero-filled bytes that may or may not encode a valid T.",
+            "requires": [],
+            "risks": [
+              "Missing byte-level initialization model",
+              "Validity depends on T"
+            ],
+            "target": "core::mem::MaybeUninit::zeroed",
+            "useful": false
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [
+            "classification:ownership_or_uninitialized_model"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 0,
+        "candidate": {
+          "contract_code": "",
+          "contract_form": "assume_specification",
+          "decision": "skip",
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "rationale": "vstd's MaybeUninit model distinguishes only Init(T) from Uninit and cannot represent zero-filled bytes that may or may not encode a valid T.",
+          "requires": [],
+          "risks": [
+            "Missing byte-level initialization model",
+            "Validity depends on T"
+          ],
+          "target": "core::mem::MaybeUninit::zeroed",
+          "useful": false
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [
+          "classification:ownership_or_uninitialized_model"
+        ],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    }
+  ],
+  "final_candidates": [
+    {
+      "target": "alloc::boxed::Box::into_pin",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::boxed::Box::new_uninit_slice",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::boxed::Box::new_zeroed",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::boxed::Box::new_zeroed_slice",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::boxed::Box::pin",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::boxed::Box::write",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::downcast",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::downgrade",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::new_cyclic",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::new_uninit",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::new_uninit_slice",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::new_zeroed",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::new_zeroed_slice",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::pin",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::ptr_eq",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::strong_count",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::unwrap_or_clone",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "none",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_unsupported_contract_form"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::rc::Rc::weak_count",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::downcast",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::downgrade",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::into_inner",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::new_cyclic",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::new_uninit",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::new_uninit_slice",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::new_zeroed",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::new_zeroed_slice",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::pin",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::ptr_eq",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::strong_count",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::try_unwrap",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "none",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_unsupported_contract_form"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::unwrap_or_clone",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model",
+        "determinism_not_proved:unknown"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::sync::Arc::weak_count",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::mem::MaybeUninit::zeroed",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [
+        "classification:ownership_or_uninitialized_model"
+      ],
+      "soundness_status": "unverified_trusted_external_contract"
+    }
+  ]
+}

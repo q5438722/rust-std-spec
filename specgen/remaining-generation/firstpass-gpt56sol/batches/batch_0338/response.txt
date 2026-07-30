@@ -1,0 +1,82 @@
+I’m checking Verus’s current raw-pointer specification vocabulary and declaration syntax.I’m checking Verus’s current raw-pointer specification vocabulary and declaration syntax.
+
+Verus does model raw pointers and permissions, so I’m determining whether those models cover arithmetic and direct `write` calls.
+
+The pointer view exposes address, provenance, and metadata; I’m now checking whether vstd’s integer/layout specs can state Rust’s wrapping arithmetic exactly.The pointer view exposes address, provenance, and metadata; I’m now checking whether vstd’s
+integer/layout specs can state Rust’s wrapping arithmetic exactly.
+
+I’m checking feature-gate requirements for the exact unsized-pointer signatures before finalizing the declarations.I’m checking feature-gate requirements for the exact unsized-pointer signatures before finalizing
+the declarations.
+
+{"candidates":[{"target":"core::ptr::wrapping_byte_add","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const T>::wrapping_byte_add](\n    ptr: *const T,\n    count: usize,\n) -> (result: *const T)\n    ensures\n        result@.addr == ptr@.addr.wrapping_add(count),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n;","requires":[],"ensures":["result@.addr == ptr@.addr.wrapping_add(count)","result@.provenance == ptr@.provenance","result@.metadata == ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::prelude::*;"],"useful":true,"rationale":"The body performs byte-wise wrapping addition and restores the original metadata; vstd models pointer address, provenance, metadata, and usize wrapping arithmetic.","risks":["The result may be outside the originating allocation and is not thereby safe to dereference.","The overloaded path is specialized here to the *const T declaration."]},{"target":"core::ptr::wrapping_byte_offset","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const T>::wrapping_byte_offset](\n    ptr: *const T,\n    count: isize,\n) -> (result: *const T)\n    ensures\n        result@.addr == ptr@.addr.wrapping_add_signed(count),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n;","requires":[],"ensures":["result@.addr == ptr@.addr.wrapping_add_signed(count)","result@.provenance == ptr@.provenance","result@.metadata == ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::prelude::*;"],"useful":true,"rationale":"The source applies a signed wrapping byte displacement while retaining provenance and metadata, all represented by current vstd pointer and integer models.","risks":["The result may be outside the originating allocation and is not thereby safe to dereference.","The overloaded path is specialized here to the *const T declaration."]},{"target":"core::ptr::wrapping_byte_sub","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const T>::wrapping_byte_sub](\n    ptr: *const T,\n    count: usize,\n) -> (result: *const T)\n    ensures\n        result@.addr == ptr@.addr.wrapping_sub(count),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n;","requires":[],"ensures":["result@.addr == ptr@.addr.wrapping_sub(count)","result@.provenance == ptr@.provenance","result@.metadata == ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::prelude::*;"],"useful":true,"rationale":"The body performs byte-wise wrapping subtraction and restores the original metadata; vstd exposes the required pointer components and wrapping subtraction.","risks":["The result may be outside the originating allocation and is not thereby safe to dereference.","The overloaded path is specialized here to the *const T declaration."]},{"target":"core::ptr::wrapping_offset","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*mut T>::wrapping_offset](\n    ptr: *mut T,\n    count: isize,\n) -> (result: *mut T)\n    where\n        T: Sized,\n    ensures\n        result@.addr as int ==\n            (ptr@.addr as int + (count as int) * (size_of::<T>() as int))\n                % ((usize::MAX as int) + 1),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n;","requires":[],"ensures":["result@.addr as int == (ptr@.addr as int + (count as int) * (size_of::<T>() as int)) % ((usize::MAX as int) + 1)","result@.provenance == ptr@.provenance","result@.metadata == ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::layout::size_of;","use vstd::prelude::*;"],"useful":true,"rationale":"The intrinsic applies a wrapping displacement of count times size_of::<T>(); vstd's layout and pointer models express the modular address result and preserved provenance.","risks":["The result may be outside the originating allocation and is not thereby safe to dereference.","The overloaded path is specialized here to the *mut T declaration."]},{"target":"core::ptr::wrapping_sub","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const T>::wrapping_sub](\n    ptr: *const T,\n    count: usize,\n) -> (result: *const T)\n    where\n        T: Sized,\n    ensures\n        result@.addr as int ==\n            (ptr@.addr as int - (count as int) * (size_of::<T>() as int))\n                % ((usize::MAX as int) + 1),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n;","requires":[],"ensures":["result@.addr as int == (ptr@.addr as int - (count as int) * (size_of::<T>() as int)) % ((usize::MAX as int) + 1)","result@.provenance == ptr@.provenance","result@.metadata == ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::layout::size_of;","use vstd::prelude::*;"],"useful":true,"rationale":"The source delegates to wrapping_offset with the modular negation of count, yielding typed modular subtraction while preserving pointer provenance.","risks":["The result may be outside the originating allocation and is not thereby safe to dereference.","The overloaded path is specialized here to the *const T declaration."]},{"target":"core::ptr::write","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method mutates pointed-to memory, but its exact signature carries no tracked PointsTo permission. Current vstd models this effect through ptr_mut_write, whose additional permission argument cannot be added here.","risks":["A unit-only contract would be vacuous.","Validity, alignment, initialization, ownership transfer, and the memory update are hidden from this signature.","The target path also names a distinct free-function declaration."]}]}{"candidates":[{"target":"core::ptr::wrapping_byte_add","decision":"add_spec","contract_form":"assum
+e_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const
+T>::wrapping_byte_add](\n    ptr: *const T,\n    count: usize,\n) -> (result: const T)\n
+ensures\n        result@.addr == ptr@.addr.wrapping_add(count),\n        result@.provenance ==
+ptr@.provenance,\n        result@.metadata ==
+ptr@.metadata,\n;","requires":[],"ensures":["result@.addr ==
+ptr@.addr.wrapping_add(count)","result@.provenance == ptr@.provenance","result@.metadata ==
+ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use
+vstd::prelude::;"],"useful":true,"rationale":"The body performs byte-wise wrapping addition and
+restores the original metadata; vstd models pointer address, provenance, metadata, and usize
+wrapping arithmetic.","risks":["The result may be outside the originating allocation and is not
+thereby safe to dereference.","The overloaded path is specialized here to the *const T
+declaration."]},{"target":"core::ptr::wrapping_byte_offset","decision":"add_spec","contract_form":"a
+ssume_specification","contract_code":"pub assume_specification<T:
+core::marker::PointeeSized>[<*const T>::wrapping_byte_offset](\n    ptr: *const T,\n    count:
+isize,\n) -> (result: const T)\n    ensures\n        result@.addr ==
+ptr@.addr.wrapping_add_signed(count),\n        result@.provenance == ptr@.provenance,\n
+result@.metadata == ptr@.metadata,\n;","requires":[],"ensures":["result@.addr ==
+ptr@.addr.wrapping_add_signed(count)","result@.provenance == ptr@.provenance","result@.metadata ==
+ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use
+vstd::prelude::;"],"useful":true,"rationale":"The source applies a signed wrapping byte displacement
+ while retaining provenance and metadata, all represented by current vstd pointer and integer
+models.","risks":["The result may be outside the originating allocation and is not thereby safe to
+dereference.","The overloaded path is specialized here to the *const T
+declaration."]},{"target":"core::ptr::wrapping_byte_sub","decision":"add_spec","contract_form":"assu
+me_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const
+T>::wrapping_byte_sub](\n    ptr: *const T,\n    count: usize,\n) -> (result: const T)\n
+ensures\n        result@.addr == ptr@.addr.wrapping_sub(count),\n        result@.provenance ==
+ptr@.provenance,\n        result@.metadata ==
+ptr@.metadata,\n;","requires":[],"ensures":["result@.addr ==
+ptr@.addr.wrapping_sub(count)","result@.provenance == ptr@.provenance","result@.metadata ==
+ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use
+vstd::prelude::;"],"useful":true,"rationale":"The body performs byte-wise wrapping subtraction and
+restores the original metadata; vstd exposes the required pointer components and wrapping
+subtraction.","risks":["The result may be outside the originating allocation and is not thereby safe
+ to dereference.","The overloaded path is specialized here to the *const T
+declaration."]},{"target":"core::ptr::wrapping_offset","decision":"add_spec","contract_form":"assume
+_specification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*mut
+T>::wrapping_offset](\n    ptr: *mut T,\n    count: isize,\n) -> (result: mut T)\n    where\n
+ T: Sized,\n    ensures\n        result@.addr as int ==\n            (ptr@.addr as int + (count as
+int) * (size_of::<T>() as int))\n                % ((usize::MAX as int) + 1),\n
+result@.provenance == ptr@.provenance,\n        result@.metadata ==
+ptr@.metadata,\n;","requires":[],"ensures":["result@.addr as int == (ptr@.addr as int + (count as
+int) * (size_of::<T>() as int)) % ((usize::MAX as int) + 1)","result@.provenance ==
+ptr@.provenance","result@.metadata ==
+ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::layout::size_of;","use
+vstd::prelude::;"],"useful":true,"rationale":"The intrinsic applies a wrapping displacement of count
+ times size_of::<T>(); vstd's layout and pointer models express the modular address result and
+preserved provenance.","risks":["The result may be outside the originating allocation and is not
+thereby safe to dereference.","The overloaded path is specialized here to the *mut T
+declaration."]},{"target":"core::ptr::wrapping_sub","decision":"add_spec","contract_form":"assume_sp
+ecification","contract_code":"pub assume_specification<T: core::marker::PointeeSized>[<*const
+T>::wrapping_sub](\n    ptr: *const T,\n    count: usize,\n) -> (result: const T)\n    where\n
+  T: Sized,\n    ensures\n        result@.addr as int ==\n            (ptr@.addr as int - (count as
+int) * (size_of::<T>() as int))\n                % ((usize::MAX as int) + 1),\n
+result@.provenance == ptr@.provenance,\n        result@.metadata ==
+ptr@.metadata,\n;","requires":[],"ensures":["result@.addr as int == (ptr@.addr as int - (count as
+int) * (size_of::<T>() as int)) % ((usize::MAX as int) + 1)","result@.provenance ==
+ptr@.provenance","result@.metadata ==
+ptr@.metadata"],"feature_gates":["sized_hierarchy"],"imports":["use vstd::layout::size_of;","use
+vstd::prelude::;"],"useful":true,"rationale":"The source delegates to wrapping_offset with the
+modular negation of count, yielding typed modular subtraction while preserving pointer
+provenance.","risks":["The result may be outside the originating allocation and is not thereby safe
+to dereference.","The overloaded path is specialized here to the *const T declaration."]},{"target":
+"core::ptr::write","decision":"skip","contract_form":"assume_specification","contract_code":"","requ
+ires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method mutates
+ pointed-to memory, but its exact signature carries no tracked PointsTo permission. Current vstd
+models this effect through ptr_mut_write, whose additional permission argument cannot be added
+here.","risks":["A unit-only contract would be vacuous.","Validity, alignment, initialization,
+ownership transfer, and the memory update are hidden from this signature.","The target path also
+names a distinct free-function declaration."]}]}
+

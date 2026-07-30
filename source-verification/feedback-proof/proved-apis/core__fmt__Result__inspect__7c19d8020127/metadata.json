@@ -1,0 +1,188 @@
+{
+  "id": "core__fmt__Result__inspect__7c19d8020127",
+  "api_path": "core::fmt::Result::inspect",
+  "raw_target": "Result::<T, E>::inspect",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 76, patch: 0 })},\nfeature: \"result_option_inspect\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29291",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "borrowed_ref": {
+                              "is_mutable": false,
+                              "lifetime": null,
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          }
+                        ],
+                        "output": null
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "inspect",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "Self"
+      }
+    },
+    "source_context": "   943:     ///\n   944:     /// This function can be used to pass through a successful result while handling\n   945:     /// an error.\n   946:     ///\n   947:     ///\n   948:     /// # Examples\n   949:     ///\n   950:     /// ```\n   951:     /// fn stringify(x: u32) -> String { format!(\"error code: {x}\") }\n   952:     ///\n   953:     /// let x: Result<u32, u32> = Ok(2);\n   954:     /// assert_eq!(x.map_err(stringify), Ok(2));\n   955:     ///\n   956:     /// let x: Result<u32, u32> = Err(13);\n   957:     /// assert_eq!(x.map_err(stringify), Err(\"error code: 13\".to_string()));\n   958:     /// ```\n   959:     #[inline]\n   960:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   961:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   962:     pub const fn map_err<F, O>(self, op: O) -> Result<T, F>\n   963:     where\n   964:         O: [const] FnOnce(E) -> F + [const] Destruct,\n   965:     {\n   966:         match self {\n   967:             Ok(t) => Ok(t),\n   968:             Err(e) => Err(op(e)),\n   969:         }\n   970:     }\n   971: \n   972:     /// Calls a function with a reference to the contained value if [`Ok`].\n   973:     ///\n   974:     /// Returns the original result.\n   975:     ///\n   976:     /// # Examples\n   977:     ///\n   978:     /// ```\n   979:     /// let x: u8 = \"4\"\n   980:     ///     .parse::<u8>()\n   981:     ///     .inspect(|x| println!(\"original: {x}\"))\n   982:     ///     .map(|x| x.pow(3))\n   983:     ///     .expect(\"failed to parse number\");\n   984:     /// ```\n   985:     #[inline]\n   986:     #[stable(feature = \"result_option_inspect\", since = \"1.76.0\")]\n   987:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   988:     pub const fn inspect<F>(self, f: F) -> Self\n   989:     where\n   990:         F: [const] FnOnce(&T) + [const] Destruct,\n   991:     {\n   992:         if let Ok(ref t) = self {\n   993:             f(t);\n   994:         }\n   995: \n   996:         self\n   997:     }\n   998: \n   999:     /// Calls a function with a reference to the contained value if [`Err`].\n  1000:     ///\n  1001:     /// Returns the original result.\n  1002:     ///\n  1003:     /// # Examples\n  1004:     ///\n  1005:     /// ```\n  1006:     /// use std::{fs, io};\n  1007:     ///\n  1008:     /// fn read() -> io::Result<String> {\n  1009:     ///     fs::read_to_string(\"address.txt\")\n  1010:     ///         .inspect_err(|e| eprintln!(\"failed to read file: {e}\"))\n  1011:     /// }\n  1012:     /// ```\n  1013:     #[inline]\n  1014:     #[stable(feature = \"result_option_inspect\", since = \"1.76.0\")]\n  1015:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1016:     pub const fn inspect_err<F>(self, f: F) -> Self\n  1017:     where\n  1018:         F: [const] FnOnce(&E) + [const] Destruct,\n  1019:     {\n  1020:         if let Err(ref e) = self {\n  1021:             f(e);\n  1022:         }\n  1023: \n  1024:         self\n  1025:     }\n  1026: \n  1027:     /// Converts from `Result<T, E>` (or `&Result<T, E>`) to `Result<&<T as Deref>::Target, &E>`.\n  1028:     ///\n  1029:     /// Coerces the [`Ok`] variant of the original [`Result`] via [`Deref`](crate::ops::Deref)\n  1030:     /// and returns the new [`Result`].\n  1031:     ///\n  1032:     /// # Examples\n  1033:     ///",
+    "span": {
+      "begin": [
+        988,
+        5
+      ],
+      "end": [
+        997,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn inspect<F>(self, f: F) -> Self\n    where\n        F: [const] FnOnce(&T) + [const] Destruct,\n    {\n        if let Ok(ref t) = self {\n            f(t);\n        }\n\n        self\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source-faithful body verifies directly using the closure's supplied requires/ensures contract and public Result control flow.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__fmt__Result__inspect__7c19d8020127"
+}

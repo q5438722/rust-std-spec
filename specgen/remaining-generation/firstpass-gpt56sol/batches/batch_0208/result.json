@@ -1,0 +1,117 @@
+{
+  "batch": 208,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 134014,
+  "targets": [
+    "std::net::TcpStream::set_write_timeout",
+    "std::net::TcpStream::shutdown",
+    "std::net::TcpStream::take_error",
+    "std::net::TcpStream::try_clone",
+    "std::net::TcpStream::ttl",
+    "std::net::TcpStream::write_timeout"
+  ],
+  "candidates": [
+    {
+      "target": "std::net::TcpStream::set_write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Successful behavior mutates hidden OS socket state. The only deterministic documented case is rejection of a zero Duration, but current vstd has no public Duration value model or zero predicate with which to express it.",
+      "risks": [
+        "hidden socket-option state",
+        "platform-dependent OS errors",
+        "missing Duration abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::shutdown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The shutdown effect is hidden connection state, and the source explicitly documents platform-dependent results for repeated calls. vstd has no TcpStream state model.",
+      "risks": [
+        "hidden connection state",
+        "platform-dependent repeated-call behavior",
+        "missing socket-state abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::take_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method reads and clears the underlying SO_ERROR field. Neither that hidden state nor a useful io::Error model is available in public vstd vocabulary.",
+      "risks": [
+        "destructive read of hidden OS state",
+        "externally generated errors",
+        "missing socket-error abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee is that a successful handle aliases the same underlying stream, but vstd exposes no socket identity or shared-state relation for TcpStream.",
+      "risks": [
+        "unmodeled handle aliasing",
+        "shared hidden socket state",
+        "OS-dependent duplication failure"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::ttl",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned IP_TTL value and any error come from hidden OS socket state. No public vstd socket-option model relates the result to prior operations.",
+      "risks": [
+        "hidden socket-option state",
+        "external OS failure",
+        "missing TcpStream state abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpStream::write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The timeout is hidden OS socket state, and the source notes that some platforms cannot retrieve it. vstd provides no state relation connecting this getter to the setter.",
+      "risks": [
+        "hidden socket-option state",
+        "platform-dependent availability",
+        "missing timeout-state abstraction"
+      ]
+    }
+  ]
+}

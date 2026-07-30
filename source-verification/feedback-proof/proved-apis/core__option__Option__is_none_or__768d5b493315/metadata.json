@@ -1,0 +1,187 @@
+{
+  "id": "core__option__Option__is_none_or__768d5b493315",
+  "api_path": "core::option::Option::is_none_or",
+  "raw_target": "Option::<T>::is_none_or",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 82, patch: 0 })},\nfeature: \"is_none_or\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28015",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "maybe_const",
+                    "trait": {
+                      "args": {
+                        "parenthesized": {
+                          "inputs": [
+                            {
+                              "generic": "T"
+                            }
+                          ],
+                          "output": {
+                            "primitive": "bool"
+                          }
+                        }
+                      },
+                      "id": 24,
+                      "path": "FnOnce"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": true
+            }
+          },
+          "name": "impl [const] FnOnce(T) -> bool + [const] Destruct"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "is_none_or",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "impl_trait": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "primitive": "bool"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "   665:         }\n   666:     }\n   667: \n   668:     /// Returns `true` if the option is a [`None`] value.\n   669:     ///\n   670:     /// # Examples\n   671:     ///\n   672:     /// ```\n   673:     /// let x: Option<u32> = Some(2);\n   674:     /// assert_eq!(x.is_none(), false);\n   675:     ///\n   676:     /// let x: Option<u32> = None;\n   677:     /// assert_eq!(x.is_none(), true);\n   678:     /// ```\n   679:     #[must_use = \"if you intended to assert that this doesn't have a value, consider \\\n   680:                   wrapping this in an `assert!()` instead\"]\n   681:     #[inline]\n   682:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   683:     #[rustc_const_stable(feature = \"const_option_basics\", since = \"1.48.0\")]\n   684:     pub const fn is_none(&self) -> bool {\n   685:         !self.is_some()\n   686:     }\n   687: \n   688:     /// Returns `true` if the option is a [`None`] or the value inside of it matches a predicate.\n   689:     ///\n   690:     /// # Examples\n   691:     ///\n   692:     /// ```\n   693:     /// let x: Option<u32> = Some(2);\n   694:     /// assert_eq!(x.is_none_or(|x| x > 1), true);\n   695:     ///\n   696:     /// let x: Option<u32> = Some(0);\n   697:     /// assert_eq!(x.is_none_or(|x| x > 1), false);\n   698:     ///\n   699:     /// let x: Option<u32> = None;\n   700:     /// assert_eq!(x.is_none_or(|x| x > 1), true);\n   701:     ///\n   702:     /// let x: Option<String> = Some(\"ownership\".to_string());\n   703:     /// assert_eq!(x.as_ref().is_none_or(|x| x.len() > 1), true);\n   704:     /// println!(\"still alive {:?}\", x);\n   705:     /// ```\n   706:     #[must_use]\n   707:     #[inline]\n   708:     #[stable(feature = \"is_none_or\", since = \"1.82.0\")]\n   709:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n   710:     pub const fn is_none_or(self, f: impl [const] FnOnce(T) -> bool + [const] Destruct) -> bool {\n   711:         match self {\n   712:             None => true,\n   713:             Some(x) => f(x),\n   714:         }\n   715:     }\n   716: \n   717:     /////////////////////////////////////////////////////////////////////////\n   718:     // Adapter for working with references\n   719:     /////////////////////////////////////////////////////////////////////////\n   720: \n   721:     /// Converts from `&Option<T>` to `Option<&T>`.\n   722:     ///\n   723:     /// # Examples\n   724:     ///\n   725:     /// Calculates the length of an <code>Option<[String]></code> as an <code>Option<[usize]></code>\n   726:     /// without moving the [`String`]. The [`map`] method takes the `self` argument by value,\n   727:     /// consuming the original, so this technique uses `as_ref` to first take an `Option` to a\n   728:     /// reference to the value inside the original.\n   729:     ///\n   730:     /// [`map`]: Option::map\n   731:     /// [String]: ../../std/string/struct.String.html \"String\"\n   732:     /// [`String`]: ../../std/string/struct.String.html \"String\"\n   733:     ///\n   734:     /// ```\n   735:     /// let text: Option<String> = Some(\"Hello, world!\".to_string());\n   736:     /// // First, cast `Option<String>` to `Option<&String>` with `as_ref`,\n   737:     /// // then consume *that* with `map`, leaving `text` on the stack.\n   738:     /// let text_length: Option<usize> = text.as_ref().map(|s| s.len());\n   739:     /// println!(\"still can print text: {text:?}\");\n   740:     /// ```\n   741:     #[inline]\n   742:     #[rustc_const_stable(feature = \"const_option_basics\", since = \"1.48.0\")]\n   743:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   744:     pub const fn as_ref(&self) -> Option<&T> {\n   745:         match *self {\n   746:             Some(ref x) => Some(x),\n   747:             None => None,\n   748:         }\n   749:     }\n   750: \n   751:     /// Converts from `&mut Option<T>` to `Option<&mut T>`.\n   752:     ///\n   753:     /// # Examples\n   754:     ///\n   755:     /// ```",
+    "span": {
+      "begin": [
+        710,
+        5
+      ],
+      "end": [
+        715,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn is_none_or(self, f: impl [const] FnOnce(T) -> bool + [const] Destruct) -> bool {\n        match self {\n            None => true,\n            Some(x) => f(x),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact match control flow proves the contract directly from the supplied closure contract, without axioms or lower std contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__is_none_or__768d5b493315"
+}

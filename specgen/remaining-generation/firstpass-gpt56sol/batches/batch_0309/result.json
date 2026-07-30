@@ -1,0 +1,111 @@
+{
+  "batch": 309,
+  "group": "trait_contract_integration",
+  "duration_ms": 66759,
+  "targets": [
+    "std::os::windows::fs::FileTypeExt::is_symlink_dir",
+    "std::os::windows::fs::FileTypeExt::is_symlink_file",
+    "std::os::windows::fs::MetadataExt::creation_time",
+    "std::os::windows::fs::MetadataExt::file_attributes",
+    "std::os::windows::fs::MetadataExt::file_size",
+    "std::os::windows::fs::MetadataExt::last_access_time"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::windows::fs::FileTypeExt::is_symlink_dir",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on an internal Windows file-type classification, and vstd exposes no public model for the symlink-directory flag.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_vstd_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::FileTypeExt::is_symlink_file",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation forwards to a hidden symlink-file classification for which vstd has no observable file-type model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_vstd_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::MetadataExt::creation_time",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This returns the hidden ftCreationTime value, possibly zero when unsupported; vstd has no Metadata or FILETIME abstraction relating it to specifications.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_vstd_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::MetadataExt::file_attributes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Windows attribute bitmask is hidden metadata state, with no current vstd view or modeled attribute vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_vstd_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::MetadataExt::file_size",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source identifies the value as file size, vstd has no public Metadata model through which a useful equality can be expressed.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_vstd_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::MetadataExt::last_access_time",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This exposes the hidden ftLastAccessTime value, possibly zero when unsupported, without a corresponding vstd Metadata or FILETIME model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_vstd_abstraction"
+      ]
+    }
+  ]
+}

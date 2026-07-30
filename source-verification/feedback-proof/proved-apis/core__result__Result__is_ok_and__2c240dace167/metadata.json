@@ -1,0 +1,207 @@
+{
+  "id": "core__result__Result__is_ok_and__2c240dace167",
+  "api_path": "core::result::Result::is_ok_and",
+  "raw_target": "Result::<T, E>::is_ok_and",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 70, patch: 0 })},\nfeature: \"is_some_and\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29279",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "primitive": "bool"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "E"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "is_ok_and",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "   574:     /////////////////////////////////////////////////////////////////////////\n   575:     // Querying the contained values\n   576:     /////////////////////////////////////////////////////////////////////////\n   577: \n   578:     /// Returns `true` if the result is [`Ok`].\n   579:     ///\n   580:     /// # Examples\n   581:     ///\n   582:     /// ```\n   583:     /// let x: Result<i32, &str> = Ok(-3);\n   584:     /// assert_eq!(x.is_ok(), true);\n   585:     ///\n   586:     /// let x: Result<i32, &str> = Err(\"Some error message\");\n   587:     /// assert_eq!(x.is_ok(), false);\n   588:     /// ```\n   589:     #[must_use = \"if you intended to assert that this is ok, consider `.unwrap()` instead\"]\n   590:     #[rustc_const_stable(feature = \"const_result_basics\", since = \"1.48.0\")]\n   591:     #[inline]\n   592:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   593:     pub const fn is_ok(&self) -> bool {\n   594:         matches!(*self, Ok(_))\n   595:     }\n   596: \n   597:     /// Returns `true` if the result is [`Ok`] and the value inside of it matches a predicate.\n   598:     ///\n   599:     /// # Examples\n   600:     ///\n   601:     /// ```\n   602:     /// let x: Result<u32, &str> = Ok(2);\n   603:     /// assert_eq!(x.is_ok_and(|x| x > 1), true);\n   604:     ///\n   605:     /// let x: Result<u32, &str> = Ok(0);\n   606:     /// assert_eq!(x.is_ok_and(|x| x > 1), false);\n   607:     ///\n   608:     /// let x: Result<u32, &str> = Err(\"hey\");\n   609:     /// assert_eq!(x.is_ok_and(|x| x > 1), false);\n   610:     ///\n   611:     /// let x: Result<String, &str> = Ok(\"ownership\".to_string());\n   612:     /// assert_eq!(x.as_ref().is_ok_and(|x| x.len() > 1), true);\n   613:     /// println!(\"still alive {:?}\", x);\n   614:     /// ```\n   615:     #[must_use]\n   616:     #[inline]\n   617:     #[stable(feature = \"is_some_and\", since = \"1.70.0\")]\n   618:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   619:     pub const fn is_ok_and<F>(self, f: F) -> bool\n   620:     where\n   621:         F: [const] FnOnce(T) -> bool + [const] Destruct,\n   622:         T: [const] Destruct,\n   623:         E: [const] Destruct,\n   624:     {\n   625:         match self {\n   626:             Err(_) => false,\n   627:             Ok(x) => f(x),\n   628:         }\n   629:     }\n   630: \n   631:     /// Returns `true` if the result is [`Err`].\n   632:     ///\n   633:     /// # Examples\n   634:     ///\n   635:     /// ```\n   636:     /// let x: Result<i32, &str> = Ok(-3);\n   637:     /// assert_eq!(x.is_err(), false);\n   638:     ///\n   639:     /// let x: Result<i32, &str> = Err(\"Some error message\");\n   640:     /// assert_eq!(x.is_err(), true);\n   641:     /// ```\n   642:     #[must_use = \"if you intended to assert that this is err, consider `.unwrap_err()` instead\"]\n   643:     #[rustc_const_stable(feature = \"const_result_basics\", since = \"1.48.0\")]\n   644:     #[inline]\n   645:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   646:     pub const fn is_err(&self) -> bool {\n   647:         !self.is_ok()\n   648:     }\n   649: \n   650:     /// Returns `true` if the result is [`Err`] and the value inside of it matches a predicate.\n   651:     ///\n   652:     /// # Examples\n   653:     ///\n   654:     /// ```\n   655:     /// use std::io::{Error, ErrorKind};\n   656:     ///\n   657:     /// let x: Result<u32, Error> = Err(Error::new(ErrorKind::NotFound, \"!\"));\n   658:     /// assert_eq!(x.is_err_and(|x| x.kind() == ErrorKind::NotFound), true);\n   659:     ///\n   660:     /// let x: Result<u32, Error> = Err(Error::new(ErrorKind::PermissionDenied, \"!\"));\n   661:     /// assert_eq!(x.is_err_and(|x| x.kind() == ErrorKind::NotFound), false);\n   662:     ///\n   663:     /// let x: Result<u32, Error> = Ok(123);\n   664:     /// assert_eq!(x.is_err_and(|x| x.kind() == ErrorKind::NotFound), false);",
+    "span": {
+      "begin": [
+        619,
+        5
+      ],
+      "end": [
+        629,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn is_ok_and<F>(self, f: F) -> bool\n    where\n        F: [const] FnOnce(T) -> bool + [const] Destruct,\n        T: [const] Destruct,\n        E: [const] Destruct,\n    {\n        match self {\n            Err(_) => false,\n            Ok(x) => f(x),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum match and closure call verify directly against the supplied contract without lower external contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__result__Result__is_ok_and__2c240dace167"
+}

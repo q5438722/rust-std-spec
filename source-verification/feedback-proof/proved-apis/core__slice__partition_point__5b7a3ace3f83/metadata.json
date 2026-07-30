@@ -1,0 +1,170 @@
+{
+  "id": "core__slice__partition_point__5b7a3ace3f83",
+  "api_path": "core::slice::partition_point",
+  "raw_target": "<[T]>::partition_point::<P>",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 52, patch: 0 })},\nfeature: \"partition_point\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:51838",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "P"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "borrowed_ref": {
+                              "is_mutable": false,
+                              "lifetime": null,
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          }
+                        ],
+                        "output": {
+                          "primitive": "bool"
+                        }
+                      }
+                    },
+                    "id": 22,
+                    "path": "FnMut"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "P"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "partition_point",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "pred",
+          {
+            "generic": "P"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "usize"
+      }
+    },
+    "source_context": "  4809:     /// For example, `[7, 15, 3, 5, 4, 12, 6]` is partitioned under the predicate `x % 2 != 0`\n  4810:     /// (all odd numbers are at the start, all even at the end).\n  4811:     ///\n  4812:     /// If this slice is not partitioned, the returned result is unspecified and meaningless,\n  4813:     /// as this method performs a kind of binary search.\n  4814:     ///\n  4815:     /// See also [`binary_search`], [`binary_search_by`], and [`binary_search_by_key`].\n  4816:     ///\n  4817:     /// [`binary_search`]: slice::binary_search\n  4818:     /// [`binary_search_by`]: slice::binary_search_by\n  4819:     /// [`binary_search_by_key`]: slice::binary_search_by_key\n  4820:     ///\n  4821:     /// # Examples\n  4822:     ///\n  4823:     /// ```\n  4824:     /// let v = [1, 2, 3, 3, 5, 6, 7];\n  4825:     /// let i = v.partition_point(|&x| x < 5);\n  4826:     ///\n  4827:     /// assert_eq!(i, 4);\n  4828:     /// assert!(v[..i].iter().all(|&x| x < 5));\n  4829:     /// assert!(v[i..].iter().all(|&x| !(x < 5)));\n  4830:     /// ```\n  4831:     ///\n  4832:     /// If all elements of the slice match the predicate, including if the slice\n  4833:     /// is empty, then the length of the slice will be returned:\n  4834:     ///\n  4835:     /// ```\n  4836:     /// let a = [2, 4, 8];\n  4837:     /// assert_eq!(a.partition_point(|x| x < &100), a.len());\n  4838:     /// let a: [i32; 0] = [];\n  4839:     /// assert_eq!(a.partition_point(|x| x < &100), 0);\n  4840:     /// ```\n  4841:     ///\n  4842:     /// If you want to insert an item to a sorted vector, while maintaining\n  4843:     /// sort order:\n  4844:     ///\n  4845:     /// ```\n  4846:     /// let mut s = vec![0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];\n  4847:     /// let num = 42;\n  4848:     /// let idx = s.partition_point(|&x| x <= num);\n  4849:     /// s.insert(idx, num);\n  4850:     /// assert_eq!(s, [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 42, 55]);\n  4851:     /// ```\n  4852:     #[stable(feature = \"partition_point\", since = \"1.52.0\")]\n  4853:     #[must_use]\n  4854:     pub fn partition_point<P>(&self, mut pred: P) -> usize\n  4855:     where\n  4856:         P: FnMut(&T) -> bool,\n  4857:     {\n  4858:         self.binary_search_by(|x| if pred(x) { Less } else { Greater }).unwrap_or_else(|i| i)\n  4859:     }\n  4860: \n  4861:     /// Removes the subslice corresponding to the given range\n  4862:     /// and returns a reference to it.\n  4863:     ///\n  4864:     /// Returns `None` and does not modify the slice if the given\n  4865:     /// range is out of bounds.\n  4866:     ///\n  4867:     /// Note that this method only accepts one-sided ranges such as\n  4868:     /// `2..` or `..6`, but not `2..6`.\n  4869:     ///\n  4870:     /// # Examples\n  4871:     ///\n  4872:     /// Splitting off the first three elements of a slice:\n  4873:     ///\n  4874:     /// ```\n  4875:     /// let mut slice: &[_] = &['a', 'b', 'c', 'd'];\n  4876:     /// let mut first_three = slice.split_off(..3).unwrap();\n  4877:     ///\n  4878:     /// assert_eq!(slice, &['d']);\n  4879:     /// assert_eq!(first_three, &['a', 'b', 'c']);\n  4880:     /// ```\n  4881:     ///\n  4882:     /// Splitting off a slice starting with the third element:\n  4883:     ///\n  4884:     /// ```\n  4885:     /// let mut slice: &[_] = &['a', 'b', 'c', 'd'];\n  4886:     /// let mut tail = slice.split_off(2..).unwrap();\n  4887:     ///\n  4888:     /// assert_eq!(slice, &['a', 'b']);\n  4889:     /// assert_eq!(tail, &['c', 'd']);\n  4890:     /// ```\n  4891:     ///\n  4892:     /// Getting `None` when `range` is out of bounds:\n  4893:     ///\n  4894:     /// ```\n  4895:     /// let mut slice: &[_] = &['a', 'b', 'c', 'd'];\n  4896:     ///\n  4897:     /// assert_eq!(None, slice.split_off(5..));\n  4898:     /// assert_eq!(None, slice.split_off(..5));\n  4899:     /// assert_eq!(None, slice.split_off(..=4));",
+    "span": {
+      "begin": [
+        4854,
+        5
+      ],
+      "end": [
+        4859,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn partition_point<P>(&self, mut pred: P) -> usize\n    where\n        P: FnMut(&T) -> bool,\n    {\n        self.binary_search_by(|x| if pred(x) { Less } else { Greater }).unwrap_or_else(|i| i)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd slice length/view and spec_slice_get axioms, including axiom_spec_len.",
+    "Locally declared lower-level <[T]>::get_unchecked contract.",
+    "Locally declared lower-level core::hint::select_unpredictable contract.",
+    "Locally declared lower-level Ordering::eq contract.",
+    "Locally declared lower-level core::hint::assert_unchecked contract.",
+    "Locally declared lower-level Result::unwrap_or_else contract."
+  ],
+  "rationale": "Verus verifies a mechanical inlining of Rust 1.96 binary_search_by because mutable closure capture is unsupported; only the comparator call is beta-reduced, while the executable search, intrinsic, comparison, and Result control flow is retained.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__partition_point__5b7a3ace3f83"
+}

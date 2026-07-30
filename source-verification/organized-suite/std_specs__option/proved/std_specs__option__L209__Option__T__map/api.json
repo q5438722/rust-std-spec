@@ -1,0 +1,191 @@
+{
+  "id": "std_specs__option.rs__L209__Option__T__map",
+  "api_path": "core::option::Option::map",
+  "normalized_api_path": "core::option::Option::map",
+  "raw_target": "Option::<T>::map",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 209,
+  "rust_declaration": {
+    "declaration_id": "core:12001",
+    "name": "map",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        1160,
+        5
+      ],
+      "end": [
+        1168,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "U"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "U",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        },
+        {
+          "name": "F",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "F"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "FnOnce",
+                    "id": 24,
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "generic": "U"
+                        }
+                      }
+                    }
+                  },
+                  "generic_params": [],
+                  "modifier": "maybe_const"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1140:     /// Maps an `Option<T>` to `Option<U>` by applying a function to a contained value (if `Some`) or returns `None` (if `None`).\n  1141:     ///\n  1142:     /// # Examples\n  1143:     ///\n  1144:     /// Calculates the length of an <code>Option<[String]></code> as an\n  1145:     /// <code>Option<[usize]></code>, consuming the original:\n  1146:     ///\n  1147:     /// [String]: ../../std/string/struct.String.html \"String\"\n  1148:     /// ```\n  1149:     /// let maybe_some_string = Some(String::from(\"Hello, World!\"));\n  1150:     /// // `Option::map` takes self *by value*, consuming `maybe_some_string`\n  1151:     /// let maybe_some_len = maybe_some_string.map(|s| s.len());\n  1152:     /// assert_eq!(maybe_some_len, Some(13));\n  1153:     ///\n  1154:     /// let x: Option<&str> = None;\n  1155:     /// assert_eq!(x.map(|s| s.len()), None);\n  1156:     /// ```\n  1157:     #[inline]\n  1158:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1159:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1160:     pub const fn map<U, F>(self, f: F) -> Option<U>\n  1161:     where\n  1162:         F: [const] FnOnce(T) -> U + [const] Destruct,\n  1163:     {\n  1164:         match self {\n  1165:             Some(x) => Some(f(x)),\n  1166:             None => None,\n  1167:         }\n  1168:     }\n  1169: \n  1170:     /// Calls a function with a reference to the contained value if [`Some`].\n  1171:     ///\n  1172:     /// Returns the original option.\n  1173:     ///\n  1174:     /// # Examples\n  1175:     ///\n  1176:     /// ```\n  1177:     /// let list = vec![1, 2, 3];\n  1178:     ///\n  1179:     /// // prints \"got: 2\"\n  1180:     /// let x = list",
+    "source_text": "pub const fn map<U, F>(self, f: F) -> Option<U>\n    where\n        F: [const] FnOnce(T) -> U + [const] Destruct,\n    {\n        match self {\n            Some(x) => Some(f(x)),\n            None => None,\n        }\n    }",
+    "has_body": true
+  }
+}

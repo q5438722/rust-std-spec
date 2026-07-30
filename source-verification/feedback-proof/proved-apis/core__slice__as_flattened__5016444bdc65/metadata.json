@@ -1,0 +1,137 @@
+{
+  "id": "core__slice__as_flattened__5016444bdc65",
+  "api_path": "core::slice::as_flattened",
+  "raw_target": "<[[T; N]]>::as_flattened",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"slice_flatten\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_slice_flatten\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:51813",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "as_flattened",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "array": {
+            "len": "N",
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "const": {
+                "default": null,
+                "type": {
+                  "primitive": "usize"
+                }
+              }
+            },
+            "name": "N"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51880",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "borrowed_ref": {
+          "is_mutable": false,
+          "lifetime": null,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      }
+    },
+    "source_context": "  5400:     #[inline]\n  5401:     #[must_use]\n  5402:     pub fn align_to_uninit_mut<U>(&mut self) -> (&mut Self, &mut [MaybeUninit<U>], &mut Self) {\n  5403:         // SAFETY: `MaybeUninit` is transparent. Correct size and alignment are guaranteed by\n  5404:         // `align_to_mut` itself. Therefore the only thing that we have to ensure for a safe\n  5405:         // `transmute` is that the values are valid for the types involved. But for `MaybeUninit`\n  5406:         // any values are valid, so this operation is safe.\n  5407:         unsafe { self.align_to_mut() }\n  5408:     }\n  5409: }\n  5410: \n  5411: impl<T, const N: usize> [[T; N]] {\n  5412:     /// Takes a `&[[T; N]]`, and flattens it to a `&[T]`.\n  5413:     ///\n  5414:     /// For the opposite operation, see [`as_chunks`] and [`as_rchunks`].\n  5415:     ///\n  5416:     /// [`as_chunks`]: slice::as_chunks\n  5417:     /// [`as_rchunks`]: slice::as_rchunks\n  5418:     ///\n  5419:     /// # Panics\n  5420:     ///\n  5421:     /// This panics if the length of the resulting slice would overflow a `usize`.\n  5422:     ///\n  5423:     /// This is only possible when flattening a slice of arrays of zero-sized\n  5424:     /// types, and thus tends to be irrelevant in practice. If\n  5425:     /// `size_of::<T>() > 0`, this will never panic.\n  5426:     ///\n  5427:     /// # Examples\n  5428:     ///\n  5429:     /// ```\n  5430:     /// assert_eq!([[1, 2, 3], [4, 5, 6]].as_flattened(), &[1, 2, 3, 4, 5, 6]);\n  5431:     ///\n  5432:     /// assert_eq!(\n  5433:     ///     [[1, 2, 3], [4, 5, 6]].as_flattened(),\n  5434:     ///     [[1, 2], [3, 4], [5, 6]].as_flattened(),\n  5435:     /// );\n  5436:     ///\n  5437:     /// let slice_of_empty_arrays: &[[i32; 0]] = &[[], [], [], [], []];\n  5438:     /// assert!(slice_of_empty_arrays.as_flattened().is_empty());\n  5439:     ///\n  5440:     /// let empty_slice_of_arrays: &[[u32; 10]] = &[];\n  5441:     /// assert!(empty_slice_of_arrays.as_flattened().is_empty());\n  5442:     /// ```\n  5443:     #[stable(feature = \"slice_flatten\", since = \"1.80.0\")]\n  5444:     #[rustc_const_stable(feature = \"const_slice_flatten\", since = \"1.87.0\")]\n  5445:     pub const fn as_flattened(&self) -> &[T] {\n  5446:         let len = if T::IS_ZST {\n  5447:             self.len().checked_mul(N).expect(\"slice len overflow\")\n  5448:         } else {\n  5449:             // SAFETY: `self.len() * N` cannot overflow because `self` is\n  5450:             // already in the address space.\n  5451:             unsafe { self.len().unchecked_mul(N) }\n  5452:         };\n  5453:         // SAFETY: `[T]` is layout-identical to `[T; N]`\n  5454:         unsafe { from_raw_parts(self.as_ptr().cast(), len) }\n  5455:     }\n  5456: \n  5457:     /// Takes a `&mut [[T; N]]`, and flattens it to a `&mut [T]`.\n  5458:     ///\n  5459:     /// For the opposite operation, see [`as_chunks_mut`] and [`as_rchunks_mut`].\n  5460:     ///\n  5461:     /// [`as_chunks_mut`]: slice::as_chunks_mut\n  5462:     /// [`as_rchunks_mut`]: slice::as_rchunks_mut\n  5463:     ///\n  5464:     /// # Panics\n  5465:     ///\n  5466:     /// This panics if the length of the resulting slice would overflow a `usize`.\n  5467:     ///\n  5468:     /// This is only possible when flattening a slice of arrays of zero-sized\n  5469:     /// types, and thus tends to be irrelevant in practice. If\n  5470:     /// `size_of::<T>() > 0`, this will never panic.\n  5471:     ///\n  5472:     /// # Examples\n  5473:     ///\n  5474:     /// ```\n  5475:     /// fn add_5_to_all(slice: &mut [i32]) {\n  5476:     ///     for i in slice {\n  5477:     ///         *i += 5;\n  5478:     ///     }\n  5479:     /// }\n  5480:     ///\n  5481:     /// let mut array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];\n  5482:     /// add_5_to_all(array.as_flattened_mut());\n  5483:     /// assert_eq!(array, [[6, 7, 8], [9, 10, 11], [12, 13, 14]]);\n  5484:     /// ```\n  5485:     #[stable(feature = \"slice_flatten\", since = \"1.80.0\")]\n  5486:     #[rustc_const_stable(feature = \"const_slice_flatten\", since = \"1.87.0\")]\n  5487:     pub const fn as_flattened_mut(&mut self) -> &mut [T] {\n  5488:         let len = if T::IS_ZST {\n  5489:             self.len().checked_mul(N).expect(\"slice len overflow\")\n  5490:         } else {",
+    "span": {
+      "begin": [
+        5445,
+        5
+      ],
+      "end": [
+        5455,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn as_flattened(&self) -> &[T] {\n        let len = if T::IS_ZST {\n            self.len().checked_mul(N).expect(\"slice len overflow\")\n        } else {\n            // SAFETY: `self.len() * N` cannot overflow because `self` is\n            // already in the address space.\n            unsafe { self.len().unchecked_mul(N) }\n        };\n        // SAFETY: `[T]` is layout-identical to `[T; N]`\n        unsafe { from_raw_parts(self.as_ptr().cast(), len) }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "The lower specification for <[T]>::as_ptr yields a valid raw slice whose view equals the input slice.",
+    "The lower raw-pointer cast specification preserves the pointer under element-type casting.",
+    "The lower usize::unchecked_mul specification returns mathematical multiplication when the product fits.",
+    "The lower core::slice::from_raw_parts specification returns the valid raw view with the requested length.",
+    "The vstd specifications for size_of, checked_mul, and Option::expect model the corresponding smaller operations.",
+    "axiom_array_slice_flattened_length_fits: a valid non-ZST slice of arrays has len * N fitting in usize.",
+    "axiom_raw_array_slice_reinterpretation: casting contiguous [T; N] storage to T preserves validity and produces the row-major flattened raw view."
+  ],
+  "rationale": "The Rust 1.96 control flow and operations are preserved. T::IS_ZST is mechanically expanded to its default SIZE == 0 definition; two explicit layout axioms bridge Verus's unavailable raw-memory representation model.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__as_flattened__5016444bdc65"
+}

@@ -1,0 +1,169 @@
+{
+  "id": "std_specs__vecdeque.rs__L303__VecDeque__T__A__append",
+  "api_path": "alloc::collections::vec_deque::VecDeque::append",
+  "raw_target": "VecDeque::<T, A>::append",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 303,
+  "rust_declaration": {
+    "declaration_id": "alloc:3067",
+    "name": "append",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 4, patch: 0 })},\nfeature: \"append\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        2606,
+        5
+      ],
+      "end": [
+        2627,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "other",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self",
+        "other"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2586: \n  2587:     /// Moves all the elements of `other` into `self`, leaving `other` empty.\n  2588:     ///\n  2589:     /// # Panics\n  2590:     ///\n  2591:     /// Panics if the new number of elements in self overflows a `usize`.\n  2592:     ///\n  2593:     /// # Examples\n  2594:     ///\n  2595:     /// ```\n  2596:     /// use std::collections::VecDeque;\n  2597:     ///\n  2598:     /// let mut buf: VecDeque<_> = [1, 2].into();\n  2599:     /// let mut buf2: VecDeque<_> = [3, 4].into();\n  2600:     /// buf.append(&mut buf2);\n  2601:     /// assert_eq!(buf, [1, 2, 3, 4]);\n  2602:     /// assert_eq!(buf2, []);\n  2603:     /// ```\n  2604:     #[inline]\n  2605:     #[stable(feature = \"append\", since = \"1.4.0\")]\n  2606:     pub fn append(&mut self, other: &mut Self) {\n  2607:         if T::IS_ZST {\n  2608:             self.len = self.len.checked_add(other.len).expect(\"capacity overflow\");\n  2609:             other.len = 0;\n  2610:             other.head = 0;\n  2611:             return;\n  2612:         }\n  2613: \n  2614:         self.reserve(other.len);\n  2615:         unsafe {\n  2616:             let (left, right) = other.as_slices();\n  2617:             self.copy_slice(self.to_physical_idx(self.len), left);\n  2618:             // no overflow, because self.capacity() >= old_cap + left.len() >= self.len + left.len()\n  2619:             self.copy_slice(self.to_physical_idx(self.len + left.len()), right);\n  2620:         }\n  2621:         // SAFETY: Update pointers after copying to avoid leaving doppelganger\n  2622:         // in case of panics.\n  2623:         self.len += other.len;\n  2624:         // Now that we own its values, forget everything in `other`.\n  2625:         other.len = 0;\n  2626:         other.head = 0;",
+    "source_text": "pub fn append(&mut self, other: &mut Self) {\n        if T::IS_ZST {\n            self.len = self.len.checked_add(other.len).expect(\"capacity overflow\");\n            other.len = 0;\n            other.head = 0;\n            return;\n        }\n\n        self.reserve(other.len);\n        unsafe {\n            let (left, right) = other.as_slices();\n            self.copy_slice(self.to_physical_idx(self.len), left);\n            // no overflow, because self.capacity() >= old_cap + left.len() >= self.len + left.len()\n            self.copy_slice(self.to_physical_idx(self.len + left.len()), right);\n        }\n        // SAFETY: Update pointers after copying to avoid leaving doppelganger\n        // in case of panics.\n        self.len += other.len;\n        // Now that we own its values, forget everything in `other`.\n        other.len = 0;\n        other.head = 0;\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for VecDeque::<T, A>::len and its view bridge",
+    "vstd contract for VecDeque::<T, A>::reserve",
+    "vstd contract for VecDeque::<T, A>::is_empty",
+    "vstd contract for VecDeque::<T, A>::pop_front",
+    "vstd contract for VecDeque::<T, A>::push_back"
+  ],
+  "rationale": "Preserves the ZST early return and non-ZST reserve control flow, expanding private length and raw-copy operations into verified front-to-back moves.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vecdeque.rs__L303__VecDeque__T__A__append"
+}

@@ -1,0 +1,205 @@
+{
+  "candidates": [
+    {
+      "target": "std::os::fd::FromRawFd::from_raw_fd",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Descriptor validity and unique ownership are external runtime state, with no public vstd resource model relating RawFd to an arbitrary Self.",
+      "risks": [
+        "descriptor validity is unmodeled",
+        "descriptor ownership is unmodeled"
+      ]
+    },
+    {
+      "target": "std::os::fd::IntoRawFd::into_raw_fd",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source says ownership transfer is not strictly required, and vstd has no trait-wide model connecting an arbitrary Self to its raw descriptor.",
+      "risks": [
+        "resource ownership is hidden runtime state",
+        "the reflexive RawFd implementation does not justify behavior for every implementor"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStrExt::as_bytes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source promises the underlying byte view, current vstd has no public OsStr view relating it to Seq<u8>; slice reference identity alone cannot express that content relation.",
+      "risks": [
+        "missing OsStr byte-sequence abstraction",
+        "reference identity does not establish view equality"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStrExt::from_bytes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned OsStr to slice@ requires a public OsStr byte view that current vstd does not provide; private representation cannot be used.",
+      "risks": [
+        "missing OsStr byte-sequence abstraction",
+        "cross-type reference identity is insufficient"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStringExt::from_vec",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Vec has a sequence view, but the returned OsString/Self has no public vstd view. The implementation's private inner buffer cannot appear in a trusted contract.",
+      "risks": [
+        "missing OsString byte-sequence abstraction",
+        "private representation would be required"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStringExt::into_vec",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result's sequence view is available, but consumed Self has no public byte view to relate to it; exposing the private inner Vec would invent hidden state.",
+      "risks": [
+        "missing OsString byte-sequence abstraction",
+        "private representation would be required"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::os::fd::FromRawFd::from_raw_fd",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Descriptor validity and unique ownership are external runtime state, with no
+public vstd resource model relating RawFd to an arbitrary Self.",
+      "risks": [
+        "descriptor validity is unmodeled",
+        "descriptor ownership is unmodeled"
+      ]
+    },
+    {
+      "target": "std::os::fd::IntoRawFd::into_raw_fd",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source says ownership transfer is not strictly required, and vstd has no
+trait-wide model connecting an arbitrary Self to its raw descriptor.",
+      "risks": [
+        "resource ownership is hidden runtime state",
+        "the reflexive RawFd implementation does not justify behavior for every implementor"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStrExt::as_bytes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source promises the underlying byte view, current vstd has no
+public OsStr view relating it to Seq<u8>; slice reference identity alone cannot express that content
+ relation.",
+      "risks": [
+        "missing OsStr byte-sequence abstraction",
+        "reference identity does not establish view equality"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStrExt::from_bytes",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned OsStr to slice@ requires a public OsStr byte view that
+current vstd does not provide; private representation cannot be used.",
+      "risks": [
+        "missing OsStr byte-sequence abstraction",
+        "cross-type reference identity is insufficient"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStringExt::from_vec",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Vec has a sequence view, but the returned OsString/Self has no public vstd view.
+ The implementation's private inner buffer cannot appear in a trusted contract.",
+      "risks": [
+        "missing OsString byte-sequence abstraction",
+        "private representation would be required"
+      ]
+    },
+    {
+      "target": "std::os::unix::ffi::OsStringExt::into_vec",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result's sequence view is available, but consumed Self has no public byte
+view to relate to it; exposing the private inner Vec would invent hidden state.",
+      "risks": [
+        "missing OsString byte-sequence abstraction",
+        "private representation would be required"
+      ]
+    } ]
+}
+

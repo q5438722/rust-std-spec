@@ -1,0 +1,227 @@
+{
+  "candidates": [
+    {
+      "target": "std::process::Child::try_wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on external process state and may reap the child; vstd has no public model relating Child state to ExitStatus or I/O errors.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "process_reaping_state",
+        "missing_process_status_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Child::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Waiting, closing hidden stdin state, and obtaining an exit status are runtime effects without a corresponding public vstd process model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "blocking_runtime_effect",
+        "hidden_child_state",
+        "missing_process_status_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Child::wait_with_output",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned status and byte streams depend on external execution and pipe I/O, for which current vstd provides no useful relational abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "blocking_runtime_effect",
+        "external_io",
+        "missing_process_output_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::arg",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates hidden command configuration and returns self by mutable reference; vstd lacks both an OsStr-backed Command view and suitable reference-identity modeling.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_command_configuration_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::args",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its iterator is consumed into hidden command state and the method returns self by mutable reference; no public vstd Command/OsStr sequence model supports a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_iterator_to_command_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::current_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The directory is stored in hidden command configuration and the mutable-reference result requires identity semantics unavailable through an existing public vstd Command view.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_command_path_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::process::Child::try_wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on external process state and may reap the child; vstd has no
+ public model relating Child state to ExitStatus or I/O errors.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "process_reaping_state",
+        "missing_process_status_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Child::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Waiting, closing hidden stdin state, and obtaining an exit status are runtime
+effects without a corresponding public vstd process model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "blocking_runtime_effect",
+        "hidden_child_state",
+        "missing_process_status_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Child::wait_with_output",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned status and byte streams depend on external execution and pipe I/O,
+for which current vstd provides no useful relational abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "blocking_runtime_effect",
+        "external_io",
+        "missing_process_output_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::arg",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates hidden command configuration and returns self by mutable
+reference; vstd lacks both an OsStr-backed Command view and suitable reference-identity modeling.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_command_configuration_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::args",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its iterator is consumed into hidden command state and the method returns self
+by mutable reference; no public vstd Command/OsStr sequence model supports a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_iterator_to_command_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::current_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The directory is stored in hidden command configuration and the
+mutable-reference result requires identity semantics unavailable through an existing public vstd
+Command view.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_command_path_abstraction"
+      ]
+    } ]
+}
+

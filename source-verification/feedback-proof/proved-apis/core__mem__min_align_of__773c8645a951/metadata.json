@@ -1,0 +1,87 @@
+{
+  "id": "core__mem__min_align_of__773c8645a951",
+  "api_path": "core::mem::min_align_of",
+  "raw_target": "core::mem::min_align_of::<T>",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "declaration_id": "core:9388",
+    "deprecation": {
+      "note": "use `align_of` instead",
+      "since": "1.2.0"
+    },
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "min_align_of",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "usize"
+      }
+    },
+    "source_context": "   435: ///\n   436: /// [`size_of::<T>()`]: size_of\n   437: /// [trait object]: ../../book/ch17-02-trait-objects.html\n   438: /// [extern type]: ../../unstable-book/language-features/extern-types.html\n   439: ///\n   440: /// # Examples\n   441: ///\n   442: /// ```\n   443: /// #![feature(layout_for_ptr)]\n   444: /// use std::mem;\n   445: ///\n   446: /// assert_eq!(4, size_of_val(&5i32));\n   447: ///\n   448: /// let x: [u8; 13] = [0; 13];\n   449: /// let y: &[u8] = &x;\n   450: /// assert_eq!(13, unsafe { mem::size_of_val_raw(y) });\n   451: /// ```\n   452: #[inline]\n   453: #[must_use]\n   454: #[unstable(feature = \"layout_for_ptr\", issue = \"69835\")]\n   455: pub const unsafe fn size_of_val_raw<T: ?Sized>(val: *const T) -> usize {\n   456:     // SAFETY: the caller must provide a valid raw pointer\n   457:     unsafe { intrinsics::size_of_val(val) }\n   458: }\n   459: \n   460: /// Returns the [ABI]-required minimum alignment of a type in bytes.\n   461: ///\n   462: /// Every reference to a value of the type `T` must be a multiple of this number.\n   463: ///\n   464: /// This is the alignment used for struct fields. It may be smaller than the preferred alignment.\n   465: ///\n   466: /// [ABI]: https://en.wikipedia.org/wiki/Application_binary_interface\n   467: ///\n   468: /// # Examples\n   469: ///\n   470: /// ```\n   471: /// # #![allow(deprecated)]\n   472: /// use std::mem;\n   473: ///\n   474: /// assert_eq!(4, mem::min_align_of::<i32>());\n   475: /// ```\n   476: #[inline]\n   477: #[must_use]\n   478: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   479: #[deprecated(note = \"use `align_of` instead\", since = \"1.2.0\", suggestion = \"align_of\")]\n   480: pub fn min_align_of<T>() -> usize {\n   481:     <T as SizedTypeProperties>::ALIGN\n   482: }\n   483: \n   484: /// Returns the [ABI]-required minimum alignment of the type of the value that `val` points to in\n   485: /// bytes.\n   486: ///\n   487: /// Every reference to a value of the type `T` must be a multiple of this number.\n   488: ///\n   489: /// [ABI]: https://en.wikipedia.org/wiki/Application_binary_interface\n   490: ///\n   491: /// # Examples\n   492: ///\n   493: /// ```\n   494: /// # #![allow(deprecated)]\n   495: /// use std::mem;\n   496: ///\n   497: /// assert_eq!(4, mem::min_align_of_val(&5i32));\n   498: /// ```\n   499: #[inline]\n   500: #[must_use]\n   501: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   502: #[deprecated(note = \"use `align_of_val` instead\", since = \"1.2.0\", suggestion = \"align_of_val\")]\n   503: pub fn min_align_of_val<T: ?Sized>(val: &T) -> usize {\n   504:     // SAFETY: val is a reference, so it's a valid raw pointer\n   505:     unsafe { intrinsics::align_of_val(val) }\n   506: }\n   507: \n   508: /// Returns the [ABI]-required minimum alignment of a type in bytes.\n   509: ///\n   510: /// Every reference to a value of the type `T` must be a multiple of this number.\n   511: ///\n   512: /// This is the alignment used for struct fields. It may be smaller than the preferred alignment.\n   513: ///\n   514: /// [ABI]: https://en.wikipedia.org/wiki/Application_binary_interface\n   515: ///\n   516: /// # Examples\n   517: ///\n   518: /// ```\n   519: /// assert_eq!(4, align_of::<i32>());\n   520: /// ```\n   521: #[inline(always)]\n   522: #[must_use]\n   523: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   524: #[rustc_promotable]\n   525: #[rustc_const_stable(feature = \"const_align_of\", since = \"1.24.0\")]",
+    "span": {
+      "begin": [
+        480,
+        1
+      ],
+      "end": [
+        482,
+        2
+      ],
+      "filename": "core/src/mem/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn min_align_of<T>() -> usize {\n    <T as SizedTypeProperties>::ALIGN\n}",
+    "has_body": true
+  },
+  "trust_level": "D",
+  "trusted_assumptions": [
+    "The compiler intrinsic core::intrinsics::align_of::<T>() returns the target-layout alignment modeled by vstd::layout::align_of::<T>()."
+  ],
+  "rationale": "Mechanically expands SizedTypeProperties::ALIGN through its blanket implementation to the Rust 1.96 intrinsic and proves the wrapper using the compiler-layout bridge.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__mem__min_align_of__773c8645a951"
+}

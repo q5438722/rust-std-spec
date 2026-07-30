@@ -1,0 +1,116 @@
+{
+  "batch": 279,
+  "group": "trait_contract_integration",
+  "duration_ms": 192500,
+  "targets": [
+    "alloc::borrow::ToOwned::clone_into",
+    "alloc::borrow::ToOwned::to_owned",
+    "core::alloc::GlobalAlloc::alloc",
+    "core::alloc::GlobalAlloc::alloc_zeroed",
+    "core::alloc::GlobalAlloc::dealloc",
+    "core::alloc::GlobalAlloc::realloc"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::borrow::ToOwned::clone_into",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The mutation cannot be related to arbitrary Self and Self::Owned without a shared semantic model; assuming the default assignment for every override would be too strong.",
+      "risks": [
+        "missing_cross_type_model",
+        "unit_return_only_exposes_unmodeled_mutation"
+      ]
+    },
+    {
+      "target": "alloc::borrow::ToOwned::to_owned",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The generic associated output has no supplied View, DeepView, or other modeled relation to Self, so no concrete postcondition can characterize the owned value.",
+      "risks": [
+        "missing_cross_type_model",
+        "generic_associated_output"
+      ]
+    },
+    {
+      "target": "core::alloc::GlobalAlloc::alloc",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful success contract requires writable-range, provenance, and deallocation permissions, but the exact signature returns only a raw pointer and cannot expose those tokens.",
+      "risks": [
+        "missing_allocation_permission_output",
+        "hidden_allocator_state",
+        "raw_pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::alloc::GlobalAlloc::alloc_zeroed",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Zero initialization and allocation validity require ownership and byte-content permissions for the returned region, none of which can be carried by this raw-pointer-only signature.",
+      "risks": [
+        "missing_allocation_permission_output",
+        "missing_memory_content_model",
+        "raw_pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::alloc::GlobalAlloc::dealloc",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety condition requires proving ownership of a live block allocated by this allocator with the same layout; raw pointer and layout arguments cannot express or consume that ownership.",
+      "risks": [
+        "missing_deallocation_permission_input",
+        "hidden_allocator_state",
+        "unit_return"
+      ]
+    },
+    {
+      "target": "core::alloc::GlobalAlloc::realloc",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Modeling success, failure, ownership transfer, and preserved bytes requires allocation and memory-content tokens absent from both the inputs and raw-pointer result.",
+      "risks": [
+        "missing_allocation_permissions",
+        "missing_memory_content_model",
+        "ownership_transfer",
+        "raw_pointer_provenance"
+      ]
+    }
+  ]
+}

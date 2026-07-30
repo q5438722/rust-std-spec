@@ -1,0 +1,117 @@
+{
+  "batch": 152,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 21078,
+  "targets": [
+    "std::path::Path::as_os_str",
+    "std::path::Path::canonicalize",
+    "std::path::Path::components",
+    "std::path::Path::display",
+    "std::path::Path::ends_with",
+    "std::path::Path::exists"
+  ],
+  "candidates": [
+    {
+      "target": "std::path::Path::as_os_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a reference to Path's private inner OsStr, but existing vstd vocabulary has no public Path/OsStr view relating their contents or identities.",
+      "risks": [
+        "missing Path/OsStr abstraction",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "std::path::Path::canonicalize",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on filesystem state, symlink resolution, permissions, and platform behavior; no current vstd filesystem-state or path abstraction can express a useful relation.",
+      "risks": [
+        "runtime filesystem effects",
+        "hidden external state",
+        "platform-dependent behavior"
+      ]
+    },
+    {
+      "target": "std::path::Path::components",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator is built from private parsing state, and current vstd has no Path component-sequence view or Components iterator model.",
+      "risks": [
+        "missing path-component abstraction",
+        "hidden iterator state",
+        "platform-dependent parsing"
+      ]
+    },
+    {
+      "target": "std::path::Path::display",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Display only constructs a formatting adapter whose meaningful behavior occurs through formatting traits; current vstd has no path-formatting abstraction.",
+      "risks": [
+        "formatting behavior",
+        "missing formatter abstraction",
+        "platform-dependent representation"
+      ]
+    },
+    {
+      "target": "std::path::Path::ends_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its semantics are suffix comparison over normalized path components, but current vstd lacks Path views, component sequences, and a modeled AsRef<Path> conversion.",
+      "risks": [
+        "missing path-component abstraction",
+        "unmodeled generic AsRef conversion",
+        "platform-dependent parsing"
+      ]
+    },
+    {
+      "target": "std::path::Path::exists",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method performs a metadata query and converts every error to a negative result; its value depends on mutable filesystem state and permissions unavailable in current vstd vocabulary.",
+      "risks": [
+        "runtime filesystem effects",
+        "hidden external state",
+        "TOCTOU",
+        "error information loss"
+      ]
+    }
+  ]
+}

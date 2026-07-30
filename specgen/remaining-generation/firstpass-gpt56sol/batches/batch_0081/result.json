@@ -1,0 +1,128 @@
+{
+  "batch": 81,
+  "group": "higher_order_contract",
+  "duration_ms": 1037879,
+  "targets": [
+    "core::slice::rsplit",
+    "core::slice::rsplit_mut",
+    "core::slice::rsplitn",
+    "core::slice::rsplitn_mut",
+    "core::slice::sort_unstable_by",
+    "core::slice::sort_unstable_by_key"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::rsplit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function only constructs a lazy RSplit; its chunks depend on future, potentially stateful FnMut calls, and vstd has no public RSplit iterator model relating those calls to the source slice.",
+      "risks": [
+        "missing_public_iterator_model",
+        "stateful_fnmut_future_calls_need_prophecy"
+      ]
+    },
+    {
+      "target": "core::slice::rsplit_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must model lazy predicate calls, disjoint mutable subslices, and their eventual recomposition into final(self); current vstd provides no such RSplitMut prophecy model.",
+      "risks": [
+        "missing_public_iterator_model",
+        "stateful_fnmut_future_calls_need_prophecy",
+        "mutable_subslice_recomposition_unmodeled"
+      ]
+    },
+    {
+      "target": "core::slice::rsplitn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "RSplitN wraps the unmodeled lazy RSplit iterator. Expressing its item limit and final remainder still requires a prophetic iterator model tied to the FnMut call trace.",
+      "risks": [
+        "missing_public_iterator_model",
+        "stateful_fnmut_future_calls_need_prophecy",
+        "limit_and_remainder_state_unmodeled"
+      ]
+    },
+    {
+      "target": "core::slice::rsplitn_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation wraps RSplitMut, so a useful specification needs both a prophetic FnMut call trace and a model reconnecting yielded mutable subslices to final(self), neither of which exists publicly in vstd.",
+      "risks": [
+        "missing_public_iterator_model",
+        "stateful_fnmut_future_calls_need_prophecy",
+        "mutable_subslice_recomposition_unmodeled"
+      ]
+    },
+    {
+      "target": "core::slice::sort_unstable_by",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, F: FnMut(&T, &T) -> core::cmp::Ordering>[\n    <[T]>::sort_unstable_by::<F>\n](slice: &mut [T], compare: F)\n    requires\n        forall|a: T, b: T|\n            old(slice)@.contains(a) && old(slice)@.contains(b)\n                ==> compare.requires((&a, &b)),\n    ensures\n        final(slice)@.to_multiset() == old(slice)@.to_multiset(),\n;",
+      "requires": [
+        "forall|a: T, b: T| old(slice)@.contains(a) && old(slice)@.contains(b) ==> compare.requires((&a, &b))"
+      ],
+      "ensures": [
+        "final(slice)@.to_multiset() == old(slice)@.to_multiset()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::seq_lib::*"
+      ],
+      "useful": true,
+      "rationale": "The in-place unstable sort preserves the element multiset on normal return regardless of comparator consistency. The contract propagates callback requirements but does not claim an order unsupported by a stateful FnMut model.",
+      "risks": [
+        "sortedness_not_exposed",
+        "panic_behavior_not_modeled"
+      ]
+    },
+    {
+      "target": "core::slice::sort_unstable_by_key",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, K: Ord, F: FnMut(&T) -> K>[\n    <[T]>::sort_unstable_by_key::<K, F>\n](slice: &mut [T], f: F)\n    requires\n        forall|a: T| old(slice)@.contains(a) ==> f.requires((&a,)),\n    ensures\n        final(slice)@.to_multiset() == old(slice)@.to_multiset(),\n;",
+      "requires": [
+        "forall|a: T| old(slice)@.contains(a) ==> f.requires((&a,))"
+      ],
+      "ensures": [
+        "final(slice)@.to_multiset() == old(slice)@.to_multiset()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::seq_lib::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation performs an in-place unstable sort using extracted keys, so normal completion preserves the input multiset. Stateful key calls prevent a sound postcondition describing the resulting key order.",
+      "risks": [
+        "sortedness_not_exposed",
+        "panic_behavior_not_modeled"
+      ]
+    }
+  ]
+}

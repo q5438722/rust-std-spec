@@ -1,0 +1,120 @@
+{
+  "batch": 57,
+  "group": "formatting_effect",
+  "duration_ms": 24372,
+  "targets": [
+    "alloc::fmt::format",
+    "core::fmt::Arguments::as_str",
+    "core::fmt::DebugList::entries",
+    "core::fmt::DebugList::entry",
+    "core::fmt::DebugList::finish",
+    "core::fmt::DebugList::finish_non_exhaustive"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::fmt::format",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned String depends on executing unmodeled formatting arguments; current vstd has no public abstraction relating Arguments to formatted text.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Arguments::as_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on Arguments' private tagged representation, and no public vstd view exposes whether it contains a static string or which string it contains.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "reference_identity_vs_view",
+        "missing_arguments_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugList::entries",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method repeatedly mutates hidden formatter state and returns a mutable reference to self; neither the formatting effect nor the returned alias has a suitable current vstd abstraction.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugList::entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method invokes Debug::fmt into hidden formatter state and returns a mutable reference to self, so no concrete useful relation is expressible in current vstd vocabulary.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugList::finish",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and mutation depend on the builder's hidden prior error state and the underlying formatter's write operation, neither of which has a public vstd model.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "hidden_error_state"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugList::finish_non_exhaustive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The emitted suffix and Result depend on hidden field, pretty-printing, writer, and prior-error state, which current vstd does not model.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "hidden_builder_state",
+        "hidden_error_state"
+      ]
+    }
+  ]
+}

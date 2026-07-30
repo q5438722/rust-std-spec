@@ -1,0 +1,124 @@
+{
+  "batch": 245,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 204175,
+  "targets": [
+    "std::sync::TryLockResult::as_deref_mut",
+    "std::sync::TryLockResult::as_mut",
+    "std::sync::TryLockResult::as_ref",
+    "std::sync::TryLockResult::cloned",
+    "std::sync::TryLockResult::copied",
+    "std::sync::TryLockResult::err"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::TryLockResult::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Ok branch returns a mutable DerefMut target. Current vstd cannot relate that reference's identity and final value to the original Result payload.",
+      "risks": [
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view",
+        "missing_DerefMut_model"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::as_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the returned mutable payload reference and its eventual writes to final(self), which current vstd cannot express.",
+      "risks": [
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::as_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias-surfaced target resolves to core::result::Result::as_ref, which already has a canonical vstd assume_specification relating both variants and references.",
+      "risks": [
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::cloned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Clone, E>[ Result::<&T, E>::cloned ](\n    result: Result<&T, E>,\n) -> (cloned_result: Result<T, E>)\n    ensures\n        result is Ok ==> cloned_result is Ok\n            && cloned::<T>(*result->Ok_0, cloned_result->Ok_0),\n        result is Err ==> cloned_result == Result::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> cloned_result is Ok && cloned::<T>(*result->Ok_0, cloned_result->Ok_0)",
+        "result is Err ==> cloned_result == Result::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source clones only the Ok referent, which vstd::cloned models relationally, and moves Err unchanged without inspecting lock state.",
+      "risks": [
+        "multiple_rust_declarations_share_path",
+        "clone_relation_describes_normal_returns",
+        "canonical_Result_specialization"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::copied",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Copy, E>[ Result::<&T, E>::copied ](\n    result: Result<&T, E>,\n) -> (copied_result: Result<T, E>)\n    ensures\n        copied_result == match result {\n            Result::Ok(value) => Result::Ok(*value),\n            Result::Err(error) => Result::Err(error),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "copied_result == match result { Result::Ok(value) => Result::Ok(*value), Result::Err(error) => Result::Err(error), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source exactly copies the Ok referent or moves Err unchanged, requiring no model of hidden lock state.",
+      "risks": [
+        "multiple_rust_declarations_share_path",
+        "canonical_Result_specialization"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This resolves to core::result::Result::err, whose exact Ok-to-None and Err-to-Some mapping is already specified in vstd.",
+      "risks": [
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    }
+  ]
+}

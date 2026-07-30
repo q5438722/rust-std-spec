@@ -1,0 +1,184 @@
+{
+  "id": "core__ptr__map_addr__4e4bbdd9076e",
+  "api_path": "core::ptr::map_addr",
+  "raw_target": "<*mut T>::map_addr",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"strict_provenance\"}}]"
+      }
+    ],
+    "declaration_id": "core:51662",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "none",
+                    "trait": {
+                      "args": {
+                        "parenthesized": {
+                          "inputs": [
+                            {
+                              "primitive": "usize"
+                            }
+                          ],
+                          "output": {
+                            "primitive": "usize"
+                          }
+                        }
+                      },
+                      "id": 24,
+                      "path": "FnOnce"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": true
+            }
+          },
+          "name": "impl FnOnce(usize) -> usize"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "map_addr",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": true,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51704",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "impl_trait": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "primitive": "usize"
+                          }
+                        ],
+                        "output": {
+                          "primitive": "usize"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "Self"
+      }
+    },
+    "source_context": "   169:     /// side-effect which is required for [`with_exposed_provenance_mut`] to work is typically not\n   170:     /// available.\n   171:     ///\n   172:     /// This is an [Exposed Provenance][crate::ptr#exposed-provenance] API.\n   173:     ///\n   174:     /// [`with_exposed_provenance_mut`]: with_exposed_provenance_mut\n   175:     #[inline(always)]\n   176:     #[stable(feature = \"exposed_provenance\", since = \"1.84.0\")]\n   177:     pub fn expose_provenance(self) -> usize {\n   178:         self.cast::<()>() as usize\n   179:     }\n   180: \n   181:     /// Creates a new pointer with the given address and the [provenance][crate::ptr#provenance] of\n   182:     /// `self`.\n   183:     ///\n   184:     /// This is similar to a `addr as *mut T` cast, but copies\n   185:     /// the *provenance* of `self` to the new pointer.\n   186:     /// This avoids the inherent ambiguity of the unary cast.\n   187:     ///\n   188:     /// This is equivalent to using [`wrapping_offset`][pointer::wrapping_offset] to offset\n   189:     /// `self` to the given address, and therefore has all the same capabilities and restrictions.\n   190:     ///\n   191:     /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.\n   192:     #[must_use]\n   193:     #[inline]\n   194:     #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   195:     pub fn with_addr(self, addr: usize) -> Self {\n   196:         // This should probably be an intrinsic to avoid doing any sort of arithmetic, but\n   197:         // meanwhile, we can implement it with `wrapping_offset`, which preserves the pointer's\n   198:         // provenance.\n   199:         let self_addr = self.addr() as isize;\n   200:         let dest_addr = addr as isize;\n   201:         let offset = dest_addr.wrapping_sub(self_addr);\n   202:         self.wrapping_byte_offset(offset)\n   203:     }\n   204: \n   205:     /// Creates a new pointer by mapping `self`'s address to a new one, preserving the original\n   206:     /// pointer's [provenance][crate::ptr#provenance].\n   207:     ///\n   208:     /// This is a convenience for [`with_addr`][pointer::with_addr], see that method for details.\n   209:     ///\n   210:     /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.\n   211:     #[must_use]\n   212:     #[inline]\n   213:     #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   214:     pub fn map_addr(self, f: impl FnOnce(usize) -> usize) -> Self {\n   215:         self.with_addr(f(self.addr()))\n   216:     }\n   217: \n   218:     /// Decompose a (possibly wide) pointer into its data pointer and metadata components.\n   219:     ///\n   220:     /// The pointer can be later reconstructed with [`from_raw_parts_mut`].\n   221:     #[unstable(feature = \"ptr_metadata\", issue = \"81513\")]\n   222:     #[inline]\n   223:     pub const fn to_raw_parts(self) -> (*mut (), <T as super::Pointee>::Metadata) {\n   224:         (self.cast(), super::metadata(self))\n   225:     }\n   226: \n   227:     #[doc = include_str!(\"./docs/as_ref.md\")]\n   228:     ///\n   229:     /// ```\n   230:     /// let ptr: *mut u8 = &mut 10u8 as *mut u8;\n   231:     ///\n   232:     /// unsafe {\n   233:     ///     let val_back = ptr.as_ref_unchecked();\n   234:     ///     println!(\"We got back the value: {val_back}!\");\n   235:     /// }\n   236:     /// ```\n   237:     ///\n   238:     /// # Examples\n   239:     ///\n   240:     /// ```\n   241:     /// let ptr: *mut u8 = &mut 10u8 as *mut u8;\n   242:     ///\n   243:     /// unsafe {\n   244:     ///     if let Some(val_back) = ptr.as_ref() {\n   245:     ///         println!(\"We got back the value: {val_back}!\");\n   246:     ///     }\n   247:     /// }\n   248:     /// ```\n   249:     ///\n   250:     /// # See Also\n   251:     ///\n   252:     /// For the mutable counterpart see [`as_mut`].\n   253:     ///\n   254:     /// [`is_null`]: #method.is_null-1\n   255:     /// [`as_uninit_ref`]: #method.as_uninit_ref-1\n   256:     /// [`as_ref_unchecked`]: #method.as_ref_unchecked-1\n   257:     /// [`as_mut`]: #method.as_mut\n   258: \n   259:     #[stable(feature = \"ptr_as_ref\", since = \"1.9.0\")]",
+    "span": {
+      "begin": [
+        214,
+        5
+      ],
+      "end": [
+        216,
+        6
+      ],
+      "filename": "core/src/ptr/mut_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn map_addr(self, f: impl FnOnce(usize) -> usize) -> Self {\n        self.with_addr(f(self.addr()))\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd specifications for <*mut T>::addr and <*mut T>::with_addr"
+  ],
+  "rationale": "The exact one-line implementation verifies compositionally: addr supplies the closure input, and with_addr installs its output while preserving provenance and metadata.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__map_addr__4e4bbdd9076e"
+}

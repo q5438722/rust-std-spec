@@ -1,0 +1,35 @@
+I’ll inspect the local contract corpus and vstd conventions, then classify each iterator-returning API against available models.
+
+{"candidates":[{"target":"core::str::split_whitespace","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Useful semantics require relating the opaque SplitWhitespace iterator's future nonempty substrings to the source's Unicode-whitespace decomposition. Current vstd has no such iterator model.","risks":["missing_split_whitespace_iterator_model","unicode_whitespace_decomposition_unmodeled"]},{"target":"core::str::splitn","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The future substrings and final remainder depend on private SplitN state and arbitrary Pattern search semantics. Current vstd lacks both the required iterator and Pattern models.","risks":["missing_splitn_iterator_model","generic_pattern_semantics_unmodeled","partial_consumption"]},{"target":"std::collections::HashMap::drain","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must connect the old map's pairs to arbitrary-order future yields and receiver state across consumption or drop. Current vstd has no HashMap Drain prophetic model.","risks":["missing_hashmap_drain_model","mutable_borrow_spans_iterator_lifetime","partial_consumption_and_drop"]},{"target":"std::collections::HashMap::extract_if","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Predicate calls, value mutations, and removals occur lazily in unspecified order, while early drop retains unvisited entries. Vstd lacks the necessary callback-trace and ExtractIf prophecy.","risks":["missing_extract_if_prophetic_model","stateful_fnmut_trace_unmodeled","mutable_value_writeback_unmodeled","partial_consumption"]},{"target":"std::collections::HashMap::into_keys","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method consumes the map and returns keys in arbitrary order, but current vstd has no IntoKeys iterator model relating its future yields to the consumed map's domain.","risks":["missing_into_keys_iterator_model","arbitrary_iteration_order_unmodeled","consumed_map_relation_unmodeled"]},{"target":"std::collections::HashMap::into_values","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method consumes the map and yields values in arbitrary order, including duplicates. Current vstd has no IntoValues model preserving that future sequence or multiplicity relation.","risks":["missing_into_values_iterator_model","arbitrary_order_and_multiplicity_unmodeled","consumed_map_relation_unmodeled"]}]}{"candidates":[{"target":"core::str::split_whitespace","decision":"skip","contract_form":"assume_spe
+cification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":f
+alse,"rationale":"Useful semantics require relating the opaque SplitWhitespace iterator's future
+nonempty substrings to the source's Unicode-whitespace decomposition. Current vstd has no such
+iterator model.","risks":["missing_split_whitespace_iterator_model","unicode_whitespace_decompositio
+n_unmodeled"]},{"target":"core::str::splitn","decision":"skip","contract_form":"assume_specification
+","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rati
+onale":"The future substrings and final remainder depend on private SplitN state and arbitrary
+Pattern search semantics. Current vstd lacks both the required iterator and Pattern
+models.","risks":["missing_splitn_iterator_model","generic_pattern_semantics_unmodeled","partial_con
+sumption"]},{"target":"std::collections::HashMap::drain","decision":"skip","contract_form":"assume_s
+pecification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful"
+:false,"rationale":"A useful contract must connect the old map's pairs to arbitrary-order future
+yields and receiver state across consumption or drop. Current vstd has no HashMap Drain prophetic
+model.","risks":["missing_hashmap_drain_model","mutable_borrow_spans_iterator_lifetime","partial_con
+sumption_and_drop"]},{"target":"std::collections::HashMap::extract_if","decision":"skip","contract_f
+orm":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"import
+s":[],"useful":false,"rationale":"Predicate calls, value mutations, and removals occur lazily in
+unspecified order, while early drop retains unvisited entries. Vstd lacks the necessary
+callback-trace and ExtractIf prophecy.","risks":["missing_extract_if_prophetic_model","stateful_fnmu
+t_trace_unmodeled","mutable_value_writeback_unmodeled","partial_consumption"]},{"target":"std::colle
+ctions::HashMap::into_keys","decision":"skip","contract_form":"assume_specification","contract_code"
+:"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+method consumes the map and returns keys in arbitrary order, but current vstd has no IntoKeys
+iterator model relating its future yields to the consumed map's
+domain.","risks":["missing_into_keys_iterator_model","arbitrary_iteration_order_unmodeled","consumed
+_map_relation_unmodeled"]},{"target":"std::collections::HashMap::into_values","decision":"skip","con
+tract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],
+"imports":[],"useful":false,"rationale":"The method consumes the map and yields values in arbitrary
+order, including duplicates. Current vstd has no IntoValues model preserving that future sequence or
+ multiplicity relation.","risks":["missing_into_values_iterator_model","arbitrary_order_and_multipli
+city_unmodeled","consumed_map_relation_unmodeled"]}]}
+

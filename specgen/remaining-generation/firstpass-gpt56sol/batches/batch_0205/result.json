@@ -1,0 +1,117 @@
+{
+  "batch": 205,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 25696,
+  "targets": [
+    "std::net::TcpListener::only_v6",
+    "std::net::TcpListener::set_nonblocking",
+    "std::net::TcpListener::set_only_v6",
+    "std::net::TcpListener::set_ttl",
+    "std::net::TcpListener::take_error",
+    "std::net::TcpListener::try_clone"
+  ],
+  "candidates": [
+    {
+      "target": "std::net::TcpListener::only_v6",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned value and error depend on an OS socket option stored outside the Rust value; vstd has no public TcpListener socket-state model.",
+      "risks": [
+        "external OS state",
+        "missing socket-option abstraction",
+        "platform-dependent failure"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::set_nonblocking",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This mutates the underlying socket through a shared reference and may fail; neither the nonblocking state nor its effect on accept is represented in current vstd vocabulary.",
+      "risks": [
+        "hidden mutation through shared reference",
+        "external OS state",
+        "missing socket-state abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::set_only_v6",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method changes an OS socket option through a shared reference and can fail, especially after binding; vstd cannot express the hidden option state or binding condition.",
+      "risks": [
+        "hidden mutation through shared reference",
+        "external OS state",
+        "missing socket lifecycle abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::set_ttl",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success updates the OS-managed IP_TTL option rather than modeled Rust state, while failure is environment-dependent; current vstd exposes no suitable socket-option abstraction.",
+      "risks": [
+        "hidden mutation through shared reference",
+        "external OS state",
+        "platform-dependent validation"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::take_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method reads and clears the OS-managed SO_ERROR field through a shared reference. Expressing that destructive transition requires a socket error-state model absent from vstd.",
+      "risks": [
+        "destructive hidden-state read",
+        "external OS state",
+        "missing io::Error and socket-state abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate a successful result to the same underlying socket and shared options, but vstd has no public socket-identity or handle-aliasing model.",
+      "risks": [
+        "external resource allocation",
+        "shared underlying socket state",
+        "missing handle-identity abstraction"
+      ]
+    }
+  ]
+}

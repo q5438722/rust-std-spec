@@ -1,0 +1,117 @@
+{
+  "batch": 155,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 19468,
+  "targets": [
+    "std::path::Path::join",
+    "std::path::Path::metadata",
+    "std::path::Path::new",
+    "std::path::Path::parent",
+    "std::path::Path::read_dir",
+    "std::path::Path::read_link"
+  ],
+  "candidates": [
+    {
+      "target": "std::path::Path::join",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its behavior is defined through PathBuf::push and platform-dependent path-component semantics, but current vstd has no Path/PathBuf view capable of expressing that relation.",
+      "risks": [
+        "missing_path_abstraction",
+        "platform_dependent_path_semantics"
+      ]
+    },
+    {
+      "target": "std::path::Path::metadata",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This is an alias for fs::metadata and observes mutable external filesystem state; current vstd provides no filesystem-state or Metadata abstraction for a useful result relation.",
+      "risks": [
+        "runtime_filesystem_effect",
+        "hidden_external_state",
+        "missing_filesystem_abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Path is a borrowed reinterpretation of the input's OsStr, but current vstd has no public Path/OsStr view or generic AsRef relation that can express this without asserting unsupported reference identity.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_path_osstr_abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::parent",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a borrowed subslice determined by parsed path components; current vstd lacks both a Path component model and a view relating the returned reference to self.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_path_component_abstraction",
+        "platform_dependent_path_semantics"
+      ]
+    },
+    {
+      "target": "std::path::Path::read_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This is an alias for fs::read_dir and returns an iterator whose construction and later items depend on external filesystem state; current vstd lacks suitable filesystem and ReadDir abstractions.",
+      "risks": [
+        "runtime_filesystem_effect",
+        "hidden_external_state",
+        "stateful_iterator",
+        "missing_filesystem_abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::read_link",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This is an alias for fs::read_link and its result depends on external filesystem state; current vstd has neither a filesystem model nor a PathBuf view for the returned link target.",
+      "risks": [
+        "runtime_filesystem_effect",
+        "hidden_external_state",
+        "missing_filesystem_abstraction",
+        "missing_path_abstraction"
+      ]
+    }
+  ]
+}

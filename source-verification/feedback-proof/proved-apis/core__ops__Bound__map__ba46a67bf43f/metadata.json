@@ -1,0 +1,182 @@
+{
+  "id": "core__ops__Bound__map__ba46a67bf43f",
+  "api_path": "core::ops::Bound::map",
+  "raw_target": "core::ops::Bound::<T>::map",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 77, patch: 0 })},\nfeature: \"bound_map\"}}]"
+      }
+    ],
+    "declaration_id": "core:24010",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "none",
+                    "trait": {
+                      "args": {
+                        "parenthesized": {
+                          "inputs": [
+                            {
+                              "generic": "T"
+                            }
+                          ],
+                          "output": {
+                            "generic": "U"
+                          }
+                        }
+                      },
+                      "id": 24,
+                      "path": "FnOnce"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "map",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9759,
+          "path": "Bound"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:24011",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:9759",
+      "resolved_owner_path": [
+        "core",
+        "ops",
+        "range",
+        "Bound"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "U"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9759,
+          "path": "Bound"
+        }
+      }
+    },
+    "source_context": "   706:     #[inline]\n   707:     #[stable(feature = \"bound_as_ref_shared\", since = \"1.65.0\")]\n   708:     #[rustc_const_unstable(feature = \"const_range\", issue = \"none\")]\n   709:     pub const fn as_ref(&self) -> Bound<&T> {\n   710:         match *self {\n   711:             Included(ref x) => Included(x),\n   712:             Excluded(ref x) => Excluded(x),\n   713:             Unbounded => Unbounded,\n   714:         }\n   715:     }\n   716: \n   717:     /// Converts from `&mut Bound<T>` to `Bound<&mut T>`.\n   718:     #[inline]\n   719:     #[unstable(feature = \"bound_as_ref\", issue = \"80996\")]\n   720:     pub const fn as_mut(&mut self) -> Bound<&mut T> {\n   721:         match *self {\n   722:             Included(ref mut x) => Included(x),\n   723:             Excluded(ref mut x) => Excluded(x),\n   724:             Unbounded => Unbounded,\n   725:         }\n   726:     }\n   727: \n   728:     /// Maps a `Bound<T>` to a `Bound<U>` by applying a function to the contained value (including\n   729:     /// both `Included` and `Excluded`), returning a `Bound` of the same kind.\n   730:     ///\n   731:     /// # Examples\n   732:     ///\n   733:     /// ```\n   734:     /// use std::ops::Bound::*;\n   735:     ///\n   736:     /// let bound_string = Included(\"Hello, World!\");\n   737:     ///\n   738:     /// assert_eq!(bound_string.map(|s| s.len()), Included(13));\n   739:     /// ```\n   740:     ///\n   741:     /// ```\n   742:     /// use std::ops::Bound;\n   743:     /// use Bound::*;\n   744:     ///\n   745:     /// let unbounded_string: Bound<String> = Unbounded;\n   746:     ///\n   747:     /// assert_eq!(unbounded_string.map(|s| s.len()), Unbounded);\n   748:     /// ```\n   749:     #[inline]\n   750:     #[stable(feature = \"bound_map\", since = \"1.77.0\")]\n   751:     pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> Bound<U> {\n   752:         match self {\n   753:             Unbounded => Unbounded,\n   754:             Included(x) => Included(f(x)),\n   755:             Excluded(x) => Excluded(f(x)),\n   756:         }\n   757:     }\n   758: }\n   759: \n   760: impl<T: Copy> Bound<&T> {\n   761:     /// Map a `Bound<&T>` to a `Bound<T>` by copying the contents of the bound.\n   762:     ///\n   763:     /// # Examples\n   764:     ///\n   765:     /// ```\n   766:     /// #![feature(bound_copied)]\n   767:     ///\n   768:     /// use std::ops::Bound::*;\n   769:     /// use std::ops::RangeBounds;\n   770:     ///\n   771:     /// assert_eq!((1..12).start_bound(), Included(&1));\n   772:     /// assert_eq!((1..12).start_bound().copied(), Included(1));\n   773:     /// ```\n   774:     #[unstable(feature = \"bound_copied\", issue = \"145966\")]\n   775:     #[must_use]\n   776:     pub const fn copied(self) -> Bound<T> {\n   777:         match self {\n   778:             Bound::Unbounded => Bound::Unbounded,\n   779:             Bound::Included(x) => Bound::Included(*x),\n   780:             Bound::Excluded(x) => Bound::Excluded(*x),\n   781:         }\n   782:     }\n   783: }\n   784: \n   785: impl<T: Clone> Bound<&T> {\n   786:     /// Map a `Bound<&T>` to a `Bound<T>` by cloning the contents of the bound.\n   787:     ///\n   788:     /// # Examples\n   789:     ///\n   790:     /// ```\n   791:     /// use std::ops::Bound::*;\n   792:     /// use std::ops::RangeBounds;\n   793:     ///\n   794:     /// let a1 = String::from(\"a\");\n   795:     /// let (a2, a3, a4) = (a1.clone(), a1.clone(), a1.clone());\n   796:     ///",
+    "span": {
+      "begin": [
+        751,
+        5
+      ],
+      "end": [
+        757,
+        6
+      ],
+      "filename": "core/src/ops/range.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> Bound<U> {\n        match self {\n            Unbounded => Unbounded,\n            Included(x) => Included(f(x)),\n            Excluded(x) => Excluded(f(x)),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum-match implementation proves the structural spec_bound contract directly using the FnOnce call contract, without axioms or lower std contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ops__Bound__map__ba46a67bf43f"
+}

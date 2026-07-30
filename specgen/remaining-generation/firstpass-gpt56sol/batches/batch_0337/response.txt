@@ -1,0 +1,294 @@
+{
+  "candidates": [
+    {
+      "target": "core::ptr::with_addr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[<*mut T>::with_addr](\n    ptr: *mut T,\n    addr: usize,\n) -> (result: *mut T)\n    ensures\n        result@.addr == addr,\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr == addr",
+        "result@.provenance == ptr@.provenance",
+        "result@.metadata == ptr@.metadata"
+      ],
+      "feature_gates": [
+        "sized_hierarchy"
+      ],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source replaces only the address through wrapping pointer arithmetic while preserving provenance and metadata; all three components are public in vstd's pointer view.",
+      "risks": [
+        "the result need not remain within the originating allocation",
+        "the contract does not establish dereference validity",
+        "the declaration is specialized to the mutable-pointer overload"
+      ]
+    },
+    {
+      "target": "core::ptr::with_exposed_provenance",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result must acquire an unspecified previously exposed provenance. vstd models this using a tracked IsExposed token, which the exact standard-library signature cannot carry.",
+      "risks": [
+        "hidden exposed-provenance state",
+        "nondeterministic provenance selection",
+        "missing tracked provenance token"
+      ]
+    },
+    {
+      "target": "core::ptr::with_exposed_provenance_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result's unspecified previously exposed provenance requires vstd's tracked IsExposed evidence, absent from this exact mutable-pointer constructor signature.",
+      "risks": [
+        "hidden exposed-provenance state",
+        "nondeterministic provenance selection",
+        "missing tracked provenance token"
+      ]
+    },
+    {
+      "target": "core::ptr::without_provenance",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[core::ptr::without_provenance::<T>](\n    addr: usize,\n) -> (result: *const T)\n    ensures\n        result@.addr == addr,\n        result@.provenance == Provenance::null(),\n        result@.metadata == (),\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr == addr",
+        "result@.provenance == Provenance::null()",
+        "result@.metadata == ()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::Provenance"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a thin pointer with the supplied address and no provenance, represented directly by vstd's null provenance.",
+      "risks": [
+        "non-zero-sized dereferences are invalid",
+        "the result may be null or misaligned",
+        "address equality does not provide allocation provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::without_provenance_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[core::ptr::without_provenance_mut::<T>](\n    addr: usize,\n) -> (result: *mut T)\n    ensures\n        result@.addr == addr,\n        result@.provenance == Provenance::null(),\n        result@.metadata == (),\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr == addr",
+        "result@.provenance == Provenance::null()",
+        "result@.metadata == ()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::Provenance"
+      ],
+      "useful": true,
+      "rationale": "The transmute is documented to create a thin mutable pointer at the supplied address without provenance, exactly matching vstd's null-provenance model.",
+      "risks": [
+        "non-zero-sized dereferences are invalid",
+        "the result may be null or misaligned",
+        "mutable pointer syntax does not establish ownership"
+      ]
+    },
+    {
+      "target": "core::ptr::wrapping_add",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[<*const T>::wrapping_add](\n    ptr: *const T,\n    count: usize,\n) -> (result: *const T)\n    where\n        T: Sized,\n    ensures\n        result@.addr as int ==\n            (ptr@.addr as int + (count as int) * (size_of::<T>() as int))\n                % ((usize::MAX as int) + 1),\n        result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr as int == (ptr@.addr as int + (count as int) * (size_of::<T>() as int)) % ((usize::MAX as int) + 1)",
+        "result@.provenance == ptr@.provenance",
+        "result@.metadata == ptr@.metadata"
+      ],
+      "feature_gates": [
+        "sized_hierarchy"
+      ],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::layout::size_of"
+      ],
+      "useful": true,
+      "rationale": "The source performs count-times-size wrapping displacement and preserves provenance; vstd exposes pointer components, type size, and modular integer arithmetic.",
+      "risks": [
+        "the result may lie outside the originating allocation",
+        "the contract does not establish dereference validity",
+        "the declaration is specialized to the const-pointer overload"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ptr::with_addr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[<*mut
+T>::with_addr](\n    ptr: *mut T,\n    addr: usize,\n) -> (result: mut T)\n    ensures\n
+result@.addr == addr,\n        result@.provenance == ptr@.provenance,\n        result@.metadata ==
+ptr@.metadata,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr == addr",
+        "result@.provenance == ptr@.provenance",
+        "result@.metadata == ptr@.metadata"
+      ],
+      "feature_gates": [
+        "sized_hierarchy"
+      ],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source replaces only the address through wrapping pointer arithmetic while
+preserving provenance and metadata; all three components are public in vstd's pointer view.",
+      "risks": [
+        "the result need not remain within the originating allocation",
+        "the contract does not establish dereference validity",
+        "the declaration is specialized to the mutable-pointer overload"
+      ]
+    },
+    {
+      "target": "core::ptr::with_exposed_provenance",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result must acquire an unspecified previously exposed provenance. vstd
+models this using a tracked IsExposed token, which the exact standard-library signature cannot
+carry.",
+      "risks": [
+        "hidden exposed-provenance state",
+        "nondeterministic provenance selection",
+        "missing tracked provenance token"
+      ]
+    },
+    {
+      "target": "core::ptr::with_exposed_provenance_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result's unspecified previously exposed provenance requires vstd's tracked
+IsExposed evidence, absent from this exact mutable-pointer constructor signature.",
+      "risks": [
+        "hidden exposed-provenance state",
+        "nondeterministic provenance selection",
+        "missing tracked provenance token"
+      ]
+    },
+    {
+      "target": "core::ptr::without_provenance",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[core::ptr::without_provenance::<T>](\n    addr:
+usize,\n) -> (result: const T)\n    ensures\n        result@.addr == addr,\n
+result@.provenance == Provenance::null(),\n        result@.metadata == (),\n    opens_invariants
+none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr == addr",
+        "result@.provenance == Provenance::null()",
+        "result@.metadata == ()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::raw_ptr::Provenance"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a thin pointer with the supplied address and no
+provenance, represented directly by vstd's null provenance.",
+      "risks": [
+        "non-zero-sized dereferences are invalid",
+        "the result may be null or misaligned",
+        "address equality does not provide allocation provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::without_provenance_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[core::ptr::without_provenance_mut::<T>](\n
+addr: usize,\n) -> (result: mut T)\n    ensures\n        result@.addr == addr,\n
+result@.provenance == Provenance::null(),\n        result@.metadata == (),\n    opens_invariants
+none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr == addr",
+        "result@.provenance == Provenance::null()",
+        "result@.metadata == ()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::raw_ptr::Provenance"
+      ],
+      "useful": true,
+      "rationale": "The transmute is documented to create a thin mutable pointer at the supplied
+address without provenance, exactly matching vstd's null-provenance model.",
+      "risks": [
+        "non-zero-sized dereferences are invalid",
+        "the result may be null or misaligned",
+        "mutable pointer syntax does not establish ownership"
+      ]
+    },
+    {
+      "target": "core::ptr::wrapping_add",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[<*const
+T>::wrapping_add](\n    ptr: *const T,\n    count: usize,\n) -> (result: const T)\n    where\n
+  T: Sized,\n    ensures\n        result@.addr as int ==\n            (ptr@.addr as int + (count as
+int) * (size_of::<T>() as int))\n                % ((usize::MAX as int) + 1),\n
+result@.provenance == ptr@.provenance,\n        result@.metadata == ptr@.metadata,\n
+opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr as int == (ptr@.addr as int + (count as int) * (size_of::<T>() as int)) %
+((usize::MAX as int) + 1)",
+        "result@.provenance == ptr@.provenance",
+        "result@.metadata == ptr@.metadata"
+      ],
+      "feature_gates": [
+        "sized_hierarchy"
+      ],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::layout::size_of"
+      ],
+      "useful": true,
+      "rationale": "The source performs count-times-size wrapping displacement and preserves
+provenance; vstd exposes pointer components, type size, and modular integer arithmetic.",
+      "risks": [
+        "the result may lie outside the originating allocation",
+        "the contract does not establish dereference validity",
+        "the declaration is specialized to the const-pointer overload"
+      ]
+    } ]
+}
+

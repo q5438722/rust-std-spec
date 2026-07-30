@@ -1,0 +1,147 @@
+{
+  "id": "std_specs__result.rs__L148__Result__T__E__is_err",
+  "api_path": "core::result::Result::is_err",
+  "raw_target": "Result::<T, E>::is_err",
+  "contract_source_file": "std_specs/result.rs",
+  "contract_source_line": 148,
+  "rust_declaration": {
+    "declaration_id": "core:29280",
+    "name": "is_err",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "if you intended to assert that this is err, consider `.unwrap_err()` instead"
+        }
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 48, patch: 0 })},\nfeature: \"const_result_basics\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/result.rs",
+      "begin": [
+        646,
+        5
+      ],
+      "end": [
+        648,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:29310",
+      "for": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "E",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   626:             Err(_) => false,\n   627:             Ok(x) => f(x),\n   628:         }\n   629:     }\n   630: \n   631:     /// Returns `true` if the result is [`Err`].\n   632:     ///\n   633:     /// # Examples\n   634:     ///\n   635:     /// ```\n   636:     /// let x: Result<i32, &str> = Ok(-3);\n   637:     /// assert_eq!(x.is_err(), false);\n   638:     ///\n   639:     /// let x: Result<i32, &str> = Err(\"Some error message\");\n   640:     /// assert_eq!(x.is_err(), true);\n   641:     /// ```\n   642:     #[must_use = \"if you intended to assert that this is err, consider `.unwrap_err()` instead\"]\n   643:     #[rustc_const_stable(feature = \"const_result_basics\", since = \"1.48.0\")]\n   644:     #[inline]\n   645:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   646:     pub const fn is_err(&self) -> bool {\n   647:         !self.is_ok()\n   648:     }\n   649: \n   650:     /// Returns `true` if the result is [`Err`] and the value inside of it matches a predicate.\n   651:     ///\n   652:     /// # Examples\n   653:     ///\n   654:     /// ```\n   655:     /// use std::io::{Error, ErrorKind};\n   656:     ///\n   657:     /// let x: Result<u32, Error> = Err(Error::new(ErrorKind::NotFound, \"!\"));\n   658:     /// assert_eq!(x.is_err_and(|x| x.kind() == ErrorKind::NotFound), true);\n   659:     ///\n   660:     /// let x: Result<u32, Error> = Err(Error::new(ErrorKind::PermissionDenied, \"!\"));\n   661:     /// assert_eq!(x.is_err_and(|x| x.kind() == ErrorKind::NotFound), false);\n   662:     ///\n   663:     /// let x: Result<u32, Error> = Ok(123);\n   664:     /// assert_eq!(x.is_err_and(|x| x.kind() == ErrorKind::NotFound), false);\n   665:     ///\n   666:     /// let x: Result<u32, String> = Err(\"ownership\".to_string());",
+    "source_text": "pub const fn is_err(&self) -> bool {\n        !self.is_ok()\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd specification for Result::<T, E>::is_ok: its return value equals is_ok(r)."
+  ],
+  "rationale": "The body faithfully computes !r.is_ok(); an exhaustive ghost match proves that Ok and Err are complementary.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__result.rs__L148__Result__T__E__is_err"
+}

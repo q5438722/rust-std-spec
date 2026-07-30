@@ -1,0 +1,39 @@
+{"candidates":[{"target":"core::sync::atomic::AtomicPtr::fetch_xor","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This atomic read-modify-write returns the concurrently observed old pointer and changes hidden atomic state. Current vstd exposes neither an AtomicPtr view nor a provenance-aware pointer-address XOR relation.","risks":["concurrency_or_hidden_state","raw_pointer_equality","missing_atomic_state_abstraction","pointer_provenance"]},{"target":"core::sync::atomic::AtomicPtr::from_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation reinterprets the same storage through a mutable AtomicPtr reference. Expressing its useful behavior requires atomic-state and cross-type reference-identity abstractions, together with supported mutable-reference-return framing.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return","missing_atomic_state_abstraction"]},{"target":"core::sync::atomic::AtomicPtr::from_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation reinterprets an entire mutable pointer slice as atomic storage. Length alone would omit the essential storage aliasing and element correspondence, which current vstd cannot express for this mutable-reference return.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return","missing_slice_storage_identity_abstraction"]},{"target":"core::sync::atomic::AtomicPtr::from_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned reference aliases storage designated by a raw pointer and imposes lifetime, validity, alignment, and atomic-access obligations. Current public vstd vocabulary cannot express that storage identity or the hidden AtomicPtr state without inventing preconditions.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","raw_pointer_validity","missing_atomic_state_abstraction"]},{"target":"core::sync::atomic::AtomicPtr::get_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result is a mutable reference directly aliasing the AtomicPtr's hidden pointer storage. A useful contract needs cross-type storage identity and atomic-state correspondence, which are unavailable for this mutable-reference return.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","raw_pointer_equality","unsupported_mutable_reference_return","missing_atomic_state_abstraction"]},{"target":"core::sync::atomic::AtomicPtr::get_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method reinterprets mutable atomic storage as a mutable raw-pointer slice. Current vstd cannot state the essential per-element storage aliasing and hidden-state correspondence for the returned mutable reference.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","raw_pointer_equality","unsupported_mutable_reference_return","missing_slice_storage_identity_abstraction"]}]}{"candidates":[{"target":"core::sync::atomic::AtomicPtr::fetch_xor","decision":"skip","contract_form
+":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":
+[],"useful":false,"rationale":"This atomic read-modify-write returns the concurrently observed old
+pointer and changes hidden atomic state. Current vstd exposes neither an AtomicPtr view nor a
+provenance-aware pointer-address XOR relation.","risks":["concurrency_or_hidden_state","raw_pointer_
+equality","missing_atomic_state_abstraction","pointer_provenance"]},{"target":"core::sync::atomic::A
+tomicPtr::from_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","req
+uires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+implementation reinterprets the same storage through a mutable AtomicPtr reference. Expressing its
+useful behavior requires atomic-state and cross-type reference-identity abstractions, together with
+supported mutable-reference-return
+framing.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_r
+eference_return","missing_atomic_state_abstraction"]},{"target":"core::sync::atomic::AtomicPtr::from
+_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[
+],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation
+reinterprets an entire mutable pointer slice as atomic storage. Length alone would omit the
+essential storage aliasing and element correspondence, which current vstd cannot express for this
+mutable-reference return.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsu
+pported_mutable_reference_return","missing_slice_storage_identity_abstraction"]},{"target":"core::sy
+nc::atomic::AtomicPtr::from_ptr","decision":"skip","contract_form":"assume_specification","contract_
+code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+returned reference aliases storage designated by a raw pointer and imposes lifetime, validity,
+alignment, and atomic-access obligations. Current public vstd vocabulary cannot express that storage
+ identity or the hidden AtomicPtr state without inventing
+preconditions.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","raw_pointer_val
+idity","missing_atomic_state_abstraction"]},{"target":"core::sync::atomic::AtomicPtr::get_mut","deci
+sion":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"f
+eature_gates":[],"imports":[],"useful":false,"rationale":"The result is a mutable reference directly
+ aliasing the AtomicPtr's hidden pointer storage. A useful contract needs cross-type storage
+identity and atomic-state correspondence, which are unavailable for this mutable-reference
+return.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","raw_pointer_equality",
+"unsupported_mutable_reference_return","missing_atomic_state_abstraction"]},{"target":"core::sync::a
+tomic::AtomicPtr::get_mut_slice","decision":"skip","contract_form":"assume_specification","contract_
+code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+method reinterprets mutable atomic storage as a mutable raw-pointer slice. Current vstd cannot state
+ the essential per-element storage aliasing and hidden-state correspondence for the returned mutable
+ reference.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","raw_pointer_equali
+ty","unsupported_mutable_reference_return","missing_slice_storage_identity_abstraction"]}]}
+

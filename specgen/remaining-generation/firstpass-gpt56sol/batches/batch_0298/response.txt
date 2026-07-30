@@ -1,0 +1,242 @@
+{
+  "candidates": [
+    {
+      "target": "std::io::BufRead::lines",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Lines owns the reader in a private field, while vstd has no BufRead stream view or Lines iterator model describing future lines and errors.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_iterator_state",
+        "missing_lines_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::read_line",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExBufReadReadLine: std::io::Read {\n    type ExternalTraitSpecificationFor: std::io::BufRead;\n\n    fn read_line(\n        &mut self,\n        buf: &mut std::string::String,\n    ) -> (result: std::io::Result<usize>)\n        default_ensures\n            old(buf)@.is_prefix_of(final(buf)@),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The default body uses append_to_string, and the source states that prior String content is preserved while input is appended.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "input_contents_and_byte_count_unmodeled",
+        "default_ensures_does_not_constrain_overrides"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::read_until",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExBufReadReadUntil: std::io::Read {\n    type ExternalTraitSpecificationFor: std::io::BufRead;\n\n    fn read_until(\n        &mut self,\n        byte: u8,\n        buf: &mut std::vec::Vec<u8>,\n    ) -> (result: std::io::Result<usize>)\n        default_ensures\n            old(buf)@.is_prefix_of(final(buf)@),\n            result is Ok ==>\n                final(buf)@.len() == old(buf)@.len() + (result->Ok_0) as int,\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)",
+        "result is Ok ==> final(buf)@.len() == old(buf)@.len() + (result->Ok_0) as int"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source appends consumed bytes to buf and defines a successful result as their count, yielding a public prefix and length-growth relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "delimiter_and_reader_state_unmodeled",
+        "default_ensures_does_not_constrain_overrides"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::skip_until",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only exposes a count while discarding bytes and mutating hidden reader state; no current vstd observation relates that count to the stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_bufread_stream_abstraction",
+        "blocking_and_io_errors"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::split",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Split stores the reader and delimiter in private fields, and vstd lacks a stream-backed iterator model for its future segments and errors.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_iterator_state",
+        "missing_split_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::IsTerminal::is_terminal",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is obtained from platform-specific runtime state, with no public vstd terminal or file-descriptor model supporting a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_specific_behavior",
+        "missing_terminal_state_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::io::BufRead::lines",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Lines owns the reader in a private field, while vstd has no BufRead stream view
+or Lines iterator model describing future lines and errors.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_iterator_state",
+        "missing_lines_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::read_line",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExBufReadReadLine:
+std::io::Read {\n    type ExternalTraitSpecificationFor: std::io::BufRead;\n\n    fn read_line(\n
+     &mut self,\n        buf: &mut std::string::String,\n    ) -> (result: std::io::Result<usize>)\n
+        default_ensures\n            old(buf)@.is_prefix_of(final(buf)@),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The default body uses append_to_string, and the source states that prior String
+content is preserved while input is appended.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "input_contents_and_byte_count_unmodeled",
+        "default_ensures_does_not_constrain_overrides"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::read_until",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExBufReadReadUntil:
+std::io::Read {\n    type ExternalTraitSpecificationFor: std::io::BufRead;\n\n    fn read_until(\n
+      &mut self,\n        byte: u8,\n        buf: &mut std::vec::Vec<u8>,\n    ) -> (result:
+std::io::Result<usize>)\n        default_ensures\n            old(buf)@.is_prefix_of(final(buf)@),\n
+            result is Ok ==>\n                final(buf)@.len() == old(buf)@.len() + (result->Ok_0)
+as int,\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)",
+        "result is Ok ==> final(buf)@.len() == old(buf)@.len() + (result->Ok_0) as int"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The source appends consumed bytes to buf and defines a successful result as
+their count, yielding a public prefix and length-growth relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "delimiter_and_reader_state_unmodeled",
+        "default_ensures_does_not_constrain_overrides"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::skip_until",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only exposes a count while discarding bytes and mutating hidden
+reader state; no current vstd observation relates that count to the stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_bufread_stream_abstraction",
+        "blocking_and_io_errors"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::split",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Split stores the reader and delimiter in private fields, and vstd lacks a
+stream-backed iterator model for its future segments and errors.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_iterator_state",
+        "missing_split_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::IsTerminal::is_terminal",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is obtained from platform-specific runtime state, with no public vstd
+ terminal or file-descriptor model supporting a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_specific_behavior",
+        "missing_terminal_state_abstraction"
+      ]
+    } ]
+}
+

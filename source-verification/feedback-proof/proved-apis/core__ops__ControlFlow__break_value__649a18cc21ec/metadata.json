@@ -1,0 +1,160 @@
+{
+  "id": "core__ops__ControlFlow__break_value__649a18cc21ec",
+  "api_path": "core::ops::ControlFlow::break_value",
+  "raw_target": "ControlFlow::<B, C>::break_value",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"control_flow_enum\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 148739}, feature: \"const_control_flow\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:23398",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "Self"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "break_value",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "B"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "C"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9735,
+          "path": "ControlFlow"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "B"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "C"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:23404",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:9735",
+      "resolved_owner_path": [
+        "core",
+        "ops",
+        "control_flow",
+        "ControlFlow"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "B"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "   145:     ///\n   146:     /// ```\n   147:     /// use std::ops::ControlFlow;\n   148:     ///\n   149:     /// assert!(ControlFlow::<&str, i32>::Break(\"Stop right there!\").is_break());\n   150:     /// assert!(!ControlFlow::<&str, i32>::Continue(3).is_break());\n   151:     /// ```\n   152:     #[inline]\n   153:     #[stable(feature = \"control_flow_enum_is\", since = \"1.59.0\")]\n   154:     #[rustc_const_stable(feature = \"min_const_control_flow\", since = \"1.95.0\")]\n   155:     pub const fn is_break(&self) -> bool {\n   156:         matches!(*self, ControlFlow::Break(_))\n   157:     }\n   158: \n   159:     /// Returns `true` if this is a `Continue` variant.\n   160:     ///\n   161:     /// # Examples\n   162:     ///\n   163:     /// ```\n   164:     /// use std::ops::ControlFlow;\n   165:     ///\n   166:     /// assert!(!ControlFlow::<&str, i32>::Break(\"Stop right there!\").is_continue());\n   167:     /// assert!(ControlFlow::<&str, i32>::Continue(3).is_continue());\n   168:     /// ```\n   169:     #[inline]\n   170:     #[stable(feature = \"control_flow_enum_is\", since = \"1.59.0\")]\n   171:     #[rustc_const_stable(feature = \"min_const_control_flow\", since = \"1.95.0\")]\n   172:     pub const fn is_continue(&self) -> bool {\n   173:         matches!(*self, ControlFlow::Continue(_))\n   174:     }\n   175: \n   176:     /// Converts the `ControlFlow` into an `Option` which is `Some` if the\n   177:     /// `ControlFlow` was `Break` and `None` otherwise.\n   178:     ///\n   179:     /// # Examples\n   180:     ///\n   181:     /// ```\n   182:     /// use std::ops::ControlFlow;\n   183:     ///\n   184:     /// assert_eq!(ControlFlow::<&str, i32>::Break(\"Stop right there!\").break_value(), Some(\"Stop right there!\"));\n   185:     /// assert_eq!(ControlFlow::<&str, i32>::Continue(3).break_value(), None);\n   186:     /// ```\n   187:     #[inline]\n   188:     #[stable(feature = \"control_flow_enum\", since = \"1.83.0\")]\n   189:     #[rustc_const_unstable(feature = \"const_control_flow\", issue = \"148739\")]\n   190:     pub const fn break_value(self) -> Option<B>\n   191:     where\n   192:         Self: [const] Destruct,\n   193:     {\n   194:         match self {\n   195:             ControlFlow::Continue(..) => None,\n   196:             ControlFlow::Break(x) => Some(x),\n   197:         }\n   198:     }\n   199: \n   200:     /// Converts the `ControlFlow` into a `Result` which is `Ok` if the\n   201:     /// `ControlFlow` was `Break` and `Err` if otherwise.\n   202:     ///\n   203:     /// # Examples\n   204:     ///\n   205:     /// ```\n   206:     /// use std::ops::ControlFlow;\n   207:     ///\n   208:     /// struct TreeNode<T> {\n   209:     ///     value: T,\n   210:     ///     left: Option<Box<TreeNode<T>>>,\n   211:     ///     right: Option<Box<TreeNode<T>>>,\n   212:     /// }\n   213:     ///\n   214:     /// impl<T> TreeNode<T> {\n   215:     ///     fn find<'a>(&'a self, mut predicate: impl FnMut(&T) -> bool) -> Result<&'a T, ()> {\n   216:     ///         let mut f = |t: &'a T| -> ControlFlow<&'a T> {\n   217:     ///             if predicate(t) {\n   218:     ///                 ControlFlow::Break(t)\n   219:     ///             } else {\n   220:     ///                 ControlFlow::Continue(())\n   221:     ///             }\n   222:     ///         };\n   223:     ///\n   224:     ///         self.traverse_inorder(&mut f).break_ok()\n   225:     ///     }\n   226:     ///\n   227:     ///     fn traverse_inorder<'a, B>(\n   228:     ///         &'a self,\n   229:     ///         f: &mut impl FnMut(&'a T) -> ControlFlow<B>,\n   230:     ///     ) -> ControlFlow<B> {\n   231:     ///         if let Some(left) = &self.left {\n   232:     ///             left.traverse_inorder(f)?;\n   233:     ///         }\n   234:     ///         f(&self.value)?;\n   235:     ///         if let Some(right) = &self.right {",
+    "span": {
+      "begin": [
+        190,
+        5
+      ],
+      "end": [
+        198,
+        6
+      ],
+      "filename": "core/src/ops/control_flow.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn break_value(self) -> Option<B>\n    where\n        Self: [const] Destruct,\n    {\n        match self {\n            ControlFlow::Continue(..) => None,\n            ControlFlow::Break(x) => Some(x),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source-faithful enum match directly proves the postcondition without external contracts or assumptions.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ops__ControlFlow__break_value__649a18cc21ec"
+}

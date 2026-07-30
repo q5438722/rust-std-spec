@@ -1,0 +1,131 @@
+{
+  "id": "std_specs__maybe_uninit.rs__L51__MaybeUninit__T__assume_init_mut",
+  "api_path": "core::mem::MaybeUninit::assume_init_mut",
+  "normalized_api_path": "core::mem::MaybeUninit::assume_init_mut",
+  "raw_target": "MaybeUninit::<T>::assume_init_mut",
+  "contract_source_file": "std_specs/maybe_uninit.rs",
+  "contract_source_line": 51,
+  "rust_declaration": {
+    "declaration_id": "core:8678",
+    "name": "assume_init_mut",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 55, patch: 0 })},\nfeature: \"maybe_uninit_ref\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"const_maybe_uninit_assume_init\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/mem/maybe_uninit.rs",
+      "begin": [
+        1010,
+        5
+      ],
+      "end": [
+        1017,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": true,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": true,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:8682",
+      "for": {
+        "resolved_path": {
+          "path": "MaybeUninit",
+          "id": 8278,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:8278",
+      "resolved_owner_path": [
+        "core",
+        "mem",
+        "maybe_uninit",
+        "MaybeUninit"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": true,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "   990:     ///     a: u32,\n   991:     ///     b: u8,\n   992:     /// }\n   993:     ///\n   994:     /// let foo: Foo = unsafe {\n   995:     ///     let mut foo = MaybeUninit::<Foo>::uninit();\n   996:     ///     ptr::write(&mut foo.assume_init_mut().a as *mut u32, 1337);\n   997:     ///     //              ^^^^^^^^^^^^^^^^^^^^^\n   998:     ///     // (mutable) reference to uninitialized memory!\n   999:     ///     // This is undefined behavior.\n  1000:     ///     ptr::write(&mut foo.assume_init_mut().b as *mut u8, 42);\n  1001:     ///     //              ^^^^^^^^^^^^^^^^^^^^^\n  1002:     ///     // (mutable) reference to uninitialized memory!\n  1003:     ///     // This is undefined behavior.\n  1004:     ///     foo.assume_init()\n  1005:     /// };\n  1006:     /// ```\n  1007:     #[stable(feature = \"maybe_uninit_ref\", since = \"1.55.0\")]\n  1008:     #[rustc_const_stable(feature = \"const_maybe_uninit_assume_init\", since = \"1.84.0\")]\n  1009:     #[inline(always)]\n  1010:     pub const unsafe fn assume_init_mut(&mut self) -> &mut T {\n  1011:         // SAFETY: the caller must guarantee that `self` is initialized.\n  1012:         // This also means that `self` must be a `value` variant.\n  1013:         unsafe {\n  1014:             intrinsics::assert_inhabited::<T>();\n  1015:             &mut *self.as_mut_ptr()\n  1016:         }\n  1017:     }\n  1018: \n  1019:     /// Extracts the values from an array of `MaybeUninit` containers.\n  1020:     ///\n  1021:     /// # Safety\n  1022:     ///\n  1023:     /// It is up to the caller to guarantee that all elements of the array are\n  1024:     /// in an initialized state.\n  1025:     ///\n  1026:     /// # Examples\n  1027:     ///\n  1028:     /// ```\n  1029:     /// #![feature(maybe_uninit_array_assume_init)]\n  1030:     /// use std::mem::MaybeUninit;",
+    "source_text": "pub const unsafe fn assume_init_mut(&mut self) -> &mut T {\n        // SAFETY: the caller must guarantee that `self` is initialized.\n        // This also means that `self` must be a `value` variant.\n        unsafe {\n            intrinsics::assert_inhabited::<T>();\n            &mut *self.as_mut_ptr()\n        }\n    }",
+    "has_body": true
+  }
+}

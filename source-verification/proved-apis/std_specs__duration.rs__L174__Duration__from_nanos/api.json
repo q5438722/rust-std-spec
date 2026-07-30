@@ -1,0 +1,103 @@
+{
+  "id": "std_specs__duration.rs__L174__Duration__from_nanos",
+  "api_path": "core::time::Duration::from_nanos",
+  "normalized_api_path": "core::time::Duration::from_nanos",
+  "raw_target": "Duration::from_nanos",
+  "contract_source_file": "std_specs/duration.rs",
+  "contract_source_line": 174,
+  "rust_declaration": {
+    "declaration_id": "core:32342",
+    "name": "from_nanos",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 27, patch: 0 })},\nfeature: \"duration_extras\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 32, patch: 0 })},\nfeature: \"duration_consts\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/time.rs",
+      "begin": [
+        301,
+        5
+      ],
+      "end": [
+        309,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "nanos",
+          {
+            "primitive": "u64"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32378",
+      "for": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10186",
+      "resolved_owner_path": [
+        "core",
+        "time",
+        "Duration"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   281:     ///\n   282:     /// Note: Using this on the return value of `as_nanos()` might cause unexpected behavior:\n   283:     /// `as_nanos()` returns a u128, and can return values that do not fit in u64, e.g. 585 years.\n   284:     /// Instead, consider using the pattern `Duration::new(d.as_secs(), d.subsec_nanos())`\n   285:     /// if you cannot copy/clone the Duration directly.\n   286:     ///\n   287:     /// # Examples\n   288:     ///\n   289:     /// ```\n   290:     /// use std::time::Duration;\n   291:     ///\n   292:     /// let duration = Duration::from_nanos(1_000_000_123);\n   293:     ///\n   294:     /// assert_eq!(1, duration.as_secs());\n   295:     /// assert_eq!(123, duration.subsec_nanos());\n   296:     /// ```\n   297:     #[stable(feature = \"duration_extras\", since = \"1.27.0\")]\n   298:     #[must_use]\n   299:     #[inline]\n   300:     #[rustc_const_stable(feature = \"duration_consts\", since = \"1.32.0\")]\n   301:     pub const fn from_nanos(nanos: u64) -> Duration {\n   302:         const NANOS_PER_SEC: u64 = self::NANOS_PER_SEC as u64;\n   303:         let secs = nanos / NANOS_PER_SEC;\n   304:         let subsec_nanos = (nanos % NANOS_PER_SEC) as u32;\n   305:         // SAFETY: x % 1_000_000_000 < 1_000_000_000\n   306:         let subsec_nanos = unsafe { Nanoseconds::new_unchecked(subsec_nanos) };\n   307: \n   308:         Duration { secs, nanos: subsec_nanos }\n   309:     }\n   310: \n   311:     /// Creates a new `Duration` from the specified number of nanoseconds.\n   312:     ///\n   313:     /// # Panics\n   314:     ///\n   315:     /// Panics if the given number of nanoseconds is greater than [`Duration::MAX`].\n   316:     ///\n   317:     /// # Examples\n   318:     ///\n   319:     /// ```\n   320:     /// use std::time::Duration;\n   321:     ///",
+    "source_text": "pub const fn from_nanos(nanos: u64) -> Duration {\n        const NANOS_PER_SEC: u64 = self::NANOS_PER_SEC as u64;\n        let secs = nanos / NANOS_PER_SEC;\n        let subsec_nanos = (nanos % NANOS_PER_SEC) as u32;\n        // SAFETY: x % 1_000_000_000 < 1_000_000_000\n        let subsec_nanos = unsafe { Nanoseconds::new_unchecked(subsec_nanos) };\n\n        Duration { secs, nanos: subsec_nanos }\n    }",
+    "has_body": true
+  }
+}

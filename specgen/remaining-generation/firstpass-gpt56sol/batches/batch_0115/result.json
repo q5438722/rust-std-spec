@@ -1,0 +1,114 @@
+{
+  "batch": 115,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 142790,
+  "targets": [
+    "core::alloc::Layout::size",
+    "core::array::IntoIter::as_slice",
+    "core::array::IntoIter::new",
+    "core::cell::Cell::as_array_of_cells",
+    "core::cell::Cell::as_slice_of_cells",
+    "core::cell::Cell::from_mut"
+  ],
+  "candidates": [
+    {
+      "target": "core::alloc::Layout::size",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads Layout's private size field, but vstd has no specification projection for a Layout value. Existing layout predicates cannot relate the result to self.",
+      "risks": [
+        "missing Layout value abstraction",
+        "allocation-sensitive invariant"
+      ]
+    },
+    {
+      "target": "core::array::IntoIter::as_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned slice represents unyielded elements, but core::array::IntoIter has no vstd view or IteratorSpec model exposing that sequence.",
+      "risks": [
+        "hidden iterator state",
+        "reference identity versus view"
+      ]
+    },
+    {
+      "target": "core::array::IntoIter::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the input array has a Seq view, vstd has no corresponding model for the resulting core::array::IntoIter, so the transferred element sequence cannot be stated.",
+      "risks": [
+        "missing iterator abstraction",
+        "ownership transfer"
+      ]
+    },
+    {
+      "target": "core::cell::Cell::as_array_of_cells",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source performs a layout-preserving reference cast, but vstd has no content, aliasing, or identity model for core::cell::Cell. The array length is already implied by the return type.",
+      "risks": [
+        "interior mutability",
+        "reference identity",
+        "aliasing model absent"
+      ]
+    },
+    {
+      "target": "core::cell::Cell::as_slice_of_cells",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reinterprets the same unsized storage, but no current vstd abstraction relates Cell<[T]> metadata and contents to a slice of Cell<T>.",
+      "risks": [
+        "interior mutability",
+        "unsized metadata",
+        "reference identity"
+      ]
+    },
+    {
+      "target": "core::cell::Cell::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source converts unique mutable access into a shared Cell reference over the same storage. Current vstd cannot express that identity and interior-mutation relationship using old/final alone.",
+      "risks": [
+        "interior mutability",
+        "mutable-reference aliasing",
+        "reference identity"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicI32::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned prior value and conditional update depend on hidden concurrent atomic state at a linearization point that current public vstd vocabulary cannot express.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "compare_exchange_interference"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires an atomic-state model and support for relating potentially repeated FnMut invocations under compare-exchange interference to the Result.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "closure_may_be_invoked_multiple_times",
+        "compare_exchange_interference"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "vstd lacks a public model relating the mutable integer storage to the returned mutable atomic reference, including its identity and hidden state.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_atomic_storage_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "vstd lacks a public abstraction relating a mutable integer slice to the returned mutable slice of atomics and their hidden storage.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_atomic_slice_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract would need pointer provenance, alignment, lifetime, aliasing, and atomic-storage abstractions not available in current public vstd vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "pointer_provenance",
+        "raw_pointer_lifetime",
+        "missing_atomic_storage_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable reference exposes atomic storage whose value and identity have no public model in current vstd vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}
+

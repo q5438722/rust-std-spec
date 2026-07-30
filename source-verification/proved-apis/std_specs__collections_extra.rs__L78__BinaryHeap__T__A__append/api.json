@@ -1,0 +1,169 @@
+{
+  "id": "std_specs__collections_extra.rs__L78__BinaryHeap__T__A__append",
+  "api_path": "alloc::collections::BinaryHeap::append",
+  "normalized_api_path": "alloc::collections::BinaryHeap::append",
+  "raw_target": "BinaryHeap::<T, A>::append",
+  "contract_source_file": "std_specs/collections_extra.rs",
+  "contract_source_line": 78,
+  "rust_declaration": {
+    "declaration_id": "alloc:991",
+    "name": "append",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 11, patch: 0 })},\nfeature: \"binary_heap_append\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/binary_heap/mod.rs",
+      "begin": [
+        999,
+        5
+      ],
+      "end": [
+        1009,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "other",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:995",
+      "for": {
+        "resolved_path": {
+          "path": "BinaryHeap",
+          "id": 979,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Ord",
+                        "id": 176,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:979",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "binary_heap",
+        "BinaryHeap"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self",
+        "other"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "   979:     }\n   980: \n   981:     /// Moves all the elements of `other` into `self`, leaving `other` empty.\n   982:     ///\n   983:     /// # Examples\n   984:     ///\n   985:     /// Basic usage:\n   986:     ///\n   987:     /// ```\n   988:     /// use std::collections::BinaryHeap;\n   989:     ///\n   990:     /// let mut a = BinaryHeap::from([-10, 1, 2, 3, 3]);\n   991:     /// let mut b = BinaryHeap::from([-20, 5, 43]);\n   992:     ///\n   993:     /// a.append(&mut b);\n   994:     ///\n   995:     /// assert_eq!(a.into_sorted_vec(), [-20, -10, 1, 2, 3, 3, 5, 43]);\n   996:     /// assert!(b.is_empty());\n   997:     /// ```\n   998:     #[stable(feature = \"binary_heap_append\", since = \"1.11.0\")]\n   999:     pub fn append(&mut self, other: &mut Self) {\n  1000:         if self.len() < other.len() {\n  1001:             swap(self, other);\n  1002:         }\n  1003: \n  1004:         let start = self.data.len();\n  1005: \n  1006:         self.data.append(&mut other.data);\n  1007: \n  1008:         self.rebuild_tail(start);\n  1009:     }\n  1010: \n  1011:     /// Clears the binary heap, returning an iterator over the removed elements\n  1012:     /// in heap order. If the iterator is dropped before being fully consumed,\n  1013:     /// it drops the remaining elements in heap order.\n  1014:     ///\n  1015:     /// The returned iterator keeps a mutable borrow on the heap to optimize\n  1016:     /// its implementation.\n  1017:     ///\n  1018:     /// Note:\n  1019:     /// * `.drain_sorted()` is *O*(*n* \\* log(*n*)); much slower than `.drain()`.",
+    "source_text": "pub fn append(&mut self, other: &mut Self) {\n        if self.len() < other.len() {\n            swap(self, other);\n        }\n\n        let start = self.data.len();\n\n        self.data.append(&mut other.data);\n\n        self.rebuild_tail(start);\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "id": "core__slice__trim_ascii_start__febd01f2b7a9",
+  "api_path": "core::slice::trim_ascii_start",
+  "raw_target": "<[u8]>::trim_ascii_start",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"byte_slice_trim_ascii\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"byte_slice_trim_ascii\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "declaration_id": "core:51782",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "trim_ascii_start",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "primitive": "u8"
+        }
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:51785",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "borrowed_ref": {
+          "is_mutable": false,
+          "lifetime": null,
+          "type": {
+            "slice": {
+              "primitive": "u8"
+            }
+          }
+        }
+      }
+    },
+    "source_context": "   192:     #[stable(feature = \"ascii_methods_on_intrinsics\", since = \"1.23.0\")]\n   193:     #[rustc_const_stable(feature = \"const_make_ascii\", since = \"1.84.0\")]\n   194:     #[inline]\n   195:     pub const fn make_ascii_lowercase(&mut self) {\n   196:         // FIXME(const-hack): We would like to simply iterate using `for` loops but this isn't currently allowed in constant expressions.\n   197:         let mut i = 0;\n   198:         while i < self.len() {\n   199:             let byte = &mut self[i];\n   200:             byte.make_ascii_lowercase();\n   201:             i += 1;\n   202:         }\n   203:     }\n   204: \n   205:     /// Returns an iterator that produces an escaped version of this slice,\n   206:     /// treating it as an ASCII string.\n   207:     ///\n   208:     /// # Examples\n   209:     ///\n   210:     /// ```\n   211:     /// let s = b\"0\\t\\r\\n'\\\"\\\\\\x9d\";\n   212:     /// let escaped = s.escape_ascii().to_string();\n   213:     /// assert_eq!(escaped, \"0\\\\t\\\\r\\\\n\\\\'\\\\\\\"\\\\\\\\\\\\x9d\");\n   214:     /// ```\n   215:     #[must_use = \"this returns the escaped bytes as an iterator, \\\n   216:                   without modifying the original\"]\n   217:     #[stable(feature = \"inherent_ascii_escape\", since = \"1.60.0\")]\n   218:     pub fn escape_ascii(&self) -> EscapeAscii<'_> {\n   219:         EscapeAscii { inner: self.iter().flat_map(EscapeByte) }\n   220:     }\n   221: \n   222:     /// Returns a byte slice with leading ASCII whitespace bytes removed.\n   223:     ///\n   224:     /// 'Whitespace' refers to the definition used by\n   225:     /// [`u8::is_ascii_whitespace`].\n   226:     ///\n   227:     /// # Examples\n   228:     ///\n   229:     /// ```\n   230:     /// assert_eq!(b\" \\t hello world\\n\".trim_ascii_start(), b\"hello world\\n\");\n   231:     /// assert_eq!(b\"  \".trim_ascii_start(), b\"\");\n   232:     /// assert_eq!(b\"\".trim_ascii_start(), b\"\");\n   233:     /// ```\n   234:     #[stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   235:     #[rustc_const_stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   236:     #[inline]\n   237:     pub const fn trim_ascii_start(&self) -> &[u8] {\n   238:         let mut bytes = self;\n   239:         // Note: A pattern matching based approach (instead of indexing) allows\n   240:         // making the function const.\n   241:         while let [first, rest @ ..] = bytes {\n   242:             if first.is_ascii_whitespace() {\n   243:                 bytes = rest;\n   244:             } else {\n   245:                 break;\n   246:             }\n   247:         }\n   248:         bytes\n   249:     }\n   250: \n   251:     /// Returns a byte slice with trailing ASCII whitespace bytes removed.\n   252:     ///\n   253:     /// 'Whitespace' refers to the definition used by\n   254:     /// [`u8::is_ascii_whitespace`].\n   255:     ///\n   256:     /// # Examples\n   257:     ///\n   258:     /// ```\n   259:     /// assert_eq!(b\"\\r hello world\\n \".trim_ascii_end(), b\"\\r hello world\");\n   260:     /// assert_eq!(b\"  \".trim_ascii_end(), b\"\");\n   261:     /// assert_eq!(b\"\".trim_ascii_end(), b\"\");\n   262:     /// ```\n   263:     #[stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   264:     #[rustc_const_stable(feature = \"byte_slice_trim_ascii\", since = \"1.80.0\")]\n   265:     #[inline]\n   266:     pub const fn trim_ascii_end(&self) -> &[u8] {\n   267:         let mut bytes = self;\n   268:         // Note: A pattern matching based approach (instead of indexing) allows\n   269:         // making the function const.\n   270:         while let [rest @ .., last] = bytes {\n   271:             if last.is_ascii_whitespace() {\n   272:                 bytes = rest;\n   273:             } else {\n   274:                 break;\n   275:             }\n   276:         }\n   277:         bytes\n   278:     }\n   279: \n   280:     /// Returns a byte slice with leading and trailing ASCII whitespace bytes\n   281:     /// removed.\n   282:     ///",
+    "span": {
+      "begin": [
+        237,
+        5
+      ],
+      "end": [
+        249,
+        6
+      ],
+      "filename": "core/src/slice/ascii.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn trim_ascii_start(&self) -> &[u8] {\n        let mut bytes = self;\n        // Note: A pattern matching based approach (instead of indexing) allows\n        // making the function const.\n        while let [first, rest @ ..] = bytes {\n            if first.is_ascii_whitespace() {\n                bytes = rest;\n            } else {\n                break;\n            }\n        }\n        bytes\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower std API u8::is_ascii_whitespace returns true exactly for bytes 9, 10, 12, 13, and 32.",
+    "vstd slice length, range-indexing, and element-indexing contracts connect executable slice operations to slice views."
+  ],
+  "rationale": "The slice pattern is mechanically lowered to an empty test and first/tail projections; loop invariants prove the removed whitespace prefix, returned suffix, and boundary byte.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__trim_ascii_start__febd01f2b7a9"
+}

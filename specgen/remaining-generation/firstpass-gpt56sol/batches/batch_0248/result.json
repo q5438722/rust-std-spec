@@ -1,0 +1,159 @@
+{
+  "batch": 248,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 359523,
+  "targets": [
+    "std::sync::TryLockResult::map_err",
+    "std::sync::TryLockResult::map_or",
+    "std::sync::TryLockResult::map_or_default",
+    "std::sync::TryLockResult::map_or_else",
+    "std::sync::TryLockResult::ok",
+    "std::sync::TryLockResult::or"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::TryLockResult::map_err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> F>[ Result::<T, E>::map_err ](\n    result: Result<T, E>,\n    op: O,\n) -> (mapped_result: Result<T, F>)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Err ==> mapped_result is Err\n            && op.ensures((result->Err_0,), mapped_result->Err_0),\n        result is Ok ==> mapped_result == Result::<T, F>::Ok(result->Ok_0),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Err ==> mapped_result is Err && op.ensures((result->Err_0,), mapped_result->Err_0)",
+        "result is Ok ==> mapped_result == Result::<T, F>::Ok(result->Ok_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The supplied owner and body show that this alias method is Result::map_err: it preserves Ok and applies the closure only to Err. This exposes no lock internals.",
+      "risks": [
+        "TryLockResult is an alias, so this specifies the canonical Result method globally.",
+        "Closure effects and unwinding are represented only through its Verus contract."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::map_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or ](\n    result: Result<T, E>,\n    default: U,\n    f: F,\n) -> (value: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), value),\n        result is Err ==> value == default,\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), value)",
+        "result is Err ==> value == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source gives a public, branch-exact relation: call f for Ok and return default for Err. No mutex state is inspected.",
+      "risks": [
+        "The unused argument and closure may be dropped; destructor and unwinding effects are not modeled.",
+        "The proxy applies to Result globally because TryLockResult is an alias."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::map_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U: core::default::Default, F: FnOnce(T) -> U>[ Result::<T, E>::map_or_default ](\n    result: Result<T, E>,\n    f: F,\n) -> (value: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), value),\n        result is Err ==> U::default.ensures((), value),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), value)",
+        "result is Err ==> U::default.ensures((), value)"
+      ],
+      "feature_gates": [
+        "result_option_map_or_default"
+      ],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source selects either f or Default::default, both expressible through existing function requires/ensures vocabulary.",
+      "risks": [
+        "The Err relation is only as informative as the available specification for U::default.",
+        "Rust 1.96 requires the result_option_map_or_default feature gate."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::map_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, D: FnOnce(E) -> U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or_else ](\n    result: Result<T, E>,\n    default: D,\n    f: F,\n) -> (value: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n        result is Err ==> default.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), value),\n        result is Err ==> default.ensures((result->Err_0,), value),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))",
+        "result is Err ==> default.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), value)",
+        "result is Err ==> default.ensures((result->Err_0,), value)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The match body invokes exactly one closure according to the public Result variant, which FnOnce contracts model directly.",
+      "risks": [
+        "The contract does not model effects from dropping the unselected closure.",
+        "Mutex-related state carried by either payload remains opaque."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::ok ](\n    result: Result<T, E>,\n) -> (opt: Option<T>)\n    ensures\n        result is Ok ==> opt == Option::<T>::Some(result->Ok_0),\n        result is Err ==> opt == Option::<T>::None,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> opt == Option::<T>::Some(result->Ok_0)",
+        "result is Err ==> opt == Option::<T>::None"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::option::Option",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source defines an exact public enum conversion, preserving the Ok payload and discarding Err without inspecting hidden state.",
+      "risks": [
+        "Dropping the discarded error may have runtime effects not represented by this normal-return value contract.",
+        "The proxy is for Result::ok globally."
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F>[ Result::<T, E>::or ](\n    result: Result<T, E>,\n    res: Result<T, F>,\n) -> (combined: Result<T, F>)\n    ensures\n        result is Ok ==> combined == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> combined == res,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> combined == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> combined == res"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source provides an exact public Result relation: preserve self's Ok value or return res when self is Err.",
+      "risks": [
+        "Discarded payloads may have destructor effects outside this value-level contract.",
+        "The alias resolves to the canonical Result::or method."
+      ]
+    }
+  ]
+}

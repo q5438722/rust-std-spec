@@ -1,0 +1,74 @@
+{
+  "id": "std_specs__slice.rs__L92__core__hint__unreachable_unchecked",
+  "api_path": "core::hint::unreachable_unchecked",
+  "raw_target": "core::hint::unreachable_unchecked",
+  "contract_source_file": "std_specs/slice.rs",
+  "contract_source_line": 92,
+  "rust_declaration": {
+    "declaration_id": "core:7824",
+    "name": "unreachable_unchecked",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 27, patch: 0 })},\nfeature: \"unreachable\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 57, patch: 0 })},\nfeature: \"const_unreachable_unchecked\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/hint.rs",
+      "begin": [
+        103,
+        1
+      ],
+      "end": [
+        112,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": true,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [],
+      "output": {
+        "primitive": "never"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "    83: ///\n    84: /// ```\n    85: /// fn div_1(a: u32, b: u32) -> u32 {\n    86: ///     use std::hint::unreachable_unchecked;\n    87: ///\n    88: ///     // `b.saturating_add(1)` is always positive (not zero),\n    89: ///     // hence `checked_div` will never return `None`.\n    90: ///     // Therefore, the else branch is unreachable.\n    91: ///     a.checked_div(b.saturating_add(1))\n    92: ///         .unwrap_or_else(|| unsafe { unreachable_unchecked() })\n    93: /// }\n    94: ///\n    95: /// assert_eq!(div_1(7, 0), 7);\n    96: /// assert_eq!(div_1(9, 1), 4);\n    97: /// assert_eq!(div_1(11, u32::MAX), 0);\n    98: /// ```\n    99: #[inline]\n   100: #[stable(feature = \"unreachable\", since = \"1.27.0\")]\n   101: #[rustc_const_stable(feature = \"const_unreachable_unchecked\", since = \"1.57.0\")]\n   102: #[track_caller]\n   103: pub const unsafe fn unreachable_unchecked() -> ! {\n   104:     ub_checks::assert_unsafe_precondition!(\n   105:         check_language_ub,\n   106:         \"hint::unreachable_unchecked must never be reached\",\n   107:         () => false\n   108:     );\n   109:     // SAFETY: the safety contract for `intrinsics::unreachable` must\n   110:     // be upheld by the caller.\n   111:     unsafe { intrinsics::unreachable() }\n   112: }\n   113: \n   114: /// Makes a *soundness* promise to the compiler that `cond` holds.\n   115: ///\n   116: /// This may allow the optimizer to simplify things, but it might also make the generated code\n   117: /// slower. Either way, calling it will most likely make compilation take longer.\n   118: ///\n   119: /// You may know this from other places as\n   120: /// [`llvm.assume`](https://llvm.org/docs/LangRef.html#llvm-assume-intrinsic) or, in C,\n   121: /// [`__builtin_assume`](https://clang.llvm.org/docs/LanguageExtensions.html#builtin-assume).\n   122: ///\n   123: /// This promotes a correctness requirement to a soundness requirement. Don't do that without",
+    "source_text": "pub const unsafe fn unreachable_unchecked() -> ! {\n    ub_checks::assert_unsafe_precondition!(\n        check_language_ub,\n        \"hint::unreachable_unchecked must never be reached\",\n        () => false\n    );\n    // SAFETY: the safety contract for `intrinsics::unreachable` must\n    // be upheld by the caller.\n    unsafe { intrinsics::unreachable() }\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "core::intrinsics::unreachable has safety precondition false and never returns."
+  ],
+  "rationale": "The false caller precondition proves the identical precondition of the underlying compiler intrinsic without calling the target wrapper.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__slice.rs__L92__core__hint__unreachable_unchecked"
+}

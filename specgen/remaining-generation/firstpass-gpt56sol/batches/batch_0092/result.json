@@ -1,0 +1,108 @@
+{
+  "batch": 92,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 22622,
+  "targets": [
+    "core::slice::array_windows",
+    "core::slice::chunks",
+    "core::slice::chunks_exact",
+    "core::slice::chunks_exact_mut",
+    "core::slice::chunks_mut",
+    "core::slice::escape_ascii"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::array_windows",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is an ArrayWindows iterator whose overlapping-window sequence cannot be related to the source slice using the current public vstd vocabulary; N != 0 alone would not provide a useful result contract.",
+      "risks": [
+        "Requires a missing prophetic iterator model"
+      ]
+    },
+    {
+      "target": "core::slice::chunks",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source establishes the nonzero chunk-size panic condition and iteration order, but current vstd cannot express the returned Chunks iterator's future sequence; a precondition alone is not a useful contract.",
+      "risks": [
+        "Requires a missing prophetic iterator model"
+      ]
+    },
+    {
+      "target": "core::slice::chunks_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the exact chunks and separately observable remainder requires a model of ChunksExact's evolving iterator state that is absent from current public vstd vocabulary.",
+      "risks": [
+        "Requires a missing prophetic iterator and remainder model"
+      ]
+    },
+    {
+      "target": "core::slice::chunks_exact_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable iterator lends disjoint mutable chunks and exposes a remainder; this future mutation and aliasing behavior cannot be captured with only old(self) and final(self) in current vstd.",
+      "risks": [
+        "Requires a missing prophetic mutable-iterator model",
+        "Needs disjoint mutable-borrow semantics"
+      ]
+    },
+    {
+      "target": "core::slice::chunks_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is the future production of disjoint mutable chunks, including a final short chunk, which current vstd has no public prophetic mutable-iterator abstraction to describe.",
+      "risks": [
+        "Requires a missing prophetic mutable-iterator model",
+        "Needs disjoint mutable-borrow semantics"
+      ]
+    },
+    {
+      "target": "core::slice::escape_ascii",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a lazy EscapeAscii adapter, and current vstd cannot relate its future emitted byte sequence to the source slice's per-byte escaping behavior without an iterator-sequence model.",
+      "risks": [
+        "Requires a missing prophetic iterator model",
+        "Escaping behavior cannot be observed through existing public specifications"
+      ]
+    }
+  ]
+}

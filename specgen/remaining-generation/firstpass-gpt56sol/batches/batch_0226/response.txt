@@ -1,0 +1,108 @@
+{
+  "candidates": [
+    {
+      "target": "std::process::Command::env",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates unmodeled Command environment state and returns &mut self; vstd has no public Command/OsStr environment-state abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "std::process::Command::env_clear",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its documented effect concerns hidden Command environment state, including inheritance behavior, and its &mut Command result cannot be usefully related without a Command model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unsupported_mutable_reference_return",
+        "missing_command_environment_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::env_remove",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Removal and prevention of inheritance affect hidden Command environment state; vstd cannot express the key mapping change or a useful final(self) relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unsupported_mutable_reference_return",
+        "missing_os_string_and_environment_model"
+      ]
+    },
+    {
+      "target": "std::process::Command::envs",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The effect depends on consuming a generic IntoIterator and updating hidden Command environment mappings; existing vstd vocabulary models neither relation here.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unsupported_mutable_reference_return",
+        "missing_into_iterator_contract",
+        "missing_command_environment_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Command::get_args",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned CommandArgs iterator exposes hidden argument state, but no public vstd view connects Command, CommandArgs, and borrowed OsStr elements.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_command_argument_abstraction",
+        "missing_iterator_view"
+      ]
+    },
+    {
+      "target": "std::process::Command::get_current_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Option<&Path> result reflects hidden Command configuration, and vstd provides no Command current-directory model to state a useful value relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_command_directory_abstraction"
+      ]
+    }
+  ]
+}
+

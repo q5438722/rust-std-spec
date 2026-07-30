@@ -1,0 +1,137 @@
+{
+  "id": "std_specs__ffi.rs__L179__CStr__from_bytes_with_nul",
+  "api_path": "core::ffi::CStr::from_bytes_with_nul",
+  "raw_target": "CStr::from_bytes_with_nul",
+  "contract_source_file": "std_specs/ffi.rs",
+  "contract_source_line": 179,
+  "rust_declaration": {
+    "declaration_id": "core:25238",
+    "name": "from_bytes_with_nul",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 10, patch: 0 })},\nfeature: \"cstr_from_bytes\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 72, patch: 0 })},\nfeature: \"const_cstr_methods\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/ffi/c_str.rs",
+      "begin": [
+        351,
+        5
+      ],
+      "end": [
+        362,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "bytes",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "slice": {
+                  "primitive": "u8"
+                }
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "lifetime": null,
+                      "is_mutable": false,
+                      "type": {
+                        "generic": "Self"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "FromBytesWithNulError",
+                      "id": 9827,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:25249",
+      "for": {
+        "resolved_path": {
+          "path": "CStr",
+          "id": 10771,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10771",
+      "resolved_owner_path": [
+        "core",
+        "ffi",
+        "c_str",
+        "CStr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   331:     ///\n   332:     /// Creating a `CStr` without a trailing nul terminator is an error:\n   333:     ///\n   334:     /// ```\n   335:     /// use std::ffi::{CStr, FromBytesWithNulError};\n   336:     ///\n   337:     /// let cstr = CStr::from_bytes_with_nul(b\"hello\");\n   338:     /// assert_eq!(cstr, Err(FromBytesWithNulError::NotNulTerminated));\n   339:     /// ```\n   340:     ///\n   341:     /// Creating a `CStr` with an interior nul byte is an error:\n   342:     ///\n   343:     /// ```\n   344:     /// use std::ffi::{CStr, FromBytesWithNulError};\n   345:     ///\n   346:     /// let cstr = CStr::from_bytes_with_nul(b\"he\\0llo\\0\");\n   347:     /// assert_eq!(cstr, Err(FromBytesWithNulError::InteriorNul { position: 2 }));\n   348:     /// ```\n   349:     #[stable(feature = \"cstr_from_bytes\", since = \"1.10.0\")]\n   350:     #[rustc_const_stable(feature = \"const_cstr_methods\", since = \"1.72.0\")]\n   351:     pub const fn from_bytes_with_nul(bytes: &[u8]) -> Result<&Self, FromBytesWithNulError> {\n   352:         let nul_pos = memchr::memchr(0, bytes);\n   353:         match nul_pos {\n   354:             Some(nul_pos) if nul_pos + 1 == bytes.len() => {\n   355:                 // SAFETY: We know there is only one nul byte, at the end\n   356:                 // of the byte slice.\n   357:                 Ok(unsafe { Self::from_bytes_with_nul_unchecked(bytes) })\n   358:             }\n   359:             Some(position) => Err(FromBytesWithNulError::InteriorNul { position }),\n   360:             None => Err(FromBytesWithNulError::NotNulTerminated),\n   361:         }\n   362:     }\n   363: \n   364:     /// Unsafely creates a C string wrapper from a byte slice.\n   365:     ///\n   366:     /// This function will cast the provided `bytes` to a `CStr` wrapper without\n   367:     /// performing any sanity checks.\n   368:     ///\n   369:     /// # Safety\n   370:     /// The provided slice **must** be nul-terminated and not contain any interior\n   371:     /// nul bytes.",
+    "source_text": "pub const fn from_bytes_with_nul(bytes: &[u8]) -> Result<&Self, FromBytesWithNulError> {\n        let nul_pos = memchr::memchr(0, bytes);\n        match nul_pos {\n            Some(nul_pos) if nul_pos + 1 == bytes.len() => {\n                // SAFETY: We know there is only one nul byte, at the end\n                // of the byte slice.\n                Ok(unsafe { Self::from_bytes_with_nul_unchecked(bytes) })\n            }\n            Some(position) => Err(FromBytesWithNulError::InteriorNul { position }),\n            None => Err(FromBytesWithNulError::NotNulTerminated),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "The distinct lower-level CStr::from_bytes_with_nul_unchecked operation preserves valid bytes as the CStr view.",
+    "The visible error-construction helpers are typed bridges for vstd's opaque FromBytesWithNulError model; no error semantics are assumed.",
+    "vstd::slice::axiom_spec_len relates executable slice length to its sequence view."
+  ],
+  "rationale": "The source scan and match structure are preserved. A lower-level adapter calls only the distinct unchecked constructor, avoiding any circular use of the exact target contract.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__ffi.rs__L179__CStr__from_bytes_with_nul"
+}

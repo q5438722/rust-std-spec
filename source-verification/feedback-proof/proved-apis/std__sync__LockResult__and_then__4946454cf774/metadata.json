@@ -1,0 +1,237 @@
+{
+  "id": "std__sync__LockResult__and_then__4946454cf774",
+  "api_path": "std::sync::LockResult::and_then",
+  "raw_target": "Result::<T, E>::and_then",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcConfusables {symbols: [\"flat_map\", \"flatmap\"]}]"
+      }
+    ],
+    "declaration_id": "core:29304",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "resolved_path": {
+                            "args": {
+                              "angle_bracketed": {
+                                "args": [
+                                  {
+                                    "type": {
+                                      "generic": "U"
+                                    }
+                                  },
+                                  {
+                                    "type": {
+                                      "generic": "E"
+                                    }
+                                  }
+                                ],
+                                "constraints": []
+                              }
+                            },
+                            "id": 90,
+                            "path": "Result"
+                          }
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "and_then",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "op",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "U"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "  1443:     where\n  1444:         T: [const] Destruct,\n  1445:         E: [const] Destruct,\n  1446:         U: [const] Destruct,\n  1447:     {\n  1448:         match self {\n  1449:             Ok(_) => res,\n  1450:             Err(e) => Err(e),\n  1451:         }\n  1452:     }\n  1453: \n  1454:     /// Calls `op` if the result is [`Ok`], otherwise returns the [`Err`] value of `self`.\n  1455:     ///\n  1456:     ///\n  1457:     /// This function can be used for control flow based on `Result` values.\n  1458:     ///\n  1459:     /// # Examples\n  1460:     ///\n  1461:     /// ```\n  1462:     /// fn sq_then_to_string(x: u32) -> Result<String, &'static str> {\n  1463:     ///     x.checked_mul(x).map(|sq| sq.to_string()).ok_or(\"overflowed\")\n  1464:     /// }\n  1465:     ///\n  1466:     /// assert_eq!(Ok(2).and_then(sq_then_to_string), Ok(4.to_string()));\n  1467:     /// assert_eq!(Ok(1_000_000).and_then(sq_then_to_string), Err(\"overflowed\"));\n  1468:     /// assert_eq!(Err(\"not a number\").and_then(sq_then_to_string), Err(\"not a number\"));\n  1469:     /// ```\n  1470:     ///\n  1471:     /// Often used to chain fallible operations that may return [`Err`].\n  1472:     ///\n  1473:     /// ```\n  1474:     /// use std::{io::ErrorKind, path::Path};\n  1475:     ///\n  1476:     /// // Note: on Windows \"/\" maps to \"C:\\\"\n  1477:     /// let root_modified_time = Path::new(\"/\").metadata().and_then(|md| md.modified());\n  1478:     /// assert!(root_modified_time.is_ok());\n  1479:     ///\n  1480:     /// let should_fail = Path::new(\"/bad/path\").metadata().and_then(|md| md.modified());\n  1481:     /// assert!(should_fail.is_err());\n  1482:     /// assert_eq!(should_fail.unwrap_err().kind(), ErrorKind::NotFound);\n  1483:     /// ```\n  1484:     #[inline]\n  1485:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1486:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1487:     #[rustc_confusables(\"flat_map\", \"flatmap\")]\n  1488:     pub const fn and_then<U, F>(self, op: F) -> Result<U, E>\n  1489:     where\n  1490:         F: [const] FnOnce(T) -> Result<U, E> + [const] Destruct,\n  1491:     {\n  1492:         match self {\n  1493:             Ok(t) => op(t),\n  1494:             Err(e) => Err(e),\n  1495:         }\n  1496:     }\n  1497: \n  1498:     /// Returns `res` if the result is [`Err`], otherwise returns the [`Ok`] value of `self`.\n  1499:     ///\n  1500:     /// Arguments passed to `or` are eagerly evaluated; if you are passing the\n  1501:     /// result of a function call, it is recommended to use [`or_else`], which is\n  1502:     /// lazily evaluated.\n  1503:     ///\n  1504:     /// [`or_else`]: Result::or_else\n  1505:     ///\n  1506:     /// # Examples\n  1507:     ///\n  1508:     /// ```\n  1509:     /// let x: Result<u32, &str> = Ok(2);\n  1510:     /// let y: Result<u32, &str> = Err(\"late error\");\n  1511:     /// assert_eq!(x.or(y), Ok(2));\n  1512:     ///\n  1513:     /// let x: Result<u32, &str> = Err(\"early error\");\n  1514:     /// let y: Result<u32, &str> = Ok(2);\n  1515:     /// assert_eq!(x.or(y), Ok(2));\n  1516:     ///\n  1517:     /// let x: Result<u32, &str> = Err(\"not a 2\");\n  1518:     /// let y: Result<u32, &str> = Err(\"late error\");\n  1519:     /// assert_eq!(x.or(y), Err(\"late error\"));\n  1520:     ///\n  1521:     /// let x: Result<u32, &str> = Ok(2);\n  1522:     /// let y: Result<u32, &str> = Ok(100);\n  1523:     /// assert_eq!(x.or(y), Ok(2));\n  1524:     /// ```\n  1525:     #[inline]\n  1526:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1527:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1528:     pub const fn or<F>(self, res: Result<T, F>) -> Result<T, F>\n  1529:     where\n  1530:         T: [const] Destruct,\n  1531:         E: [const] Destruct,\n  1532:         F: [const] Destruct,\n  1533:     {",
+    "span": {
+      "begin": [
+        1488,
+        5
+      ],
+      "end": [
+        1496,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn and_then<U, F>(self, op: F) -> Result<U, E>\n    where\n        F: [const] FnOnce(T) -> Result<U, E> + [const] Destruct,\n    {\n        match self {\n            Ok(t) => op(t),\n            Err(e) => Err(e),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact Result match proves both branches directly from the closure contract and enum structure.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/std__sync__LockResult__and_then__4946454cf774"
+}

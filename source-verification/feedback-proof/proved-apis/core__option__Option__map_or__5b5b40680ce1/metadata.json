@@ -1,0 +1,199 @@
+{
+  "id": "core__option__Option__map_or__5b5b40680ce1",
+  "api_path": "core::option::Option::map_or",
+  "raw_target": "Option::<T>::map_or",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": "if you don't need the returned value, use `if let` instead"
+        }
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28031",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "generic": "U"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "U"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "map_or",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "default",
+          {
+            "generic": "U"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "U"
+      }
+    },
+    "source_context": "  1179:     /// // prints \"got: 2\"\n  1180:     /// let x = list\n  1181:     ///     .get(1)\n  1182:     ///     .inspect(|x| println!(\"got: {x}\"))\n  1183:     ///     .expect(\"list should be long enough\");\n  1184:     ///\n  1185:     /// // prints nothing\n  1186:     /// list.get(5).inspect(|x| println!(\"got: {x}\"));\n  1187:     /// ```\n  1188:     #[inline]\n  1189:     #[stable(feature = \"result_option_inspect\", since = \"1.76.0\")]\n  1190:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1191:     pub const fn inspect<F>(self, f: F) -> Self\n  1192:     where\n  1193:         F: [const] FnOnce(&T) + [const] Destruct,\n  1194:     {\n  1195:         if let Some(ref x) = self {\n  1196:             f(x);\n  1197:         }\n  1198: \n  1199:         self\n  1200:     }\n  1201: \n  1202:     /// Returns the provided default result (if none),\n  1203:     /// or applies a function to the contained value (if any).\n  1204:     ///\n  1205:     /// Arguments passed to `map_or` are eagerly evaluated; if you are passing\n  1206:     /// the result of a function call, it is recommended to use [`map_or_else`],\n  1207:     /// which is lazily evaluated.\n  1208:     ///\n  1209:     /// [`map_or_else`]: Option::map_or_else\n  1210:     ///\n  1211:     /// # Examples\n  1212:     ///\n  1213:     /// ```\n  1214:     /// let x = Some(\"foo\");\n  1215:     /// assert_eq!(x.map_or(42, |v| v.len()), 3);\n  1216:     ///\n  1217:     /// let x: Option<&str> = None;\n  1218:     /// assert_eq!(x.map_or(42, |v| v.len()), 42);\n  1219:     /// ```\n  1220:     #[inline]\n  1221:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1222:     #[must_use = \"if you don't need the returned value, use `if let` instead\"]\n  1223:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1224:     pub const fn map_or<U, F>(self, default: U, f: F) -> U\n  1225:     where\n  1226:         F: [const] FnOnce(T) -> U + [const] Destruct,\n  1227:         U: [const] Destruct,\n  1228:     {\n  1229:         match self {\n  1230:             Some(t) => f(t),\n  1231:             None => default,\n  1232:         }\n  1233:     }\n  1234: \n  1235:     /// Computes a default function result (if none), or\n  1236:     /// applies a different function to the contained value (if any).\n  1237:     ///\n  1238:     /// # Basic examples\n  1239:     ///\n  1240:     /// ```\n  1241:     /// let k = 21;\n  1242:     ///\n  1243:     /// let x = Some(\"foo\");\n  1244:     /// assert_eq!(x.map_or_else(|| 2 * k, |v| v.len()), 3);\n  1245:     ///\n  1246:     /// let x: Option<&str> = None;\n  1247:     /// assert_eq!(x.map_or_else(|| 2 * k, |v| v.len()), 42);\n  1248:     /// ```\n  1249:     ///\n  1250:     /// # Handling a Result-based fallback\n  1251:     ///\n  1252:     /// A somewhat common occurrence when dealing with optional values\n  1253:     /// in combination with [`Result<T, E>`] is the case where one wants to invoke\n  1254:     /// a fallible fallback if the option is not present.  This example\n  1255:     /// parses a command line argument (if present), or the contents of a file to\n  1256:     /// an integer.  However, unlike accessing the command line argument, reading\n  1257:     /// the file is fallible, so it must be wrapped with `Ok`.\n  1258:     ///\n  1259:     /// ```no_run\n  1260:     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {\n  1261:     /// let v: u64 = std::env::args()\n  1262:     ///    .nth(1)\n  1263:     ///    .map_or_else(|| std::fs::read_to_string(\"/etc/someconfig.conf\"), Ok)?\n  1264:     ///    .parse()?;\n  1265:     /// #   Ok(())\n  1266:     /// # }\n  1267:     /// ```\n  1268:     #[inline]\n  1269:     #[stable(feature = \"rust1\", since = \"1.0.0\")]",
+    "span": {
+      "begin": [
+        1224,
+        5
+      ],
+      "end": [
+        1233,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn map_or<U, F>(self, default: U, f: F) -> U\n    where\n        F: [const] FnOnce(T) -> U + [const] Destruct,\n        U: [const] Destruct,\n    {\n        match self {\n            Some(t) => f(t),\n            None => default,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The copied match body proves both postcondition branches directly without lower-level external contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__map_or__5b5b40680ce1"
+}

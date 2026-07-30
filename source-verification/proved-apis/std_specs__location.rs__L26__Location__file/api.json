@@ -1,0 +1,127 @@
+{
+  "id": "std_specs__location.rs__L26__Location__file",
+  "api_path": "core::panic::Location::file",
+  "normalized_api_path": "core::panic::Location::file",
+  "raw_target": "Location::file",
+  "contract_source_file": "std_specs/location.rs",
+  "contract_source_line": 26,
+  "rust_declaration": {
+    "declaration_id": "core:28185",
+    "name": "file",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 10, patch: 0 })},\nfeature: \"panic_hooks\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 79, patch: 0 })},\nfeature: \"const_location_fields\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/panic/location.rs",
+      "begin": [
+        220,
+        5
+      ],
+      "end": [
+        223,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": "'a",
+          "is_mutable": false,
+          "type": {
+            "primitive": "str"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28189",
+      "for": {
+        "resolved_path": {
+          "path": "Location",
+          "id": 8274,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "lifetime": "'a"
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "'a",
+            "kind": {
+              "lifetime": {
+                "outlives": []
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:8274",
+      "resolved_owner_path": [
+        "core",
+        "panic",
+        "location",
+        "Location"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   200:     /// platform and target platform differ.\n   201:     ///\n   202:     /// # Examples\n   203:     ///\n   204:     /// ```should_panic\n   205:     /// use std::panic;\n   206:     ///\n   207:     /// panic::set_hook(Box::new(|panic_info| {\n   208:     ///     if let Some(location) = panic_info.location() {\n   209:     ///         println!(\"panic occurred in file '{}'\", location.file());\n   210:     ///     } else {\n   211:     ///         println!(\"panic occurred but can't get location information...\");\n   212:     ///     }\n   213:     /// }));\n   214:     ///\n   215:     /// panic!(\"Normal panic\");\n   216:     /// ```\n   217:     #[must_use]\n   218:     #[stable(feature = \"panic_hooks\", since = \"1.10.0\")]\n   219:     #[rustc_const_stable(feature = \"const_location_fields\", since = \"1.79.0\")]\n   220:     pub const fn file(&self) -> &'a str {\n   221:         // SAFETY: The filename is valid.\n   222:         unsafe { self.filename.as_ref() }\n   223:     }\n   224: \n   225:     /// Returns the name of the source file as a nul-terminated `CStr`.\n   226:     ///\n   227:     /// This is useful for interop with APIs that expect C/C++ `__FILE__` or\n   228:     /// `std::source_location::file_name`, both of which return a nul-terminated `const char*`.\n   229:     #[must_use]\n   230:     #[inline]\n   231:     #[stable(feature = \"file_with_nul\", since = \"1.92.0\")]\n   232:     #[rustc_const_stable(feature = \"file_with_nul\", since = \"1.92.0\")]\n   233:     pub const fn file_as_c_str(&self) -> &'a CStr {\n   234:         let filename = self.filename.as_ptr();\n   235: \n   236:         // SAFETY: The filename is valid for `filename_len+1` bytes, so this addition can't\n   237:         // overflow.\n   238:         let cstr_len = unsafe { crate::mem::size_of_val_raw(filename).unchecked_add(1) };\n   239: \n   240:         // SAFETY: The filename is valid for `filename_len+1` bytes.",
+    "source_text": "pub const fn file(&self) -> &'a str {\n        // SAFETY: The filename is valid.\n        unsafe { self.filename.as_ref() }\n    }",
+    "has_body": true
+  }
+}

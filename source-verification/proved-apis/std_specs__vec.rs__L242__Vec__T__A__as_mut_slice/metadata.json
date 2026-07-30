@@ -1,0 +1,170 @@
+{
+  "id": "std_specs__vec.rs__L242__Vec__T__A__as_mut_slice",
+  "api_path": "alloc::vec::Vec::as_mut_slice",
+  "raw_target": "Vec::<T, A>::as_mut_slice",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 242,
+  "rust_declaration": {
+    "declaration_id": "alloc:4911",
+    "name": "as_mut_slice",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 7, patch: 0 })},\nfeature: \"vec_as_slice\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"vec_as_mut_slice\")]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_vec_string_slice\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        1859,
+        5
+      ],
+      "end": [
+        1878,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": true,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": true,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1839:             // instantiated often enough that avoiding the UB check is worth it\n  1840:             &*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)\n  1841:         }\n  1842:     }\n  1843: \n  1844:     /// Extracts a mutable slice of the entire vector.\n  1845:     ///\n  1846:     /// Equivalent to `&mut s[..]`.\n  1847:     ///\n  1848:     /// # Examples\n  1849:     ///\n  1850:     /// ```\n  1851:     /// use std::io::{self, Read};\n  1852:     /// let mut buffer = vec![0; 3];\n  1853:     /// io::repeat(0b101).read_exact(buffer.as_mut_slice()).unwrap();\n  1854:     /// ```\n  1855:     #[inline]\n  1856:     #[stable(feature = \"vec_as_slice\", since = \"1.7.0\")]\n  1857:     #[rustc_diagnostic_item = \"vec_as_mut_slice\"]\n  1858:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1859:     pub const fn as_mut_slice(&mut self) -> &mut [T] {\n  1860:         // SAFETY: `slice::from_raw_parts_mut` requires pointee is a contiguous, aligned buffer of\n  1861:         // size `len` containing properly-initialized `T`s. Data must not be accessed through any\n  1862:         // other pointer for the returned lifetime. Further, `len * size_of::<T>` <=\n  1863:         // `isize::MAX` and allocation does not \"wrap\" through overflowing memory addresses.\n  1864:         //\n  1865:         // * Vec API guarantees that self.buf:\n  1866:         //      * contains only properly-initialized items within 0..len\n  1867:         //      * is aligned, contiguous, and valid for `len` reads\n  1868:         //      * obeys size and address-wrapping constraints\n  1869:         //\n  1870:         // * We only construct references to `self.buf` through `&self` and `&mut self` methods;\n  1871:         //   borrow-check ensures that it is not possible to construct a reference to `self.buf`\n  1872:         //   within the returned lifetime.\n  1873:         unsafe {\n  1874:             // normally this would use `slice::from_raw_parts_mut`, but it's\n  1875:             // instantiated often enough that avoiding the UB check is worth it\n  1876:             &mut *core::intrinsics::aggregate_raw_ptr::<*mut [T], _, _>(self.as_mut_ptr(), self.len)\n  1877:         }\n  1878:     }\n  1879: ",
+    "source_text": "pub const fn as_mut_slice(&mut self) -> &mut [T] {\n        // SAFETY: `slice::from_raw_parts_mut` requires pointee is a contiguous, aligned buffer of\n        // size `len` containing properly-initialized `T`s. Data must not be accessed through any\n        // other pointer for the returned lifetime. Further, `len * size_of::<T>` <=\n        // `isize::MAX` and allocation does not \"wrap\" through overflowing memory addresses.\n        //\n        // * Vec API guarantees that self.buf:\n        //      * contains only properly-initialized items within 0..len\n        //      * is aligned, contiguous, and valid for `len` reads\n        //      * obeys size and address-wrapping constraints\n        //\n        // * We only construct references to `self.buf` through `&self` and `&mut self` methods;\n        //   borrow-check ensures that it is not possible to construct a reference to `self.buf`\n        //   within the returned lifetime.\n        unsafe {\n            // normally this would use `slice::from_raw_parts_mut`, but it's\n            // instantiated often enough that avoiding the UB check is worth it\n            &mut *core::intrinsics::aggregate_raw_ptr::<*mut [T], _, _>(self.as_mut_ptr(), self.len)\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "The vstd Vec::len contract returns spec_vec_len(vec).",
+    "The smaller Vec::as_mut_ptr contract exposes the valid initialized prefix and leaves the Vec unchanged.",
+    "The core::slice::from_raw_parts_mut contract maps that raw prefix's initial and prophetic final contents to the returned slice.",
+    "axiom_vec_buffer_final captures the unavailable Vec buffer-representation and mutable-borrow synchronization fact."
+  ],
+  "rationale": "The source-endorsed from_raw_parts_mut desugaring verifies the initial and final slice views; one explicit representation axiom connects the raw buffer's future contents to the Vec borrow.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L242__Vec__T__A__as_mut_slice"
+}

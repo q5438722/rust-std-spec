@@ -1,0 +1,76 @@
+{
+  "id": "std_specs__core.rs__L170__core__intrinsics__unlikely",
+  "api_path": "core::intrinsics::unlikely",
+  "raw_target": "core::intrinsics::unlikely",
+  "contract_source_file": "std_specs/core.rs",
+  "contract_source_line": 170,
+  "rust_declaration": {
+    "declaration_id": "core:8267",
+    "name": "unlikely",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Unstable {reason: None},\nfeature: \"core_intrinsics\"}}]"
+      },
+      {
+        "other": "#[attr = RustcNounwind]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/intrinsics/mod.rs",
+      "begin": [
+        456,
+        1
+      ],
+      "end": [
+        463,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "b",
+          {
+            "primitive": "bool"
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   436:     } else {\n   437:         cold_path();\n   438:         false\n   439:     }\n   440: }\n   441: \n   442: /// Hints to the compiler that branch condition is likely to be false.\n   443: /// Returns the value passed to it.\n   444: ///\n   445: /// Any use other than with `if` statements will probably not have an effect.\n   446: ///\n   447: /// Note that, unlike most intrinsics, this is safe to call;\n   448: /// it does not require an `unsafe` block.\n   449: /// Therefore, implementations must not require the user to uphold\n   450: /// any safety invariants.\n   451: ///\n   452: /// This intrinsic does not have a stable counterpart.\n   453: #[unstable(feature = \"core_intrinsics\", issue = \"none\")]\n   454: #[rustc_nounwind]\n   455: #[inline(always)]\n   456: pub const fn unlikely(b: bool) -> bool {\n   457:     if b {\n   458:         cold_path();\n   459:         true\n   460:     } else {\n   461:         false\n   462:     }\n   463: }\n   464: \n   465: /// Returns either `true_val` or `false_val` depending on condition `b` with a\n   466: /// hint to the compiler that this condition is unlikely to be correctly\n   467: /// predicted by a CPU's branch predictor (e.g. a binary search).\n   468: ///\n   469: /// This is otherwise functionally equivalent to `if b { true_val } else { false_val }`.\n   470: ///\n   471: /// Note that, unlike most intrinsics, this is safe to call;\n   472: /// it does not require an `unsafe` block.\n   473: /// Therefore, implementations must not require the user to uphold\n   474: /// any safety invariants.\n   475: ///\n   476: /// The public form of this intrinsic is [`core::hint::select_unpredictable`].",
+    "source_text": "pub const fn unlikely(b: bool) -> bool {\n    if b {\n        cold_path();\n        true\n    } else {\n        false\n    }\n}",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source control flow is copied directly; the compiler-only cold-path intrinsic is represented by its source-faithful cold, no-op body. Verus proves the result equals the input without external contracts.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__core.rs__L170__core__intrinsics__unlikely"
+}

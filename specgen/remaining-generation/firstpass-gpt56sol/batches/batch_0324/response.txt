@@ -1,0 +1,222 @@
+{
+  "candidates": [
+    {
+      "target": "core::pin::Pin::into_inner_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source exposes Pin's private pointer field while requiring pinning invariants through drop; vstd has no public Pin view or pinning predicate.",
+      "risks": [
+        "missing_pinning_abstraction",
+        "private_representation"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::map_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned Pin to the reference produced by func requires reference identity and structural-pinning abstractions absent from vstd.",
+      "risks": [
+        "missing_pinning_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::new_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps pointer in Pin's private representation and imposes a non-movement invariant lasting through drop, which current vstd cannot express.",
+      "risks": [
+        "missing_pinning_abstraction",
+        "private_representation"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The intrinsic offset requires allocation bounds, provenance, element-size arithmetic, and a relation between NonNull and raw pointers; current vstd lacks that combined abstraction.",
+      "risks": [
+        "unexpressible_inbounds_precondition",
+        "missing_nonnull_pointer_view",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    core::ptr::NonNull::<T>::as_ptr\n](ptr: core::ptr::NonNull<T>) -> (result: *mut T)\n    ensures\n        result@.addr != 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::raw_ptr::*"
+      ],
+      "useful": true,
+      "rationale": "NonNull's defining invariant and the source's never-null annotation justify the useful raw-pointer address guarantee expressible by vstd's pointer view.",
+      "risks": [
+        "does_not_establish_dereference_validity",
+        "does_not_relate_provenance_to_input"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::as_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The arbitrary-lifetime reference requires validity, initialization, aliasing, and identity obligations, but the signature carries no PointsTo permission and vstd has no NonNull view.",
+      "risks": [
+        "missing_memory_permission",
+        "reference_identity_vs_view",
+        "unexpressible_lifetime_obligation"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::pin::Pin::into_inner_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source exposes Pin's private pointer field while requiring pinning
+invariants through drop; vstd has no public Pin view or pinning predicate.",
+      "risks": [
+        "missing_pinning_abstraction",
+        "private_representation"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::map_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned Pin to the reference produced by func requires reference
+identity and structural-pinning abstractions absent from vstd.",
+      "risks": [
+        "missing_pinning_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::new_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps pointer in Pin's private representation and imposes a
+non-movement invariant lasting through drop, which current vstd cannot express.",
+      "risks": [
+        "missing_pinning_abstraction",
+        "private_representation"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The intrinsic offset requires allocation bounds, provenance, element-size
+arithmetic, and a relation between NonNull and raw pointers; current vstd lacks that combined
+abstraction.",
+      "risks": [
+        "unexpressible_inbounds_precondition",
+        "missing_nonnull_pointer_view",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n
+core::ptr::NonNull::<T>::as_ptr\n](ptr: core::ptr::NonNull<T>) -> (result: mut T)\n    ensures\n
+    result@.addr != 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::raw_ptr::*"
+      ],
+      "useful": true,
+      "rationale": "NonNull's defining invariant and the source's never-null annotation justify the
+useful raw-pointer address guarantee expressible by vstd's pointer view.",
+      "risks": [
+        "does_not_establish_dereference_validity",
+        "does_not_relate_provenance_to_input"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::as_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The arbitrary-lifetime reference requires validity, initialization, aliasing,
+and identity obligations, but the signature carries no PointsTo permission and vstd has no NonNull
+view.",
+      "risks": [
+        "missing_memory_permission",
+        "reference_identity_vs_view",
+        "unexpressible_lifetime_obligation"
+      ]
+    } ]
+}
+

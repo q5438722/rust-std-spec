@@ -1,0 +1,105 @@
+{
+  "candidates": [
+    {
+      "target": "core::fmt::DebugStruct::finish_non_exhaustive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and mutation depend on unmodeled formatter state and fallible writes; vstd has no public abstraction relating these effects.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugTuple::field",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method performs unmodeled formatting, mutates hidden builder state, and returns a mutable reference to self, for which no useful supported contract is available.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugTuple::finish",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned formatting result depends on hidden field counts, formatter options, prior errors, and fallible writes that current vstd does not model.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugTuple::finish_non_exhaustive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its mutation and result depend on hidden tuple-builder state, pretty-print options, and fallible formatter writes, with no corresponding vstd model.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::align",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although read-only, the result exposes hidden formatter options for which current vstd provides no public specification view or relational abstraction.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "missing_formatter_options_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::alternate",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The boolean is derived from a private formatter flag, but current vstd has no public formatter-state view with which to characterize it.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "missing_formatter_options_abstraction"
+      ]
+    }
+  ]
+}
+

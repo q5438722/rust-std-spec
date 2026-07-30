@@ -1,0 +1,45 @@
+{"candidates":[{"target":"alloc::string::String::from_raw_parts","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source inherits Vec::from_raw_parts allocation requirements and additionally requires valid UTF-8. Current vstd cannot recover allocation ownership, initialized bytes, or their contents from this signature.","risks":["missing_raw_allocation_ownership_token","missing_raw_memory_contents_abstraction","pointer_provenance","UTF-8 validity"]},{"target":"alloc::string::String::from_utf8_unchecked","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification[ String::from_utf8_unchecked ](\n    bytes: Vec<u8>,\n) -> (result: String)\n    requires\n        valid_utf8(bytes@),\n    ensures\n        encode_utf8(result@) =~= bytes@,\n;","requires":["valid_utf8(bytes@)"],"ensures":["encode_utf8(result@) =~= bytes@"],"feature_gates":[],"imports":["alloc::string::String","alloc::vec::Vec","vstd::prelude::*","vstd::utf8::{encode_utf8, valid_utf8}"],"useful":true,"rationale":"The source preserves the consumed byte vector, while vstd directly models UTF-8 validity and a String's encoded bytes.","risks":["allocation identity and capacity remain unmodeled"]},{"target":"alloc::string::String::into_raw_parts","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The meaningful behavior transfers the String's allocation and contents to the returned pointer. String's view and current raw-pointer vocabulary cannot express that ownership-preserving relation; a length-only contract is insufficient.","risks":["missing_string_allocation_abstraction","ownership_transfer","pointer_provenance","raw_pointer_equality"]},{"target":"alloc::sync::Arc::as_ptr","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: ?Sized, A: Allocator>[ Arc::<T, A>::as_ptr ](\n    this: &Arc<T, A>,\n) -> (result: *const T)\n    ensures\n        result.addr() != 0,\n;","requires":[],"ensures":["result.addr() != 0"],"feature_gates":["allocator_api"],"imports":["alloc::sync::Arc","core::alloc::Allocator","vstd::prelude::*"],"useful":true,"rationale":"The source explicitly marks the result as never null, so its nonzero address is expressible without exposing Arc internals.","risks":["Arc allocation identity remains unmodeled","no raw-pointer dereference permission","pointer provenance"]},{"target":"alloc::sync::Arc::assume_init","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator>[ Arc::<MaybeUninit<T>, A>::assume_init ](\n    this: Arc<MaybeUninit<T>, A>,\n) -> (result: Arc<T, A>)\n    requires\n        (*this).mem_contents().is_init(),\n    ensures\n        *result == (*this).mem_contents().value(),\n;","requires":["(*this).mem_contents().is_init()"],"ensures":["*result == (*this).mem_contents().value()"],"feature_gates":["allocator_api"],"imports":["alloc::sync::Arc","core::alloc::Allocator","core::mem::MaybeUninit","vstd::prelude::*"],"useful":true,"rationale":"vstd's MaybeUninit model expresses the initialization obligation and resulting value; the specialized receiver disambiguates the scalar overload.","risks":["multiple Rust declarations share the method path","Arc allocation identity and reference counts remain unmodeled"]},{"target":"alloc::sync::Arc::decrement_strong_count","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This unit-returning operation consumes unrepresented strong-reference ownership and atomically mutates hidden Arc count state, potentially destroying and deallocating the value.","risks":["missing_strong_count_ownership_token","hidden_reference_count_state","concurrency","possible_destruction_and_deallocation"]}]}{"candidates":[{"target":"alloc::string::String::from_raw_parts","decision":"skip","contract_form":"
+assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],
+"useful":false,"rationale":"The source inherits Vec::from_raw_parts allocation requirements and
+additionally requires valid UTF-8. Current vstd cannot recover allocation ownership, initialized
+bytes, or their contents from this signature.","risks":["missing_raw_allocation_ownership_token","mi
+ssing_raw_memory_contents_abstraction","pointer_provenance","UTF-8
+validity"]},{"target":"alloc::string::String::from_utf8_unchecked","decision":"add_spec","contract_f
+orm":"assume_specification","contract_code":"pub assume_specification[ String::from_utf8_unchecked
+](\n    bytes: Vec<u8>,\n) -> (result: String)\n    requires\n        valid_utf8(bytes@),\n
+ensures\n        encode_utf8(result@) =~=
+bytes@,\n;","requires":["valid_utf8(bytes@)"],"ensures":["encode_utf8(result@) =~=
+bytes@"],"feature_gates":[],"imports":["alloc::string::String","alloc::vec::Vec","vstd::prelude::*",
+"vstd::utf8::{encode_utf8, valid_utf8}"],"useful":true,"rationale":"The source preserves the
+consumed byte vector, while vstd directly models UTF-8 validity and a String's encoded
+bytes.","risks":["allocation identity and capacity remain unmodeled"]},{"target":"alloc::string::Str
+ing::into_raw_parts","decision":"skip","contract_form":"assume_specification","contract_code":"","re
+quires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The meaningful
+behavior transfers the String's allocation and contents to the returned pointer. String's view and
+current raw-pointer vocabulary cannot express that ownership-preserving relation; a length-only
+contract is insufficient.","risks":["missing_string_allocation_abstraction","ownership_transfer","po
+inter_provenance","raw_pointer_equality"]},{"target":"alloc::sync::Arc::as_ptr","decision":"add_spec
+","contract_form":"assume_specification","contract_code":"pub assume_specification<T: ?Sized, A:
+Allocator>[ Arc::<T, A>::as_ptr ](\n    this: &Arc<T, A>,\n) -> (result: const T)\n    ensures\n
+    result.addr() != 0,\n;","requires":[],"ensures":["result.addr() !=
+0"],"feature_gates":["allocator_api"],"imports":["alloc::sync::Arc","core::alloc::Allocator","vstd::
+prelude::"],"useful":true,"rationale":"The source explicitly marks the result as never null, so its
+nonzero address is expressible without exposing Arc internals.","risks":["Arc allocation identity
+remains unmodeled","no raw-pointer dereference permission","pointer
+provenance"]},{"target":"alloc::sync::Arc::assume_init","decision":"add_spec","contract_form":"assum
+e_specification","contract_code":"pub assume_specification<T, A: Allocator>[ Arc::<MaybeUninit<T>,
+A>::assume_init ](\n    this: Arc<MaybeUninit<T>, A>,\n) -> (result: Arc<T, A>)\n    requires\n
+   (*this).mem_contents().is_init(),\n    ensures\n        *result == (*this).mem_contents().value()
+,\n;","requires":["(*this).mem_contents().is_init()"],"ensures":["*result ==
+(this).mem_contents().value()"],"feature_gates":["allocator_api"],"imports":["alloc::sync::Arc","cor
+e::alloc::Allocator","core::mem::MaybeUninit","vstd::prelude::"],"useful":true,"rationale":"vstd's
+MaybeUninit model expresses the initialization obligation and resulting value; the specialized
+receiver disambiguates the scalar overload.","risks":["multiple Rust declarations share the method
+path","Arc allocation identity and reference counts remain unmodeled"]},{"target":"alloc::sync::Arc:
+:decrement_strong_count","decision":"skip","contract_form":"assume_specification","contract_code":""
+,"requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This
+unit-returning operation consumes unrepresented strong-reference ownership and atomically mutates
+hidden Arc count state, potentially destroying and deallocating the
+value.","risks":["missing_strong_count_ownership_token","hidden_reference_count_state","concurrency"
+,"possible_destruction_and_deallocation"]}]}
+

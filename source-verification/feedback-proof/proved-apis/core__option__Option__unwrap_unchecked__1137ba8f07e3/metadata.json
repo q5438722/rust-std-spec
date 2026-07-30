@@ -1,0 +1,127 @@
+{
+  "id": "core__option__Option__unwrap_unchecked__1137ba8f07e3",
+  "api_path": "core::option::Option::unwrap_unchecked",
+  "raw_target": "Option::<T>::unwrap_unchecked",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 58, patch: 0 })},\nfeature: \"option_result_unwrap_unchecked\"}}]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_precise_live_drops\"])]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"const_option\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28028",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": true
+    },
+    "name": "unwrap_unchecked",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  1083:     /// assert_eq!(x.unwrap_or_default(), 0);\n  1084:     /// assert_eq!(y.unwrap_or_default(), 12);\n  1085:     /// ```\n  1086:     ///\n  1087:     /// [default value]: Default::default\n  1088:     /// [`parse`]: str::parse\n  1089:     /// [`FromStr`]: crate::str::FromStr\n  1090:     #[inline]\n  1091:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1092:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1093:     pub const fn unwrap_or_default(self) -> T\n  1094:     where\n  1095:         T: [const] Default,\n  1096:     {\n  1097:         match self {\n  1098:             Some(x) => x,\n  1099:             None => T::default(),\n  1100:         }\n  1101:     }\n  1102: \n  1103:     /// Returns the contained [`Some`] value, consuming the `self` value,\n  1104:     /// without checking that the value is not [`None`].\n  1105:     ///\n  1106:     /// # Safety\n  1107:     ///\n  1108:     /// Calling this method on [`None`] is *[undefined behavior]*.\n  1109:     ///\n  1110:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  1111:     ///\n  1112:     /// # Examples\n  1113:     ///\n  1114:     /// ```\n  1115:     /// let x = Some(\"air\");\n  1116:     /// assert_eq!(unsafe { x.unwrap_unchecked() }, \"air\");\n  1117:     /// ```\n  1118:     ///\n  1119:     /// ```no_run\n  1120:     /// let x: Option<&str> = None;\n  1121:     /// assert_eq!(unsafe { x.unwrap_unchecked() }, \"air\"); // Undefined behavior!\n  1122:     /// ```\n  1123:     #[inline]\n  1124:     #[track_caller]\n  1125:     #[stable(feature = \"option_result_unwrap_unchecked\", since = \"1.58.0\")]\n  1126:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1127:     #[rustc_const_stable(feature = \"const_option\", since = \"1.83.0\")]\n  1128:     pub const unsafe fn unwrap_unchecked(self) -> T {\n  1129:         match self {\n  1130:             Some(val) => val,\n  1131:             // SAFETY: the safety contract must be upheld by the caller.\n  1132:             None => unsafe { hint::unreachable_unchecked() },\n  1133:         }\n  1134:     }\n  1135: \n  1136:     /////////////////////////////////////////////////////////////////////////\n  1137:     // Transforming contained values\n  1138:     /////////////////////////////////////////////////////////////////////////\n  1139: \n  1140:     /// Maps an `Option<T>` to `Option<U>` by applying a function to a contained value (if `Some`) or returns `None` (if `None`).\n  1141:     ///\n  1142:     /// # Examples\n  1143:     ///\n  1144:     /// Calculates the length of an <code>Option<[String]></code> as an\n  1145:     /// <code>Option<[usize]></code>, consuming the original:\n  1146:     ///\n  1147:     /// [String]: ../../std/string/struct.String.html \"String\"\n  1148:     /// ```\n  1149:     /// let maybe_some_string = Some(String::from(\"Hello, World!\"));\n  1150:     /// // `Option::map` takes self *by value*, consuming `maybe_some_string`\n  1151:     /// let maybe_some_len = maybe_some_string.map(|s| s.len());\n  1152:     /// assert_eq!(maybe_some_len, Some(13));\n  1153:     ///\n  1154:     /// let x: Option<&str> = None;\n  1155:     /// assert_eq!(x.map(|s| s.len()), None);\n  1156:     /// ```\n  1157:     #[inline]\n  1158:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1159:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1160:     pub const fn map<U, F>(self, f: F) -> Option<U>\n  1161:     where\n  1162:         F: [const] FnOnce(T) -> U + [const] Destruct,\n  1163:     {\n  1164:         match self {\n  1165:             Some(x) => Some(f(x)),\n  1166:             None => None,\n  1167:         }\n  1168:     }\n  1169: \n  1170:     /// Calls a function with a reference to the contained value if [`Some`].\n  1171:     ///\n  1172:     /// Returns the original option.\n  1173:     ///",
+    "span": {
+      "begin": [
+        1128,
+        5
+      ],
+      "end": [
+        1134,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const unsafe fn unwrap_unchecked(self) -> T {\n        match self {\n            Some(val) => val,\n            // SAFETY: the safety contract must be upheld by the caller.\n            None => unsafe { hint::unreachable_unchecked() },\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd specification of core::hint::unreachable_unchecked: it requires false and never returns."
+  ],
+  "rationale": "The copied match returns the Some payload directly; the precondition eliminates the None arm and satisfies unreachable_unchecked's safety precondition.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__unwrap_unchecked__1137ba8f07e3"
+}

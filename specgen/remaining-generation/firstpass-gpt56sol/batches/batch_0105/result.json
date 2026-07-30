@@ -1,0 +1,113 @@
+{
+  "batch": 105,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 102817,
+  "targets": [
+    "alloc::collections::VecDeque::front",
+    "alloc::collections::VecDeque::get",
+    "alloc::collections::VecDeque::is_empty",
+    "alloc::collections::VecDeque::rotate_left",
+    "alloc::collections::VecDeque::rotate_right",
+    "alloc::collections::VecDeque::swap"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::VecDeque::front",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned reference to the first logical element requires a VecDeque content view and reference-to-view relation absent from the current vocabulary.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "reference identity versus modeled value"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::get",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source selects the logical element at index, but specifying its optional reference requires an indexed VecDeque view unavailable in the current vocabulary.",
+      "risks": [
+        "missing indexed VecDeque abstraction",
+        "reference identity versus modeled value"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::is_empty",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation compares a private length field with zero, but no existing VecDeque abstraction exposes logical length or emptiness.",
+      "risks": [
+        "missing VecDeque length abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::rotate_left",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful behavior is a sequence rotation with the precondition n <= len; expressing the resulting order requires a missing VecDeque sequence view.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "unit result requires post-state modeling",
+        "panic precondition requires logical length"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::rotate_right",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful behavior is a sequence rotation with the precondition n <= len; expressing the resulting order requires a missing VecDeque sequence view.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "unit result requires post-state modeling",
+        "panic precondition requires logical length"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source swaps two logical indexed elements and panics on invalid indices; specifying that mutation requires an indexed VecDeque sequence abstraction.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "unit result requires post-state modeling",
+        "bounds preconditions require logical length"
+      ]
+    }
+  ]
+}

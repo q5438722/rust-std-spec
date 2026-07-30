@@ -1,0 +1,124 @@
+{
+  "batch": 294,
+  "group": "trait_contract_integration",
+  "duration_ms": 202473,
+  "targets": [
+    "core::iter::Sum::sum",
+    "core::ops::AddAssign::add_assign",
+    "core::ops::BitAnd::bitand",
+    "core::ops::BitAndAssign::bitand_assign",
+    "core::ops::BitOr::bitor",
+    "core::ops::BitOrAssign::bitor_assign"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::Sum::sum",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The signature permits arbitrary Sum implementations and identifies neither an addition operation nor an identity. IteratorSpec can expose the input sequence, but vstd has no public generic Sum abstraction relating that sequence to Self.",
+      "risks": [
+        "missing_sum_abstraction",
+        "arbitrary_trait_implementations"
+      ]
+    },
+    {
+      "target": "core::ops::AddAssign::add_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The only observable result is final(self), but AddAssign is not required to agree with Add::add. vstd has no AddAssign state-transition abstraction, so relating final(self) to old(self) and rhs would be unsupported.",
+      "risks": [
+        "missing_add_assign_abstraction",
+        "unit_return_requires_mutation_relation",
+        "AddAssign_need_not_match_Add"
+      ]
+    },
+    {
+      "target": "core::ops::BitAnd::bitand",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(BitAndSpec via BitAndSpecImpl)]\npub trait ExBitAnd<Rhs = Self> {\n    type ExternalTraitSpecificationFor: core::ops::BitAnd<Rhs>;\n\n    type Output;\n\n    spec fn obeys_bitand_spec() -> bool;\n\n    spec fn bitand_req(self, rhs: Rhs) -> bool\n        where Self: Sized;\n\n    spec fn bitand_spec(self, rhs: Rhs) -> Self::Output\n        where Self: Sized;\n\n    fn bitand(self, rhs: Rhs) -> (ret: Self::Output)\n        requires\n            self.bitand_req(rhs),\n        ensures\n            Self::obeys_bitand_spec() ==> ret == self.bitand_spec(rhs);\n}",
+      "requires": [
+        "self.bitand_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_bitand_spec() ==> ret == self.bitand_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "vstd's public operator-spec pattern provides implementation-defined precondition and result functions, guarded by an opt-in obedience predicate so arbitrary BitAnd implementations are not assigned unsupported semantics.",
+      "risks": [
+        "usefulness_requires_BitAndSpecImpl_and_the_obeys_gate"
+      ]
+    },
+    {
+      "target": "core::ops::BitAndAssign::bitand_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "BitAndAssign is not required to produce the same state as BitAnd::bitand. Without a public BitAndAssign transition abstraction, no source-supported relation between old(self), final(self), and rhs is available.",
+      "risks": [
+        "missing_bitand_assign_abstraction",
+        "unit_return_requires_mutation_relation",
+        "BitAndAssign_need_not_match_BitAnd"
+      ]
+    },
+    {
+      "target": "core::ops::BitOr::bitor",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(BitOrSpec via BitOrSpecImpl)]\npub trait ExBitOr<Rhs = Self> {\n    type ExternalTraitSpecificationFor: core::ops::BitOr<Rhs>;\n\n    type Output;\n\n    spec fn obeys_bitor_spec() -> bool;\n\n    spec fn bitor_req(self, rhs: Rhs) -> bool\n        where Self: Sized;\n\n    spec fn bitor_spec(self, rhs: Rhs) -> Self::Output\n        where Self: Sized;\n\n    fn bitor(self, rhs: Rhs) -> (ret: Self::Output)\n        requires\n            self.bitor_req(rhs),\n        ensures\n            Self::obeys_bitor_spec() ==> ret == self.bitor_spec(rhs);\n}",
+      "requires": [
+        "self.bitor_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_bitor_spec() ==> ret == self.bitor_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "vstd's public operator-spec pattern can model the implementation-specific result while the obedience predicate avoids imposing bitwise semantics on arbitrary BitOr implementations.",
+      "risks": [
+        "usefulness_requires_BitOrSpecImpl_and_the_obeys_gate"
+      ]
+    },
+    {
+      "target": "core::ops::BitOrAssign::bitor_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "BitOrAssign is independent of BitOr::bitor, and vstd has no public BitOrAssign state-transition abstraction. A deterministic postcondition over old(self) and final(self) would therefore be unsupported.",
+      "risks": [
+        "missing_bitor_assign_abstraction",
+        "unit_return_requires_mutation_relation",
+        "BitOrAssign_need_not_match_BitOr"
+      ]
+    }
+  ]
+}

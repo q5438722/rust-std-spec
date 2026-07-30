@@ -1,0 +1,105 @@
+{
+  "candidates": [
+    {
+      "target": "core::cell::OnceCell::get",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned reference to initialization state requires a public OnceCell state/view abstraction, which current vstd lacks.",
+      "risks": [
+        "missing OnceCell abstraction",
+        "hidden interior state",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Option reflects the cell's hidden UnsafeCell-backed state; no existing public vstd view can relate that state to the result.",
+      "risks": [
+        "missing OnceCell abstraction",
+        "hidden interior state"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing that the new cell is uninitialized requires a modeled OnceCell state, which is absent from current vstd.",
+      "risks": [
+        "missing OnceCell abstraction",
+        "hidden interior state"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::set",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This method conditionally mutates hidden state through a shared reference; modeling its Result and state transition requires a dedicated interior-mutability abstraction.",
+      "risks": [
+        "missing OnceCell abstraction",
+        "hidden shared-reference mutation",
+        "conditional state transition"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned Option to old(self) and the emptied final(self) requires a OnceCell view unavailable in current vstd.",
+      "risks": [
+        "missing OnceCell abstraction",
+        "hidden interior state",
+        "unmodellable state transition"
+      ]
+    },
+    {
+      "target": "core::cell::Ref::clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must preserve both the referenced value and the dynamic borrow guard; current vstd has no public Ref/RefCell borrow-token abstraction.",
+      "risks": [
+        "missing RefCell abstraction",
+        "hidden dynamic borrow state",
+        "borrow-guard lifetime semantics"
+      ]
+    }
+  ]
+}
+

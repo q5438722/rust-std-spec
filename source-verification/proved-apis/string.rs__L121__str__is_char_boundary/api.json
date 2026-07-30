@@ -1,0 +1,103 @@
+{
+  "id": "string.rs__L121__str__is_char_boundary",
+  "api_path": "core::str::is_char_boundary",
+  "normalized_api_path": "core::str::is_char_boundary",
+  "raw_target": "str::is_char_boundary",
+  "contract_source_file": "string.rs",
+  "contract_source_line": 121,
+  "rust_declaration": {
+    "declaration_id": "core:51890",
+    "name": "is_char_boundary",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 9, patch: 0 })},\nfeature: \"is_char_boundary\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 86, patch: 0 })},\nfeature: \"const_is_char_boundary\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/str/mod.rs",
+      "begin": [
+        373,
+        5
+      ],
+      "end": [
+        396,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "index",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:51935",
+      "for": {
+        "primitive": "str"
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": null,
+      "resolved_owner_path": null
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   353:     ///\n   354:     /// # Examples\n   355:     ///\n   356:     /// ```\n   357:     /// let s = \"L\u00f6we \u8001\u864e L\u00e9opard\";\n   358:     /// assert!(s.is_char_boundary(0));\n   359:     /// // start of `\u8001`\n   360:     /// assert!(s.is_char_boundary(6));\n   361:     /// assert!(s.is_char_boundary(s.len()));\n   362:     ///\n   363:     /// // second byte of `\u00f6`\n   364:     /// assert!(!s.is_char_boundary(2));\n   365:     ///\n   366:     /// // third byte of `\u8001`\n   367:     /// assert!(!s.is_char_boundary(8));\n   368:     /// ```\n   369:     #[must_use]\n   370:     #[stable(feature = \"is_char_boundary\", since = \"1.9.0\")]\n   371:     #[rustc_const_stable(feature = \"const_is_char_boundary\", since = \"1.86.0\")]\n   372:     #[inline]\n   373:     pub const fn is_char_boundary(&self, index: usize) -> bool {\n   374:         // 0 is always ok.\n   375:         // Test for 0 explicitly so that it can optimize out the check\n   376:         // easily and skip reading string data for that case.\n   377:         // Note that optimizing `self.get(..index)` relies on this.\n   378:         if index == 0 {\n   379:             return true;\n   380:         }\n   381: \n   382:         if index >= self.len() {\n   383:             // For `true` we have two options:\n   384:             //\n   385:             // - index == self.len()\n   386:             //   Empty strings are valid, so return true\n   387:             // - index > self.len()\n   388:             //   In this case return false\n   389:             //\n   390:             // The check is placed exactly here, because it improves generated\n   391:             // code on higher opt-levels. See PR #84751 for more details.\n   392:             index == self.len()\n   393:         } else {",
+    "source_text": "pub const fn is_char_boundary(&self, index: usize) -> bool {\n        // 0 is always ok.\n        // Test for 0 explicitly so that it can optimize out the check\n        // easily and skip reading string data for that case.\n        // Note that optimizing `self.get(..index)` relies on this.\n        if index == 0 {\n            return true;\n        }\n\n        if index >= self.len() {\n            // For `true` we have two options:\n            //\n            // - index == self.len()\n            //   Empty strings are valid, so return true\n            // - index > self.len()\n            //   In this case return false\n            //\n            // The check is placed exactly here, because it improves generated\n            // code on higher opt-levels. See PR #84751 for more details.\n            index == self.len()\n        } else {\n            self.as_bytes()[index].is_utf8_char_boundary()\n        }\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "id": "std_specs__vec.rs__L133__Vec__T__A__try_reserve",
+  "api_path": "alloc::vec::Vec::try_reserve",
+  "raw_target": "Vec::<T, A>::try_reserve",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 133,
+  "rust_declaration": {
+    "declaration_id": "alloc:4903",
+    "name": "try_reserve",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 57, patch: 0 })},\nfeature: \"try_reserve\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        1537,
+        5
+      ],
+      "end": [
+        1539,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "additional",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 46,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "tuple": []
+                  }
+                },
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "TryReserveError",
+                      "id": 1006,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1517:     ///\n  1518:     /// ```\n  1519:     /// use std::collections::TryReserveError;\n  1520:     ///\n  1521:     /// fn process_data(data: &[u32]) -> Result<Vec<u32>, TryReserveError> {\n  1522:     ///     let mut output = Vec::new();\n  1523:     ///\n  1524:     ///     // Pre-reserve the memory, exiting if we can't\n  1525:     ///     output.try_reserve(data.len())?;\n  1526:     ///\n  1527:     ///     // Now we know this can't OOM in the middle of our complex work\n  1528:     ///     output.extend(data.iter().map(|&val| {\n  1529:     ///         val * 2 + 5 // very complicated\n  1530:     ///     }));\n  1531:     ///\n  1532:     ///     Ok(output)\n  1533:     /// }\n  1534:     /// # process_data(&[1, 2, 3]).expect(\"why is the test harness OOMing on 12 bytes?\");\n  1535:     /// ```\n  1536:     #[stable(feature = \"try_reserve\", since = \"1.57.0\")]\n  1537:     pub fn try_reserve(&mut self, additional: usize) -> Result<(), TryReserveError> {\n  1538:         self.buf.try_reserve(self.len, additional)\n  1539:     }\n  1540: \n  1541:     /// Tries to reserve the minimum capacity for at least `additional`\n  1542:     /// elements to be inserted in the given `Vec<T>`. Unlike [`try_reserve`],\n  1543:     /// this will not deliberately over-allocate to speculatively avoid frequent\n  1544:     /// allocations. After calling `try_reserve_exact`, capacity will be greater\n  1545:     /// than or equal to `self.len() + additional` if it returns `Ok(())`.\n  1546:     /// Does nothing if the capacity is already sufficient.\n  1547:     ///\n  1548:     /// Note that the allocator may give the collection more space than it\n  1549:     /// requests. Therefore, capacity can not be relied upon to be precisely\n  1550:     /// minimal. Prefer [`try_reserve`] if future insertions are expected.\n  1551:     ///\n  1552:     /// [`try_reserve`]: Vec::try_reserve\n  1553:     ///\n  1554:     /// # Errors\n  1555:     ///\n  1556:     /// If the capacity overflows, or the allocator reports a failure, then an error\n  1557:     /// is returned.",
+    "source_text": "pub fn try_reserve(&mut self, additional: usize) -> Result<(), TryReserveError> {\n        self.buf.try_reserve(self.len, additional)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for Vec::<T, A>::len",
+    "vstd capacity contract for Vec::<T, A>::capacity",
+    "vstd capacity contract for Vec::<T, A>::try_reserve_exact"
+  ],
+  "rationale": "Copies RawVec's growth control flow and routes the identical final capacity request through the smaller try_reserve_exact API, whose contract proves content preservation.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L133__Vec__T__A__try_reserve"
+}

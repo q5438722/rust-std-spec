@@ -1,0 +1,105 @@
+{
+  "batch": 140,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 72448,
+  "targets": [
+    "core::str::Utf8Error::error_len",
+    "core::str::Utf8Error::valid_up_to",
+    "core::time::Duration::abs_diff",
+    "core::time::Duration::as_micros",
+    "core::time::Duration::as_millis",
+    "core::time::Duration::as_nanos"
+  ],
+  "candidates": [
+    {
+      "target": "core::str::Utf8Error::error_len",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation reads private Utf8Error state, while its documented meaning depends on the rejected byte stream. Current vstd has no public Utf8Error model connecting the receiver to that input.",
+      "risks": [
+        "A deterministic postcondition would invent an abstraction for hidden state."
+      ]
+    },
+    {
+      "target": "core::str::Utf8Error::valid_up_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a private field whose meaning is an index into the original rejected byte sequence, which is absent from both the signature and current vstd vocabulary.",
+      "risks": [
+        "No source-grounded relation can identify the original byte sequence."
+      ]
+    },
+    {
+      "target": "core::time::Duration::abs_diff",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the absolute difference requires a numeric model of Duration or specifications for its ordering and subtraction operations. Current vstd treats Duration opaquely and supplies neither relation.",
+      "risks": [
+        "Introducing a duration magnitude function would require a new vstd abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::as_micros",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The exact formula uses Duration's private seconds and nanoseconds representation. Current vstd exposes no public logical duration value from which whole microseconds can be computed.",
+      "risks": [
+        "Modeling private fields or adding an uninterpreted duration view would exceed current vocabulary."
+      ]
+    },
+    {
+      "target": "core::time::Duration::as_millis",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The exact formula depends on Duration's private seconds and nanoseconds representation, for which current vstd has no public logical model.",
+      "risks": [
+        "A precise postcondition requires a new duration-value abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::as_nanos",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the result could underpin a future Duration model, its defining formula reads private fields and cannot currently be expressed using an existing public vstd view.",
+      "risks": [
+        "Using this method to define itself is circular; a separate duration abstraction is required."
+      ]
+    }
+  ]
+}

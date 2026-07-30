@@ -1,0 +1,650 @@
+{
+  "summary": {
+    "selection": "summary.results where status == proved and api_path begins alloc:: or std::",
+    "passing_scope_total": 62,
+    "alloc_passing_count": 12,
+    "std_passing_count": 50,
+    "record_count": 62,
+    "unique_variant_id_count": 62,
+    "proof_artifact_pairs_validated": 62,
+    "resolved_rust_source_count": 62,
+    "alias_wrong_target_count": 47,
+    "body_fidelity_counts": {
+      "exact_body": 50,
+      "mechanical_desugaring": 12
+    },
+    "proof_admissibility_counts": {
+      "ordinary_acyclic": 14,
+      "target_equivalent_axiom": 1,
+      "wrong_or_missing_target": 47
+    },
+    "strict_verdict_counts": {
+      "known_mismatch_or_inadmissible": 48,
+      "strict_faithful_admissible": 14
+    },
+    "scope_complete": true,
+    "totals_validated": true
+  },
+  "records": [
+    {
+      "variant_id": "alloc__boxed__Box__write__28937978c6dd",
+      "api_path": "alloc::boxed::Box::write",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/boxed.rs",
+      "resolved_source_lines": "1235-1240",
+      "reason": "Copies the exact write-then-assume_init operations and unsafe block. The MaybeUninit::write and Box::assume_init contracts are distinct lower-level calls with no return edge to Box::write, so the proof is ordinary and acyclic."
+    },
+    {
+      "variant_id": "alloc__collections__BTreeSet__is_superset__3f350ee497ea",
+      "api_path": "alloc::collections::BTreeSet::is_superset",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/btree/set.rs",
+      "resolved_source_lines": "765-770",
+      "reason": "Copies the exact other.is_subset(self) delegation. The is_subset contract is a distinct lower-level API dependency and creates no cycle."
+    },
+    {
+      "variant_id": "alloc__rc__Rc__into_raw__5171dcaa8f75",
+      "api_path": "alloc::rc::Rc::into_raw",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/rc.rs",
+      "resolved_source_lines": "1534-1537",
+      "reason": "Copies ManuallyDrop::new followed by Rc::as_ptr on the dereference, preserving ownership and raw-pointer behavior. The as_ptr contract is a distinct acyclic dependency, not a representation substitute."
+    },
+    {
+      "variant_id": "alloc__rc__Rc__unwrap_or_clone__a8e4b1b71dcf",
+      "api_path": "alloc::rc::Rc::unwrap_or_clone",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/rc.rs",
+      "resolved_source_lines": "2155-2157",
+      "reason": "Mechanically expands Result::unwrap_or_else into a match while preserving Rc::try_unwrap and cloning only the returned Rc on Err. The lower try_unwrap/Clone specifications are acyclic."
+    },
+    {
+      "variant_id": "alloc__string__String__is_empty__8b19e6aa602c",
+      "api_path": "alloc::string::String::is_empty",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/string.rs",
+      "resolved_source_lines": "1885-1887",
+      "reason": "Preserves the sole executable test self.len() == 0; the added local and UTF-8 reasoning are proof-only/administrative. The len contract is a distinct acyclic dependency."
+    },
+    {
+      "variant_id": "alloc__sync__Arc__unwrap_or_clone__4f2982199187",
+      "api_path": "alloc::sync::Arc::unwrap_or_clone",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/sync.rs",
+      "resolved_source_lines": "2607-2609",
+      "reason": "Mechanically expands Result::unwrap_or_else into a match while preserving Arc::try_unwrap and cloning only on Err. The lower try_unwrap/Clone specifications are acyclic."
+    },
+    {
+      "variant_id": "std__sync__LockResult__and__9007b8eb4481",
+      "api_path": "std::sync::LockResult::and",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1440-1450",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::and). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__cloned__a60f4a9a8489",
+      "api_path": "std::sync::LockResult::cloned",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1740-1745",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<&'a T, E>::cloned). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__collections__HashSet__is_subset__ebbc35372f90",
+      "api_path": "std::collections::HashSet::is_subset",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/std/src/collections/hash/set.rs",
+      "resolved_source_lines": "981-983",
+      "reason": "Mechanically names the iterator temporary but preserves the length guard, iter().all traversal, closure call count, and contains predicate. Imported iterator/hash contracts are ordinary and acyclic."
+    },
+    {
+      "variant_id": "std__sync__LockResult__unwrap_err_unchecked__4130b9c2c61b",
+      "api_path": "std::sync::LockResult::unwrap_err_unchecked",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1684-1694",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_err_unchecked). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__transpose__76fdb8d833ae",
+      "api_path": "std::sync::LockResult::transpose",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1819-1825",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<Option<T>, E>::transpose). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__copied__f300e6412861",
+      "api_path": "std::sync::LockResult::copied",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1714-1724",
+      "reason": "The proof mechanically desugars the Ok(&v) pattern to a dereference and local copy. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<&'a T, E>::copied). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__collections__HashSet__is_superset__cd27a5c18f1f",
+      "api_path": "std::collections::HashSet::is_superset",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/std/src/collections/hash/set.rs",
+      "resolved_source_lines": "1007-1009",
+      "reason": "Preserves the exact other.is_subset(self) delegation; the added result local and assertions are administrative/ghost. The is_subset dependency is one-way and acyclic."
+    },
+    {
+      "variant_id": "std__sync__LockResult__unwrap_or_default__63f2427c8284",
+      "api_path": "std::sync::LockResult::unwrap_or_default",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1263-1272",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or_default). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__unwrap_unchecked__bbcab3fc2f35",
+      "api_path": "std::sync::LockResult::unwrap_unchecked",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1648-1658",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_unchecked). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__unwrap_or__58b88029f786",
+      "api_path": "std::sync::LockResult::unwrap_or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1588-1597",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__collections__HashSet__is_disjoint__88d78d0f5050",
+      "api_path": "std::collections::HashSet::is_disjoint",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/std/src/collections/hash/set.rs",
+      "resolved_source_lines": "955-961",
+      "reason": "Mechanically names iterator temporaries while preserving both length-selected branches, all traversal, and negated contains closures. Imported iterator/hash contracts are ordinary and acyclic."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__copied__8d2ffcce8943",
+      "api_path": "std::sync::TryLockResult::copied",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1714-1724",
+      "reason": "The proof mechanically desugars the Ok(&v) pattern to a dereference and local copy. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<&T, E>::copied). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__cloned__8d81ff44e62c",
+      "api_path": "std::sync::TryLockResult::cloned",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1740-1745",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<&T, E>::cloned). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__transpose__9b04d3e9cce2",
+      "api_path": "std::sync::TryLockResult::transpose",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1819-1825",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<Option<T>, E>::transpose). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__or__666142661e47",
+      "api_path": "std::sync::TryLockResult::or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1526-1536",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__unwrap_err_unchecked__deb2d0fb8f97",
+      "api_path": "std::sync::TryLockResult::unwrap_err_unchecked",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1684-1694",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_err_unchecked). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__or_else__49d29dcb50af",
+      "api_path": "std::sync::TryLockResult::or_else",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1557-1565",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::or_else). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__unwrap_or_default__63f2427c8284",
+      "api_path": "std::sync::TryLockResult::unwrap_or_default",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1263-1272",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or_default). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__and__d92c2a18dcc6",
+      "api_path": "std::sync::TryLockResult::and",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1440-1450",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::and). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__unwrap_or__3facee5926e1",
+      "api_path": "std::sync::TryLockResult::unwrap_or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1588-1597",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__and__9007b8eb4481",
+      "api_path": "std::thread::Result::and",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1440-1450",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::and). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__as_mut__ecc2d1b8384c",
+      "api_path": "std::thread::Result::as_mut",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "798-803",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::as_mut). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__cloned__fbe4af779d25",
+      "api_path": "std::thread::Result::cloned",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1740-1745",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<&'a T, E>::cloned). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__unwrap_unchecked__bbcab3fc2f35",
+      "api_path": "std::sync::TryLockResult::unwrap_unchecked",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1648-1658",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_unchecked). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__inspect__47b6addffafe",
+      "api_path": "std::thread::Result::inspect",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "986-995",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::inspect). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__unwrap_err_unchecked__46686f2080eb",
+      "api_path": "std::thread::Result::unwrap_err_unchecked",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1684-1694",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_err_unchecked). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__flatten__273ae86e94d5",
+      "api_path": "std::thread::Result::flatten",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1855-1861",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<Result<T, E>, E>::flatten). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__transpose__c36c1ade14f8",
+      "api_path": "std::thread::Result::transpose",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1819-1825",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<Option<T>, E>::transpose). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__unwrap_or__d6fdde0ca0cf",
+      "api_path": "std::thread::Result::unwrap_or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1588-1597",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__unwrap_or_default__3e624fb4d22f",
+      "api_path": "std::thread::Result::unwrap_or_default",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1263-1272",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or_default). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__inspect_err__d239437473fe",
+      "api_path": "std::thread::Result::inspect_err",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1014-1023",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::inspect_err). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__copied__93b35cf82043",
+      "api_path": "std::thread::Result::copied",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1714-1724",
+      "reason": "The proof mechanically desugars the Ok(&v) pattern to a dereference and local copy. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<&'a T, E>::copied). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__expect_err__a239e3d0f2fa",
+      "api_path": "std::thread::Result::expect_err",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1291-1299",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::expect_err). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__unwrap_unchecked__9629b5112d41",
+      "api_path": "std::thread::Result::unwrap_unchecked",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1648-1658",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_unchecked). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__or__6a992c42dd0a",
+      "api_path": "std::thread::Result::or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1526-1536",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "alloc__collections__VecDeque__shrink_to_fit__23b0233b19a0",
+      "api_path": "alloc::collections::VecDeque::shrink_to_fit",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/vec_deque/mod.rs",
+      "resolved_source_lines": "1238-1240",
+      "reason": "Copies the exact self.shrink_to(0) body. The shrink_to contract is a distinct lower-level acyclic dependency."
+    },
+    {
+      "variant_id": "alloc__collections__VecDeque__pop_back_if__e274686125f9",
+      "api_path": "alloc::collections::VecDeque::pop_back_if",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/vec_deque/mod.rs",
+      "resolved_source_lines": "2214-2217",
+      "reason": "Mechanically desugars ? into an Option match, preserving back_mut, one predicate call, early None, and conditional pop_back. The back_mut/pop_back dependencies are ordinary and acyclic."
+    },
+    {
+      "variant_id": "alloc__collections__VecDeque__pop_front_if__7474202798ef",
+      "api_path": "alloc::collections::VecDeque::pop_front_if",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/vec_deque/mod.rs",
+      "resolved_source_lines": "2192-2195",
+      "reason": "Mechanically desugars ? into an Option match, preserving front_mut, one predicate call, early None, and conditional pop_front. The front_mut/pop_front dependencies are ordinary and acyclic."
+    },
+    {
+      "variant_id": "alloc__vec__Vec__into_flattened__d88e7e9c088e",
+      "api_path": "alloc::vec::Vec::into_flattened",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "target_equivalent_axiom",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3633-3652",
+      "reason": "Preserves source control flow and mechanically inlines T::IS_ZST and ptr.cast(). However axiom_raw_array_reinterpretation directly supplies both post-cast raw validity and the exact flattened sequence view (with a supporting capacity axiom), so the proof depends on a target-critical representation axiom."
+    },
+    {
+      "variant_id": "alloc__collections__VecDeque__partition_point__9d0934c343c9",
+      "api_path": "alloc::collections::VecDeque::partition_point",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/collections/vec_deque/mod.rs",
+      "resolved_source_lines": "3357-3368",
+      "reason": "Mechanically expands Option::map into a match while preserving back.first(), the single probe call, branch choice, slice partition_point calls, and addition order. The slice/as_slices contracts are ordinary and acyclic."
+    },
+    {
+      "variant_id": "alloc__vec__Vec__dedup__0dc61dae32ca",
+      "api_path": "alloc::vec::Vec::dedup",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "strict_verdict": "strict_faithful_admissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/alloc/src/vec/mod.rs",
+      "resolved_source_lines": "3704-3706",
+      "reason": "Mechanically names the closure and inlines &mut PartialEq forwarding, preserving the sole dedup_by call and equality callback behavior. The generic dedup_by contract is a distinct lower-level acyclic dependency."
+    },
+    {
+      "variant_id": "std__sync__LockResult__as_mut__2c353a34fa1c",
+      "api_path": "std::sync::LockResult::as_mut",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "798-803",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::as_mut). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__unwrap_or_else__df3458d13b66",
+      "api_path": "std::sync::LockResult::unwrap_or_else",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1614-1622",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or_else). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__and_then__3361612cab77",
+      "api_path": "std::sync::TryLockResult::and_then",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1486-1494",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::and_then). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__is_ok_and__51ae98e5b53f",
+      "api_path": "std::sync::TryLockResult::is_ok_and",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "619-629",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::is_ok_and). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__is_err_and__97aa411f8692",
+      "api_path": "std::sync::TryLockResult::is_err_and",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "674-684",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::is_err_and). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__unwrap_or_else__3faca3de3b32",
+      "api_path": "std::sync::TryLockResult::unwrap_or_else",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1614-1622",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or_else). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__and_then__faa18ee8b03c",
+      "api_path": "std::thread::Result::and_then",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1486-1494",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::and_then). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__map_or__92ceb2aec523",
+      "api_path": "std::sync::TryLockResult::map_or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "863-874",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::map_or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__map_or_default__4c6d26f77e09",
+      "api_path": "std::thread::Result::map_or_default",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "926-937",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::map_or_default). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__TryLockResult__map_or_default__31e6bcdc7357",
+      "api_path": "std::sync::TryLockResult::map_or_default",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "926-937",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::TryLockResult<G> is Result<G, TryLockError<G>> (rust/library/std/src/sync/poison.rs:240); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::map_or_default). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__is_err_and__d28beeed76a4",
+      "api_path": "std::thread::Result::is_err_and",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "674-684",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::is_err_and). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__map_or__8028100ae984",
+      "api_path": "std::thread::Result::map_or",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "863-874",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::map_or). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__or_else__b366cadb1b07",
+      "api_path": "std::thread::Result::or_else",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1557-1565",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::or_else). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__thread__Result__unwrap_or_else__104ac4711a59",
+      "api_path": "std::thread::Result::unwrap_or_else",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1614-1622",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::thread::Result<T> is Result<T, Box<dyn Any + Send + 'static>> (rust/library/std/src/thread/mod.rs:263); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::unwrap_or_else). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    },
+    {
+      "variant_id": "std__sync__LockResult__and_then__4946454cf774",
+      "api_path": "std::sync::LockResult::and_then",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "wrong_or_missing_target",
+      "strict_verdict": "known_mismatch_or_inadmissible",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/result.rs",
+      "resolved_source_lines": "1486-1494",
+      "reason": "The proof matches the resolved core::result::Result executable body. However std::sync::LockResult<G> is Result<G, PoisonError<G>> (rust/library/std/src/sync/poison.rs:232); the manifest contract and proof instead target core Result with an independent generic E (Result::<T, E>::and_then). The alias specialization and its fixed/coupled error type are therefore not the actual contract target."
+    }
+  ]
+}

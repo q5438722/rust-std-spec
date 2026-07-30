@@ -1,0 +1,115 @@
+{
+  "batch": 297,
+  "group": "trait_contract_integration",
+  "duration_ms": 156079,
+  "targets": [
+    "core::ops::Shr::shr",
+    "core::ops::ShrAssign::shr_assign",
+    "core::ops::SubAssign::sub_assign",
+    "core::str::FromStr::from_str",
+    "std::io::BufRead::consume",
+    "std::io::BufRead::fill_buf"
+  ],
+  "candidates": [
+    {
+      "target": "core::ops::Shr::shr",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(ShrSpec via ShrSpecImpl)]\npub trait ExShr<Rhs = Self> {\n    type ExternalTraitSpecificationFor: core::ops::Shr<Rhs>;\n    type Output;\n\n    spec fn obeys_shr_spec() -> bool;\n\n    spec fn shr_req(self, rhs: Rhs) -> bool\n        where Self: Sized;\n\n    spec fn shr_spec(self, rhs: Rhs) -> Self::Output\n        where Self: Sized;\n\n    fn shr(self, rhs: Rhs) -> (ret: Self::Output)\n        requires\n            self.shr_req(rhs),\n        ensures\n            Self::obeys_shr_spec() ==> ret == self.shr_spec(rhs);\n}",
+      "requires": [
+        "self.shr_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_shr_spec() ==> ret == self.shr_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The public ShrSpec extension pattern can model the shift domain and result while allowing each implementation to opt into its declared semantics.",
+      "risks": [
+        "Sound ShrSpecImpl definitions are required for implementations asserting obeys_shr_spec."
+      ]
+    },
+    {
+      "target": "core::ops::ShrAssign::shr_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ShrAssign does not require Shr or expose a state-transition model, so relating final(self) to a shifted old(self) would be unjustified for custom implementations.",
+      "risks": [
+        "arbitrary custom mutation",
+        "missing ShrAssign transition abstraction"
+      ]
+    },
+    {
+      "target": "core::ops::SubAssign::sub_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "SubAssign has no Sub supertrait or public generic transition model; custom implementations need not make final(self) equal old(self) minus rhs.",
+      "risks": [
+        "arbitrary custom mutation",
+        "missing SubAssign transition abstraction"
+      ]
+    },
+    {
+      "target": "core::str::FromStr::from_str",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The grammar, successful value, and error are implementation-defined, and vstd has no generic parsing abstraction relating the input string to the Result.",
+      "risks": [
+        "implementation-defined parsing semantics",
+        "missing generic parsing model"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::consume",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its effect and valid amount depend on hidden unread-buffer state returned through fill_buf, for which no public vstd state model is available.",
+      "risks": [
+        "hidden buffered-reader state",
+        "missing unread-buffer abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufRead::fill_buf",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method may perform I/O and returns a borrow into hidden mutable buffer state; existing public views cannot express its contents, identity, or state transition.",
+      "risks": [
+        "external I/O state",
+        "hidden buffer state",
+        "reference identity versus view"
+      ]
+    }
+  ]
+}

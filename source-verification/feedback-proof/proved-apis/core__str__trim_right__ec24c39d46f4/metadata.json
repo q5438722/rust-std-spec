@@ -1,0 +1,108 @@
+{
+  "id": "core__str__trim_right__ec24c39d46f4",
+  "api_path": "core::str::trim_right",
+  "raw_target": "str::trim_right",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "this returns the trimmed string as a new slice, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "declaration_id": "core:51913",
+    "deprecation": {
+      "note": "superseded by `trim_end`",
+      "since": "1.33.0"
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "trim_right",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "primitive": "str"
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:51935",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "borrowed_ref": {
+          "is_mutable": false,
+          "lifetime": null,
+          "type": {
+            "primitive": "str"
+          }
+        }
+      }
+    },
+    "source_context": "  2280:     #[must_use = \"this returns the trimmed string as a new slice, \\\n  2281:                   without modifying the original\"]\n  2282:     #[inline]\n  2283:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2284:     #[deprecated(since = \"1.33.0\", note = \"superseded by `trim_start`\", suggestion = \"trim_start\")]\n  2285:     pub fn trim_left(&self) -> &str {\n  2286:         self.trim_start()\n  2287:     }\n  2288: \n  2289:     /// Returns a string slice with trailing whitespace removed.\n  2290:     ///\n  2291:     /// 'Whitespace' is defined according to the terms of the Unicode Derived\n  2292:     /// Core Property `White_Space`.\n  2293:     ///\n  2294:     /// # Text directionality\n  2295:     ///\n  2296:     /// A string is a sequence of bytes. 'Right' in this context means the last\n  2297:     /// position of that byte string; for a language like Arabic or Hebrew\n  2298:     /// which are 'right to left' rather than 'left to right', this will be\n  2299:     /// the _left_ side, not the right.\n  2300:     ///\n  2301:     /// # Examples\n  2302:     ///\n  2303:     /// Basic usage:\n  2304:     ///\n  2305:     /// ```\n  2306:     /// let s = \" Hello\\tworld\\t\";\n  2307:     ///\n  2308:     /// assert_eq!(\" Hello\\tworld\", s.trim_right());\n  2309:     /// ```\n  2310:     ///\n  2311:     /// Directionality:\n  2312:     ///\n  2313:     /// ```\n  2314:     /// let s = \"English  \";\n  2315:     /// assert!(Some('h') == s.trim_right().chars().rev().next());\n  2316:     ///\n  2317:     /// let s = \"\u05e2\u05d1\u05e8\u05d9\u05ea  \";\n  2318:     /// assert!(Some('\u05ea') == s.trim_right().chars().rev().next());\n  2319:     /// ```\n  2320:     #[must_use = \"this returns the trimmed string as a new slice, \\\n  2321:                   without modifying the original\"]\n  2322:     #[inline]\n  2323:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2324:     #[deprecated(since = \"1.33.0\", note = \"superseded by `trim_end`\", suggestion = \"trim_end\")]\n  2325:     pub fn trim_right(&self) -> &str {\n  2326:         self.trim_end()\n  2327:     }\n  2328: \n  2329:     /// Returns a string slice with all prefixes and suffixes that match a\n  2330:     /// pattern repeatedly removed.\n  2331:     ///\n  2332:     /// The [pattern] can be a [`char`], a slice of [`char`]s, or a function\n  2333:     /// or closure that determines if a character matches.\n  2334:     ///\n  2335:     /// [`char`]: prim@char\n  2336:     /// [pattern]: self::pattern\n  2337:     ///\n  2338:     /// # Examples\n  2339:     ///\n  2340:     /// Simple patterns:\n  2341:     ///\n  2342:     /// ```\n  2343:     /// assert_eq!(\"11foo1bar11\".trim_matches('1'), \"foo1bar\");\n  2344:     /// assert_eq!(\"123foo1bar123\".trim_matches(char::is_numeric), \"foo1bar\");\n  2345:     ///\n  2346:     /// let x: &[_] = &['1', '2'];\n  2347:     /// assert_eq!(\"12foo1bar12\".trim_matches(x), \"foo1bar\");\n  2348:     /// ```\n  2349:     ///\n  2350:     /// A more complex pattern, using a closure:\n  2351:     ///\n  2352:     /// ```\n  2353:     /// assert_eq!(\"1foo1barXX\".trim_matches(|c| c == '1' || c == 'X'), \"foo1bar\");\n  2354:     /// ```\n  2355:     #[must_use = \"this returns the trimmed string as a new slice, \\\n  2356:                   without modifying the original\"]\n  2357:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2358:     pub fn trim_matches<P: Pattern>(&self, pat: P) -> &str\n  2359:     where\n  2360:         for<'a> P::Searcher<'a>: DoubleEndedSearcher<'a>,\n  2361:     {\n  2362:         let mut i = 0;\n  2363:         let mut j = 0;\n  2364:         let mut matcher = pat.into_searcher(self);\n  2365:         if let Some((a, b)) = matcher.next_reject() {\n  2366:             i = a;\n  2367:             j = b; // Remember earliest known match, correct it below if\n  2368:             // last match is different\n  2369:         }\n  2370:         if let Some((_, b)) = matcher.next_reject_back() {",
+    "span": {
+      "begin": [
+        2325,
+        5
+      ],
+      "end": [
+        2327,
+        6
+      ],
+      "filename": "core/src/str/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn trim_right(&self) -> &str {\n        self.trim_end()\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller std API str::trim_end returns a prefix subrange of its input, as stated by its trusted specification."
+  ],
+  "rationale": "The executable body preserves the Rust implementation's sole trim_end call; its lower-level contract directly establishes the required prefix property.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__str__trim_right__ec24c39d46f4"
+}

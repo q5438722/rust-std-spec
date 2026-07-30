@@ -1,0 +1,118 @@
+{
+  "batch": 21,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 172695,
+  "targets": [
+    "core::sync::atomic::AtomicI8::from_mut",
+    "core::sync::atomic::AtomicI8::from_mut_slice",
+    "core::sync::atomic::AtomicI8::from_ptr",
+    "core::sync::atomic::AtomicI8::get_mut",
+    "core::sync::atomic::AtomicI8::get_mut_slice",
+    "core::sync::atomic::AtomicI8::into_inner"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicI8::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is alias-preserving reinterpretation of mutable storage, but core AtomicI8 has no public value view and current vstd cannot express the returned mutable reference's identity and writeback relation.",
+      "risks": [
+        "atomic state is hidden",
+        "mutable-reference identity is not modeled"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate every returned atomic element to the same input storage and model later writeback. Current vstd exposes neither relation; preserving only the slice length would omit the method's essential semantics.",
+      "risks": [
+        "atomic element state is hidden",
+        "slice aliasing and element identity are not modeled"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract requires pointer validity, alignment, provenance, aliasing, lifetime, and atomic-access obligations plus an identity relation to the returned reference. This signature carries no vstd permission abstraction supporting those facts.",
+      "risks": [
+        "missing raw-pointer ownership abstraction",
+        "reference identity is not expressible",
+        "atomic access rules are hidden"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful facts are that the result contains the atomic's current value and that mutations write back into it. Without a public AtomicI8 value view, neither the initial value nor final writeback can be stated.",
+      "risks": [
+        "atomic state is hidden",
+        "mutable-reference writeback cannot be related to self"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd cannot relate each returned integer to the corresponding hidden atomic value or express element-wise writeback. A length-only postcondition would not usefully specify the conversion.",
+      "risks": [
+        "atomic element state is hidden",
+        "mutable slice writeback is not modeled"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI8::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the consumed atomic's hidden contained value. Core AtomicI8 has no public vstd view or permission in this signature with which to relate that value to self.",
+      "risks": [
+        "atomic state is hidden",
+        "no observable input value exists for a useful postcondition"
+      ]
+    }
+  ]
+}

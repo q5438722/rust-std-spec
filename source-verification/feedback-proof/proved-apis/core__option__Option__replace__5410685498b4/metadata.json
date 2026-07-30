@@ -1,0 +1,150 @@
+{
+  "id": "core__option__Option__replace__5410685498b4",
+  "api_path": "core::option::Option::replace",
+  "raw_target": "core::option::Option::<T>::replace",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 31, patch: 0 })},\nfeature: \"option_replace\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"const_option\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28052",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "replace",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [
+        "self"
+      ],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": true,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "value",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  1913:     /// let mut x = Some(42);\n  1914:     ///\n  1915:     /// let prev = x.take_if(|v| if *v == 42 {\n  1916:     ///     *v += 1;\n  1917:     ///     false\n  1918:     /// } else {\n  1919:     ///     false\n  1920:     /// });\n  1921:     /// assert_eq!(x, Some(43));\n  1922:     /// assert_eq!(prev, None);\n  1923:     ///\n  1924:     /// let prev = x.take_if(|v| *v == 43);\n  1925:     /// assert_eq!(x, None);\n  1926:     /// assert_eq!(prev, Some(43));\n  1927:     /// ```\n  1928:     #[inline]\n  1929:     #[stable(feature = \"option_take_if\", since = \"1.80.0\")]\n  1930:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1931:     pub const fn take_if<P>(&mut self, predicate: P) -> Option<T>\n  1932:     where\n  1933:         P: [const] FnOnce(&mut T) -> bool + [const] Destruct,\n  1934:     {\n  1935:         if self.as_mut().map_or(false, predicate) { self.take() } else { None }\n  1936:     }\n  1937: \n  1938:     /// Replaces the actual value in the option by the value given in parameter,\n  1939:     /// returning the old value if present,\n  1940:     /// leaving a [`Some`] in its place without deinitializing either one.\n  1941:     ///\n  1942:     /// # Examples\n  1943:     ///\n  1944:     /// ```\n  1945:     /// let mut x = Some(2);\n  1946:     /// let old = x.replace(5);\n  1947:     /// assert_eq!(x, Some(5));\n  1948:     /// assert_eq!(old, Some(2));\n  1949:     ///\n  1950:     /// let mut x = None;\n  1951:     /// let old = x.replace(3);\n  1952:     /// assert_eq!(x, Some(3));\n  1953:     /// assert_eq!(old, None);\n  1954:     /// ```\n  1955:     #[inline]\n  1956:     #[stable(feature = \"option_replace\", since = \"1.31.0\")]\n  1957:     #[rustc_const_stable(feature = \"const_option\", since = \"1.83.0\")]\n  1958:     pub const fn replace(&mut self, value: T) -> Option<T> {\n  1959:         mem::replace(self, Some(value))\n  1960:     }\n  1961: \n  1962:     /// Zips `self` with another `Option`.\n  1963:     ///\n  1964:     /// If `self` is `Some(s)` and `other` is `Some(o)`, this method returns `Some((s, o))`.\n  1965:     /// Otherwise, `None` is returned.\n  1966:     ///\n  1967:     /// # Examples\n  1968:     ///\n  1969:     /// ```\n  1970:     /// let x = Some(1);\n  1971:     /// let y = Some(\"hi\");\n  1972:     /// let z = None::<u8>;\n  1973:     ///\n  1974:     /// assert_eq!(x.zip(y), Some((1, \"hi\")));\n  1975:     /// assert_eq!(x.zip(z), None);\n  1976:     /// ```\n  1977:     #[stable(feature = \"option_zip_option\", since = \"1.46.0\")]\n  1978:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1979:     pub const fn zip<U>(self, other: Option<U>) -> Option<(T, U)>\n  1980:     where\n  1981:         T: [const] Destruct,\n  1982:         U: [const] Destruct,\n  1983:     {\n  1984:         match (self, other) {\n  1985:             (Some(a), Some(b)) => Some((a, b)),\n  1986:             _ => None,\n  1987:         }\n  1988:     }\n  1989: \n  1990:     /// Zips `self` and another `Option` with function `f`.\n  1991:     ///\n  1992:     /// If `self` is `Some(s)` and `other` is `Some(o)`, this method returns `Some(f(s, o))`.\n  1993:     /// Otherwise, `None` is returned.\n  1994:     ///\n  1995:     /// # Examples\n  1996:     ///\n  1997:     /// ```\n  1998:     /// #![feature(option_zip)]\n  1999:     ///\n  2000:     /// #[derive(Debug, PartialEq)]\n  2001:     /// struct Point {\n  2002:     ///     x: f64,\n  2003:     ///     y: f64,",
+    "span": {
+      "begin": [
+        1958,
+        5
+      ],
+      "end": [
+        1960,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn replace(&mut self, value: T) -> Option<T> {\n        mem::replace(self, Some(value))\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller core::mem::replace contract: it returns the destination's old value and updates the destination to the source value."
+  ],
+  "rationale": "The function copies the Rust 1.96 body exactly and verifies compositionally using the lower-level core::mem::replace specification.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__replace__5410685498b4"
+}

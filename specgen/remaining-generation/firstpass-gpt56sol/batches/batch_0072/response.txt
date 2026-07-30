@@ -1,0 +1,260 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::btree_map::Entry::and_modify",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure conditionally mutates an occupied entry, but vstd has no public BTreeMap Entry value/write-back model connecting that mutation to the returned Entry.",
+      "risks": [
+        "missing_btree_entry_model",
+        "mutable_reference_callback_writeback_unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::dedup_by",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The callback may mutate both compared elements, and its adaptive sequence of results determines removals. Current vstd lacks the mutable-reference prophecy and call-trace model needed to relate those effects to the final sequence.",
+      "risks": [
+        "mutable_reference_callback_writeback_unmodeled",
+        "missing_callback_trace_model"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::dedup_by_key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The key closure repeatedly receives mutable elements and may change them before PartialEq comparisons. Neither that write-back trace nor the resulting adaptive deduplication is expressible in existing public vstd vocabulary.",
+      "risks": [
+        "mutable_reference_callback_writeback_unmodeled",
+        "missing_callback_trace_model",
+        "partial_eq_behavior_not_constrained"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::pop_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate mutation of the borrowed last element to either the popped result or the retained final element. That requires a prophetic mutable-reference callback model unavailable in current vstd.",
+      "risks": [
+        "mutable_reference_callback_writeback_unmodeled",
+        "missing_last_element_prophecy"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::resize_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator, F: FnMut() -> T>[\n    Vec::<T, A>::resize_with\n](\n    vec: &mut Vec<T, A>,\n    new_len: usize,\n    f: F,\n)\n    requires\n        new_len > old(vec).len() ==> f.requires(()),\n    ensures\n        new_len <= old(vec).len() ==> final(vec)@ == old(vec)@.subrange(0, new_len as int),\n        new_len > old(vec).len() ==> final(vec)@.len() == new_len,\n        new_len > old(vec).len() ==> final(vec)@.subrange(0, old(vec).len() as int) == old(vec)@,\n        new_len > old(vec).len() ==> forall|i: int| old(vec).len() <= i < new_len ==> f.ensures((), #[trigger] final(vec)@[i]),\n;",
+      "requires": [
+        "new_len > old(vec).len() ==> f.requires(())"
+      ],
+      "ensures": [
+        "new_len <= old(vec).len() ==> final(vec)@ == old(vec)@.subrange(0, new_len as int)",
+        "new_len > old(vec).len() ==> final(vec)@.len() == new_len",
+        "new_len > old(vec).len() ==> final(vec)@.subrange(0, old(vec).len() as int) == old(vec)@",
+        "new_len > old(vec).len() ==> forall|i: int| old(vec).len() <= i < new_len ==> f.ensures((), #[trigger] final(vec)@[i])"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::vec::Vec",
+        "core::alloc::Allocator",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source either truncates to new_len or preserves the old prefix and appends values produced by repeated closure calls; Vec views and FnMut requires/ensures express these normal-return effects.",
+      "risks": [
+        "The contract does not model correlations from mutable closure captures or expose final closure state.",
+        "Allocation failure and closure panic are outside the normal-return postconditions."
+      ]
+    },
+    {
+      "target": "core::array::from_fn",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, const N: usize, F: FnMut(usize) -> T>[\n    core::array::from_fn::<T, N, F>\n](f: F) -> (result: [T; N])\n    requires\n        forall|i: int| 0 <= i < N ==> f.requires((i as usize,)),\n    ensures\n        forall|i: int| 0 <= i < N ==> f.ensures((i as usize,), #[trigger] result@[i]),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < N ==> f.requires((i as usize,))"
+      ],
+      "ensures": [
+        "forall|i: int| 0 <= i < N ==> f.ensures((i as usize,), #[trigger] result@[i])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source constructs array element i from f(i), so existing array views and FnMut call contracts provide a useful per-index result relation.",
+      "risks": [
+        "Ascending call order and mutable captured-state evolution are not represented by the per-index facts.",
+        "Closure panic is outside the normal-return contract."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::collections::btree_map::Entry::and_modify",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure conditionally mutates an occupied entry, but vstd has no public
+BTreeMap Entry value/write-back model connecting that mutation to the returned Entry.",
+      "risks": [
+        "missing_btree_entry_model",
+        "mutable_reference_callback_writeback_unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::dedup_by",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The callback may mutate both compared elements, and its adaptive sequence of
+results determines removals. Current vstd lacks the mutable-reference prophecy and call-trace model
+needed to relate those effects to the final sequence.",
+      "risks": [
+        "mutable_reference_callback_writeback_unmodeled",
+        "missing_callback_trace_model"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::dedup_by_key",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The key closure repeatedly receives mutable elements and may change them before
+PartialEq comparisons. Neither that write-back trace nor the resulting adaptive deduplication is
+expressible in existing public vstd vocabulary.",
+      "risks": [
+        "mutable_reference_callback_writeback_unmodeled",
+        "missing_callback_trace_model",
+        "partial_eq_behavior_not_constrained"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::pop_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate mutation of the borrowed last element to either
+the popped result or the retained final element. That requires a prophetic mutable-reference
+callback model unavailable in current vstd.",
+      "risks": [
+        "mutable_reference_callback_writeback_unmodeled",
+        "missing_last_element_prophecy"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::resize_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator, F: FnMut() -> T>[\n    Vec::<T,
+A>::resize_with\n](\n    vec: &mut Vec<T, A>,\n    new_len: usize,\n    f: F,\n)\n    requires\n
+    new_len > old(vec).len() ==> f.requires(()),\n    ensures\n        new_len <= old(vec).len() ==>
+ final(vec)@ == old(vec)@.subrange(0, new_len as int),\n        new_len > old(vec).len() ==>
+final(vec)@.len() == new_len,\n        new_len > old(vec).len() ==> final(vec)@.subrange(0,
+old(vec).len() as int) == old(vec)@,\n        new_len > old(vec).len() ==> forall|i: int|
+old(vec).len() <= i < new_len ==> f.ensures((), #[trigger] final(vec)@[i]),\n;",
+      "requires": [
+        "new_len > old(vec).len() ==> f.requires(())"
+      ],
+      "ensures": [
+        "new_len <= old(vec).len() ==> final(vec)@ == old(vec)@.subrange(0, new_len as int)",
+        "new_len > old(vec).len() ==> final(vec)@.len() == new_len",
+        "new_len > old(vec).len() ==> final(vec)@.subrange(0, old(vec).len() as int) == old(vec)@",
+        "new_len > old(vec).len() ==> forall|i: int| old(vec).len() <= i < new_len ==> f.ensures((),
+ #[trigger] final(vec)@[i])"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::vec::Vec",
+        "core::alloc::Allocator",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source either truncates to new_len or preserves the old prefix and appends
+values produced by repeated closure calls; Vec views and FnMut requires/ensures express these
+normal-return effects.",
+      "risks": [
+        "The contract does not model correlations from mutable closure captures or expose final
+closure state.",
+        "Allocation failure and closure panic are outside the normal-return postconditions."
+      ]
+    },
+    {
+      "target": "core::array::from_fn",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, const N: usize, F: FnMut(usize) -> T>[\n
+core::array::from_fn::<T, N, F>\n](f: F) -> (result: [T; N])\n    requires\n        forall|i: int| 0
+ <= i < N ==> f.requires((i as usize,)),\n    ensures\n        forall|i: int| 0 <= i < N ==>
+f.ensures((i as usize,), #[trigger] result@[i]),\n;",
+      "requires": [
+        "forall|i: int| 0 <= i < N ==> f.requires((i as usize,))"
+      ],
+      "ensures": [
+        "forall|i: int| 0 <= i < N ==> f.ensures((i as usize,), #[trigger] result@[i])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source constructs array element i from f(i), so existing array views and
+FnMut call contracts provide a useful per-index result relation.",
+      "risks": [
+        "Ascending call order and mutable captured-state evolution are not represented by the
+per-index facts.",
+        "Closure panic is outside the normal-return contract."
+      ]
+    } ]
+}
+

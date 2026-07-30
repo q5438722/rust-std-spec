@@ -1,0 +1,291 @@
+{
+  "candidates": [
+    {
+      "target": "core::ops::Not::not",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(NotSpec via NotSpecImpl)]\npub trait ExNot {\n    type ExternalTraitSpecificationFor: core::ops::Not;\n    type Output;\n\n    spec fn obeys_not_spec() -> bool;\n    spec fn not_req(self) -> bool where Self: Sized;\n    spec fn not_spec(self) -> Self::Output where Self: Sized;\n\n    fn not(self) -> (ret: Self::Output)\n        requires self.not_req(),\n        ensures Self::obeys_not_spec() ==> ret == self.not_spec();\n}",
+      "requires": [
+        "self.not_req()"
+      ],
+      "ensures": [
+        "Self::obeys_not_spec() ==> ret == self.not_spec()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The existing operator-spec pattern models implementation-defined behavior while conditionally relating the returned Output to NotSpec.",
+      "risks": [
+        "Custom implementations require an appropriate NotSpecImpl model."
+      ]
+    },
+    {
+      "target": "core::ops::RangeBounds::contains",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "pub open spec fn range_bounds_contains_start_ensures<T: ?Sized, U: ?Sized>(\n    bound: Bound<&T>,\n    item: &U,\n    result: bool,\n) -> bool\nwhere\n    T: PartialOrd<U>,\n    U: PartialOrd<T>,\n{\n    match bound {\n        Bound::Included(start) => call_ensures(<T as PartialOrd<U>>::le, (start, item), result),\n        Bound::Excluded(start) => call_ensures(<T as PartialOrd<U>>::lt, (start, item), result),\n        Bound::Unbounded => result,\n    }\n}\n\npub open spec fn range_bounds_contains_end_ensures<T: ?Sized, U: ?Sized>(\n    bound: Bound<&T>,\n    item: &U,\n    result: bool,\n) -> bool\nwhere\n    T: PartialOrd<U>,\n    U: PartialOrd<T>,\n{\n    match bound {\n        Bound::Included(end) => call_ensures(<U as PartialOrd<T>>::le, (item, end), result),\n        Bound::Excluded(end) => call_ensures(<U as PartialOrd<T>>::lt, (item, end), result),\n        Bound::Unbounded => result,\n    }\n}\n\n#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(RangeBoundsSpec via RangeBoundsSpecImpl)]\npub trait ExRangeBounds<T: ?Sized> {\n    type ExternalTraitSpecificationFor: RangeBounds<T>;\n\n    spec fn spec_start_bound(&self) -> SpecBound<&T>;\n    spec fn spec_end_bound(&self) -> SpecBound<&T>;\n\n    fn start_bound(&self) -> (result: Bound<&T>);\n    fn end_bound(&self) -> (result: Bound<&T>);\n\n    fn contains<U>(&self, item: &U) -> (ret: bool)\n        where\n            T: PartialOrd<U>,\n            U: ?Sized + PartialOrd<T>\n        default_ensures\n            exists|start: Bound<&T>, start_ok: bool| {\n                &&& #[trigger] call_ensures(Self::start_bound, (self,), start)\n                &&& range_bounds_contains_start_ensures(start, item, start_ok)\n                &&& if start_ok {\n                    exists|end: Bound<&T>, end_ok: bool| {\n                        &&& #[trigger] call_ensures(Self::end_bound, (self,), end)\n                        &&& range_bounds_contains_end_ensures(end, item, end_ok)\n                        &&& ret == end_ok\n                    }\n                } else {\n                    !ret\n                }\n            }\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "default_ensures: the result is the short-circuit conjunction of the start-bound and end-bound comparison call contracts"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::cmp::PartialOrd",
+        "core::ops::{Bound, RangeBounds}",
+        "vstd::std_specs::range::SpecBound"
+      ],
+      "useful": true,
+      "rationale": "default_ensures and call_ensures express the supplied default body exactly without constraining implementations that override contains.",
+      "risks": [
+        "The guarantee is available only for implementations inheriting the default method.",
+        "Precision depends on the available bound-accessor and PartialOrd contracts."
+      ]
+    },
+    {
+      "target": "core::ops::Rem::rem",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(RemSpec via RemSpecImpl)]\npub trait ExRem<Rhs = Self> {\n    type ExternalTraitSpecificationFor: core::ops::Rem<Rhs>;\n    type Output;\n\n    spec fn obeys_rem_spec() -> bool;\n    spec fn rem_req(self, rhs: Rhs) -> bool where Self: Sized;\n    spec fn rem_spec(self, rhs: Rhs) -> Self::Output where Self: Sized;\n\n    fn rem(self, rhs: Rhs) -> (ret: Self::Output)\n        requires self.rem_req(rhs),\n        ensures Self::obeys_rem_spec() ==> ret == self.rem_spec(rhs);\n}",
+      "requires": [
+        "self.rem_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_rem_spec() ==> ret == self.rem_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "RemSpec is the existing public abstraction for implementation-specific remainder behavior and its panic-safety domain.",
+      "risks": [
+        "rem_req must encode zero-divisor and signed overflow cases for concrete integer implementations."
+      ]
+    },
+    {
+      "target": "core::ops::RemAssign::rem_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "RemAssign is independent of Rem and permits arbitrary mutation; vstd has no assignment-specific opt-in model relating old(self) and final(self).",
+      "risks": [
+        "Equating final(self) with Rem::rem on old(self) would be unsound for custom implementations."
+      ]
+    },
+    {
+      "target": "core::ops::Shl::shl",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(ShlSpec via ShlSpecImpl)]\npub trait ExShl<Rhs = Self> {\n    type ExternalTraitSpecificationFor: core::ops::Shl<Rhs>;\n    type Output;\n\n    spec fn obeys_shl_spec() -> bool;\n    spec fn shl_req(self, rhs: Rhs) -> bool where Self: Sized;\n    spec fn shl_spec(self, rhs: Rhs) -> Self::Output where Self: Sized;\n\n    fn shl(self, rhs: Rhs) -> (ret: Self::Output)\n        requires self.shl_req(rhs),\n        ensures Self::obeys_shl_spec() ==> ret == self.shl_spec(rhs);\n}",
+      "requires": [
+        "self.shl_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_shl_spec() ==> ret == self.shl_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "ShlSpec models implementation-specific shift behavior, while shl_req captures valid shift-count requirements.",
+      "risks": [
+        "Each supported Self/Rhs combination needs a ShlSpecImpl, including its shift-count bound."
+      ]
+    },
+    {
+      "target": "core::ops::ShlAssign::shl_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ShlAssign does not require consistency with Shl and supplies no universal relation for the mutation; no assignment-specific vstd abstraction exists.",
+      "risks": [
+        "Relating final(self) to Shl::shl on old(self) would overconstrain valid custom implementations."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ops::Not::not",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code":
+"#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(NotSpec via
+NotSpecImpl)]\npub trait ExNot {\n    type ExternalTraitSpecificationFor: core::ops::Not;\n    type
+Output;\n\n    spec fn obeys_not_spec() -> bool;\n    spec fn not_req(self) -> bool where Self:
+Sized;\n    spec fn not_spec(self) -> Self::Output where Self: Sized;\n\n    fn not(self) -> (ret:
+Self::Output)\n        requires self.not_req(),\n        ensures Self::obeys_not_spec() ==> ret ==
+self.not_spec();\n}",
+      "requires": [
+        "self.not_req()"
+      ],
+      "ensures": [
+        "Self::obeys_not_spec() ==> ret == self.not_spec()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The existing operator-spec pattern models implementation-defined behavior while
+conditionally relating the returned Output to NotSpec.",
+      "risks": [
+        "Custom implementations require an appropriate NotSpecImpl model."
+      ]
+    },
+    {
+      "target": "core::ops::RangeBounds::contains",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "pub open spec fn range_bounds_contains_start_ensures<T: ?Sized, U:
+?Sized>(\n    bound: Bound<&T>,\n    item: &U,\n    result: bool,\n) -> bool\nwhere\n    T:
+PartialOrd<U>,\n    U: PartialOrd<T>,\n{\n    match bound {\n        Bound::Included(start) =>
+call_ensures(<T as PartialOrd<U>>::le, (start, item), result),\n        Bound::Excluded(start) =>
+call_ensures(<T as PartialOrd<U>>::lt, (start, item), result),\n        Bound::Unbounded =>
+result,\n    }\n}\n\npub open spec fn range_bounds_contains_end_ensures<T: ?Sized, U: ?Sized>(\n
+bound: Bound<&T>,\n    item: &U,\n    result: bool,\n) -> bool\nwhere\n    T: PartialOrd<U>,\n    U:
+ PartialOrd<T>,\n{\n    match bound {\n        Bound::Included(end) => call_ensures(<U as
+PartialOrd<T>>::le, (item, end), result),\n        Bound::Excluded(end) => call_ensures(<U as
+PartialOrd<T>>::lt, (item, end), result),\n        Bound::Unbounded => result,\n    }\n}\n\n#[verifi
+er::external_trait_specification]\n#[verifier::external_trait_extension(RangeBoundsSpec via
+RangeBoundsSpecImpl)]\npub trait ExRangeBounds<T: ?Sized> {\n    type ExternalTraitSpecificationFor:
+ RangeBounds<T>;\n\n    spec fn spec_start_bound(&self) -> SpecBound<&T>;\n    spec fn
+spec_end_bound(&self) -> SpecBound<&T>;\n\n    fn start_bound(&self) -> (result: Bound<&T>);\n    fn
+ end_bound(&self) -> (result: Bound<&T>);\n\n    fn contains<U>(&self, item: &U) -> (ret: bool)\n
+     where\n            T: PartialOrd<U>,\n            U: ?Sized + PartialOrd<T>\n
+default_ensures\n            exists|start: Bound<&T>, start_ok: bool| {\n                &&&
+#[trigger] call_ensures(Self::start_bound, (self,), start)\n                &&&
+range_bounds_contains_start_ensures(start, item, start_ok)\n                &&& if start_ok {\n
+               exists|end: Bound<&T>, end_ok: bool| {\n                        &&& #[trigger]
+call_ensures(Self::end_bound, (self,), end)\n                        &&&
+range_bounds_contains_end_ensures(end, item, end_ok)\n                        &&& ret == end_ok\n
+                 }\n                } else {\n                    !ret\n                }\n
+   }\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "default_ensures: the result is the short-circuit conjunction of the start-bound and
+end-bound comparison call contracts"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "core::cmp::PartialOrd",
+        "core::ops::{Bound, RangeBounds}",
+        "vstd::std_specs::range::SpecBound"
+      ],
+      "useful": true,
+      "rationale": "default_ensures and call_ensures express the supplied default body exactly
+without constraining implementations that override contains.",
+      "risks": [
+        "The guarantee is available only for implementations inheriting the default method.",
+        "Precision depends on the available bound-accessor and PartialOrd contracts."
+      ]
+    },
+    {
+      "target": "core::ops::Rem::rem",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code":
+"#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(RemSpec via
+RemSpecImpl)]\npub trait ExRem<Rhs = Self> {\n    type ExternalTraitSpecificationFor:
+core::ops::Rem<Rhs>;\n    type Output;\n\n    spec fn obeys_rem_spec() -> bool;\n    spec fn
+rem_req(self, rhs: Rhs) -> bool where Self: Sized;\n    spec fn rem_spec(self, rhs: Rhs) ->
+Self::Output where Self: Sized;\n\n    fn rem(self, rhs: Rhs) -> (ret: Self::Output)\n
+requires self.rem_req(rhs),\n        ensures Self::obeys_rem_spec() ==> ret ==
+self.rem_spec(rhs);\n}",
+      "requires": [
+        "self.rem_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_rem_spec() ==> ret == self.rem_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "RemSpec is the existing public abstraction for implementation-specific remainder
+ behavior and its panic-safety domain.",
+      "risks": [
+        "rem_req must encode zero-divisor and signed overflow cases for concrete integer
+implementations."
+      ]
+    },
+    {
+      "target": "core::ops::RemAssign::rem_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "RemAssign is independent of Rem and permits arbitrary mutation; vstd has no
+assignment-specific opt-in model relating old(self) and final(self).",
+      "risks": [
+        "Equating final(self) with Rem::rem on old(self) would be unsound for custom
+implementations."
+      ]
+    },
+    {
+      "target": "core::ops::Shl::shl",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code":
+"#[verifier::external_trait_specification]\n#[verifier::external_trait_extension(ShlSpec via
+ShlSpecImpl)]\npub trait ExShl<Rhs = Self> {\n    type ExternalTraitSpecificationFor:
+core::ops::Shl<Rhs>;\n    type Output;\n\n    spec fn obeys_shl_spec() -> bool;\n    spec fn
+shl_req(self, rhs: Rhs) -> bool where Self: Sized;\n    spec fn shl_spec(self, rhs: Rhs) ->
+Self::Output where Self: Sized;\n\n    fn shl(self, rhs: Rhs) -> (ret: Self::Output)\n
+requires self.shl_req(rhs),\n        ensures Self::obeys_shl_spec() ==> ret ==
+self.shl_spec(rhs);\n}",
+      "requires": [
+        "self.shl_req(rhs)"
+      ],
+      "ensures": [
+        "Self::obeys_shl_spec() ==> ret == self.shl_spec(rhs)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "ShlSpec models implementation-specific shift behavior, while shl_req captures
+valid shift-count requirements.",
+      "risks": [
+        "Each supported Self/Rhs combination needs a ShlSpecImpl, including its shift-count bound."
+      ]
+    },
+    {
+      "target": "core::ops::ShlAssign::shl_assign",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ShlAssign does not require consistency with Shl and supplies no universal
+relation for the mutation; no assignment-specific vstd abstraction exists.",
+      "risks": [
+        "Relating final(self) to Shl::shl on old(self) would overconstrain valid custom
+implementations."
+      ]
+    } ]
+}
+

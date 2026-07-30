@@ -1,0 +1,115 @@
+{
+  "batch": 73,
+  "group": "higher_order_contract",
+  "duration_ms": 421869,
+  "targets": [
+    "core::array::map",
+    "core::cell::LazyCell::force",
+    "core::cell::LazyCell::new",
+    "core::cell::OnceCell::get_or_init",
+    "core::cell::Ref::filter_map",
+    "core::cell::Ref::map"
+  ],
+  "candidates": [
+    {
+      "target": "core::array::map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source calls a stateful FnMut sequentially, and its example demonstrates evolving captured state. Relating every result to the original closure's call_ensures would be unsound without a closure-state trace or prophetic transition model; the result length is already encoded by its type.",
+      "risks": [
+        "stateful_FnMut_sequence_not_modeled",
+        "call_order_not_expressible"
+      ]
+    },
+    {
+      "target": "core::cell::LazyCell::force",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The behavior depends on private Init, Uninit, and Poisoned state and may invoke the stored FnOnce while mutating through a shared reference. Current vstd has no LazyCell state model capable of relating the returned reference to that hidden state.",
+      "risks": [
+        "hidden_initialization_state",
+        "interior_mutation_through_shared_reference",
+        "reference_identity_not_modeled",
+        "poisoning"
+      ]
+    },
+    {
+      "target": "core::cell::LazyCell::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source stores the closure in private Uninit state without invoking it. Without a public vstd model of LazyCell state or its stored initializer, no useful observable relation can be stated.",
+      "risks": [
+        "missing_LazyCell_logical_model",
+        "stored_initializer_is_opaque"
+      ]
+    },
+    {
+      "target": "core::cell::OnceCell::get_or_init",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The callback is invoked only when private cell state is empty, and the method initializes through &self. Current vstd cannot describe the prior and resulting OnceCell state or the identity of the returned reference.",
+      "risks": [
+        "hidden_occupancy_state",
+        "interior_mutation_through_shared_reference",
+        "conditional_closure_invocation_not_modeled",
+        "reference_identity_not_modeled"
+      ]
+    },
+    {
+      "target": "core::cell::Ref::filter_map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source either wraps the reference returned by f while preserving the borrow guard or returns orig unchanged. vstd lacks a logical model connecting Ref's dereference target and guard to the callback reference, so call_ensures alone cannot specify the useful behavior.",
+      "risks": [
+        "missing_Ref_dereference_model",
+        "borrow_guard_identity_not_modeled"
+      ]
+    },
+    {
+      "target": "core::cell::Ref::map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although call_ensures can describe the FnOnce result, current vstd has no Ref model that connects that returned &U to the dereference target of the resulting Ref while preserving its borrow guard.",
+      "risks": [
+        "missing_Ref_dereference_model",
+        "borrow_guard_identity_not_modeled"
+      ]
+    }
+  ]
+}

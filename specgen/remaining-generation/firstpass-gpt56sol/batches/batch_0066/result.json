@@ -1,0 +1,117 @@
+{
+  "batch": 66,
+  "group": "formatting_effect",
+  "duration_ms": 204566,
+  "targets": [
+    "core::fmt::Result::inspect_err",
+    "core::fmt::Result::is_err",
+    "core::fmt::Result::is_err_and",
+    "core::fmt::Result::is_ok",
+    "core::fmt::Result::is_ok_and",
+    "core::fmt::Result::iter"
+  ],
+  "candidates": [
+    {
+      "target": "core::fmt::Result::inspect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Err branch invokes an arbitrary FnOnce before returning self; its formatting effects are not represented by current vstd state.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "missing_callable_effect_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::is_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Metadata resolves this alias-surfaced method to core::result::Result; a separate formatting-path contract would duplicate the canonical Result discriminant specification.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::is_err_and",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Err branch consumes the error through an arbitrary FnOnce; its effects and the classified formatting state cannot be characterized at this alias surface.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "missing_callable_effect_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::is_ok",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Metadata resolves this alias-surfaced method to core::result::Result; a separate formatting-path contract would duplicate the canonical Result discriminant specification.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::is_ok_and",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Ok branch consumes the value through an arbitrary FnOnce; its effects and the classified formatting state cannot be characterized at this alias surface.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled",
+        "missing_callable_effect_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned Iter to the optional borrowed Ok value requires a Result-iterator sequence and reference-identity abstraction absent from current vstd.",
+      "risks": [
+        "formatting_state_not_modeled",
+        "missing_iterator_abstraction",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}

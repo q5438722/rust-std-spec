@@ -1,0 +1,116 @@
+{
+  "batch": 40,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 46389,
+  "targets": [
+    "alloc::collections::VecDeque::make_contiguous",
+    "alloc::collections::VecDeque::push_back_mut",
+    "alloc::collections::VecDeque::push_front_mut",
+    "alloc::collections::btree_map::Entry::or_default",
+    "alloc::collections::btree_map::Entry::or_insert",
+    "alloc::collections::btree_map::Entry::or_insert_with"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::VecDeque::make_contiguous",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a mutable slice aliasing the deque while changing its hidden physical layout. Current vstd cannot express that alias and contiguity relation, and mutable-reference returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_contiguous_layout_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::push_back_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source appends the value and returns a mutable reference specifically aliasing the new back element. That identity and subsequent mutation relationship cannot be represented by a supported contract.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::push_front_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source prepends the value and returns a mutable reference specifically aliasing the new front element. Current vstd cannot capture that alias and later mutations through it.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::or_default",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method consumes an Entry and returns a mutable reference into its hidden map, inserting a default only for the vacant case. No public vstd Entry-to-map state or mutable-reference alias abstraction supports this relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_entry_map_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::or_insert",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The occupied and vacant branches return a mutable reference into hidden map state, with insertion occurring only when vacant. Existing public vstd vocabulary cannot relate that reference to the owning map.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_entry_map_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::btree_map::Entry::or_insert_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must model conditional FnOnce invocation and return a mutable reference aliasing hidden map storage. Those Entry, closure, and mutable-reference relations are unavailable in current vstd vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_entry_map_abstraction",
+        "missing_conditional_fnonce_abstraction"
+      ]
+    }
+  ]
+}

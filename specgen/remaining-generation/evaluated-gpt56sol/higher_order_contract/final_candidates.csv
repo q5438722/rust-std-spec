@@ -1,0 +1,923 @@
+target,category,status,rounds,initial_decision,final_decision,contract_form,typecheck_passed,det_status,r0_z3,classification,raw_det_reward,guarded_reward,semantic_guarded_reward,issues,semantic_gate_issues,semantic_review_issues,requires,ensures,contract_code,rationale
+alloc::collections::VecDeque::binary_search_by,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"Although allocator_api would fix typechecking, a deterministic Ok index cannot be expressed from v@ and FnMut contracts. With duplicate matches, the implementation may return the deque's internal slice boundary or a slice-search result; that physical split is absent from current vstd vocabulary. Requiring a unique match or claiming a canonical match would exclude documented valid calls or contradict the source."
+alloc::collections::VecDeque::binary_search_by_key,data_structure,,2,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract,,,"B::obeys_cmp_spec(); forall|i: int| 0 <= i < v@.len() ==> { &&& #[trigger] f.requires((v@.as_ref()[i],)) &&& exists|key: B| #[trigger] f.ensures((v@.as_ref()[i],), key) }; forall|i: int, j: int, key_i: B, key_j: B| 0 <= i <= j < v@.len() && f.ensures((v@.as_ref()[i],), key_i) && f.ensures((v@.as_ref()[j],), key_j) ==> key_i.cmp_spec(b) == Ordering::Less || key_j.cmp_spec(b) == Ordering::Greater || key_i.cmp_spec(b) == key_j.cmp_spec(b)","match result { Ok(i) => { &&& (i as int) < v@.len() &&& exists|key: B| { &&& f.ensures((v@.as_ref()[i as int],), key) &&& key.cmp_spec(b) == Ordering::Equal } }, Err(i) => { &&& (i as int) <= v@.len() &&& forall|j: int, key: B| 0 <= j < v@.len() && f.ensures((v@.as_ref()[j],), key) ==> { &&& (j < i as int ==> key.cmp_spec(b) == Ordering::Less) &&& (i as int <= j ==> key.cmp_spec(b) == Ordering::Greater) } }, }","pub assume_specification<'a, T, A: Allocator, B: Ord, F: FnMut(&'a T) -> B>[
+    VecDeque::<T, A>::binary_search_by_key
+](
+    v: &'a VecDeque<T, A>,
+    b: &B,
+    f: F,
+) -> (result: Result<usize, usize>)
+    requires
+        B::obeys_cmp_spec(),
+        forall|i: int| 0 <= i < v@.len() ==> {
+            &&& #[trigger] f.requires((v@.as_ref()[i],))
+            &&& exists|key: B| #[trigger] f.ensures((v@.as_ref()[i],), key)
+        },
+        forall|i: int, j: int, key_i: B, key_j: B|
+            0 <= i <= j < v@.len()
+            && f.ensures((v@.as_ref()[i],), key_i)
+            && f.ensures((v@.as_ref()[j],), key_j) ==>
+                key_i.cmp_spec(b) == Ordering::Less
+                || key_j.cmp_spec(b) == Ordering::Greater
+                || key_i.cmp_spec(b) == key_j.cmp_spec(b),
+    ensures
+        match result {
+            Ok(i) => {
+                &&& (i as int) < v@.len()
+                &&& exists|key: B| {
+                    &&& f.ensures((v@.as_ref()[i as int],), key)
+                    &&& key.cmp_spec(b) == Ordering::Equal
+                }
+            },
+            Err(i) => {
+                &&& (i as int) <= v@.len()
+                &&& forall|j: int, key: B|
+                    0 <= j < v@.len()
+                    && f.ensures((v@.as_ref()[j],), key) ==> {
+                        &&& (j < i as int ==> key.cmp_spec(b) == Ordering::Less)
+                        &&& (i as int <= j ==> key.cmp_spec(b) == Ordering::Greater)
+                    }
+            },
+        },
+;","The implementation delegates to binary_search_by using f(k).cmp(b). OrdSpec relates that comparison to cmp_spec, while extractor totality and nondecreasing comparison outcomes model the documented sorted-by-key domain without excluding duplicate equal keys."
+alloc::collections::VecDeque::partition_point,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"forall|i: int| 0 <= i < v@.len() ==> { &&& #[trigger] pred.requires((v@.as_ref()[i],)) &&& exists|outcome: bool| #[trigger] pred.ensures((v@.as_ref()[i],), outcome) }; forall|i: int, j: int, left: bool, right: bool| 0 <= i <= j < v@.len() && #[trigger] pred.ensures((v@.as_ref()[i],), left) && #[trigger] pred.ensures((v@.as_ref()[j],), right) ==> (right ==> left)","(result as int) <= v@.len(); forall|i: int, outcome: bool| 0 <= i < v@.len() && #[trigger] pred.ensures((v@.as_ref()[i],), outcome) ==> (outcome <==> i < result as int)","pub assume_specification<T, A: Allocator, P>[
+    VecDeque::<T, A>::partition_point
+](
+    v: &VecDeque<T, A>,
+    pred: P,
+) -> (result: usize)
+where
+    P: FnMut(&T) -> bool,
+    requires
+        forall|i: int| 0 <= i < v@.len() ==> {
+            &&& #[trigger] pred.requires((v@.as_ref()[i],))
+            &&& exists|outcome: bool|
+                #[trigger] pred.ensures((v@.as_ref()[i],), outcome)
+        },
+        forall|i: int, j: int, left: bool, right: bool|
+            0 <= i <= j < v@.len()
+            && #[trigger] pred.ensures((v@.as_ref()[i],), left)
+            && #[trigger] pred.ensures((v@.as_ref()[j],), right)
+                ==> (right ==> left),
+    ensures
+        (result as int) <= v@.len(),
+        forall|i: int, outcome: bool|
+            0 <= i < v@.len()
+            && #[trigger] pred.ensures((v@.as_ref()[i],), outcome)
+                ==> (outcome <==> i < result as int),
+;","The total monotone predicate relation models the documented true-prefix/false-suffix domain, and the returned index identifies that logical boundary."
+alloc::collections::VecDeque::pop_back_if,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown;structured_contract_mismatch,,,"When nonempty, the predicate accepts every mutable-reference prophecy initially containing the back element.","An empty deque is unchanged and returns None.; For a nonempty deque, the predicate's result determines whether its mutated back element is removed and returned or retained.","pub assume_specification<T, A: Allocator>[
+    VecDeque::<T, A>::pop_back_if
+](
+    v: &mut VecDeque<T, A>,
+    predicate: impl FnOnce(&mut T) -> bool,
+) -> (result: Option<T>)
+    requires
+        old(v)@.len() > 0 ==> forall|x: &mut T| #![auto]
+            *x == old(v)@[old(v)@.len() as int - 1] ==> predicate.requires((x,)),
+    ensures
+        old(v)@.len() == 0 ==> result is None && final(v)@ == old(v)@,
+        old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| #![auto] {
+            &&& *x == old(v)@[old(v)@.len() as int - 1]
+            &&& predicate.ensures((x,), take)
+            &&& (take ==> {
+                &&& result == Some(*final(x))
+                &&& final(v)@ == old(v)@.subrange(0, old(v)@.len() as int - 1)
+            })
+            &&& (!take ==> {
+                &&& result is None
+                &&& final(v)@ == old(v)@.update(old(v)@.len() as int - 1, *final(x))
+            })
+        },
+;","The source calls the predicate exactly once on the mutable back element when nonempty, then either removes and returns its mutated value or retains that mutation."
+alloc::collections::VecDeque::pop_front_if,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"old(v)@.len() > 0 ==> forall|x: &mut T|
+            *x == old(v)@[0] ==> predicate.requires((x,))","old(v)@.len() == 0 ==> result is None && final(v)@ == old(v)@; old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| {
+            &&& *x == old(v)@[0]
+            &&& predicate.ensures((x,), take)
+            &&& (take ==> {
+                &&& result == Some(*final(x))
+                &&& final(v)@ == old(v)@.subrange(1, old(v)@.len() as int)
+            })
+            &&& (!take ==> {
+                &&& result is None
+                &&& final(v)@ == old(v)@.update(0, *final(x))
+            })
+        }","pub assume_specification<T, A: Allocator>[
+    VecDeque::<T, A>::pop_front_if
+](
+    v: &mut VecDeque<T, A>,
+    predicate: impl FnOnce(&mut T) -> bool,
+) -> (result: Option<T>)
+    requires
+        old(v)@.len() > 0 ==> forall|x: &mut T|
+            *x == old(v)@[0] ==> predicate.requires((x,)),
+    ensures
+        old(v)@.len() == 0 ==> result is None && final(v)@ == old(v)@,
+        old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| {
+            &&& *x == old(v)@[0]
+            &&& predicate.ensures((x,), take)
+            &&& (take ==> {
+                &&& result == Some(*final(x))
+                &&& final(v)@ == old(v)@.subrange(1, old(v)@.len() as int)
+            })
+            &&& (!take ==> {
+                &&& result is None
+                &&& final(v)@ == old(v)@.update(0, *final(x))
+            })
+        },
+;","The source invokes the predicate exactly once on the mutable front element when nonempty, then either removes and returns its mutated value or retains that mutation at the front."
+alloc::collections::VecDeque::resize_with,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"Growth repeatedly invokes a zero-argument FnMut whose ordered outputs may depend on evolving mutable captures, as demonstrated by the source example. Existing vstd closure contracts cannot express the call trace or closure-state transitions needed to characterize the appended sequence. Requiring a single possible output or excluding growth would impose an artificial domain."
+alloc::collections::btree_map::Entry::and_modify,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The closure conditionally mutates an occupied entry, but vstd has no public BTreeMap Entry value/write-back model connecting that mutation to the returned Entry."
+alloc::vec::Vec::dedup_by,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The callback may mutate both compared elements, and its adaptive sequence of results determines removals. Current vstd lacks the mutable-reference prophecy and call-trace model needed to relate those effects to the final sequence."
+alloc::vec::Vec::dedup_by_key,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The key closure repeatedly receives mutable elements and may change them before PartialEq comparisons. Neither that write-back trace nor the resulting adaptive deduplication is expressible in existing public vstd vocabulary.
+alloc::vec::Vec::pop_if,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,A useful contract must relate mutation of the borrowed last element to either the popped result or the retained final element. That requires a prophetic mutable-reference callback model unavailable in current vstd.
+alloc::vec::Vec::resize_with,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"Growth repeatedly invokes a zero-argument FnMut whose ordered outputs may depend on evolving mutable captures, as shown by the source example. Existing vstd closure contracts expose only a stateless input-output relation, not the call trace or closure-state transitions needed to characterize the appended sequence. Restricting the closure to one possible output or excluding growth would impose an artificial domain."
+core::array::from_fn,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"forall|i: int| 0 <= i < N ==> #[trigger] f.requires((i as usize,)); forall|i: int, x: T, y: T| #![trigger f.ensures((i as usize,), x), f.ensures((i as usize,), y)] 0 <= i < N && f.ensures((i as usize,), x) && f.ensures((i as usize,), y) ==> x == y","forall|i: int| 0 <= i < N ==> f.ensures((i as usize,), #[trigger] result@[i])","pub assume_specification<T, const N: usize, F>[
+    core::array::from_fn::<T, N, F>
+](f: F) -> (result: [T; N])
+    where
+        F: FnMut(usize) -> T,
+    requires
+        forall|i: int| 0 <= i < N ==> #[trigger] f.requires((i as usize,)),
+        forall|i: int, x: T, y: T|
+            #![trigger f.ensures((i as usize,), x), f.ensures((i as usize,), y)]
+            0 <= i < N
+                && f.ensures((i as usize,), x)
+                && f.ensures((i as usize,), y)
+                ==> x == y,
+    ensures
+        forall|i: int| 0 <= i < N ==> f.ensures((i as usize,), #[trigger] result@[i]),
+;",The implementation calls f once for every index and stores that value at the same index. Requiring the callback contract to be defined and single-valued on 0..N yields a useful deterministic per-index result relation.
+core::array::map,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The source calls a stateful FnMut sequentially, and its example demonstrates evolving captured state. Relating every result to the original closure's call_ensures would be unsound without a closure-state trace or prophetic transition model; the result length is already encoded by its type."
+core::cell::LazyCell::force,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The behavior depends on private Init, Uninit, and Poisoned state and may invoke the stored FnOnce while mutating through a shared reference. Current vstd has no LazyCell state model capable of relating the returned reference to that hidden state."
+core::cell::LazyCell::new,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The source stores the closure in private Uninit state without invoking it. Without a public vstd model of LazyCell state or its stored initializer, no useful observable relation can be stated."
+core::cell::OnceCell::get_or_init,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The callback is invoked only when private cell state is empty, and the method initializes through &self. Current vstd cannot describe the prior and resulting OnceCell state or the identity of the returned reference."
+core::cell::Ref::filter_map,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The source either wraps the reference returned by f while preserving the borrow guard or returns orig unchanged. vstd lacks a logical model connecting Ref's dereference target and guard to the callback reference, so call_ensures alone cannot specify the useful behavior."
+core::cell::Ref::map,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"Although call_ensures can describe the FnOnce result, current vstd has no Ref model that connects that returned &U to the dereference target of the resulting Ref while preserving its borrow guard."
+core::cell::Ref::map_split,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The source wraps the two references returned by the closure in new Ref guards. vstd has no public Ref content or borrow-token model connecting those references to the returned guards.
+core::cell::RefCell::replace_with,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The shared receiver is modified through hidden interior state, and the operation can panic based on hidden borrow state. vstd has no RefCell content or borrow-state model with which to express either behavior."
+core::cell::RefMut::filter_map,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,Relating the Ok guard to the closure result requires modeling a returned mutable reference and its final value; relating the Err guard requires a RefMut ownership model. Neither abstraction is available.
+core::cell::RefMut::map,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The returned RefMut is constructed from the mutable reference produced by the closure. Expressing that projection and its eventual write-back requires unsupported mutable-reference-return prophecy and a RefMut model.
+core::cell::RefMut::map_split,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The closure returns two mutable projections that become independently held RefMut guards. A sound contract needs prophetic write-back, guard ownership, and disjointness abstractions absent from current vstd."
+core::cmp::Ordering::then_with,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown;structured_contract_mismatch,,,ordering == core::cmp::Ordering::Equal ==> f.requires(()),"ordering == core::cmp::Ordering::Equal ==> f.ensures((), result); ordering != core::cmp::Ordering::Ordering::Equal ==> result == ordering","pub assume_specification<F>[ core::cmp::Ordering::then_with ](
+    ordering: core::cmp::Ordering,
+    f: F,
+) -> (result: core::cmp::Ordering)
+where
+    F: FnOnce() -> core::cmp::Ordering,
+    requires
+        ordering == core::cmp::Ordering::Equal ==> f.requires(()),
+    ensures
+        ordering == core::cmp::Ordering::Equal ==> f.ensures((), result),
+        ordering != core::cmp::Ordering::Equal ==> result == ordering,
+;",The implementation invokes the closure only for Equal and otherwise returns self. Moving the FnOnce bound into a where-clause preserves the signature while avoiding the runner's angle-bracket parsing ambiguity.
+core::cmp::max_by,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"compare.requires((&v1, &v2)); forall|ordering1: core::cmp::Ordering, ordering2: core::cmp::Ordering| #![trigger compare.ensures((&v1, &v2), ordering1), compare.ensures((&v1, &v2), ordering2)] compare.ensures((&v1, &v2), ordering1) && compare.ensures((&v1, &v2), ordering2) ==> (ordering1 == core::cmp::Ordering::Greater <==> ordering2 == core::cmp::Ordering::Greater)","exists|ordering: core::cmp::Ordering| { &&& #[trigger] compare.ensures((&v1, &v2), ordering) &&& result == if ordering == core::cmp::Ordering::Greater { v1 } else { v2 } }","pub assume_specification<T, F>[ core::cmp::max_by ](
+    v1: T,
+    v2: T,
+    compare: F,
+) -> (result: T)
+where
+    F: FnOnce(&T, &T) -> core::cmp::Ordering,
+    requires
+        compare.requires((&v1, &v2)),
+        forall|ordering1: core::cmp::Ordering, ordering2: core::cmp::Ordering|
+            #![trigger compare.ensures((&v1, &v2), ordering1),
+                       compare.ensures((&v1, &v2), ordering2)]
+            compare.ensures((&v1, &v2), ordering1)
+                && compare.ensures((&v1, &v2), ordering2)
+                ==> (ordering1 == core::cmp::Ordering::Greater
+                    <==> ordering2 == core::cmp::Ordering::Greater),
+    ensures
+        exists|ordering: core::cmp::Ordering| {
+            &&& #[trigger] compare.ensures((&v1, &v2), ordering)
+            &&& result == if ordering == core::cmp::Ordering::Greater { v1 } else { v2 }
+        },
+;","The source calls the comparator once and returns v1 exactly for Greater. The additional requirement minimally ensures that all comparator outcomes admitted for these arguments agree on that observed branch, without requiring Less and Equal to be distinguished."
+core::cmp::max_by_key,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"K::obeys_partial_cmp_spec(); f.requires((&v2,)); f.requires((&v1,)); forall|key2a: K, key2b: K| #![trigger f.ensures((&v2,), key2a), f.ensures((&v2,), key2b)] f.ensures((&v2,), key2a) && f.ensures((&v2,), key2b) ==> key2a == key2b; forall|key1a: K, key1b: K| #![trigger f.ensures((&v1,), key1a), f.ensures((&v1,), key1b)] f.ensures((&v1,), key1a) && f.ensures((&v1,), key1b) ==> key1a == key1b","exists|key2: K| { &&& #[trigger] f.ensures((&v2,), key2) &&& exists|key1: K| { &&& #[trigger] f.ensures((&v1,), key1) &&& result == if key2.partial_cmp_spec(&key1) == Some(core::cmp::Ordering::Less) { v1 } else { v2 } } }","pub assume_specification<T, F, K>[ core::cmp::max_by_key ](
+    v1: T,
+    v2: T,
+    f: F,
+) -> (result: T)
+where
+    F: FnMut(&T) -> K,
+    K: core::cmp::Ord,
+    requires
+        K::obeys_partial_cmp_spec(),
+        f.requires((&v2,)),
+        f.requires((&v1,)),
+        forall|key2a: K, key2b: K|
+            #![trigger f.ensures((&v2,), key2a), f.ensures((&v2,), key2b)]
+            f.ensures((&v2,), key2a)
+                && f.ensures((&v2,), key2b)
+                ==> key2a == key2b,
+        forall|key1a: K, key1b: K|
+            #![trigger f.ensures((&v1,), key1a), f.ensures((&v1,), key1b)]
+            f.ensures((&v1,), key1a)
+                && f.ensures((&v1,), key1b)
+                ==> key1a == key1b,
+    ensures
+        exists|key2: K| {
+            &&& #[trigger] f.ensures((&v2,), key2)
+            &&& exists|key1: K| {
+                &&& #[trigger] f.ensures((&v1,), key1)
+                &&& result == if key2.partial_cmp_spec(&key1)
+                    == Some(core::cmp::Ordering::Less)
+                {
+                    v1
+                } else {
+                    v2
+                }
+            }
+        },
+;","The source evaluates f(&v2) and then f(&v1), returning v1 exactly when the first key is less. The PartialOrdSpec law connects runtime comparison to partial_cmp_spec, while single-valued callback relations make the observable result deterministic."
+core::cmp::min_by,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"compare.requires((&v1, &v2)); forall|ordering1: core::cmp::Ordering, ordering2: core::cmp::Ordering| #![trigger compare.ensures((&v1, &v2), ordering1), compare.ensures((&v1, &v2), ordering2)] compare.ensures((&v1, &v2), ordering1) && compare.ensures((&v1, &v2), ordering2) ==> (ordering1 == core::cmp::Ordering::Greater <==> ordering2 == core::cmp::Ordering::Greater)","exists|ordering: core::cmp::Ordering| { &&& #[trigger] compare.ensures((&v1, &v2), ordering) &&& result == if ordering == core::cmp::Ordering::Greater { v2 } else { v1 } }","pub assume_specification<T, F>[ core::cmp::min_by ](
+    v1: T,
+    v2: T,
+    compare: F,
+) -> (result: T)
+where
+    F: FnOnce(&T, &T) -> core::cmp::Ordering,
+    requires
+        compare.requires((&v1, &v2)),
+        forall|ordering1: core::cmp::Ordering, ordering2: core::cmp::Ordering|
+            #![trigger compare.ensures((&v1, &v2), ordering1),
+                       compare.ensures((&v1, &v2), ordering2)]
+            compare.ensures((&v1, &v2), ordering1)
+                && compare.ensures((&v1, &v2), ordering2)
+                ==> (ordering1 == core::cmp::Ordering::Greater
+                    <==> ordering2 == core::cmp::Ordering::Greater),
+    ensures
+        exists|ordering: core::cmp::Ordering| {
+            &&& #[trigger] compare.ensures((&v1, &v2), ordering)
+            &&& result == if ordering == core::cmp::Ordering::Greater { v2 } else { v1 }
+        },
+;",The source calls the comparator once and returns v2 exactly for Greater. The additional requirement minimally ensures that all comparator outcomes admitted for these arguments agree on that observed branch.
+core::cmp::min_by_key,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"K::obeys_partial_cmp_spec(); f.requires((&v2,)); f.requires((&v1,)); forall|key2a: K, key1a: K, key2b: K, key1b: K| #![trigger f.ensures((&v2,), key2a), f.ensures((&v1,), key1a), f.ensures((&v2,), key2b), f.ensures((&v1,), key1b)] f.ensures((&v2,), key2a) && f.ensures((&v1,), key1a) && f.ensures((&v2,), key2b) && f.ensures((&v1,), key1b) ==> (key2a.partial_cmp_spec(&key1a) == Some(core::cmp::Ordering::Less) <==> key2b.partial_cmp_spec(&key1b) == Some(core::cmp::Ordering::Less))","exists|key2: K| { &&& #[trigger] f.ensures((&v2,), key2) &&& exists|key1: K| { &&& #[trigger] f.ensures((&v1,), key1) &&& result == if key2.partial_cmp_spec(&key1) == Some(core::cmp::Ordering::Less) { v2 } else { v1 } } }","pub assume_specification<T, F, K>[ core::cmp::min_by_key ](
+    v1: T,
+    v2: T,
+    f: F,
+) -> (result: T)
+where
+    F: FnMut(&T) -> K,
+    K: core::cmp::Ord,
+    requires
+        K::obeys_partial_cmp_spec(),
+        f.requires((&v2,)),
+        f.requires((&v1,)),
+        forall|key2a: K, key1a: K, key2b: K, key1b: K|
+            #![trigger
+                f.ensures((&v2,), key2a),
+                f.ensures((&v1,), key1a),
+                f.ensures((&v2,), key2b),
+                f.ensures((&v1,), key1b)
+            ]
+            f.ensures((&v2,), key2a)
+                && f.ensures((&v1,), key1a)
+                && f.ensures((&v2,), key2b)
+                && f.ensures((&v1,), key1b)
+                ==> (
+                    key2a.partial_cmp_spec(&key1a)
+                        == Some(core::cmp::Ordering::Less)
+                    <==>
+                    key2b.partial_cmp_spec(&key1b)
+                        == Some(core::cmp::Ordering::Less)
+                ),
+    ensures
+        exists|key2: K| {
+            &&& #[trigger] f.ensures((&v2,), key2)
+            &&& exists|key1: K| {
+                &&& #[trigger] f.ensures((&v1,), key1)
+                &&& result == if key2.partial_cmp_spec(&key1)
+                    == Some(core::cmp::Ordering::Less)
+                {
+                    v2
+                } else {
+                    v1
+                }
+            }
+        },
+;","The source evaluates f(&v2) and then f(&v1), returning v2 exactly when its key is less. PartialOrdSpec connects the runtime comparison to partial_cmp_spec, while the branch-consistency requirement permits non-single-valued key relations provided every admitted key pair selects the same observable result."
+core::future::poll_fn,other,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The constructor only stores f in PollFn's private field. vstd has no public PollFn or Future-polling model relating the returned future to that closure.
+core::ops::Bound::map,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"spec_bound(bound) is Included ==> f.requires((spec_bound(bound)->Included_0,)); spec_bound(bound) is Excluded ==> f.requires((spec_bound(bound)->Excluded_0,)); spec_bound(bound) is Included ==> forall|u1: U, u2: U| #![trigger f.ensures((spec_bound(bound)->Included_0,), u1), f.ensures((spec_bound(bound)->Included_0,), u2)] f.ensures((spec_bound(bound)->Included_0,), u1) && f.ensures((spec_bound(bound)->Included_0,), u2) ==> u1 == u2; spec_bound(bound) is Excluded ==> forall|u1: U, u2: U| #![trigger f.ensures((spec_bound(bound)->Excluded_0,), u1), f.ensures((spec_bound(bound)->Excluded_0,), u2)] f.ensures((spec_bound(bound)->Excluded_0,), u1) && f.ensures((spec_bound(bound)->Excluded_0,), u2) ==> u1 == u2","spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded; spec_bound(bound) is Included ==> spec_bound(result) is Included && f.ensures((spec_bound(bound)->Included_0,), spec_bound(result)->Included_0); spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded && f.ensures((spec_bound(bound)->Excluded_0,), spec_bound(result)->Excluded_0)","pub assume_specification<T, U, F>[ core::ops::Bound::<T>::map ](
+    bound: core::ops::Bound<T>,
+    f: F,
+) -> (result: core::ops::Bound<U>)
+where
+    F: FnOnce(T) -> U,
+    requires
+        spec_bound(bound) is Included ==> f.requires((spec_bound(bound)->Included_0,)),
+        spec_bound(bound) is Excluded ==> f.requires((spec_bound(bound)->Excluded_0,)),
+        spec_bound(bound) is Included ==> forall|u1: U, u2: U|
+            #![trigger f.ensures((spec_bound(bound)->Included_0,), u1),
+                       f.ensures((spec_bound(bound)->Included_0,), u2)]
+            f.ensures((spec_bound(bound)->Included_0,), u1)
+                && f.ensures((spec_bound(bound)->Included_0,), u2)
+                ==> u1 == u2,
+        spec_bound(bound) is Excluded ==> forall|u1: U, u2: U|
+            #![trigger f.ensures((spec_bound(bound)->Excluded_0,), u1),
+                       f.ensures((spec_bound(bound)->Excluded_0,), u2)]
+            f.ensures((spec_bound(bound)->Excluded_0,), u1)
+                && f.ensures((spec_bound(bound)->Excluded_0,), u2)
+                ==> u1 == u2,
+    ensures
+        spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded,
+        spec_bound(bound) is Included ==> spec_bound(result) is Included && f.ensures(
+            (spec_bound(bound)->Included_0,),
+            spec_bound(result)->Included_0
+        ),
+        spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded && f.ensures(
+            (spec_bound(bound)->Excluded_0,),
+            spec_bound(result)->Excluded_0
+        ),
+;",The source preserves the Bound variant and invokes f exactly once only for Included or Excluded. Moving the FnOnce bound to a where clause avoids the runner's generic-arrow parsing ambiguity; requiring the active call relation to be single-valued makes the modeled mapped value deterministic.
+core::ops::ControlFlow::map_break,other,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"match flow { ControlFlow::Break(b) => f.requires((b,)), ControlFlow::Continue(_) => true, }","match flow { ControlFlow::Continue(c) => res == ControlFlow::Continue(c), ControlFlow::Break(b) => match res { ControlFlow::Break(t) => f.ensures((b,), t), ControlFlow::Continue(_) => false, }, }","pub assume_specification<B, C, T, F>[ ControlFlow::<B, C>::map_break ](
+    flow: ControlFlow<B, C>,
+    f: F,
+) -> (res: ControlFlow<T, C>)
+where
+    F: FnOnce(B) -> T,
+    requires
+        match flow {
+            ControlFlow::Break(b) => f.requires((b,)),
+            ControlFlow::Continue(_) => true,
+        },
+    ensures
+        match flow {
+            ControlFlow::Continue(c) => res == ControlFlow::Continue(c),
+            ControlFlow::Break(b) => match res {
+                ControlFlow::Break(t) => f.ensures((b,), t),
+                ControlFlow::Continue(_) => false,
+            },
+        },
+;",Constructor pattern matching exposes the payloads without unsupported enum projections. The source preserves Continue values and applies f exactly once to Break values.
+core::ops::ControlFlow::map_continue,other,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"match flow { ControlFlow::Continue(c) => f.requires((c,)), ControlFlow::Break(_) => true, }","match flow { ControlFlow::Break(b) => res == ControlFlow::Break(b), ControlFlow::Continue(c) => match res { ControlFlow::Continue(t) => f.ensures((c,), t), ControlFlow::Break(_) => false, }, }","pub assume_specification<B, C, T, F>[ ControlFlow::<B, C>::map_continue ](
+    flow: ControlFlow<B, C>,
+    f: F,
+) -> (res: ControlFlow<B, T>)
+where
+    F: FnOnce(C) -> T,
+    requires
+        match flow {
+            ControlFlow::Continue(c) => f.requires((c,)),
+            ControlFlow::Break(_) => true,
+        },
+    ensures
+        match flow {
+            ControlFlow::Break(b) => res == ControlFlow::Break(b),
+            ControlFlow::Continue(c) => match res {
+                ControlFlow::Continue(t) => f.ensures((c,), t),
+                ControlFlow::Break(_) => false,
+            },
+        },
+;",Constructor pattern matching exposes payloads without unsupported enum projections. The source preserves Break values and applies f exactly once to Continue values.
+core::option::Option::filter,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option.is_some() ==> predicate.requires((&option.unwrap(),)); option.is_some() ==> forall|keep1: bool, keep2: bool| #![trigger predicate.ensures((&option.unwrap(),), keep1), predicate.ensures((&option.unwrap(),), keep2)] predicate.ensures((&option.unwrap(),), keep1) && predicate.ensures((&option.unwrap(),), keep2) ==> keep1 == keep2","option.is_none() ==> res.is_none(); option.is_some() ==> exists|keep: bool| { &&& #[trigger] predicate.ensures((&option.unwrap(),), keep) &&& res == if keep { option } else { None } }","pub assume_specification<T, P>[ Option::<T>::filter ](
+    option: Option<T>,
+    predicate: P,
+) -> (res: Option<T>)
+where
+    P: FnOnce(&T) -> bool,
+    requires
+        option.is_some() ==> predicate.requires((&option.unwrap(),)),
+        option.is_some() ==> forall|keep1: bool, keep2: bool|
+            #![trigger predicate.ensures((&option.unwrap(),), keep1),
+                       predicate.ensures((&option.unwrap(),), keep2)]
+            predicate.ensures((&option.unwrap(),), keep1)
+                && predicate.ensures((&option.unwrap(),), keep2)
+                ==> keep1 == keep2,
+    ensures
+        option.is_none() ==> res.is_none(),
+        option.is_some() ==> exists|keep: bool| {
+            &&& #[trigger] predicate.ensures((&option.unwrap(),), keep)
+            &&& res == if keep { option } else { None }
+        },
+;",The source calls the predicate only for Some and returns the original option exactly when that call yields true. The active-call consistency requirement ensures that the predicate contract admits only one filter decision.
+core::option::Option::inspect,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option.is_some() ==> f.requires((&option.unwrap(),))","res == option; option.is_some() ==> f.ensures((&option.unwrap(),), ())","pub assume_specification<T, F: FnOnce(&T)>[ Option::<T>::inspect ](
+    option: Option<T>,
+    f: F,
+) -> (res: Option<T>)
+    requires
+        option.is_some() ==> f.requires((&option.unwrap(),)),
+    ensures
+        res == option,
+        option.is_some() ==> f.ensures((&option.unwrap(),), ()),
+;",The observable result is always the original option. The conditional closure clauses model the single call made only for Some; its unit result requires no artificial determinism restriction.
+core::option::Option::is_none_or,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option.is_some() ==> f.requires((option.unwrap(),)); option.is_some() ==> forall|out1: bool, out2: bool| #![trigger f.ensures((option.unwrap(),), out1), f.ensures((option.unwrap(),), out2)] f.ensures((option.unwrap(),), out1) && f.ensures((option.unwrap(),), out2) ==> out1 == out2","option.is_none() ==> res; option.is_some() ==> f.ensures((option.unwrap(),), res)","pub assume_specification<T, F>[ Option::<T>::is_none_or ](
+    option: Option<T>,
+    f: F,
+) -> (res: bool)
+where
+    F: FnOnce(T) -> bool,
+    requires
+        option.is_some() ==> f.requires((option.unwrap(),)),
+        option.is_some() ==> forall|out1: bool, out2: bool|
+            #![trigger f.ensures((option.unwrap(),), out1),
+                       f.ensures((option.unwrap(),), out2)]
+            f.ensures((option.unwrap(),), out1)
+                && f.ensures((option.unwrap(),), out2)
+                ==> out1 == out2,
+    ensures
+        option.is_none() ==> res,
+        option.is_some() ==> f.ensures((option.unwrap(),), res),
+;",The source returns the affirmative result for None and otherwise returns the callback result. Requiring the active callback relation to be single-valued makes that observable boolean deterministic without restricting the None branch.
+core::option::Option::is_some_and,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"option.is_some() ==> f.requires((option.unwrap(),))","option.is_none() ==> !res; option.is_some() ==> f.ensures((option.unwrap(),), res)","pub assume_specification<T>[ Option::<T>::is_some_and ](
+    option: Option<T>,
+    f: impl FnOnce(T) -> bool,
+) -> (res: bool)
+    requires
+        option.is_some() ==> f.requires((option.unwrap(),)),
+    ensures
+        option.is_none() ==> !res,
+        option.is_some() ==> f.ensures((option.unwrap(),), res),
+;",The source returns false for None and otherwise returns the single invoked closure's result. This is the standard source-justified vstd higher-order contract; requiring the closure relation to be single-valued merely to prove R0 would exclude valid closure specifications.
+core::option::Option::map_or,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option is Some ==> f.requires((option->0,)); option is Some ==> forall|result1: U, result2: U| #![trigger f.ensures((option->0,), result1), f.ensures((option->0,), result2)] f.ensures((option->0,), result1) && f.ensures((option->0,), result2) ==> result1 == result2","option is Some ==> f.ensures((option->0,), result); option is None ==> result == default","pub assume_specification<T, U, F>[ Option::<T>::map_or ](
+    option: Option<T>,
+    default: U,
+    f: F,
+) -> (result: U)
+where
+    F: FnOnce(T) -> U,
+    requires
+        option is Some ==> f.requires((option->0,)),
+        option is Some ==> forall|result1: U, result2: U|
+            #![trigger f.ensures((option->0,), result1),
+                       f.ensures((option->0,), result2)]
+            f.ensures((option->0,), result1)
+                && f.ensures((option->0,), result2)
+                ==> result1 == result2,
+    ensures
+        option is Some ==> f.ensures((option->0,), result),
+        option is None ==> result == default,
+;","The source invokes f only on the Some payload and otherwise returns default. The active closure relation is required to be single-valued, while moving its FnOnce bound to the where-clause avoids the runner's generic-arrow parsing ambiguity."
+core::option::Option::map_or_default,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option is Some ==> f.requires((option->0,)); option is Some ==> forall|u1: U, u2: U| #![trigger f.ensures((option->0,), u1), f.ensures((option->0,), u2)] f.ensures((option->0,), u1) && f.ensures((option->0,), u2) ==> u1 == u2; option is None ==> forall|u1: U, u2: U| #![trigger U::default.ensures((), u1), U::default.ensures((), u2)] U::default.ensures((), u1) && U::default.ensures((), u2) ==> u1 == u2","option is Some ==> f.ensures((option->0,), result); option is None ==> U::default.ensures((), result)","pub assume_specification<T, U, F>[ Option::<T>::map_or_default ](
+    option: Option<T>,
+    f: F,
+) -> (result: U)
+where
+    U: core::default::Default,
+    F: FnOnce(T) -> U,
+    requires
+        option is Some ==> f.requires((option->0,)),
+        option is Some ==> forall|u1: U, u2: U|
+            #![trigger f.ensures((option->0,), u1),
+                       f.ensures((option->0,), u2)]
+            f.ensures((option->0,), u1)
+                && f.ensures((option->0,), u2)
+                ==> u1 == u2,
+        option is None ==> forall|u1: U, u2: U|
+            #![trigger U::default.ensures((), u1),
+                       U::default.ensures((), u2)]
+            U::default.ensures((), u1)
+                && U::default.ensures((), u2)
+                ==> u1 == u2,
+    ensures
+        option is Some ==> f.ensures((option->0,), result),
+        option is None ==> U::default.ensures((), result),
+;",The source invokes f only for Some and Default::default only for None. Moving callable bounds to a where clause avoids the runner's generic-arrow ambiguity; branch-local single-valuedness requirements preserve those source relations while making the observable result deterministic.
+core::option::Option::map_or_else,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option is Some ==> f.requires((option->0,)); option is None ==> default.requires(()); option is Some ==> forall|u1: U, u2: U| #![trigger f.ensures((option->0,), u1), f.ensures((option->0,), u2)] f.ensures((option->0,), u1) && f.ensures((option->0,), u2) ==> u1 == u2; option is None ==> forall|u1: U, u2: U| #![trigger default.ensures((), u1), default.ensures((), u2)] default.ensures((), u1) && default.ensures((), u2) ==> u1 == u2","option is Some ==> f.ensures((option->0,), result); option is None ==> default.ensures((), result)","pub assume_specification<T, U, D, F>[ Option::<T>::map_or_else ](
+    option: Option<T>,
+    default: D,
+    f: F,
+) -> (result: U)
+where
+    D: FnOnce() -> U,
+    F: FnOnce(T) -> U,
+    requires
+        option is Some ==> f.requires((option->0,)),
+        option is None ==> default.requires(()),
+        option is Some ==> forall|u1: U, u2: U|
+            #![trigger f.ensures((option->0,), u1),
+                       f.ensures((option->0,), u2)]
+            f.ensures((option->0,), u1)
+                && f.ensures((option->0,), u2)
+                ==> u1 == u2,
+        option is None ==> forall|u1: U, u2: U|
+            #![trigger default.ensures((), u1),
+                       default.ensures((), u2)]
+            default.ensures((), u1)
+                && default.ensures((), u2)
+                ==> u1 == u2,
+    ensures
+        option is Some ==> f.ensures((option->0,), result),
+        option is None ==> default.ensures((), result),
+;","The implementation invokes exactly the active branch's closure. The conditional single-valued requirements make that closure contract determine the observable result, while the where clause avoids generic-arrow parsing ambiguity."
+core::option::Option::or_else,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"option is None ==> f.requires(()); option is None ==> forall|result1: Option<T>, result2: Option<T>| #![trigger f.ensures((), result1), f.ensures((), result2)] f.ensures((), result1) && f.ensures((), result2) ==> result1 == result2","option is Some ==> result == option; option is None ==> f.ensures((), result)","pub assume_specification<T, F>[ Option::<T>::or_else ](
+    option: Option<T>,
+    f: F,
+) -> (result: Option<T>)
+where
+    F: FnOnce() -> Option<T>,
+    requires
+        option is None ==> f.requires(()),
+        option is None ==> forall|result1: Option<T>, result2: Option<T>|
+            #![trigger f.ensures((), result1), f.ensures((), result2)]
+            f.ensures((), result1)
+                && f.ensures((), result2)
+                ==> result1 == result2,
+    ensures
+        option is Some ==> result == option,
+        option is None ==> f.ensures((), result),
+;",The source preserves Some without calling f and returns f's result for None. The active closure relation is required to be single-valued so the modeled result remains deterministic.
+core::option::Option::take_if,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"*old(option) is Some ==> forall |arg: &mut T| #![auto]
+            *arg == old(option)->0 ==> predicate.requires((arg,))","*old(option) is None ==> result is None && *final(option) is None; *old(option) is Some ==> exists |arg: &mut T, take: bool| #![auto] {
+            &&& *arg == old(option)->0
+            &&& predicate.ensures((arg,), take)
+            &&& if take {
+                result == Some(*final(arg)) && *final(option) is None
+            } else {
+                result is None && *final(option) == Some(*final(arg))
+            }
+        }","pub assume_specification<T, P>[
+    Option::<T>::take_if
+](
+    option: &mut Option<T>,
+    predicate: P,
+) -> (result: Option<T>)
+where
+    P: FnOnce(&mut T) -> bool,
+    requires
+        *old(option) is Some ==> forall |arg: &mut T| #![auto]
+            *arg == old(option)->0 ==> predicate.requires((arg,)),
+    ensures
+        *old(option) is None ==> result is None && *final(option) is None,
+        *old(option) is Some ==> exists |arg: &mut T, take: bool| #![auto] {
+            &&& *arg == old(option)->0
+            &&& predicate.ensures((arg,), take)
+            &&& if take {
+                result == Some(*final(arg)) && *final(option) is None
+            } else {
+                result is None && *final(option) == Some(*final(arg))
+            }
+        },
+;","When the option is nonempty, the source invokes the predicate exactly once on the contained value; its mutation and boolean result determine whether that final value is returned or retained."
+core::ptr::NonNull::map_addr,memory_pointer,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The source preserves strict provenance while replacing the address, but current vstd exposes no public NonNull address/provenance model connecting self to the result."
+core::result::Result::and_then,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"result is Ok ==> op.requires((result->Ok_0,))","result is Ok ==> op.ensures((result->Ok_0,), chained); result is Err ==> chained == Result::<U, E>::Err(result->Err_0)","pub assume_specification<T, E, U, F>[ Result::<T, E>::and_then ](
+    result: Result<T, E>,
+    op: F,
+) -> (chained: Result<U, E>)
+where
+    F: FnOnce(T) -> Result<U, E>,
+    requires
+        result is Ok ==> op.requires((result->Ok_0,)),
+    ensures
+        result is Ok ==> op.ensures((result->Ok_0,), chained),
+        result is Err ==> chained == Result::<U, E>::Err(result->Err_0),
+;",The source calls op with the Ok payload and otherwise preserves the Err. Moving the FnOnce bound to the where clause preserves the signature while avoiding the determinism runner's generic-arrow parsing ambiguity.
+core::result::Result::inspect,data_structure,,2,add_spec,skip,none,False,,,,0,0,0,classification:higher_order_contract;determinism_unsupported_contract_form,,,,,,A sound contract must express the callback's conditional callability and effect through f.requires and f.ensures. Those clauses are inherently higher-order; specifying only the unchanged result would omit the Ok-path invocation. No useful ordinary contract exists in current vstd vocabulary.
+core::result::Result::inspect_err,data_structure,,2,add_spec,skip,none,False,,,,0,0,0,classification:higher_order_contract;determinism_unsupported_contract_form,,,,,,A sound contract must express the callback's conditional callability and effect through f.requires and f.ensures. Those are inherently higher-order; omitting them would fail to model the Err-path invocation faithfully. No useful ordinary contract exists in current vstd vocabulary.
+core::result::Result::is_err_and,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"result is Err ==> f.requires((result->Err_0,))","result is Ok ==> !matches_err; result is Err ==> f.ensures((result->Err_0,), matches_err)","pub assume_specification<T, E, F>[ Result::<T, E>::is_err_and ](
+    result: Result<T, E>,
+    f: F,
+) -> (matches_err: bool)
+where
+    F: FnOnce(E) -> bool,
+    requires
+        result is Err ==> f.requires((result->Err_0,)),
+    ensures
+        result is Ok ==> !matches_err,
+        result is Err ==> f.ensures((result->Err_0,), matches_err),
+;",The Ok arm returns false; the Err arm calls f with the consumed error and returns its Boolean. Moving the FnOnce bound to a where-clause preserves the signature while avoiding the runner's generic-arrow parsing ambiguity.
+core::result::Result::is_ok_and,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"result is Ok ==> f.requires((result->Ok_0,))","result is Err ==> !matches_ok; result is Ok ==> f.ensures((result->Ok_0,), matches_ok)","pub assume_specification<T, E, F>[ Result::<T, E>::is_ok_and ](
+    result: Result<T, E>,
+    f: F,
+) -> (matches_ok: bool)
+    where
+        F: FnOnce(T) -> bool,
+    requires
+        result is Ok ==> f.requires((result->Ok_0,)),
+    ensures
+        result is Err ==> !matches_ok,
+        result is Ok ==> f.ensures((result->Ok_0,), matches_ok),
+;",The source returns false for Err and the invoked closure's Boolean result for Ok. Moving the FnOnce bound to a where-clause avoids the runner's generic-arrow parsing ambiguity without narrowing the accepted closure domain.
+core::result::Result::map_or,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"result is Ok ==> f.requires((result->Ok_0,))","result is Ok ==> f.ensures((result->Ok_0,), mapped); result is Err ==> mapped == default","pub assume_specification<T, E, U, F>[ Result::<T, E>::map_or ](
+    result: Result<T, E>,
+    default: U,
+    f: F,
+) -> (mapped: U)
+where
+    F: FnOnce(T) -> U,
+    requires
+        result is Ok ==> f.requires((result->Ok_0,)),
+    ensures
+        result is Ok ==> f.ensures((result->Ok_0,), mapped),
+        result is Err ==> mapped == default,
+;",The source calls f on the Ok payload and returns default for Err. Moving the FnOnce bound to the where clause avoids the determinism runner's generic-arrow parsing ambiguity without changing the contract.
+core::result::Result::map_or_default,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"result is Ok ==> f.requires((result->Ok_0,)); result is Ok ==> forall|u1: U, u2: U| #![trigger f.ensures((result->Ok_0,), u1), f.ensures((result->Ok_0,), u2)] f.ensures((result->Ok_0,), u1) && f.ensures((result->Ok_0,), u2) ==> u1 == u2; result is Err ==> forall|u1: U, u2: U| #![trigger U::default.ensures((), u1), U::default.ensures((), u2)] U::default.ensures((), u1) && U::default.ensures((), u2) ==> u1 == u2","result is Ok ==> f.ensures((result->Ok_0,), res); result is Err ==> U::default.ensures((), res)","pub assume_specification<T, E, U, F>[ Result::<T, E>::map_or_default ](
+    result: Result<T, E>,
+    f: F,
+) -> (res: U)
+where
+    U: core::default::Default,
+    F: FnOnce(T) -> U,
+    requires
+        result is Ok ==> f.requires((result->Ok_0,)),
+        result is Ok ==> forall|u1: U, u2: U|
+            #![trigger f.ensures((result->Ok_0,), u1),
+                       f.ensures((result->Ok_0,), u2)]
+            f.ensures((result->Ok_0,), u1)
+                && f.ensures((result->Ok_0,), u2)
+                ==> u1 == u2,
+        result is Err ==> forall|u1: U, u2: U|
+            #![trigger U::default.ensures((), u1),
+                       U::default.ensures((), u2)]
+            U::default.ensures((), u1)
+                && U::default.ensures((), u2)
+                ==> u1 == u2,
+    ensures
+        result is Ok ==> f.ensures((result->Ok_0,), res),
+        result is Err ==> U::default.ensures((), res),
+;",The source invokes f only for Ok and Default::default only for Err. Moving callable bounds to a where clause avoids the runner's generic-arrow ambiguity; branch-local single-valuedness requirements keep the observable result deterministic without constraining the inactive branch.
+core::result::Result::map_or_else,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"result is Err ==> default.requires((result->Err_0,)); result is Ok ==> f.requires((result->Ok_0,)); result is Err ==> forall|u1: U, u2: U| #![trigger default.ensures((result->Err_0,), u1), default.ensures((result->Err_0,), u2)] default.ensures((result->Err_0,), u1) && default.ensures((result->Err_0,), u2) ==> u1 == u2; result is Ok ==> forall|u1: U, u2: U| #![trigger f.ensures((result->Ok_0,), u1), f.ensures((result->Ok_0,), u2)] f.ensures((result->Ok_0,), u1) && f.ensures((result->Ok_0,), u2) ==> u1 == u2","result is Err ==> default.ensures((result->Err_0,), res); result is Ok ==> f.ensures((result->Ok_0,), res)","pub assume_specification<T, E, U, D, F>[ Result::<T, E>::map_or_else ](
+    result: Result<T, E>,
+    default: D,
+    f: F,
+) -> (res: U)
+where
+    D: FnOnce(E) -> U,
+    F: FnOnce(T) -> U,
+    requires
+        result is Err ==> default.requires((result->Err_0,)),
+        result is Ok ==> f.requires((result->Ok_0,)),
+        result is Err ==> forall|u1: U, u2: U|
+            #![trigger default.ensures((result->Err_0,), u1),
+                       default.ensures((result->Err_0,), u2)]
+            default.ensures((result->Err_0,), u1)
+                && default.ensures((result->Err_0,), u2)
+                ==> u1 == u2,
+        result is Ok ==> forall|u1: U, u2: U|
+            #![trigger f.ensures((result->Ok_0,), u1),
+                       f.ensures((result->Ok_0,), u2)]
+            f.ensures((result->Ok_0,), u1)
+                && f.ensures((result->Ok_0,), u2)
+                ==> u1 == u2,
+    ensures
+        result is Err ==> default.ensures((result->Err_0,), res),
+        result is Ok ==> f.ensures((result->Ok_0,), res),
+;","The source invokes exactly the active branch's closure. Branch-local call contracts model the returned value, while branch-local single-valuedness determines that observable result without constraining the inactive closure."
+core::result::Result::or_else,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"result is Err ==> op.requires((result->Err_0,)); result is Err ==> forall|res1: Result<T, F>, res2: Result<T, F>| #![trigger op.ensures((result->Err_0,), res1), op.ensures((result->Err_0,), res2)] op.ensures((result->Err_0,), res1) && op.ensures((result->Err_0,), res2) ==> res1 == res2","result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0); result is Err ==> op.ensures((result->Err_0,), res)","pub assume_specification<T, E, F, O>[ Result::<T, E>::or_else ](
+    result: Result<T, E>,
+    op: O,
+) -> (res: Result<T, F>)
+where
+    O: FnOnce(E) -> Result<T, F>,
+    requires
+        result is Err ==> op.requires((result->Err_0,)),
+        result is Err ==> forall|res1: Result<T, F>, res2: Result<T, F>|
+            #![trigger op.ensures((result->Err_0,), res1),
+                       op.ensures((result->Err_0,), res2)]
+            op.ensures((result->Err_0,), res1)
+                && op.ensures((result->Err_0,), res2)
+                ==> res1 == res2,
+    ensures
+        result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0),
+        result is Err ==> op.ensures((result->Err_0,), res),
+;",The source preserves Ok and returns op's result for Err. The conditional single-valued requirement makes the active closure contract determine the observable result.
+core::result::Result::unwrap_or_else,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unknown,ok_inconclusive,0,0,0,classification:higher_order_contract;determinism_not_proved:unknown,,,"result is Err ==> op.requires((result->Err_0,))","result is Ok ==> res == result->Ok_0; result is Err ==> op.ensures((result->Err_0,), res)","pub assume_specification<T, E, F>[ Result::<T, E>::unwrap_or_else ](
+    result: Result<T, E>,
+    op: F,
+) -> (res: T)
+where
+    F: FnOnce(E) -> T,
+    requires
+        result is Err ==> op.requires((result->Err_0,)),
+    ensures
+        result is Ok ==> res == result->Ok_0,
+        result is Err ==> op.ensures((result->Err_0,), res),
+;",The source returns the Ok payload unchanged and invokes op only for Err. Moving the FnOnce bound to a where clause avoids the runner's generic-arrow parsing ambiguity without imposing an artificial single-valuedness restriction on valid closure contracts.
+core::slice::chunk_by,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The source only constructs an opaque ChunkBy. Current vstd has no public view or IteratorSpec model relating its emitted chunks to the slice and predicate.
+core::slice::chunk_by_mut,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"ChunkByMut is opaque and yields mutable subslices. Current vstd cannot express its partitioning, disjointness, and eventual mutation of the borrowed slice."
+core::slice::fill_with,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The method repeatedly invokes a zero-argument FnMut whose outputs may depend on evolving mutable captures. Existing vstd closure contracts cannot express the call trace or closure-state transitions needed to characterize the ordered final slice. Requiring one possible output would impose an artificial domain, while length preservation alone is redundant for a mutable slice."
+core::slice::is_sorted_by,data_structure,,2,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract,,,"forall|i: int| 0 <= i && i + 1 < slice@.len() ==> #[trigger] compare.requires((&slice@[i], &slice@[i + 1]))","ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==> #[trigger] compare.ensures((&slice@[i], &slice@[i + 1]), true)); !ret ==> (exists|bad: int| { &&& 0 <= bad &&& bad + 1 < slice@.len() &&& #[trigger] compare.ensures((&slice@[bad], &slice@[bad + 1]), false) &&& forall|i: int| 0 <= i < bad ==> #[trigger] compare.ensures((&slice@[i], &slice@[i + 1]), true) })","pub assume_specification<'a, T, F>[ <[T]>::is_sorted_by::<F> ](
+    slice: &'a [T],
+    compare: F,
+) -> (ret: bool)
+where
+    F: FnMut(&'a T, &'a T) -> bool,
+    requires
+        forall|i: int| 0 <= i && i + 1 < slice@.len() ==>
+            #[trigger] compare.requires((&slice@[i], &slice@[i + 1])),
+    ensures
+        ret ==> (forall|i: int| 0 <= i && i + 1 < slice@.len() ==>
+            #[trigger] compare.ensures((&slice@[i], &slice@[i + 1]), true)),
+        !ret ==> (exists|bad: int| {
+            &&& 0 <= bad
+            &&& bad + 1 < slice@.len()
+            &&& #[trigger] compare.ensures(
+                (&slice@[bad], &slice@[bad + 1]),
+                false,
+            )
+            &&& forall|i: int| 0 <= i < bad ==>
+                #[trigger] compare.ensures(
+                    (&slice@[i], &slice@[i + 1]),
+                    true,
+                )
+        }),
+;",The source applies compare to adjacent pairs in order through Iterator::all. Success records true for every pair; failure identifies the first false pair and records true outcomes for its prefix. Explicit triggers make the quantified clauses typecheck.
+core::slice::partition_point,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,0,0,classification:higher_order_contract,,,"forall|i: int| 0 <= i < slice@.len() ==> { &&& #[trigger] pred.requires((&slice@[i],)) &&& exists|outcome: bool| #[trigger] pred.ensures((&slice@[i],), outcome) }; forall|i: int, first: bool, second: bool| #![trigger pred.ensures((&slice@[i],), first), pred.ensures((&slice@[i],), second)] 0 <= i < slice@.len() && pred.ensures((&slice@[i],), first) && pred.ensures((&slice@[i],), second) ==> first == second; forall|i: int, j: int, left: bool, right: bool| #![trigger pred.ensures((&slice@[i],), left), pred.ensures((&slice@[j],), right)] 0 <= i < j < slice@.len() && pred.ensures((&slice@[i],), left) && pred.ensures((&slice@[j],), right) ==> (right ==> left)","(ret as int) <= slice@.len(); ret > 0 ==> pred.ensures((&slice@[(ret - 1) as int],), true); (ret as int) < slice@.len() ==> pred.ensures((&slice@[ret as int],), false)","pub assume_specification<T, P>[ <[T]>::partition_point::<P> ](
+    slice: &[T],
+    pred: P,
+) -> (ret: usize)
+where
+    P: FnMut(&T) -> bool,
+    requires
+        forall|i: int| 0 <= i < slice@.len() ==> {
+            &&& #[trigger] pred.requires((&slice@[i],))
+            &&& exists|outcome: bool|
+                #[trigger] pred.ensures((&slice@[i],), outcome)
+        },
+        forall|i: int, first: bool, second: bool|
+            #![trigger pred.ensures((&slice@[i],), first),
+                       pred.ensures((&slice@[i],), second)]
+            0 <= i < slice@.len()
+            && pred.ensures((&slice@[i],), first)
+            && pred.ensures((&slice@[i],), second) ==>
+                first == second,
+        forall|i: int, j: int, left: bool, right: bool|
+            #![trigger pred.ensures((&slice@[i],), left),
+                       pred.ensures((&slice@[j],), right)]
+            0 <= i < j < slice@.len()
+            && pred.ensures((&slice@[i],), left)
+            && pred.ensures((&slice@[j],), right) ==>
+                (right ==> left),
+    ensures
+        (ret as int) <= slice@.len(),
+        ret > 0 ==> pred.ensures((&slice@[(ret - 1) as int],), true),
+        (ret as int) < slice@.len() ==>
+            pred.ensures((&slice@[ret as int],), false),
+;","A total, deterministic, monotone predicate relation formalizes the documented partition domain. The bounded result is uniquely characterized by a true predecessor and a false element at the returned index, covering empty, all-true, and all-false slices."
+core::slice::rsplit,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The function only constructs a lazy RSplit; its chunks depend on future, potentially stateful FnMut calls, and vstd has no public RSplit iterator model relating those calls to the source slice."
+core::slice::rsplit_mut,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"A useful contract must model lazy predicate calls, disjoint mutable subslices, and their eventual recomposition into final(self); current vstd provides no such RSplitMut prophecy model."
+core::slice::rsplitn,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,RSplitN wraps the unmodeled lazy RSplit iterator. Expressing its item limit and final remainder still requires a prophetic iterator model tied to the FnMut call trace.
+core::slice::rsplitn_mut,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The implementation wraps RSplitMut, so a useful specification needs both a prophetic FnMut call trace and a model reconnecting yielded mutable subslices to final(self), neither of which exists publicly in vstd."
+core::slice::sort_unstable_by,data_structure,,2,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract,,,"old(slice)@.len() > 1 ==> forall|a: T, b: T| old(slice)@.contains(a) && old(slice)@.contains(b) ==> compare.requires((&a, &b))",final(slice)@.to_multiset() =~= old(slice)@.to_multiset(),"pub assume_specification<T, F>[
+    <[T]>::sort_unstable_by::<F>
+](
+    slice: &mut [T],
+    compare: F,
+)
+where
+    F: FnMut(&T, &T) -> core::cmp::Ordering,
+    requires
+        old(slice)@.len() > 1 ==> forall|a: T, b: T|
+            old(slice)@.contains(a) && old(slice)@.contains(b)
+                ==> compare.requires((&a, &b)),
+    ensures
+        final(slice)@.to_multiset() =~= old(slice)@.to_multiset(),
+;","Moving the exact FnMut bound to the where-clause avoids the target-bracket parsing failure. On normal return the implementation only permutes the original elements, justifying extensional multiset equality without assuming comparator consistency or claiming sortedness."
+core::slice::sort_unstable_by_key,data_structure,,2,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract,,,"old(slice)@.len() > 1 ==> forall|a: T| old(slice)@.contains(a) ==> f.requires((&a,))",final(slice)@.to_multiset() =~= old(slice)@.to_multiset(),"pub assume_specification<T, K, F>[
+    <[T]>::sort_unstable_by_key::<K, F>
+](slice: &mut [T], f: F)
+where
+    F: FnMut(&T) -> K,
+    K: core::cmp::Ord,
+    requires
+        old(slice)@.len() > 1 ==> forall|a: T|
+            old(slice)@.contains(a) ==> f.requires((&a,)),
+    ensures
+        final(slice)@.to_multiset() =~= old(slice)@.to_multiset(),
+;","Moving the FnMut bound to the where-clause avoids the target-bracket parser failure. The guarded callback requirement applies only when sorting can invoke the key extractor, while normal completion preserves the original element multiset. Stateful key extraction prevents a sound general sortedness postcondition."
+core::slice::split_inclusive_mut,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,Behavior is deferred to an iterator yielding mutable subslices. Relating those prophetic mutations to the original slice and the evolving FnMut predicate requires a missing mutable-iterator model.
+core::slice::split_mut,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The returned iterator exposes mutable subslices while retaining separators. Current vstd cannot connect its future items and mutations to predicate calls and final(self).
+core::slice::splitn_mut,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,The source wraps split_mut with a result-count limit. A useful contract therefore inherits the unavailable prophetic mutable-subslice and ordered FnMut-call model.
+std::panic::catch_unwind,other,,2,add_spec,skip,none,False,,,,0,0,0,classification:higher_order_contract;determinism_unsupported_contract_form,,,,,,"The observable return type expands to Result<R, Box<dyn Any + Send>>, which Verus cannot elaborate because it does not support trait objects with multiple traits. Weakening or erasing the Err payload would not match catch_unwind's signature, so no useful typechecking contract exists in current vstd vocabulary."
+std::panic::take_hook,other,,1,skip,skip,assume_specification,False,,,,0,0,0,classification:higher_order_contract,,,,,,"The source replaces hidden process-global hook state and returns the previous function object. vstd has no public hook-state or callable-identity model, and the function may panic on a panicking thread."
+core::slice::binary_search_by,data_structure,,2,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract,borrowed_key_uniqueness_precondition,,"forall|i: int| 0 <= i < slice@.len() ==> { &&& #[trigger] f.requires((&slice@[i],)) &&& exists|ord: Ordering| #[trigger] f.ensures((&slice@[i],), ord) }; forall|i: int, left: Ordering, right: Ordering| 0 <= i < slice@.len() && f.ensures((&slice@[i],), left) && f.ensures((&slice@[i],), right) ==> left == right; forall|i: int, j: int, left: Ordering, right: Ordering| 0 <= i < j < slice@.len() && f.ensures((&slice@[i],), left) && f.ensures((&slice@[j],), right) ==> left == Ordering::Less || right == Ordering::Greater || left == right","match result {
+    Result::Ok(index) => {
+        &&& (index as int) < slice@.len()
+        &&& f.ensures((&slice@[index as int],), Ordering::Equal)
+        &&& forall|i: int| #![auto]
+            i > index as int && slice@.len() > i ==>
+                f.ensures((&slice@[i],), Ordering::Greater)
+    },
+    Result::Err(index) => {
+        &&& (index as int) <= slice@.len()
+        &&& forall|i: int| #![auto]
+            i >= 0 && index as int > i ==>
+                f.ensures((&slice@[i],), Ordering::Less)
+        &&& forall|i: int| #![auto]
+            i >= index as int && slice@.len() > i ==>
+                f.ensures((&slice@[i],), Ordering::Greater)
+    },
+}","pub assume_specification<'a, T, F>[ <[T]>::binary_search_by ](
+    slice: &'a [T],
+    f: F,
+) -> (result: Result<usize, usize>)
+where
+    F: FnMut(&'a T) -> Ordering,
+    requires
+        forall|i: int| 0 <= i < slice@.len() ==> {
+            &&& #[trigger] f.requires((&slice@[i],))
+            &&& exists|ord: Ordering| #[trigger] f.ensures((&slice@[i],), ord)
+        },
+        forall|i: int, left: Ordering, right: Ordering|
+            0 <= i < slice@.len()
+            && f.ensures((&slice@[i],), left)
+            && f.ensures((&slice@[i],), right) ==>
+                left == right,
+        forall|i: int, j: int, left: Ordering, right: Ordering|
+            0 <= i < j < slice@.len()
+            && f.ensures((&slice@[i],), left)
+            && f.ensures((&slice@[j],), right) ==>
+                left == Ordering::Less
+                || right == Ordering::Greater
+                || left == right,
+    ensures
+        match result {
+            Result::Ok(index) => {
+                &&& (index as int) < slice@.len()
+                &&& f.ensures((&slice@[index as int],), Ordering::Equal)
+                &&& forall|i: int| #![auto]
+                    i > index as int && slice@.len() > i ==>
+                        f.ensures((&slice@[i],), Ordering::Greater)
+            },
+            Result::Err(index) => {
+                &&& (index as int) <= slice@.len()
+                &&& forall|i: int| #![auto]
+                    i >= 0 && index as int > i ==>
+                        f.ensures((&slice@[i],), Ordering::Less)
+                &&& forall|i: int| #![auto]
+                    i >= index as int && slice@.len() > i ==>
+                        f.ensures((&slice@[i],), Ordering::Greater)
+            },
+        },
+;","For a total, functional, monotone comparator specification, the source advances past Less and Equal elements. It therefore returns the rightmost Equal index or the unique Less/Greater partition boundary."
+core::slice::binary_search_by_key,data_structure,,3,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract;structured_contract_mismatch,,,"forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice@[i],))","slice.len() == 0 ==> result == Result::<usize, usize>::Err(0); result is Ok ==> result->Ok_0 < slice.len() && exists|key: B| f.ensures((&slice@[result->Ok_0 as int],), key) && call_ensures(<B as core::cmp::Ord>::cmp, (&key, b), Ordering::Equal); result is Err ==> result->Err_0 <= slice.len()","pub assume_specification<'a, T, B: core::cmp::Ord, F: FnMut(&'a T) -> B>[ <[T]>::binary_search_by_key ](
+    slice: &'a [T],
+    b: &B,
+    f: F,
+) -> (result: Result<usize, usize>)
+    requires
+        forall|i: int| 0 <= i < slice@.len() ==> f.requires((&slice@[i],)),
+    ensures
+        slice.len() == 0 ==> result == Result::<usize, usize>::Err(0),
+        result is Ok ==> {
+            &&& result->Ok_0 < slice.len()
+            &&& exists|key: B| {
+                &&& f.ensures((&slice@[result->Ok_0 as int],), key)
+                &&& call_ensures(
+                    <B as core::cmp::Ord>::cmp,
+                    (&key, b),
+                    Ordering::Equal,
+                )
+            }
+        },
+        result is Err ==> result->Err_0 <= slice.len(),
+;","The implementation delegates to binary_search_by using the extracted key's Ord comparison, which callable ensures relations can expose."
+core::slice::is_sorted_by_key,data_structure,,2,add_spec,add_spec,assume_specification,True,verus_error,,,0,0,0,checker_status:verus_error;classification:higher_order_contract;structured_contract_mismatch,,,"K::obeys_partial_cmp_spec(); forall|i: int| 0 <= i < slice@.len() ==> #[trigger] f.requires((&slice@[i],)); forall|i: int, left1: K, right1: K, left2: K, right2: K| #![trigger f.ensures((&slice@[i],), left1), f.ensures((&slice@[i + 1],), right1), f.ensures((&slice@[i],), left2), f.ensures((&slice@[i + 1],), right2)] 0 <= i && i + 1 < slice@.len() && f.ensures((&slice@[i],), left1) && f.ensures((&slice@[i + 1],), right1) && f.ensures((&slice@[i],), left2) && f.ensures((&slice@[i + 1],), right2) ==> ((left1.partial_cmp_spec(&right1) matches Some(core::cmp::Ordering::Less | core::cmp::Ordering::Equal)) == (left2.partial_cmp_spec(&right2) matches Some(core::cmp::Ordering::Less | core::cmp::Ordering::Equal)))","ret ==> (exists|keys: Seq<K>| { &&& keys.len() == slice@.len() &&& forall|i: int| 0 <= i < keys.len() ==> #[trigger] f.ensures((&slice@[i],), keys[i]) &&& forall|i: int| 0 <= i && i + 1 < keys.len() ==> (#[trigger] keys[i].partial_cmp_spec(&keys[i + 1]) matches Some(core::cmp::Ordering::Less | core::cmp::Ordering::Equal)) }); !ret ==> (exists|bad: int, keys: Seq<K>| { &&& 0 <= bad &&& bad + 1 < slice@.len() &&& keys.len() == bad + 2 &&& forall|i: int| 0 <= i < keys.len() ==> #[trigger] f.ensures((&slice@[i],), keys[i]) &&& forall|i: int| 0 <= i < bad ==> (#[trigger] keys[i].partial_cmp_spec(&keys[i + 1]) matches Some(core::cmp::Ordering::Less | core::cmp::Ordering::Equal)) &&& !(#[trigger] keys[bad].partial_cmp_spec(&keys[bad + 1]) matches Some(core::cmp::Ordering::Less | core::cmp::Ordering::Equal)) })","pub assume_specification<'a, T, F, K>[ <[T]>::is_sorted_by_key::<F, K> ](
+    slice: &'a [T],
+    f: F,
+) -> (ret: bool)
+where
+    F: FnMut(&'a T) -> K,
+    K: PartialOrd,
+    requires
+        K::obeys_partial_cmp_spec(),
+        forall|i: int| 0 <= i < slice@.len() ==>
+            #[trigger] f.requires((&slice@[i],)),
+        forall|i: int, left1: K, right1: K, left2: K, right2: K|
+            #![trigger
+                f.ensures((&slice@[i],), left1),
+                f.ensures((&slice@[i + 1],), right1),
+                f.ensures((&slice@[i],), left2),
+                f.ensures((&slice@[i + 1],), right2)
+            ]
+            0 <= i
+                && i + 1 < slice@.len()
+                && f.ensures((&slice@[i],), left1)
+                && f.ensures((&slice@[i + 1],), right1)
+                && f.ensures((&slice@[i],), left2)
+                && f.ensures((&slice@[i + 1],), right2)
+                ==> (
+                    (left1.partial_cmp_spec(&right1) matches Some(
+                        core::cmp::Ordering::Less | core::cmp::Ordering::Equal,
+                    ))
+                    == (left2.partial_cmp_spec(&right2) matches Some(
+                        core::cmp::Ordering::Less | core::cmp::Ordering::Equal,
+                    ))
+                ),
+    ensures
+        ret ==> (exists|keys: Seq<K>| {
+            &&& keys.len() == slice@.len()
+            &&& forall|i: int| 0 <= i < keys.len() ==>
+                #[trigger] f.ensures((&slice@[i],), keys[i])
+            &&& forall|i: int| 0 <= i && i + 1 < keys.len() ==> (
+                #[trigger] keys[i].partial_cmp_spec(&keys[i + 1]) matches Some(
+                    core::cmp::Ordering::Less | core::cmp::Ordering::Equal,
+                )
+            )
+        }),
+        !ret ==> (exists|bad: int, keys: Seq<K>| {
+            &&& 0 <= bad
+            &&& bad + 1 < slice@.len()
+            &&& keys.len() == bad + 2
+            &&& forall|i: int| 0 <= i < keys.len() ==>
+                #[trigger] f.ensures((&slice@[i],), keys[i])
+            &&& forall|i: int| 0 <= i < bad ==> (
+                #[trigger] keys[i].partial_cmp_spec(&keys[i + 1]) matches Some(
+                    core::cmp::Ordering::Less | core::cmp::Ordering::Equal,
+                )
+            )
+            &&& !(#[trigger] keys[bad].partial_cmp_spec(&keys[bad + 1]) matches Some(
+                core::cmp::Ordering::Less | core::cmp::Ordering::Equal,
+            ))
+        }),
+;","The implementation maps evaluated elements to keys in order and stops at the first unordered adjacent pair. The key sequence records that trace, PartialOrdSpec models <=, and the branch-consistency requirement permits relational key specifications while still determining the observable Boolean."

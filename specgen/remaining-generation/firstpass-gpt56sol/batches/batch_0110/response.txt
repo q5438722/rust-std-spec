@@ -1,0 +1,32 @@
+{"candidates":[{"target":"alloc::ffi::IntoStringError::utf8_error","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method copies a private stored Utf8Error. Without an IntoStringError view relating that error to the rejected bytes, the result cannot be usefully characterized.","risks":["Missing IntoStringError and Utf8Error relationship abstraction"]},{"target":"alloc::ffi::NulError::into_vec","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification[ NulError::into_vec ](error: NulError) -> (result: Vec<u8>)\n    ensures\n        result@.contains(0u8),\n;","requires":[],"ensures":["result@.contains(0u8)"],"feature_gates":[],"imports":["alloc::ffi::NulError","alloc::vec::Vec","vstd::prelude::*"],"useful":true,"rationale":"The documentation identifies the returned vector as the bytes that caused a NUL error, so it contains a zero byte. Vec's existing sequence view expresses this without exposing NulError's fields.","risks":["Does not identify the NUL position or fully model the original byte sequence"]},{"target":"alloc::ffi::NulError::nul_position","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result is a private stored index. Relating it to the offending byte requires a missing view of NulError's original byte sequence.","risks":["Missing NulError byte-sequence abstraction"]},{"target":"alloc::rc::Weak::new","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Its documented emptiness is observable through upgrade or reference counts, but current vstd has no Weak liveness or allocation model with which to express that property.","risks":["Missing Rc/Weak liveness abstraction"]},{"target":"alloc::rc::Weak::ptr_eq","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result compares hidden allocation addresses. Weak has no public vstd allocation-identity view, so a useful exact relation cannot be stated.","risks":["Unmodeled allocation identity and pointer-address semantics"]},{"target":"alloc::rc::Weak::strong_count","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method observes a dynamically changing shared reference count stored in the hidden allocation. Current vstd provides no Rc/Weak state abstraction for that count.","risks":["Hidden mutable shared state","Missing Rc/Weak reference-count abstraction"]}]}{"candidates":[{"target":"alloc::ffi::IntoStringError::utf8_error","decision":"skip","contract_form"
+:"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[
+],"useful":false,"rationale":"The method copies a private stored Utf8Error. Without an
+IntoStringError view relating that error to the rejected bytes, the result cannot be usefully
+characterized.","risks":["Missing IntoStringError and Utf8Error relationship
+abstraction"]},{"target":"alloc::ffi::NulError::into_vec","decision":"add_spec","contract_form":"ass
+ume_specification","contract_code":"pub assume_specification[ NulError::into_vec ](error: NulError)
+-> (result: Vec<u8>)\n    ensures\n
+result@.contains(0u8),\n;","requires":[],"ensures":["result@.contains(0u8)"],"feature_gates":[],"imp
+orts":["alloc::ffi::NulError","alloc::vec::Vec","vstd::prelude::*"],"useful":true,"rationale":"The
+documentation identifies the returned vector as the bytes that caused a NUL error, so it contains a
+zero byte. Vec's existing sequence view expresses this without exposing NulError's
+fields.","risks":["Does not identify the NUL position or fully model the original byte
+sequence"]},{"target":"alloc::ffi::NulError::nul_position","decision":"skip","contract_form":"assume
+_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"usefu
+l":false,"rationale":"The result is a private stored index. Relating it to the offending byte
+requires a missing view of NulError's original byte sequence.","risks":["Missing NulError
+byte-sequence abstraction"]},{"target":"alloc::rc::Weak::new","decision":"skip","contract_form":"ass
+ume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"us
+eful":false,"rationale":"Its documented emptiness is observable through upgrade or reference counts,
+ but current vstd has no Weak liveness or allocation model with which to express that
+property.","risks":["Missing Rc/Weak liveness abstraction"]},{"target":"alloc::rc::Weak::ptr_eq","de
+cision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],
+"feature_gates":[],"imports":[],"useful":false,"rationale":"The result compares hidden allocation
+addresses. Weak has no public vstd allocation-identity view, so a useful exact relation cannot be
+stated.","risks":["Unmodeled allocation identity and pointer-address semantics"]},{"target":"alloc::
+rc::Weak::strong_count","decision":"skip","contract_form":"assume_specification","contract_code":"",
+"requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method
+observes a dynamically changing shared reference count stored in the hidden allocation. Current vstd
+ provides no Rc/Weak state abstraction for that count.","risks":["Hidden mutable shared
+state","Missing Rc/Weak reference-count abstraction"]}]}
+

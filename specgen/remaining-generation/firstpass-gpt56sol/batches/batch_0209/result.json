@@ -1,0 +1,116 @@
+{
+  "batch": 209,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 20617,
+  "targets": [
+    "std::net::UdpSocket::bind",
+    "std::net::UdpSocket::broadcast",
+    "std::net::UdpSocket::connect",
+    "std::net::UdpSocket::join_multicast_v4",
+    "std::net::UdpSocket::join_multicast_v6",
+    "std::net::UdpSocket::leave_multicast_v4"
+  ],
+  "candidates": [
+    {
+      "target": "std::net::UdpSocket::bind",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, address selection, and the resulting socket depend on name resolution and external OS networking state, for which vstd has no public model.",
+      "risks": [
+        "External OS state",
+        "Unmodeled address resolution",
+        "Opaque socket result"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::broadcast",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned value reads the hidden SO_BROADCAST socket option and the operation may fail; vstd cannot relate it to modeled socket state.",
+      "risks": [
+        "Hidden socket-option state",
+        "Platform-dependent failure"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::connect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This operation changes OS-managed socket state through a shared reference, with success depending on address resolution and platform state absent from vstd.",
+      "risks": [
+        "External OS state",
+        "Hidden mutation through shared reference",
+        "Unmodeled address resolution"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::join_multicast_v4",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Joining a multicast group changes hidden OS membership state and may depend on interface selection and platform configuration, none of which vstd models.",
+      "risks": [
+        "Hidden multicast membership state",
+        "External interface configuration",
+        "Platform-dependent failure"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::join_multicast_v6",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Joining the IPv6 group changes unmodeled OS membership state and depends on the external interface identified by the supplied index.",
+      "risks": [
+        "Hidden multicast membership state",
+        "External interface configuration",
+        "Platform-dependent failure"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::leave_multicast_v4",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Leaving a multicast group changes hidden OS membership state whose prior and final values cannot be represented using current public vstd abstractions.",
+      "risks": [
+        "Hidden multicast membership state",
+        "External interface configuration",
+        "Platform-dependent failure"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "id": "std_specs__result.rs__L242__Result__T__E__map_err",
+  "api_path": "core::result::Result::map_err",
+  "normalized_api_path": "core::result::Result::map_err",
+  "raw_target": "Result::<T, E>::map_err",
+  "contract_source_file": "std_specs/result.rs",
+  "contract_source_line": 242,
+  "rust_declaration": {
+    "declaration_id": "core:29290",
+    "name": "map_err",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/result.rs",
+      "begin": [
+        962,
+        5
+      ],
+      "end": [
+        970,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "op",
+          {
+            "generic": "O"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "F"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "F",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        },
+        {
+          "name": "O",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "O"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "FnOnce",
+                    "id": 24,
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "E"
+                          }
+                        ],
+                        "output": {
+                          "generic": "F"
+                        }
+                      }
+                    }
+                  },
+                  "generic_params": [],
+                  "modifier": "maybe_const"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:29310",
+      "for": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "E",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   942:     /// contained [`Err`] value, leaving an [`Ok`] value untouched.\n   943:     ///\n   944:     /// This function can be used to pass through a successful result while handling\n   945:     /// an error.\n   946:     ///\n   947:     ///\n   948:     /// # Examples\n   949:     ///\n   950:     /// ```\n   951:     /// fn stringify(x: u32) -> String { format!(\"error code: {x}\") }\n   952:     ///\n   953:     /// let x: Result<u32, u32> = Ok(2);\n   954:     /// assert_eq!(x.map_err(stringify), Ok(2));\n   955:     ///\n   956:     /// let x: Result<u32, u32> = Err(13);\n   957:     /// assert_eq!(x.map_err(stringify), Err(\"error code: 13\".to_string()));\n   958:     /// ```\n   959:     #[inline]\n   960:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   961:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   962:     pub const fn map_err<F, O>(self, op: O) -> Result<T, F>\n   963:     where\n   964:         O: [const] FnOnce(E) -> F + [const] Destruct,\n   965:     {\n   966:         match self {\n   967:             Ok(t) => Ok(t),\n   968:             Err(e) => Err(op(e)),\n   969:         }\n   970:     }\n   971: \n   972:     /// Calls a function with a reference to the contained value if [`Ok`].\n   973:     ///\n   974:     /// Returns the original result.\n   975:     ///\n   976:     /// # Examples\n   977:     ///\n   978:     /// ```\n   979:     /// let x: u8 = \"4\"\n   980:     ///     .parse::<u8>()\n   981:     ///     .inspect(|x| println!(\"original: {x}\"))\n   982:     ///     .map(|x| x.pow(3))",
+    "source_text": "pub const fn map_err<F, O>(self, op: O) -> Result<T, F>\n    where\n        O: [const] FnOnce(E) -> F + [const] Destruct,\n    {\n        match self {\n            Ok(t) => Ok(t),\n            Err(e) => Err(op(e)),\n        }\n    }",
+    "has_body": true
+  }
+}

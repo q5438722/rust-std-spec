@@ -1,0 +1,121 @@
+{
+  "batch": 47,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 25411,
+  "targets": [
+    "core::pin::Pin::get_unchecked_mut",
+    "core::pin::Pin::map_unchecked_mut",
+    "core::pin::Pin::static_mut",
+    "core::ptr::NonNull::as_mut",
+    "core::ptr::as_mut",
+    "core::ptr::as_mut_unchecked"
+  ],
+  "candidates": [
+    {
+      "target": "core::pin::Pin::get_unchecked_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API returns the pinned value as a mutable reference. Current vstd vocabulary cannot express that reference's identity, aliasing, or pinning obligation without an unsupported mutable-reference-return abstraction.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "pinning_invariant_not_expressible"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::map_unchecked_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains a mutable reference selected by an FnOnce projection. Relating it to the closure result while preserving reference identity and pinning requires abstractions unavailable in current vstd.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "closure_projection_not_expressible",
+        "pinning_invariant_not_expressible"
+      ]
+    },
+    {
+      "target": "core::pin::Pin::static_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the implementation wraps the supplied reference with Pin::new_unchecked, current vstd cannot state that the returned Pin preserves the identity and mutable access of r.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "pinning_identity_not_expressible"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::as_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method creates a mutable reference to the allocation addressed by NonNull. Its validity, provenance, uniqueness, and reference identity cannot be captured by a useful contract in current public vstd vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "unsafe_or_ownership_sensitive",
+        "reference_identity_vs_view",
+        "pointer_provenance_not_expressible"
+      ]
+    },
+    {
+      "target": "core::ptr::as_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source determines the Option discriminant from nullness, but a useful contract must also relate the Some mutable reference to the pointed-to allocation; current vstd cannot express that identity, provenance, and uniqueness relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "unsafe_or_ownership_sensitive",
+        "reference_identity_vs_view",
+        "pointer_provenance_not_expressible"
+      ]
+    },
+    {
+      "target": "core::ptr::as_mut_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method directly converts a raw pointer into a mutable reference. A sound useful contract requires pointer-validity, provenance, uniqueness, and reference-identity abstractions absent from current vstd.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "unsafe_or_ownership_sensitive",
+        "reference_identity_vs_view",
+        "pointer_provenance_not_expressible"
+      ]
+    }
+  ]
+}

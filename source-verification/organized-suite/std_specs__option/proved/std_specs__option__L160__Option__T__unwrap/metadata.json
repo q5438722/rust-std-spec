@@ -1,0 +1,133 @@
+{
+  "id": "std_specs__option.rs__L160__Option__T__unwrap",
+  "api_path": "core::option::Option::unwrap",
+  "raw_target": "Option::<T>::unwrap",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 160,
+  "rust_declaration": {
+    "declaration_id": "core:2302",
+    "name": "unwrap",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"option_unwrap\")]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_precise_live_drops\"])]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"const_option\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        1013,
+        5
+      ],
+      "end": [
+        1018,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "T"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   993:     ///\n   994:     /// Panics if the self value equals [`None`].\n   995:     ///\n   996:     /// # Examples\n   997:     ///\n   998:     /// ```\n   999:     /// let x = Some(\"air\");\n  1000:     /// assert_eq!(x.unwrap(), \"air\");\n  1001:     /// ```\n  1002:     ///\n  1003:     /// ```should_panic\n  1004:     /// let x: Option<&str> = None;\n  1005:     /// assert_eq!(x.unwrap(), \"air\"); // fails\n  1006:     /// ```\n  1007:     #[inline(always)]\n  1008:     #[track_caller]\n  1009:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1010:     #[rustc_diagnostic_item = \"option_unwrap\"]\n  1011:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1012:     #[rustc_const_stable(feature = \"const_option\", since = \"1.83.0\")]\n  1013:     pub const fn unwrap(self) -> T {\n  1014:         match self {\n  1015:             Some(val) => val,\n  1016:             None => unwrap_failed(),\n  1017:         }\n  1018:     }\n  1019: \n  1020:     /// Returns the contained [`Some`] value or a provided default.\n  1021:     ///\n  1022:     /// Arguments passed to `unwrap_or` are eagerly evaluated; if you are passing\n  1023:     /// the result of a function call, it is recommended to use [`unwrap_or_else`],\n  1024:     /// which is lazily evaluated.\n  1025:     ///\n  1026:     /// [`unwrap_or_else`]: Option::unwrap_or_else\n  1027:     ///\n  1028:     /// # Examples\n  1029:     ///\n  1030:     /// ```\n  1031:     /// assert_eq!(Some(\"car\").unwrap_or(\"bike\"), \"car\");\n  1032:     /// assert_eq!(None.unwrap_or(\"bike\"), \"bike\");\n  1033:     /// ```",
+    "source_text": "pub const fn unwrap(self) -> T {\n        match self {\n            Some(val) => val,\n            None => unwrap_failed(),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "Preserves the exact match and copied unwrap_failed call/body. A verification-only panic shim handles Verus's unsupported panic primitive on the unreachable None path; executable code still resolves core::panicking::panic.",
+  "run_target_dir": "source-verification/fidelity-retry/runs/full-gpt56sol/targets/std_specs__option.rs__L160__Option__T__unwrap",
+  "fidelity_retry": {
+    "accepted": true,
+    "audit_reason": "The Some/None match and call to a locally copied unwrap_failed helper are exact; the helper preserves the source panic text/body (2250-2252), with only Verus panic plumbing and proof preconditions added. No assumed target semantics are used.",
+    "source_run": "/home/chentianyu/nanvix-rust-std-spec-survey/source-verification/fidelity-retry/proved-apis/std_specs__option.rs__L160__Option__T__unwrap"
+  }
+}

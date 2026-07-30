@@ -1,0 +1,167 @@
+{
+  "id": "std_specs__vecdeque.rs__L195__VecDeque__T__A__swap_remove_front",
+  "api_path": "alloc::collections::vec_deque::VecDeque::swap_remove_front",
+  "normalized_api_path": "alloc::collections::VecDeque::swap_remove_front",
+  "raw_target": "VecDeque::<T, A>::swap_remove_front",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 195,
+  "rust_declaration": {
+    "declaration_id": "alloc:3112",
+    "name": "swap_remove_front",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 5, patch: 0 })},\nfeature: \"deque_extras_15\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        2337,
+        5
+      ],
+      "end": [
+        2345,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "index",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 181,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2317:     /// Returns `None` if `index` is out of bounds.\n  2318:     ///\n  2319:     /// Element at index 0 is the front of the queue.\n  2320:     ///\n  2321:     /// # Examples\n  2322:     ///\n  2323:     /// ```\n  2324:     /// use std::collections::VecDeque;\n  2325:     ///\n  2326:     /// let mut buf = VecDeque::new();\n  2327:     /// assert_eq!(buf.swap_remove_front(0), None);\n  2328:     /// buf.push_back(1);\n  2329:     /// buf.push_back(2);\n  2330:     /// buf.push_back(3);\n  2331:     /// assert_eq!(buf, [1, 2, 3]);\n  2332:     ///\n  2333:     /// assert_eq!(buf.swap_remove_front(2), Some(3));\n  2334:     /// assert_eq!(buf, [2, 1]);\n  2335:     /// ```\n  2336:     #[stable(feature = \"deque_extras_15\", since = \"1.5.0\")]\n  2337:     pub fn swap_remove_front(&mut self, index: usize) -> Option<T> {\n  2338:         let length = self.len;\n  2339:         if index < length && index != 0 {\n  2340:             self.swap(index, 0);\n  2341:         } else if index >= length {\n  2342:             return None;\n  2343:         }\n  2344:         self.pop_front()\n  2345:     }\n  2346: \n  2347:     /// Removes an element from anywhere in the deque and returns it,\n  2348:     /// replacing it with the last element.\n  2349:     ///\n  2350:     /// This does not preserve ordering, but is *O*(1).\n  2351:     ///\n  2352:     /// Returns `None` if `index` is out of bounds.\n  2353:     ///\n  2354:     /// Element at index 0 is the front of the queue.\n  2355:     ///\n  2356:     /// # Examples\n  2357:     ///",
+    "source_text": "pub fn swap_remove_front(&mut self, index: usize) -> Option<T> {\n        let length = self.len;\n        if index < length && index != 0 {\n            self.swap(index, 0);\n        } else if index >= length {\n            return None;\n        }\n        self.pop_front()\n    }",
+    "has_body": true
+  }
+}

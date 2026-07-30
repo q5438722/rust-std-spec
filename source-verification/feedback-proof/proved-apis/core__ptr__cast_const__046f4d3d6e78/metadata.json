@@ -1,0 +1,125 @@
+{
+  "id": "core__ptr__cast_const__046f4d3d6e78",
+  "api_path": "core::ptr::cast_const",
+  "raw_target": "<*mut T>::cast_const",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 65, patch: 0 })},\nfeature: \"ptr_const_cast\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 65, patch: 0 })},\nfeature: \"ptr_const_cast\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"ptr_cast_const\")]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "declaration_id": "core:51454",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "cast_const",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": true,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": true,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51704",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      }
+    },
+    "source_context": "    89:     /// ```\n    90:     ///\n    91:     /// # *Incorrect* usage\n    92:     ///\n    93:     /// The provenance from pointers is *not* combined. The result must only be used to refer to the\n    94:     /// address allowed by `self`.\n    95:     ///\n    96:     /// ```rust,no_run\n    97:     /// #![feature(set_ptr_value)]\n    98:     /// let mut x = 0u32;\n    99:     /// let mut y = 1u32;\n   100:     ///\n   101:     /// let x = (&mut x) as *mut u32;\n   102:     /// let y = (&mut y) as *mut u32;\n   103:     ///\n   104:     /// let offset = (x as usize - y as usize) / 4;\n   105:     /// let bad = x.wrapping_add(offset).with_metadata_of(y);\n   106:     ///\n   107:     /// // This dereference is UB. The pointer only has provenance for `x` but points to `y`.\n   108:     /// println!(\"{:?}\", unsafe { &*bad });\n   109:     /// ```\n   110:     #[unstable(feature = \"set_ptr_value\", issue = \"75091\")]\n   111:     #[must_use = \"returns a new pointer rather than modifying its argument\"]\n   112:     #[inline]\n   113:     pub const fn with_metadata_of<U>(self, meta: *const U) -> *mut U\n   114:     where\n   115:         U: PointeeSized,\n   116:     {\n   117:         from_raw_parts_mut::<U>(self as *mut (), metadata(meta))\n   118:     }\n   119: \n   120:     /// Changes constness without changing the type.\n   121:     ///\n   122:     /// This is a bit safer than `as` because it wouldn't silently change the type if the code is\n   123:     /// refactored.\n   124:     ///\n   125:     /// While not strictly required (`*mut T` coerces to `*const T`), this is provided for symmetry\n   126:     /// with [`cast_mut`] on `*const T` and may have documentation value if used instead of implicit\n   127:     /// coercion.\n   128:     ///\n   129:     /// [`cast_mut`]: pointer::cast_mut\n   130:     #[stable(feature = \"ptr_const_cast\", since = \"1.65.0\")]\n   131:     #[rustc_const_stable(feature = \"ptr_const_cast\", since = \"1.65.0\")]\n   132:     #[rustc_diagnostic_item = \"ptr_cast_const\"]\n   133:     #[inline(always)]\n   134:     pub const fn cast_const(self) -> *const T {\n   135:         self as _\n   136:     }\n   137: \n   138:     #[doc = include_str!(\"./docs/addr.md\")]\n   139:     ///\n   140:     /// [without_provenance]: without_provenance_mut\n   141:     #[must_use]\n   142:     #[inline(always)]\n   143:     #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   144:     pub fn addr(self) -> usize {\n   145:         // A pointer-to-integer transmute currently has exactly the right semantics: it returns the\n   146:         // address without exposing the provenance. Note that this is *not* a stable guarantee about\n   147:         // transmute semantics, it relies on sysroot crates having special status.\n   148:         // SAFETY: Pointer-to-integer transmutes are valid (if you are okay with losing the\n   149:         // provenance).\n   150:         unsafe { mem::transmute(self.cast::<()>()) }\n   151:     }\n   152: \n   153:     /// Exposes the [\"provenance\"][crate::ptr#provenance] part of the pointer for future use in\n   154:     /// [`with_exposed_provenance_mut`] and returns the \"address\" portion.\n   155:     ///\n   156:     /// This is equivalent to `self as usize`, which semantically discards provenance information.\n   157:     /// Furthermore, this (like the `as` cast) has the implicit side-effect of marking the\n   158:     /// provenance as 'exposed', so on platforms that support it you can later call\n   159:     /// [`with_exposed_provenance_mut`] to reconstitute the original pointer including its provenance.\n   160:     ///\n   161:     /// Due to its inherent ambiguity, [`with_exposed_provenance_mut`] may not be supported by tools\n   162:     /// that help you to stay conformant with the Rust memory model. It is recommended to use\n   163:     /// [Strict Provenance][crate::ptr#strict-provenance] APIs such as [`with_addr`][pointer::with_addr]\n   164:     /// wherever possible, in which case [`addr`][pointer::addr] should be used instead of `expose_provenance`.\n   165:     ///\n   166:     /// On most platforms this will produce a value with the same bytes as the original pointer,\n   167:     /// because all the bytes are dedicated to describing the address. Platforms which need to store\n   168:     /// additional information in the pointer may not support this operation, since the 'expose'\n   169:     /// side-effect which is required for [`with_exposed_provenance_mut`] to work is typically not\n   170:     /// available.\n   171:     ///\n   172:     /// This is an [Exposed Provenance][crate::ptr#exposed-provenance] API.\n   173:     ///\n   174:     /// [`with_exposed_provenance_mut`]: with_exposed_provenance_mut\n   175:     #[inline(always)]\n   176:     #[stable(feature = \"exposed_provenance\", since = \"1.84.0\")]\n   177:     pub fn expose_provenance(self) -> usize {\n   178:         self.cast::<()>() as usize\n   179:     }",
+    "span": {
+      "begin": [
+        134,
+        5
+      ],
+      "end": [
+        136,
+        6
+      ],
+      "filename": "core/src/ptr/mut_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn cast_const(self) -> *const T {\n        self as _\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact single raw-pointer constness cast proves the postcondition directly without lower-level contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__cast_const__046f4d3d6e78"
+}

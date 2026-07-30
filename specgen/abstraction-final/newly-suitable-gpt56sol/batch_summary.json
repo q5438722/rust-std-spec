@@ -1,0 +1,2521 @@
+{
+  "metadata": {
+    "model": "gpt-5.6-sol",
+    "manifest": "/home/chentianyu/nanvix-rust-std-spec-survey/specgen/abstraction-final/newly-suitable-manifest.json",
+    "vstd_root": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd",
+    "verus_bin": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu",
+    "feedback_rounds": 2,
+    "contract_soundness": "unverified_trusted_external_contract",
+    "seed_candidates": null,
+    "include_non_suitable": false,
+    "include_unavailable": false
+  },
+  "counts": {
+    "targets": 20,
+    "add_spec": 10,
+    "skip": 10,
+    "raw_reward": 10,
+    "guarded_reward": 10,
+    "static_skip": 0,
+    "llm_errors": 0
+  },
+  "results": [
+    {
+      "target": "alloc::collections::BinaryHeap::peek_mut",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 283238,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<T: core::cmp::Ord, A: core::alloc::Allocator>[\n    alloc::collections::BinaryHeap::<T, A>::peek_mut\n](\n    heap: &mut alloc::collections::BinaryHeap<T, A>,\n) -> (\n    result: core::option::Option<alloc::collections::binary_heap::PeekMut<'_, T, A>>,\n)\n    ensures\n        result is None <==> old(heap)@.len() == 0,\n        result is None ==> final(heap)@ == old(heap)@,\n;",
+            "requires": [],
+            "ensures": [
+              "result is None <==> old(heap)@.len() == 0",
+              "result is None ==> final(heap)@ == old(heap)@"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The implementation returns None exactly when the heap is empty and does not mutate the heap on that branch. The nonempty branch returns a mutable guard whose eventual effects cannot be expressed with the supplied public vocabulary.",
+            "risks": [
+              "The guarded value and Some-branch final heap are intentionally unspecified because PeekMut permits mutation and may be leaked."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 1,
+              "duration_ms": 47,
+              "stderr_tail": "error: expected -> (pattern: type)\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/alloc__collections__BinaryHeap__peek_mut/round_00/contract_harness.rs:13:85\n   |\n13 |     result: core::option::Option<alloc::collections::binary_heap::PeekMut<'_, T, A>>,\n   |                                                                                     ^\n\nerror: aborting due to 1 previous error\n\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "contract_typecheck_failed"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 59603,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "The exact signature necessarily mentions PeekMut, which current Verus/vstd does not support. Expressing the source-justified empty-result behavior would require an additional trusted external type specification, so no useful ordinary contract is available.",
+            "risks": [
+              "unsupported_result_type",
+              "requires_external_type_specification"
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 59603,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "The exact signature necessarily mentions PeekMut, which current Verus/vstd does not support. Expressing the source-justified empty-result behavior would require an additional trusted external type specification, so no useful ordinary contract is available.",
+          "risks": [
+            "unsupported_result_type",
+            "requires_external_type_specification"
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::collections::VecDeque::binary_search",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 276388,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::binary_search ](\n    v: &VecDeque<T, A>,\n    x: &T,\n) -> (result: Result<usize, usize>) where T: Ord\n    requires\n        obeys_cmp::<T>(),\n        sorted_by(\n            v@,\n            |a: T, b: T| a.cmp_spec(&b) != Ordering::Greater,\n        ),\n    ensures\n        match result {\n            Result::Ok(i) => {\n                &&& i as nat < v@.len()\n                &&& v@[i as int].cmp_spec(x) == Ordering::Equal\n            },\n            Result::Err(i) => {\n                &&& i as nat <= v@.len()\n                &&& forall|j: int| 0 <= j < i as int ==> v@[j].cmp_spec(x) == Ordering::Less\n                &&& forall|j: int| i as int <= j < v@.len() as int ==> v@[j].cmp_spec(x) == Ordering::Greater\n            },\n        },\n;",
+            "requires": [
+              "obeys_cmp::<T>()",
+              "sorted_by(v@, |a: T, b: T| a.cmp_spec(&b) != Ordering::Greater)"
+            ],
+            "ensures": [
+              "match result { Result::Ok(i) => i as nat < v@.len() && v@[i as int].cmp_spec(x) == Ordering::Equal, Result::Err(i) => i as nat <= v@.len() && (forall|j: int| 0 <= j < i as int ==> v@[j].cmp_spec(x) == Ordering::Less) && (forall|j: int| i as int <= j < v@.len() as int ==> v@[j].cmp_spec(x) == Ordering::Greater) }"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::collections::VecDeque",
+              "core::alloc::Allocator",
+              "core::cmp::{Ord, Ordering}",
+              "core::result::Result",
+              "vstd::laws_cmp::obeys_cmp",
+              "vstd::prelude::*",
+              "vstd::relations::sorted_by",
+              "vstd::std_specs::cmp::OrdSpec"
+            ],
+            "useful": true,
+            "rationale": "The supplied implementations delegate to binary_search_by using T::cmp. For a cmp-consistent sorted deque, Rust documents that Ok contains any matching index and Err contains the insertion partition.",
+            "risks": [
+              "The comparison law and sortedness preconditions are essential; without them the documented search result is meaningless.",
+              "Duplicate equal elements permit any matching Ok index, so no particular index is specified."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 1,
+              "duration_ms": 42,
+              "stderr_tail": "error: expected `,`\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/alloc__collections__VecDeque__binary_search/round_00/contract_harness.rs:28:33\n   |\n28 |                 &&& i as nat < v@.len()\n   |                                 ^\n\nerror: aborting due to 1 previous error\n\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "contract_typecheck_failed"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 151850,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "The exact Ok index depends on VecDeque's hidden physical split: binary_search_by may return the as_slices boundary or a slice-search result. That split is not represented by v@ or existing vstd vocabulary. Requiring a unique match would artificially exclude documented duplicate-containing inputs.",
+            "risks": [
+              "Claiming a canonical least or greatest match would contradict wrapped deques whose split lies within equal elements.",
+              "A no-duplicates precondition would be an artificial domain restriction."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 151850,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "The exact Ok index depends on VecDeque's hidden physical split: binary_search_by may return the as_slices boundary or a slice-search result. That split is not represented by v@ or existing vstd vocabulary. Requiring a unique match would artificially exclude documented duplicate-containing inputs.",
+          "risks": [
+            "Claiming a canonical least or greatest match would contradict wrapped deques whose split lies within equal elements.",
+            "A no-duplicates precondition would be an artificial domain restriction."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_back",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 164725,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_back ](\n    v: &mut VecDeque<T, A>,\n    index: usize,\n) -> (result: Option<T>)\n    ensures\n        match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        },\n;",
+            "requires": [],
+            "ensures": [
+              "match result { Some(x) => { &&& index < old(v)@.len() &&& x == old(v)@[index as int] &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last() }, None => { &&& old(v)@.len() <= index &&& final(v)@ == old(v)@ } }"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::collections::vec_deque::VecDeque",
+              "core::alloc::Allocator",
+              "core::option::Option",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The supplied implementations return None without mutation when the index is out of bounds; otherwise they swap the indexed element with the last element and pop it. The contract captures the returned original element and the exact resulting sequence.",
+            "risks": [
+              "This trusted contents-only contract must remain synchronized with the standard-library implementation; it does not model capacity or allocator state."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 919,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 53314,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_back ](\n    v: &mut VecDeque<T, A>,\n    index: usize,\n) -> (result: Option<T>)\n    ensures\n        match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        },\n;",
+            "requires": [],
+            "ensures": [
+              "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::collections::vec_deque::VecDeque",
+              "core::alloc::Allocator",
+              "core::option::Option",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "For an in-bounds index, the implementation returns the original indexed element, replaces its position with the old last element, and removes the last position. For an out-of-bounds index, it returns None without mutation. The structured postcondition now exactly matches the checked contract.",
+            "risks": [
+              "This trusted contents-only contract must remain synchronized with the standard-library implementation; it does not model capacity or allocator state."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 772,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 53314,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_back ](\n    v: &mut VecDeque<T, A>,\n    index: usize,\n) -> (result: Option<T>)\n    ensures\n        match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        },\n;",
+          "requires": [],
+          "ensures": [
+            "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+          ],
+          "feature_gates": [
+            "allocator_api"
+          ],
+          "imports": [
+            "alloc::collections::vec_deque::VecDeque",
+            "core::alloc::Allocator",
+            "core::option::Option",
+            "vstd::prelude::*"
+          ],
+          "useful": true,
+          "rationale": "For an in-bounds index, the implementation returns the original indexed element, replaces its position with the old last element, and removes the last position. For an out-of-bounds index, it returns None without mutation. The structured postcondition now exactly matches the checked contract.",
+          "risks": [
+            "This trusted contents-only contract must remain synchronized with the standard-library implementation; it does not model capacity or allocator state."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 772,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_front",
+      "category": "data_structure",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 141416,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_front ](\n    v: &mut VecDeque<T, A>,\n    index: usize,\n) -> (result: Option<T>)\n    ensures\n        match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        },\n;",
+            "requires": [],
+            "ensures": [
+              "match result { Some(x) => { &&& index < old(v)@.len() &&& x == old(v)@[index as int] &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int) }, None => { &&& old(v)@.len() <= index &&& final(v)@ == old(v)@ } }"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::collections::VecDeque",
+              "core::alloc::Allocator",
+              "core::option::Option",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "For an in-bounds index, the implementation moves that element to the front and pops it; replacing its old slot with the old front and then removing position zero gives the resulting sequence. An out-of-bounds index returns None before mutation. The supplied Rust 1.96 and Nanvix 1.99 bodies agree.",
+            "risks": [
+              "This trusted sequence equation must remain synchronized with future standard-library implementation changes."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 842,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 33191,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_front ](\n    v: &mut VecDeque<T, A>,\n    index: usize,\n) -> (result: Option<T>)\n    ensures\n        match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        },\n;",
+            "requires": [],
+            "ensures": [
+              "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+            ],
+            "feature_gates": [
+              "allocator_api"
+            ],
+            "imports": [
+              "alloc::collections::VecDeque",
+              "core::alloc::Allocator",
+              "core::option::Option",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "For an in-bounds index, the implementation swaps that element with the front when necessary and then pops the front. Thus it returns the original indexed element, while the old front replaces its old position before position zero is removed. An out-of-bounds index returns None without mutation.",
+            "risks": [
+              "This trusted sequence equation must remain synchronized with future standard-library implementation changes."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 803,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 33191,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_front ](\n    v: &mut VecDeque<T, A>,\n    index: usize,\n) -> (result: Option<T>)\n    ensures\n        match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        },\n;",
+          "requires": [],
+          "ensures": [
+            "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+          ],
+          "feature_gates": [
+            "allocator_api"
+          ],
+          "imports": [
+            "alloc::collections::VecDeque",
+            "core::alloc::Allocator",
+            "core::option::Option",
+            "vstd::prelude::*"
+          ],
+          "useful": true,
+          "rationale": "For an in-bounds index, the implementation swaps that element with the front when necessary and then pops the front. Thus it returns the original indexed element, while the old front replaces its old position before position zero is removed. An out-of-bounds index returns None without mutation.",
+          "risks": [
+            "This trusted sequence equation must remain synchronized with future standard-library implementation changes."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 803,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "match result {\n            Some(x) => {\n                &&& index < old(v)@.len()\n                &&& x == old(v)@[index as int]\n                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(1, old(v)@.len() as int)\n            },\n            None => {\n                &&& old(v)@.len() <= index\n                &&& final(v)@ == old(v)@\n            },\n        }"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::alloc::Layout::extend",
+      "category": "memory_pointer",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 349839,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::extend ](\n    layout: &core::alloc::Layout,\n    next: core::alloc::Layout,\n) -> (result: core::result::Result<(core::alloc::Layout, usize), core::alloc::LayoutError>)\n    ensures\n        ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==>\n            ({\n                let offset = round_up_to(layout@.size as nat, next@.align as nat);\n                let size = offset + next@.size as nat;\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: max_usize(layout@.align, next@.align),\n                    })\n                    && pair.1 as nat == offset\n            }),\n        ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; size <= usize::MAX as nat && valid_layout(size as usize, max_usize(layout@.align, next@.align)) }) ==> ({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; result matches Ok(pair) && pair.0@ == (LayoutView { size: size as usize, align: max_usize(layout@.align, next@.align) }) && pair.1 as nat == offset })",
+              "({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; size > usize::MAX as nat || !valid_layout(size as usize, max_usize(layout@.align, next@.align)) }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::prelude::*",
+              "vstd::std_specs::layout_value::{LayoutView, max_usize, round_up_to}"
+            ],
+            "useful": true,
+            "rationale": "The implementation rounds self's size up to next's alignment, adds next's size, selects the maximum alignment, and succeeds exactly when the resulting size and alignment form a valid Layout.",
+            "risks": [
+              "Soundness relies on LayoutView and valid_layout accurately modeling Rust's Layout invariant.",
+              "The resulting size excludes trailing padding; repr(C) construction must still call pad_to_align."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 851,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==>\n            ({\n                let offset = round_up_to(layout@.size as nat, next@.align as nat);\n                let size = offset + next@.size as nat;\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: max_usize(layout@.align, next@.align),\n                    })\n                    && pair.1 as nat == offset\n            })",
+                "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 85368,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::extend ](\n    layout: &core::alloc::Layout,\n    next: core::alloc::Layout,\n) -> (result: core::result::Result<(core::alloc::Layout, usize), core::alloc::LayoutError>)\n    ensures\n        ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==>\n            ({\n                let offset = round_up_to(layout@.size as nat, next@.align as nat);\n                let size = offset + next@.size as nat;\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: max_usize(layout@.align, next@.align),\n                    })\n                    && pair.1 as nat == offset\n            }),\n        ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; size <= usize::MAX as nat && valid_layout(size as usize, max_usize(layout@.align, next@.align)) }) ==> ({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; result matches Ok(pair) && pair.0@ == (LayoutView { size: size as usize, align: max_usize(layout@.align, next@.align), }) && pair.1 as nat == offset })",
+              "({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; size > usize::MAX as nat || !valid_layout(size as usize, max_usize(layout@.align, next@.align)) }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::prelude::*",
+              "vstd::std_specs::layout_value::{LayoutView, max_usize, round_up_to}"
+            ],
+            "useful": true,
+            "rationale": "The implementation rounds self's size up to next's alignment, adds next's size, selects the maximum alignment, and succeeds exactly when the resulting size and alignment form a valid Layout.",
+            "risks": [
+              "Soundness relies on LayoutView and valid_layout accurately modeling Rust's Layout invariant.",
+              "The resulting size excludes trailing padding; repr(C) construction must still call pad_to_align."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 748,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==>\n            ({\n                let offset = round_up_to(layout@.size as nat, next@.align as nat);\n                let size = offset + next@.size as nat;\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: max_usize(layout@.align, next@.align),\n                    })\n                    && pair.1 as nat == offset\n            })",
+                "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 85368,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::alloc::Layout::extend ](\n    layout: &core::alloc::Layout,\n    next: core::alloc::Layout,\n) -> (result: core::result::Result<(core::alloc::Layout, usize), core::alloc::LayoutError>)\n    ensures\n        ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==>\n            ({\n                let offset = round_up_to(layout@.size as nat, next@.align as nat);\n                let size = offset + next@.size as nat;\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: max_usize(layout@.align, next@.align),\n                    })\n                    && pair.1 as nat == offset\n            }),\n        ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==> result is Err,\n;",
+          "requires": [],
+          "ensures": [
+            "({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; size <= usize::MAX as nat && valid_layout(size as usize, max_usize(layout@.align, next@.align)) }) ==> ({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; result matches Ok(pair) && pair.0@ == (LayoutView { size: size as usize, align: max_usize(layout@.align, next@.align), }) && pair.1 as nat == offset })",
+            "({ let offset = round_up_to(layout@.size as nat, next@.align as nat); let size = offset + next@.size as nat; size > usize::MAX as nat || !valid_layout(size as usize, max_usize(layout@.align, next@.align)) }) ==> result is Err"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::layout::valid_layout",
+            "vstd::prelude::*",
+            "vstd::std_specs::layout_value::{LayoutView, max_usize, round_up_to}"
+          ],
+          "useful": true,
+          "rationale": "The implementation rounds self's size up to next's alignment, adds next's size, selects the maximum alignment, and succeeds exactly when the resulting size and alignment form a valid Layout.",
+          "risks": [
+            "Soundness relies on LayoutView and valid_layout accurately modeling Rust's Layout invariant.",
+            "The resulting size excludes trailing padding; repr(C) construction must still call pad_to_align."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 748,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==>\n            ({\n                let offset = round_up_to(layout@.size as nat, next@.align as nat);\n                let size = offset + next@.size as nat;\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: max_usize(layout@.align, next@.align),\n                    })\n                    && pair.1 as nat == offset\n            })",
+              "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, max_usize(layout@.align, next@.align))\n        }) ==> result is Err"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::alloc::Layout::extend_packed",
+      "category": "memory_pointer",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 190793,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::extend_packed ](\n    layout: &core::alloc::Layout,\n    next: core::alloc::Layout,\n) -> (result: core::result::Result<core::alloc::Layout, core::alloc::LayoutError>)\n    ensures\n        ({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                })),\n        ({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({ let size = layout@.size as nat + next@.size as nat; size <= usize::MAX as nat && valid_layout(size as usize, layout@.align) }) ==> (result matches Ok(new_layout) && new_layout@ == (LayoutView { size: (layout@.size as nat + next@.size as nat) as usize, align: layout@.align }))",
+              "({ let size = layout@.size as nat + next@.size as nat; size > usize::MAX as nat || !valid_layout(size as usize, layout@.align) }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::std_specs::layout_value::LayoutView",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The implementation adds the two sizes without padding and passes the sum with self's alignment to Layout::from_size_alignment. Thus success returns exactly that size and alignment, while an invalid resulting layout returns LayoutError; next's alignment is intentionally ignored.",
+            "risks": [
+              "Soundness relies on the existing Layout view and valid_layout predicate matching Rust's Layout invariant and constructor checks.",
+              "The unchecked addition relies on both inputs being valid Layout values.",
+              "Callers must not infer that the packed position satisfies next's alignment."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 814,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                }))",
+                "({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 145957,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::extend_packed ](\n    layout: &core::alloc::Layout,\n    next: core::alloc::Layout,\n) -> (result: core::result::Result<core::alloc::Layout, core::alloc::LayoutError>)\n    ensures\n        ({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                })),\n        ({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                }))",
+              "({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::std_specs::layout_value::LayoutView",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The implementation adds the two sizes without padding and passes the sum with self's alignment to Layout::from_size_alignment. Success therefore returns exactly that size and alignment, while an invalid resulting layout returns LayoutError; next's alignment is intentionally ignored.",
+            "risks": [
+              "Soundness relies on LayoutView and valid_layout matching Rust's Layout representation and constructor checks.",
+              "The unchecked addition relies on the invariant that both inputs are valid Layout values.",
+              "Callers must not infer that next is placed at an offset satisfying next's alignment."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 836,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                }))",
+                "({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 145957,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::alloc::Layout::extend_packed ](\n    layout: &core::alloc::Layout,\n    next: core::alloc::Layout,\n) -> (result: core::result::Result<core::alloc::Layout, core::alloc::LayoutError>)\n    ensures\n        ({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                })),\n        ({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+          "requires": [],
+          "ensures": [
+            "({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                }))",
+            "({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::layout::valid_layout",
+            "vstd::std_specs::layout_value::LayoutView",
+            "vstd::prelude::*"
+          ],
+          "useful": true,
+          "rationale": "The implementation adds the two sizes without padding and passes the sum with self's alignment to Layout::from_size_alignment. Success therefore returns exactly that size and alignment, while an invalid resulting layout returns LayoutError; next's alignment is intentionally ignored.",
+          "risks": [
+            "Soundness relies on LayoutView and valid_layout matching Rust's Layout representation and constructor checks.",
+            "The unchecked addition relies on the invariant that both inputs are valid Layout values.",
+            "Callers must not infer that next is placed at an offset satisfying next's alignment."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 836,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat + next@.size as nat) as usize,\n                    align: layout@.align,\n                }))",
+              "({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::alloc::Layout::repeat",
+      "category": "memory_pointer",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 730688,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::repeat ](\n    layout: &core::alloc::Layout,\n    n: usize,\n) -> (result: core::result::Result<(core::alloc::Layout, usize), core::alloc::LayoutError>)\n    ensures\n        ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            }),\n        ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({ let stride = round_up_to(layout@.size as nat, layout@.align as nat); let size = if n == 0 { 0 } else { stride * ((n as nat) - 1) + layout@.size as nat }; size <= usize::MAX as nat && valid_layout(size as usize, layout@.align) }) ==> ({ let stride = round_up_to(layout@.size as nat, layout@.align as nat); let size = if n == 0 { 0 } else { stride * ((n as nat) - 1) + layout@.size as nat }; result matches Ok(pair) && pair.0@ == (LayoutView { size: size as usize, align: layout@.align }) && pair.1 as nat == stride })",
+              "({ let stride = round_up_to(layout@.size as nat, layout@.align as nat); let size = if n == 0 { 0 } else { stride * ((n as nat) - 1) + layout@.size as nat }; size > usize::MAX as nat || !valid_layout(size as usize, layout@.align) }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::prelude::*",
+              "vstd::std_specs::layout_value::{LayoutView, round_up_to}"
+            ],
+            "useful": true,
+            "rationale": "The implementation returns the padded size as the stride and preserves the original alignment. Its result size is zero for n == 0, otherwise stride * (n - 1) + self.size because trailing padding is omitted.",
+            "risks": [
+              "As a trusted contract, soundness depends on LayoutView, round_up_to, and valid_layout matching Rust's Layout semantics.",
+              "The result size deliberately excludes trailing padding and is not generally stride * n."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 775,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            })",
+                "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "structured_contract_mismatch"
+          ],
+          "raw_det_reward": 1,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 105378,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::repeat ](\n    layout: &core::alloc::Layout,\n    n: usize,\n) -> (result: core::result::Result<(core::alloc::Layout, usize), core::alloc::LayoutError>)\n    ensures\n        ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            }),\n        ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            })",
+              "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::prelude::*",
+              "vstd::std_specs::layout_value::{LayoutView, round_up_to}"
+            ],
+            "useful": true,
+            "rationale": "The implementation returns the padded size as the stride and preserves the original alignment. Its result size is zero for n == 0, otherwise stride * (n - 1) + self.size because trailing padding is omitted.",
+            "risks": [
+              "As a trusted contract, soundness depends on LayoutView, round_up_to, and valid_layout matching Rust's Layout semantics.",
+              "The result size deliberately excludes trailing padding and is not generally stride * n."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 781,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            })",
+                "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 105378,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::alloc::Layout::repeat ](\n    layout: &core::alloc::Layout,\n    n: usize,\n) -> (result: core::result::Result<(core::alloc::Layout, usize), core::alloc::LayoutError>)\n    ensures\n        ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            }),\n        ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+          "requires": [],
+          "ensures": [
+            "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            })",
+            "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::layout::valid_layout",
+            "vstd::prelude::*",
+            "vstd::std_specs::layout_value::{LayoutView, round_up_to}"
+          ],
+          "useful": true,
+          "rationale": "The implementation returns the padded size as the stride and preserves the original alignment. Its result size is zero for n == 0, otherwise stride * (n - 1) + self.size because trailing padding is omitted.",
+          "risks": [
+            "As a trusted contract, soundness depends on LayoutView, round_up_to, and valid_layout matching Rust's Layout semantics.",
+            "The result size deliberately excludes trailing padding and is not generally stride * n."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 781,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            ({\n                let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n                let size = if n == 0 {\n                    0\n                } else {\n                    stride * ((n as nat) - 1) + layout@.size as nat\n                };\n                result matches Ok(pair)\n                    && pair.0@ == (LayoutView {\n                        size: size as usize,\n                        align: layout@.align,\n                    })\n                    && pair.1 as nat == stride\n            })",
+              "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * ((n as nat) - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::alloc::Layout::repeat_packed",
+      "category": "memory_pointer",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 83978,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::alloc::Layout::repeat_packed ](\n    layout: &core::alloc::Layout,\n    n: usize,\n) -> (result: core::result::Result<core::alloc::Layout, core::alloc::LayoutError>)\n    ensures\n        ({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat * n as nat) as usize,\n                    align: layout@.align,\n                })),\n        ({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat * n as nat) as usize,\n                    align: layout@.align,\n                }))",
+              "({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::layout::valid_layout",
+              "vstd::std_specs::layout_value::LayoutView",
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The implementation checked-multiplies the input size by n, then constructs a Layout with that size and the original alignment. It returns Err exactly on usize overflow or when the resulting layout violates valid_layout.",
+            "risks": [
+              "Soundness relies on LayoutView and valid_layout matching Rust's Layout representation and constructor checks.",
+              "The packed layout preserves the original alignment but does not guarantee that each repeated instance is aligned."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 798,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat * n as nat) as usize,\n                    align: layout@.align,\n                }))",
+                "({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 83978,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::alloc::Layout::repeat_packed ](\n    layout: &core::alloc::Layout,\n    n: usize,\n) -> (result: core::result::Result<core::alloc::Layout, core::alloc::LayoutError>)\n    ensures\n        ({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat * n as nat) as usize,\n                    align: layout@.align,\n                })),\n        ({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err,\n;",
+          "requires": [],
+          "ensures": [
+            "({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat * n as nat) as usize,\n                    align: layout@.align,\n                }))",
+            "({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::layout::valid_layout",
+            "vstd::std_specs::layout_value::LayoutView",
+            "vstd::prelude::*"
+          ],
+          "useful": true,
+          "rationale": "The implementation checked-multiplies the input size by n, then constructs a Layout with that size and the original alignment. It returns Err exactly on usize overflow or when the resulting layout violates valid_layout.",
+          "risks": [
+            "Soundness relies on LayoutView and valid_layout matching Rust's Layout representation and constructor checks.",
+            "The packed layout preserves the original alignment but does not guarantee that each repeated instance is aligned."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 798,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat\n                && valid_layout(size as usize, layout@.align)\n        }) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: (layout@.size as nat * n as nat) as usize,\n                    align: layout@.align,\n                }))",
+              "({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat\n                || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::panic::Location::caller",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 602031,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "The returned Location view depends on implicit caller state propagated by #[track_caller]. Existing vstd vocabulary exposes file, line, and column but has no public specification term for the current call site, so no useful sound result relation is expressible.",
+            "risks": [
+              "Equating references or Location views across calls is unsound because different call sites produce different locations.",
+              "A zero-argument uninterpreted model would incorrectly make the caller location globally deterministic."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 602031,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "The returned Location view depends on implicit caller state propagated by #[track_caller]. Existing vstd vocabulary exposes file, line, and column but has no public specification term for the current call site, so no useful sound result relation is expressible.",
+          "risks": [
+            "Equating references or Location views across calls is unsound because different call sites produce different locations.",
+            "A zero-argument uninterpreted model would incorrectly make the caller location globally deterministic."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::panic::Location::file_as_c_str",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 583813,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification<'a>[ core::panic::Location::file_as_c_str ](\n    location: &core::panic::Location<'a>,\n) -> (result: &'a core::ffi::CStr)\n    ensures\n        result@ == vstd::utf8::encode_utf8(location@.file),\n;",
+            "requires": [],
+            "ensures": [
+              "result@ == vstd::utf8::encode_utf8(location@.file)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::utf8::encode_utf8",
+              "core::ffi::CStr",
+              "core::panic::Location"
+            ],
+            "useful": true,
+            "rationale": "The implementation constructs the CStr from the filename's bytes plus its trailing NUL. Since the public CStr view excludes that terminator, its byte view equals the UTF-8 encoding of the Location file view.",
+            "risks": [
+              "The trusted contract relies on the existing Location and CStr view abstractions matching their runtime representations.",
+              "The contract relates semantic views, not reference or pointer identity."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 858,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "result@ == vstd::utf8::encode_utf8(location@.file)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 583813,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification<'a>[ core::panic::Location::file_as_c_str ](\n    location: &core::panic::Location<'a>,\n) -> (result: &'a core::ffi::CStr)\n    ensures\n        result@ == vstd::utf8::encode_utf8(location@.file),\n;",
+          "requires": [],
+          "ensures": [
+            "result@ == vstd::utf8::encode_utf8(location@.file)"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::prelude::*",
+            "vstd::utf8::encode_utf8",
+            "core::ffi::CStr",
+            "core::panic::Location"
+          ],
+          "useful": true,
+          "rationale": "The implementation constructs the CStr from the filename's bytes plus its trailing NUL. Since the public CStr view excludes that terminator, its byte view equals the UTF-8 encoding of the Location file view.",
+          "risks": [
+            "The trusted contract relies on the existing Location and CStr view abstractions matching their runtime representations.",
+            "The contract relates semantic views, not reference or pointer identity."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 858,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "result@ == vstd::utf8::encode_utf8(location@.file)"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::as_secs_f32",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 313724,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::as_secs_f32 ](\n    duration: &core::time::Duration,\n) -> (result: f32)\n    ensures\n        result.is_finite_spec(),\n        !result.is_sign_negative_spec(),\n        exists |secs: u64, nanos: u32, secs_f32: f32, nanos_f32: f32,\n                nanos_per_second_f32: f32, fractional_f32: f32|\n            secs as nat == duration@ / nanos_per_second()\n            && nanos as nat == duration@ % nanos_per_second()\n            && float_cast_spec::<u64, f32>(secs, secs_f32)\n            && float_cast_spec::<u32, f32>(nanos, nanos_f32)\n            && float_cast_spec::<u32, f32>(1_000_000_000u32, nanos_per_second_f32)\n            && div_ensures::<f32>(nanos_f32, nanos_per_second_f32, fractional_f32)\n            && add_ensures::<f32>(secs_f32, fractional_f32, result),\n;",
+            "requires": [],
+            "ensures": [
+              "result.is_finite_spec()",
+              "!result.is_sign_negative_spec()",
+              "exists |secs: u64, nanos: u32, secs_f32: f32, nanos_f32: f32, nanos_per_second_f32: f32, fractional_f32: f32| secs as nat == duration@ / nanos_per_second() && nanos as nat == duration@ % nanos_per_second() && float_cast_spec::<u64, f32>(secs, secs_f32) && float_cast_spec::<u32, f32>(nanos, nanos_f32) && float_cast_spec::<u32, f32>(1_000_000_000u32, nanos_per_second_f32) && div_ensures::<f32>(nanos_f32, nanos_per_second_f32, fractional_f32) && add_ensures::<f32>(secs_f32, fractional_f32, result)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::float::{float_cast_spec, FloatBitsProperties}",
+              "vstd::std_specs::duration::nanos_per_second",
+              "vstd::std_specs::ops::{add_ensures, div_ensures}"
+            ],
+            "useful": true,
+            "rationale": "The source computes the normalized whole and fractional seconds using three integer-to-f32 casts, division, and addition. Existing nondeterministic vstd float relations capture that computation without unsoundly asserting exact IEEE equality; the bounded operands also guarantee a finite, nonnegative result.",
+            "risks": [
+              "The float relation predicates are uninterpreted, so stronger numerical conclusions require separately justified float laws.",
+              "f32 rounding can discard nanoseconds and precision from large second counts."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 1,
+              "duration_ms": 520,
+              "stderr_tail": "error: Could not automatically infer triggers for this quantifier.  Use #[trigger] annotations to manually mark trigger terms instead.\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/core__time__Duration__as_secs_f32/round_00/contract_harness.rs:15:9\n   |\n15 | /         exists |secs: u64, nanos: u32, secs_f32: f32, nanos_f32: f32,\n16 | |                 nanos_per_second_f32: f32, fractional_f32: f32|\n17 | |             secs as nat == duration@ / nanos_per_second()\n18 | |             && nanos as nat == duration@ % nanos_per_second()\n...  |\n22 | |             && div_ensures::<f32>(nanos_f32, nanos_per_second_f32, fractional_f32)\n23 | |             && add_ensures::<f32>(secs_f32, fractional_f32, result),\n   | |___________________________________________________________________^\n\nerror: aborting due to 1 previous error\n\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "contract_typecheck_failed"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 126933,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::as_secs_f32 ](\n    duration: &core::time::Duration,\n) -> (result: f32)\n    ensures\n        result == vstd::float::ieee_float_cast::<u64, f32>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f32>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32),\n;",
+            "requires": [],
+            "ensures": [
+              "result == vstd::float::ieee_float_cast::<u64, f32>((duration@ / vstd::std_specs::duration::nanos_per_second()) as u64) + vstd::float::ieee_float_cast::<u32, f32>((duration@ % vstd::std_specs::duration::nanos_per_second()) as u32) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The Duration view quotient and remainder recover the whole-second and nanosecond fields used by the implementation. Deterministic IEEE casts and arithmetic directly mirror the source expression without a trigger-sensitive existential or nondeterministic relations.",
+            "risks": [
+              "The exact relation depends on the implementation retaining the shown sequence of casts, division, and addition."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 805,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "result == vstd::float::ieee_float_cast::<u64, f32>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f32>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 126933,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::time::Duration::as_secs_f32 ](\n    duration: &core::time::Duration,\n) -> (result: f32)\n    ensures\n        result == vstd::float::ieee_float_cast::<u64, f32>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f32>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32),\n;",
+          "requires": [],
+          "ensures": [
+            "result == vstd::float::ieee_float_cast::<u64, f32>((duration@ / vstd::std_specs::duration::nanos_per_second()) as u64) + vstd::float::ieee_float_cast::<u32, f32>((duration@ % vstd::std_specs::duration::nanos_per_second()) as u32) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32)"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::prelude::*"
+          ],
+          "useful": true,
+          "rationale": "The Duration view quotient and remainder recover the whole-second and nanosecond fields used by the implementation. Deterministic IEEE casts and arithmetic directly mirror the source expression without a trigger-sensitive existential or nondeterministic relations.",
+          "risks": [
+            "The exact relation depends on the implementation retaining the shown sequence of casts, division, and addition."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 805,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "result == vstd::float::ieee_float_cast::<u64, f32>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f32>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32)"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::as_secs_f64",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 200499,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::as_secs_f64 ](\n    duration: &core::time::Duration,\n) -> (result: f64)\n    ensures\n        result.is_finite_spec(),\n        !result.is_sign_negative_spec(),\n        exists|secs: u64,\n                nanos: u32,\n                secs_f64: f64,\n                nanos_f64: f64,\n                nanos_per_second_f64: f64,\n                fractional_secs: f64| {\n            &&& secs as nat == duration@ / nanos_per_second()\n            &&& nanos as nat == duration@ % nanos_per_second()\n            &&& float_cast_spec(secs, secs_f64)\n            &&& float_cast_spec(nanos, nanos_f64)\n            &&& float_cast_spec(1_000_000_000u32, nanos_per_second_f64)\n            &&& div_ensures::<f64>(nanos_f64, nanos_per_second_f64, fractional_secs)\n            &&& add_ensures::<f64>(secs_f64, fractional_secs, result)\n        },\n;",
+            "requires": [],
+            "ensures": [
+              "result.is_finite_spec()",
+              "!result.is_sign_negative_spec()",
+              "exists|secs: u64, nanos: u32, secs_f64: f64, nanos_f64: f64, nanos_per_second_f64: f64, fractional_secs: f64| { &&& secs as nat == duration@ / nanos_per_second() &&& nanos as nat == duration@ % nanos_per_second() &&& float_cast_spec(secs, secs_f64) &&& float_cast_spec(nanos, nanos_f64) &&& float_cast_spec(1_000_000_000u32, nanos_per_second_f64) &&& div_ensures::<f64>(nanos_f64, nanos_per_second_f64, fractional_secs) &&& add_ensures::<f64>(secs_f64, fractional_secs, result) }"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::float::{float_cast_spec, FloatBitsProperties}",
+              "vstd::std_specs::duration::nanos_per_second",
+              "vstd::std_specs::ops::{add_ensures, div_ensures}"
+            ],
+            "useful": true,
+            "rationale": "The postcondition mirrors the implementation's integer-to-f64 casts, division by one billion, and addition using existing vstd float relations. Duration's bounded nonnegative components also guarantee a finite result with no negative sign.",
+            "risks": [
+              "Floating-point casts and arithmetic round, so exact equality with a real-valued nanosecond quotient is not claimed.",
+              "Tighter numerical reasoning requires separately justified axioms for vstd's float cast, division, and addition relations."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 1,
+              "duration_ms": 472,
+              "stderr_tail": "error: Could not automatically infer triggers for this quantifier.  Use #[trigger] annotations to manually mark trigger terms instead.\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/core__time__Duration__as_secs_f64/round_00/contract_harness.rs:16:9\n   |\n16 | /         exists|secs: u64,\n17 | |                 nanos: u32,\n18 | |                 secs_f64: f64,\n19 | |                 nanos_f64: f64,\n...  |\n28 | |             &&& add_ensures::<f64>(secs_f64, fractional_secs, result)\n29 | |         },\n   | |_________^\n\nerror: aborting due to 1 previous error\n\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "contract_typecheck_failed"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 197839,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::as_secs_f64 ](\n    duration: &core::time::Duration,\n) -> (result: f64)\n    ensures\n        result == vstd::float::ieee_float_cast::<u64, f64>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f64>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32),\n;",
+            "requires": [],
+            "ensures": [
+              "result == vstd::float::ieee_float_cast::<u64, f64>((duration@ / vstd::std_specs::duration::nanos_per_second()) as u64) + vstd::float::ieee_float_cast::<u32, f64>((duration@ % vstd::std_specs::duration::nanos_per_second()) as u32) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*"
+            ],
+            "useful": true,
+            "rationale": "The Duration view quotient and remainder recover the whole-second and nanosecond fields used by the implementation. Deterministic IEEE casts and arithmetic directly mirror the source expression without a trigger-sensitive existential or nondeterministic relations.",
+            "risks": [
+              "The exact relation depends on the implementation retaining the shown sequence of casts, division, and addition."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 742,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [],
+              "ensures": [
+                "result == vstd::float::ieee_float_cast::<u64, f64>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f64>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 197839,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::time::Duration::as_secs_f64 ](\n    duration: &core::time::Duration,\n) -> (result: f64)\n    ensures\n        result == vstd::float::ieee_float_cast::<u64, f64>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f64>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32),\n;",
+          "requires": [],
+          "ensures": [
+            "result == vstd::float::ieee_float_cast::<u64, f64>((duration@ / vstd::std_specs::duration::nanos_per_second()) as u64) + vstd::float::ieee_float_cast::<u32, f64>((duration@ % vstd::std_specs::duration::nanos_per_second()) as u32) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32)"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::prelude::*"
+          ],
+          "useful": true,
+          "rationale": "The Duration view quotient and remainder recover the whole-second and nanosecond fields used by the implementation. Deterministic IEEE casts and arithmetic directly mirror the source expression without a trigger-sensitive existential or nondeterministic relations.",
+          "risks": [
+            "The exact relation depends on the implementation retaining the shown sequence of casts, division, and addition."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 742,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [],
+            "ensures": [
+              "result == vstd::float::ieee_float_cast::<u64, f64>(\n            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,\n        ) + vstd::float::ieee_float_cast::<u32, f64>(\n            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,\n        ) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32)"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::div_duration_f32",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 247782,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::div_duration_f32 ](\n    lhs: core::time::Duration,\n    rhs: core::time::Duration,\n) -> (result: f32)\n    ensures\n        exists |lhs_secs: u64, lhs_subsec_nanos: u32, rhs_secs: u64,\n                rhs_subsec_nanos: u32, lhs_secs_f32: f32,\n                lhs_nanos_per_second_f32: f32, lhs_whole_nanos_f32: f32,\n                lhs_subsec_nanos_f32: f32, lhs_total_nanos_f32: f32,\n                rhs_secs_f32: f32, rhs_nanos_per_second_f32: f32,\n                rhs_whole_nanos_f32: f32, rhs_subsec_nanos_f32: f32,\n                rhs_total_nanos_f32: f32|\n            (lhs_secs as nat) == lhs@ / nanos_per_second()\n            && (lhs_subsec_nanos as nat) == lhs@ % nanos_per_second()\n            && (rhs_secs as nat) == rhs@ / nanos_per_second()\n            && (rhs_subsec_nanos as nat) == rhs@ % nanos_per_second()\n            && #[trigger] float_cast_spec(lhs_secs, lhs_secs_f32)\n            && #[trigger] float_cast_spec(1_000_000_000u32, lhs_nanos_per_second_f32)\n            && #[trigger] mul_ensures::<f32>(lhs_secs_f32, lhs_nanos_per_second_f32, lhs_whole_nanos_f32)\n            && #[trigger] float_cast_spec(lhs_subsec_nanos, lhs_subsec_nanos_f32)\n            && #[trigger] add_ensures::<f32>(lhs_whole_nanos_f32, lhs_subsec_nanos_f32, lhs_total_nanos_f32)\n            && #[trigger] float_cast_spec(rhs_secs, rhs_secs_f32)\n            && #[trigger] float_cast_spec(1_000_000_000u32, rhs_nanos_per_second_f32)\n            && #[trigger] mul_ensures::<f32>(rhs_secs_f32, rhs_nanos_per_second_f32, rhs_whole_nanos_f32)\n            && #[trigger] float_cast_spec(rhs_subsec_nanos, rhs_subsec_nanos_f32)\n            && #[trigger] add_ensures::<f32>(rhs_whole_nanos_f32, rhs_subsec_nanos_f32, rhs_total_nanos_f32)\n            && #[trigger] div_ensures::<f32>(lhs_total_nanos_f32, rhs_total_nanos_f32, result),\n;",
+            "requires": [],
+            "ensures": [
+              "exists |lhs_secs: u64, lhs_subsec_nanos: u32, rhs_secs: u64, rhs_subsec_nanos: u32, lhs_secs_f32: f32, lhs_nanos_per_second_f32: f32, lhs_whole_nanos_f32: f32, lhs_subsec_nanos_f32: f32, lhs_total_nanos_f32: f32, rhs_secs_f32: f32, rhs_nanos_per_second_f32: f32, rhs_whole_nanos_f32: f32, rhs_subsec_nanos_f32: f32, rhs_total_nanos_f32: f32| (lhs_secs as nat) == lhs@ / nanos_per_second() && (lhs_subsec_nanos as nat) == lhs@ % nanos_per_second() && (rhs_secs as nat) == rhs@ / nanos_per_second() && (rhs_subsec_nanos as nat) == rhs@ % nanos_per_second() && #[trigger] float_cast_spec(lhs_secs, lhs_secs_f32) && #[trigger] float_cast_spec(1_000_000_000u32, lhs_nanos_per_second_f32) && #[trigger] mul_ensures::<f32>(lhs_secs_f32, lhs_nanos_per_second_f32, lhs_whole_nanos_f32) && #[trigger] float_cast_spec(lhs_subsec_nanos, lhs_subsec_nanos_f32) && #[trigger] add_ensures::<f32>(lhs_whole_nanos_f32, lhs_subsec_nanos_f32, lhs_total_nanos_f32) && #[trigger] float_cast_spec(rhs_secs, rhs_secs_f32) && #[trigger] float_cast_spec(1_000_000_000u32, rhs_nanos_per_second_f32) && #[trigger] mul_ensures::<f32>(rhs_secs_f32, rhs_nanos_per_second_f32, rhs_whole_nanos_f32) && #[trigger] float_cast_spec(rhs_subsec_nanos, rhs_subsec_nanos_f32) && #[trigger] add_ensures::<f32>(rhs_whole_nanos_f32, rhs_subsec_nanos_f32, rhs_total_nanos_f32) && #[trigger] div_ensures::<f32>(lhs_total_nanos_f32, rhs_total_nanos_f32, result)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::float::float_cast_spec",
+              "vstd::std_specs::duration::nanos_per_second",
+              "vstd::std_specs::ops::{add_ensures, div_ensures, mul_ensures}"
+            ],
+            "useful": true,
+            "rationale": "Both supplied implementations perform the same component casts, multiplication, addition, and final division. The contract exposes that exact pipeline using the Duration nanosecond view and vstd's public floating-point relations without assuming deterministic IEEE rounding.",
+            "risks": [
+              "The floating-point predicates are intentionally uninterpreted and potentially nondeterministic; numerical properties require separately justified float laws.",
+              "Zero-duration divisors permit NaN or infinity.",
+              "The contract depends on the supplied evaluation sequence."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 836,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "exists |lhs_secs: u64, lhs_subsec_nanos: u32, rhs_secs: u64,\n                rhs_subsec_nanos: u32, lhs_secs_f32: f32,\n                lhs_nanos_per_second_f32: f32, lhs_whole_nanos_f32: f32,\n                lhs_subsec_nanos_f32: f32, lhs_total_nanos_f32: f32,\n                rhs_secs_f32: f32, rhs_nanos_per_second_f32: f32,\n                rhs_whole_nanos_f32: f32, rhs_subsec_nanos_f32: f32,\n                rhs_total_nanos_f32: f32|\n            (lhs_secs as nat) == lhs@ / nanos_per_second()\n            && (lhs_subsec_nanos as nat) == lhs@ % nanos_per_second()\n            && (rhs_secs as nat) == rhs@ / nanos_per_second()\n            && (rhs_subsec_nanos as nat) == rhs@ % nanos_per_second()\n            && #[trigger] float_cast_spec(lhs_secs, lhs_secs_f32)\n            && #[trigger] float_cast_spec(1_000_000_000u32, lhs_nanos_per_second_f32)\n            && #[trigger] mul_ensures::<f32>(lhs_secs_f32, lhs_nanos_per_second_f32, lhs_whole_nanos_f32)\n            && #[trigger] float_cast_spec(lhs_subsec_nanos, lhs_subsec_nanos_f32)\n            && #[trigger] add_ensures::<f32>(lhs_whole_nanos_f32, lhs_subsec_nanos_f32, lhs_total_nanos_f32)\n            && #[trigger] float_cast_spec(rhs_secs, rhs_secs_f32)\n            && #[trigger] float_cast_spec(1_000_000_000u32, rhs_nanos_per_second_f32)\n            && #[trigger] mul_ensures::<f32>(rhs_secs_f32, rhs_nanos_per_second_f32, rhs_whole_nanos_f32)\n            && #[trigger] float_cast_spec(rhs_subsec_nanos, rhs_subsec_nanos_f32)\n            && #[trigger] add_ensures::<f32>(rhs_whole_nanos_f32, rhs_subsec_nanos_f32, rhs_total_nanos_f32)\n            && #[trigger] div_ensures::<f32>(lhs_total_nanos_f32, rhs_total_nanos_f32, result)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 89619,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "The implementation consists of integer-to-f32 casts followed by f32 multiplication, addition, and division. Existing vstd models these operations with potentially nondeterministic relations, so the source-faithful pipeline cannot uniquely determine the returned f32. A deterministic IEEE formula is unavailable in existing vstd vocabulary.",
+            "risks": [
+              "A deterministic IEEE formula would be stronger than the available floating-point specifications.",
+              "Restricting inputs to specially characterizable cases would impose an artificial domain.",
+              "The source-faithful vstd relations do not uniquely constrain the observable result."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 89619,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "The implementation consists of integer-to-f32 casts followed by f32 multiplication, addition, and division. Existing vstd models these operations with potentially nondeterministic relations, so the source-faithful pipeline cannot uniquely determine the returned f32. A deterministic IEEE formula is unavailable in existing vstd vocabulary.",
+          "risks": [
+            "A deterministic IEEE formula would be stronger than the available floating-point specifications.",
+            "Restricting inputs to specially characterizable cases would impose an artificial domain.",
+            "The source-faithful vstd relations do not uniquely constrain the observable result."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::div_duration_f64",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 638258,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::div_duration_f64 ](\n    lhs: core::time::Duration,\n    rhs: core::time::Duration,\n) -> (result: f64)\n    ensures\n        exists |lhs_secs: u64, lhs_nanos: u32,\n                lhs_secs_f64: f64, lhs_nanos_per_second_f64: f64,\n                lhs_scaled_secs: f64, lhs_nanos_f64: f64, lhs_total_nanos: f64,\n                rhs_secs: u64, rhs_nanos: u32,\n                rhs_secs_f64: f64, rhs_nanos_per_second_f64: f64,\n                rhs_scaled_secs: f64, rhs_nanos_f64: f64, rhs_total_nanos: f64|\n            lhs_secs as nat == lhs@ / nanos_per_second()\n            && lhs_nanos as nat == lhs@ % nanos_per_second()\n            && rhs_secs as nat == rhs@ / nanos_per_second()\n            && rhs_nanos as nat == rhs@ % nanos_per_second()\n            && #[trigger] float_cast_spec(lhs_secs, lhs_secs_f64)\n            && #[trigger] float_cast_spec(1_000_000_000u32, lhs_nanos_per_second_f64)\n            && #[trigger] mul_ensures::<f64>(lhs_secs_f64, lhs_nanos_per_second_f64, lhs_scaled_secs)\n            && #[trigger] float_cast_spec(lhs_nanos, lhs_nanos_f64)\n            && #[trigger] add_ensures::<f64>(lhs_scaled_secs, lhs_nanos_f64, lhs_total_nanos)\n            && #[trigger] float_cast_spec(rhs_secs, rhs_secs_f64)\n            && #[trigger] float_cast_spec(1_000_000_000u32, rhs_nanos_per_second_f64)\n            && #[trigger] mul_ensures::<f64>(rhs_secs_f64, rhs_nanos_per_second_f64, rhs_scaled_secs)\n            && #[trigger] float_cast_spec(rhs_nanos, rhs_nanos_f64)\n            && #[trigger] add_ensures::<f64>(rhs_scaled_secs, rhs_nanos_f64, rhs_total_nanos)\n            && #[trigger] div_ensures::<f64>(lhs_total_nanos, rhs_total_nanos, result),\n;",
+            "requires": [],
+            "ensures": [
+              "exists |lhs_secs: u64, lhs_nanos: u32, lhs_secs_f64: f64, lhs_nanos_per_second_f64: f64, lhs_scaled_secs: f64, lhs_nanos_f64: f64, lhs_total_nanos: f64, rhs_secs: u64, rhs_nanos: u32, rhs_secs_f64: f64, rhs_nanos_per_second_f64: f64, rhs_scaled_secs: f64, rhs_nanos_f64: f64, rhs_total_nanos: f64| lhs_secs as nat == lhs@ / nanos_per_second() && lhs_nanos as nat == lhs@ % nanos_per_second() && rhs_secs as nat == rhs@ / nanos_per_second() && rhs_nanos as nat == rhs@ % nanos_per_second() && #[trigger] float_cast_spec(lhs_secs, lhs_secs_f64) && #[trigger] float_cast_spec(1_000_000_000u32, lhs_nanos_per_second_f64) && #[trigger] mul_ensures::<f64>(lhs_secs_f64, lhs_nanos_per_second_f64, lhs_scaled_secs) && #[trigger] float_cast_spec(lhs_nanos, lhs_nanos_f64) && #[trigger] add_ensures::<f64>(lhs_scaled_secs, lhs_nanos_f64, lhs_total_nanos) && #[trigger] float_cast_spec(rhs_secs, rhs_secs_f64) && #[trigger] float_cast_spec(1_000_000_000u32, rhs_nanos_per_second_f64) && #[trigger] mul_ensures::<f64>(rhs_secs_f64, rhs_nanos_per_second_f64, rhs_scaled_secs) && #[trigger] float_cast_spec(rhs_nanos, rhs_nanos_f64) && #[trigger] add_ensures::<f64>(rhs_scaled_secs, rhs_nanos_f64, rhs_total_nanos) && #[trigger] div_ensures::<f64>(lhs_total_nanos, rhs_total_nanos, result)"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::float::float_cast_spec",
+              "vstd::std_specs::duration::nanos_per_second",
+              "vstd::std_specs::ops::{add_ensures, div_ensures, mul_ensures}"
+            ],
+            "useful": true,
+            "rationale": "Both supplied implementations use the same casts, multiplications, additions, and final division. The contract exposes that pipeline through Duration's nanosecond view and vstd's nondeterministic float relations.",
+            "risks": [
+              "Concrete numeric conclusions require separately justified laws for vstd's float relations.",
+              "A zero-duration divisor can produce infinity or NaN.",
+              "The contract depends on the supplied evaluation sequence."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 829,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unknown",
+              "classification": "ok_inconclusive",
+              "requires": [],
+              "ensures": [
+                "exists |lhs_secs: u64, lhs_nanos: u32,\n                lhs_secs_f64: f64, lhs_nanos_per_second_f64: f64,\n                lhs_scaled_secs: f64, lhs_nanos_f64: f64, lhs_total_nanos: f64,\n                rhs_secs: u64, rhs_nanos: u32,\n                rhs_secs_f64: f64, rhs_nanos_per_second_f64: f64,\n                rhs_scaled_secs: f64, rhs_nanos_f64: f64, rhs_total_nanos: f64|\n            lhs_secs as nat == lhs@ / nanos_per_second()\n            && lhs_nanos as nat == lhs@ % nanos_per_second()\n            && rhs_secs as nat == rhs@ / nanos_per_second()\n            && rhs_nanos as nat == rhs@ % nanos_per_second()\n            && #[trigger] float_cast_spec(lhs_secs, lhs_secs_f64)\n            && #[trigger] float_cast_spec(1_000_000_000u32, lhs_nanos_per_second_f64)\n            && #[trigger] mul_ensures::<f64>(lhs_secs_f64, lhs_nanos_per_second_f64, lhs_scaled_secs)\n            && #[trigger] float_cast_spec(lhs_nanos, lhs_nanos_f64)\n            && #[trigger] add_ensures::<f64>(lhs_scaled_secs, lhs_nanos_f64, lhs_total_nanos)\n            && #[trigger] float_cast_spec(rhs_secs, rhs_secs_f64)\n            && #[trigger] float_cast_spec(1_000_000_000u32, rhs_nanos_per_second_f64)\n            && #[trigger] mul_ensures::<f64>(rhs_secs_f64, rhs_nanos_per_second_f64, rhs_scaled_secs)\n            && #[trigger] float_cast_spec(rhs_nanos, rhs_nanos_f64)\n            && #[trigger] add_ensures::<f64>(rhs_scaled_secs, rhs_nanos_f64, rhs_total_nanos)\n            && #[trigger] div_ensures::<f64>(lhs_total_nanos, rhs_total_nanos, result)"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [
+            "determinism_not_proved:unknown"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 119670,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "Existing vstd models the executable casts and floating-point operations with potentially nondeterministic relations that cannot uniquely determine the returned f64. Replacing them with deterministic IEEE specification operations would overstate Rust's guarantees, particularly for NaN from zero divided by zero; excluding such inputs would impose an artificial domain.",
+            "risks": [
+              "A deterministic IEEE equality would be stronger than the source-faithful runtime specifications.",
+              "Restricting zero-duration inputs would exclude valid API behavior.",
+              "The relational pipeline does not uniquely constrain the observable result."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 119670,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "Existing vstd models the executable casts and floating-point operations with potentially nondeterministic relations that cannot uniquely determine the returned f64. Replacing them with deterministic IEEE specification operations would overstate Rust's guarantees, particularly for NaN from zero divided by zero; excluding such inputs would impose an artificial domain.",
+          "risks": [
+            "A deterministic IEEE equality would be stronger than the source-faithful runtime specifications.",
+            "Restricting zero-duration inputs would exclude valid API behavior.",
+            "The relational pipeline does not uniquely constrain the observable result."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::div_f32",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 309366,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "No public supplied vstd vocabulary relates f32 conversion and division rounding to Duration's nanosecond view, so a useful general result relation is not expressible soundly.",
+            "risks": [
+              "Rust 1.96 computes in f32, while Nanvix's Rust 1.99 implementation delegates to div_f64 and produces different rounding.",
+              "The panic domain depends on floating-point sign, finiteness, and overflow."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 309366,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "No public supplied vstd vocabulary relates f32 conversion and division rounding to Duration's nanosecond view, so a useful general result relation is not expressible soundly.",
+          "risks": [
+            "Rust 1.96 computes in f32, while Nanvix's Rust 1.99 implementation delegates to div_f64 and produces different rounding.",
+            "The panic domain depends on floating-point sign, finiteness, and overflow."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::div_f64",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 249531,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub assume_specification[ core::time::Duration::div_f64 ](\n    duration: core::time::Duration,\n    rhs: f64,\n) -> (result: core::time::Duration)\n    requires\n        rhs == 1.0f64,\n        duration@ % nanos_per_second() == 0,\n        duration@ / nanos_per_second() <= 9_007_199_254_740_991,\n    ensures\n        result@ == duration@,\n;",
+            "requires": [
+              "rhs == 1.0f64",
+              "duration@ % nanos_per_second() == 0",
+              "duration@ / nanos_per_second() <= 9_007_199_254_740_991"
+            ],
+            "ensures": [
+              "result@ == duration@"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::std_specs::duration::nanos_per_second"
+            ],
+            "useful": true,
+            "rationale": "The implementation round-trips as_secs_f64() divided by rhs through from_secs_f64(). For division by exactly 1, the supplied documentation guarantees identity for whole-second durations within f64's exact-integer range.",
+            "risks": [
+              "The contract intentionally covers only the exact whole-second identity case.",
+              "Other inputs may round, overflow, or panic."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 800,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "ok",
+              "r0_z3": "unsat",
+              "classification": "complete",
+              "requires": [
+                "rhs == 1.0f64",
+                "duration@ % nanos_per_second() == 0",
+                "duration@ / nanos_per_second() <= 9_007_199_254_740_991"
+              ],
+              "ensures": [
+                "result@ == duration@"
+              ],
+              "equal_fn_trivial": false
+            }
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 1,
+          "guarded_reward": 1,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 249531,
+        "candidate": {
+          "decision": "add_spec",
+          "contract_form": "assume_specification",
+          "contract_code": "pub assume_specification[ core::time::Duration::div_f64 ](\n    duration: core::time::Duration,\n    rhs: f64,\n) -> (result: core::time::Duration)\n    requires\n        rhs == 1.0f64,\n        duration@ % nanos_per_second() == 0,\n        duration@ / nanos_per_second() <= 9_007_199_254_740_991,\n    ensures\n        result@ == duration@,\n;",
+          "requires": [
+            "rhs == 1.0f64",
+            "duration@ % nanos_per_second() == 0",
+            "duration@ / nanos_per_second() <= 9_007_199_254_740_991"
+          ],
+          "ensures": [
+            "result@ == duration@"
+          ],
+          "feature_gates": [],
+          "imports": [
+            "vstd::prelude::*",
+            "vstd::std_specs::duration::nanos_per_second"
+          ],
+          "useful": true,
+          "rationale": "The implementation round-trips as_secs_f64() divided by rhs through from_secs_f64(). For division by exactly 1, the supplied documentation guarantees identity for whole-second durations within f64's exact-integer range.",
+          "risks": [
+            "The contract intentionally covers only the exact whole-second identity case.",
+            "Other inputs may round, overflow, or panic."
+          ]
+        },
+        "checker": {
+          "typecheck": {
+            "returncode": 0,
+            "duration_ms": 800,
+            "stderr_tail": ""
+          },
+          "determinism": {
+            "status": "ok",
+            "r0_z3": "unsat",
+            "classification": "complete",
+            "requires": [
+              "rhs == 1.0f64",
+              "duration@ % nanos_per_second() == 0",
+              "duration@ / nanos_per_second() <= 9_007_199_254_740_991"
+            ],
+            "ensures": [
+              "result@ == duration@"
+            ],
+            "equal_fn_trivial": false
+          }
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 1,
+        "guarded_reward": 1,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::mul_f32",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 309407,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "Rust 1.96 computes through lossy f32 conversion, multiplication, and conversion back to Duration. The supplied public vstd vocabulary does not model those rounding steps or their panic-free domain, so no useful sound relation between the input and result views is expressible.",
+            "risks": [
+              "NaN, infinity, negative results, and overflow panic.",
+              "Floating-point rounding invalidates exact arithmetic postconditions.",
+              "Rust 1.99 forwards through mul_f64 and produces different nanoseconds, so it cannot justify a Rust 1.96 contract."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 309407,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "Rust 1.96 computes through lossy f32 conversion, multiplication, and conversion back to Duration. The supplied public vstd vocabulary does not model those rounding steps or their panic-free domain, so no useful sound relation between the input and result views is expressible.",
+          "risks": [
+            "NaN, infinity, negative results, and overflow panic.",
+            "Floating-point rounding invalidates exact arithmetic postconditions.",
+            "Rust 1.99 forwards through mul_f64 and produces different nanoseconds, so it cannot justify a Rust 1.96 contract."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::try_from_secs_f64",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 781946,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "pub open spec fn duration_round_binary_fraction_ties_even(\n    numerator: nat,\n    shift: nat,\n) -> nat {\n    let denominator = pow2(shift);\n    let quotient = numerator / denominator;\n    let remainder = numerator % denominator;\n    if 2 * remainder < denominator {\n        quotient\n    } else if 2 * remainder > denominator || quotient % 2 == 1 {\n        quotient + 1\n    } else {\n        quotient\n    }\n}\n\npub open spec fn duration_nanos_from_secs_f64(secs: f64) -> nat {\n    let magnitude = secs.to_bits_abs_spec() as nat;\n    let exponent = magnitude / 0x0010_0000_0000_0000;\n    let fraction = magnitude % 0x0010_0000_0000_0000;\n    if exponent == 0 {\n        0\n    } else {\n        let significand = 0x0010_0000_0000_0000 + fraction;\n        let scaled = significand * 1_000_000_000;\n        if exponent < 1075 {\n            duration_round_binary_fraction_ties_even(scaled, 1075 - exponent)\n        } else {\n            scaled * pow2(exponent - 1075)\n        }\n    }\n}\n\npub open spec fn duration_secs_f64_is_valid(secs: f64) -> bool {\n    let magnitude = secs.to_bits_abs_spec();\n    magnitude < 0x43f0_0000_0000_0000\n        && (!secs.is_sign_negative_spec() || magnitude == 0)\n}\n\npub assume_specification[ core::time::Duration::try_from_secs_f64 ](\n    secs: f64,\n) -> (result: core::result::Result<core::time::Duration, core::time::TryFromFloatSecsError>)\n    ensures\n        duration_secs_f64_is_valid(secs) ==> (\n            result matches Ok(duration)\n                && duration@ == duration_nanos_from_secs_f64(secs)\n        ),\n        !duration_secs_f64_is_valid(secs) ==> result is Err,\n;",
+            "requires": [],
+            "ensures": [
+              "duration_secs_f64_is_valid(secs) ==> (result matches Ok(duration) && duration@ == duration_nanos_from_secs_f64(secs))",
+              "!duration_secs_f64_is_valid(secs) ==> result is Err"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::arithmetic::power2::pow2",
+              "vstd::float::FloatBitsProperties"
+            ],
+            "useful": true,
+            "rationale": "The bit model mirrors binary64 decoding, the overflow cutoff at 2^64 seconds, and nanosecond rounding with ties to even. It fully relates every successful result to Duration's nanosecond view and characterizes errors without accessing the private error kind.",
+            "risks": [
+              "The trusted bit-level rounding transcription must remain synchronized with Rust's try_from_secs! implementation."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 1,
+              "duration_ms": 688,
+              "stderr_tail": "error[E0308]: mismatched types\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/core__time__Duration__try_from_secs_f64/round_00/contract_harness.rs:35:62\n   |\n35 |             duration_round_binary_fraction_ties_even(scaled, 1075 - exponent)\n   |             ----------------------------------------         ^^^^^^^^^^^^^^^ expected `nat`, found `int`\n   |             |\n   |             arguments to this function are incorrect\n   |\nnote: function defined here\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/core__time__Duration__try_from_secs_f64/round_00/contract_harness.rs:9:18\n   |\n 9 | pub open spec fn duration_round_binary_fraction_ties_even(\n   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n10 |     numerator: nat,\n11 |     shift: nat,\n   |     ----------\n\nerror[E0308]: mismatched types\n  --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/core__time__Duration__try_from_secs_f64/round_00/contract_harness.rs:37:27\n   |\n37 |             scaled * pow2(exponent - 1075)\n   |                      ---- ^^^^^^^^^^^^^^^ expected `nat`, found `int`\n   |                      |\n   |                      arguments to this function are incorrect\n   |\nnote: function defined here\n  --> vstd/arithmetic/power2.rs:32:17\n\nerror: aborting due to 2 previous errors\n\nFor more information about this error, try `rustc --explain E0308`.\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "contract_typecheck_failed"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 325607,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "After correcting the nat/int arithmetic, the exact signature remains unsupported because current vstd does not model core::time::TryFromFloatSecsError. Supplying the useful Result-variant and Duration-view relation would require an additional external type specification that the determinism harness cannot retain.",
+            "risks": [
+              "requires_external_type_specification",
+              "unsupported_result_error_type"
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 325607,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "After correcting the nat/int arithmetic, the exact signature remains unsupported because current vstd does not model core::time::TryFromFloatSecsError. Supplying the useful Result-variant and Duration-view relation would require an additional external type specification that the determinism harness cannot retain.",
+          "risks": [
+            "requires_external_type_specification",
+            "unsupported_result_error_type"
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "alloc::ffi::CString::new",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 16992,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "The implementation first consumes generic T through Into<Vec<u8>>, but the supplied public vstd vocabulary provides no specification relating T to the resulting byte sequence. CString validity alone cannot characterize whether CString::new returns Ok or Err, so no useful non-vacuous input/output contract is expressible with the exact generic signature.",
+            "risks": [
+              "Adding a relation to the converted bytes would require an existing specification for T::into; inventing such a relation would be unsound.",
+              "An Ok-only CString validity postcondition would merely restate an invariant of CString and would not specify CString::new's observable success/error behavior."
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 0,
+        "llm_ms": 16992,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "The implementation first consumes generic T through Into<Vec<u8>>, but the supplied public vstd vocabulary provides no specification relating T to the resulting byte sequence. CString validity alone cannot characterize whether CString::new returns Ok or Err, so no useful non-vacuous input/output contract is expressible with the exact generic signature.",
+          "risks": [
+            "Adding a relation to the converted bytes would require an existing specification for T::into; inventing such a relation would be unsound.",
+            "An Ok-only CString validity postcondition would merely restate an invariant of CString and would not specify CString::new's observable success/error behavior."
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    },
+    {
+      "target": "core::time::Duration::try_from_secs_f32",
+      "category": "other",
+      "history": [
+        {
+          "round": 0,
+          "llm_ms": 316390,
+          "candidate": {
+            "decision": "add_spec",
+            "contract_form": "assume_specification",
+            "contract_code": "#[verifier::external_type_specification]\n#[verifier::external_body]\npub struct ExTryFromFloatSecsError(core::time::TryFromFloatSecsError);\n\npub assume_specification[\n    core::time::Duration::try_from_secs_f32\n](secs: f32) -> (\n    result: core::result::Result<core::time::Duration, core::time::TryFromFloatSecsError>\n)\n    ensures\n        {\n            let bits = secs.to_bits_abs_spec() as nat;\n            ((!secs.is_sign_negative_spec() || bits == 0)\n                && bits / 0x80_0000 < 191) ==> (\n                result matches Ok(value) && value@ == {\n                    let exponent = bits / 0x80_0000;\n                    let mantissa = bits % 0x80_0000;\n                    let significand = if exponent == 0 {\n                        mantissa\n                    } else {\n                        0x80_0000 + mantissa\n                    };\n                    let numerator = if exponent < 150 {\n                        1_000_000_000 * significand\n                    } else {\n                        1_000_000_000 * significand * pow2((exponent - 150) as nat)\n                    };\n                    let denominator = if exponent < 150 {\n                        if exponent == 0 {\n                            pow2(149)\n                        } else {\n                            pow2((150 - exponent) as nat)\n                        }\n                    } else {\n                        1\n                    };\n                    let quotient = numerator / denominator;\n                    let remainder = numerator % denominator;\n                    if remainder * 2 < denominator {\n                        quotient\n                    } else if remainder * 2 > denominator || quotient % 2 == 1 {\n                        quotient + 1\n                    } else {\n                        quotient\n                    }\n                }\n            )\n        },\n        {\n            let bits = secs.to_bits_abs_spec() as nat;\n            !((!secs.is_sign_negative_spec() || bits == 0)\n                && bits / 0x80_0000 < 191) ==> result is Err\n        },\n;",
+            "requires": [],
+            "ensures": [
+              "{ let bits = secs.to_bits_abs_spec() as nat; ((!secs.is_sign_negative_spec() || bits == 0) && bits / 0x80_0000 < 191) ==> (result matches Ok(value) && value@ == { let exponent = bits / 0x80_0000; let mantissa = bits % 0x80_0000; let significand = if exponent == 0 { mantissa } else { 0x80_0000 + mantissa }; let numerator = if exponent < 150 { 1_000_000_000 * significand } else { 1_000_000_000 * significand * pow2((exponent - 150) as nat) }; let denominator = if exponent < 150 { if exponent == 0 { pow2(149) } else { pow2((150 - exponent) as nat) } } else { 1 }; let quotient = numerator / denominator; let remainder = numerator % denominator; if remainder * 2 < denominator { quotient } else if remainder * 2 > denominator || quotient % 2 == 1 { quotient + 1 } else { quotient } }) }",
+              "{ let bits = secs.to_bits_abs_spec() as nat; !((!secs.is_sign_negative_spec() || bits == 0) && bits / 0x80_0000 < 191) ==> result is Err }"
+            ],
+            "feature_gates": [],
+            "imports": [
+              "vstd::prelude::*",
+              "vstd::arithmetic::power2::pow2",
+              "vstd::float::FloatBitsProperties"
+            ],
+            "useful": true,
+            "rationale": "The binary32 decomposition models nanosecond conversion with documented ties-to-even rounding. The exponent and sign predicate accepts precisely nonnegative values below 2^64 seconds, including negative zero, and otherwise specifies Err.",
+            "risks": [
+              "The trusted bit-level transcription must remain synchronized with Rust's conversion macro.",
+              "The private error kind remains intentionally opaque."
+            ]
+          },
+          "checker": {
+            "typecheck": {
+              "returncode": 0,
+              "duration_ms": 569,
+              "stderr_tail": ""
+            },
+            "determinism": {
+              "status": "verus_error",
+              "requires": [],
+              "ensures": [
+                "{\n            let bits = secs.to_bits_abs_spec() as nat;\n            ((!secs.is_sign_negative_spec() || bits == 0)\n                && bits / 0x80_0000 < 191) ==> (\n                result matches Ok(value) && value@ == {\n                    let exponent = bits / 0x80_0000;\n                    let mantissa = bits % 0x80_0000;\n                    let significand = if exponent == 0 {\n                        mantissa\n                    } else {\n                        0x80_0000 + mantissa\n                    };\n                    let numerator = if exponent < 150 {\n                        1_000_000_000 * significand\n                    } else {\n                        1_000_000_000 * significand * pow2((exponent - 150) as nat)\n                    };\n                    let denominator = if exponent < 150 {\n                        if exponent == 0 {\n                            pow2(149)\n                        } else {\n                            pow2((150 - exponent) as nat)\n                        }\n                    } else {\n                        1\n                    };\n                    let quotient = numerator / denominator;\n                    let remainder = numerator % denominator;\n                    if remainder * 2 < denominator {\n                        quotient\n                    } else if remainder * 2 > denominator || quotient % 2 == 1 {\n                        quotient + 1\n                    } else {\n                        quotient\n                    }\n                }\n            )\n        }",
+                "{\n            let bits = secs.to_bits_abs_spec() as nat;\n            !((!secs.is_sign_negative_spec() || bits == 0)\n                && bits / 0x80_0000 < 191) ==> result is Err\n        }"
+              ],
+              "equal_fn_trivial": false,
+              "stderr_tail": "error: `core::time::TryFromFloatSecsError` is not supported (note: you may be able to add a Verus specification to this type with the `external_type_specification` attribute) (note: the vstd library provides some specification for the Rust std library, but it is currently limited)\n   --> specgen/abstraction-final/newly-suitable-gpt56sol/targets/core__time__Duration__try_from_secs_f32/round_00/det_harness.rs:11:40\n    |\n 11 |   spec fn det___rust_std_candidate_equal(r1: core::result::Result<core::time::Duration, core::time::TryFromFloatSecsError>, r2: core::result::Result<core::time::Duration, core::time::TryFromFloatSecsError>) -> bool {\n    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ---------------------------------------------------------------------------------\n 12 |       (((r1 is Ok) == (r2 is Ok)) && ((r1 is Ok) ==> (((r1->Ok_0).view() =~= (r2->Ok_0).view()))))\n    |          --            --              --              ----------            ----------\n...\n 15 |   proof fn det___rust_std_candidate(g_r1_is_Ok: bool, g_r1_is_Err: bool, g_r2_is_Ok: bool, g_r2_is_Err: bool, g_neq_tuple: bool, secs: f32, r1: core::result::Result<core::time::Duration, core::time::TryFromFloatSecsError>, r2: core::result::Result<core::time::Duration, core::time::TryFromFloatSecsError>)\n    |                                                                                                                                             ---------------------------------------------------------------------------------  ---------------------------------------------------------------------------------\n...\n 22 |                   r1 matches Ok(value) && value@ == {\n    |  _________________-          ---------\n 23 | |                     let exponent = bits / 0x80_0000;\n 24 | |                     let mantissa = bits % 0x80_0000;\n 25 | |                     let significand = if exponent == 0 {\n...   |\n 53 | |                 }\n    | |_________________-\n...\n 59 |                   && bits / 0x80_0000 < 191) ==> r1 is Err\n    |                                                  --\n...\n 65 |                   r2 matches Ok(value) && value@ == {\n    |  _________________-          ---------\n    |  _________________|\n    | |\n 66 | |                     let exponent = bits / 0x80_0000;\n 67 | |                     let mantissa = bits % 0x80_0000;\n 68 | |                     let significand = if exponent == 0 {\n...   |\n 96 | |                 }\n    | |_________________-\n    | |_________________|\n    |\n...\n102 | |                 && bits / 0x80_0000 < 191) ==> r2 is Err\n    | |                                                --\n103 | |         })\n104 | |         }) ==> det___rust_std_candidate_equal(r1, r2),\n    | |                                               --  --\n105 | | {\n106 | |     if g_r1_is_Ok { assume(r1 is Ok); }\n    | |                            --\n107 | |     if g_r1_is_Err { assume(r1 is Err); }\n    | |                             --\n108 | |     if g_r2_is_Ok { assume(r2 is Ok); }\n    | |                            --\n109 | |     if g_r2_is_Err { assume(r2 is Err); }\n    | |                             --\n110 | |     if g_neq_tuple { assume(!det___rust_std_candidate_equal(r1, r2)); }\n    | |                                                             --  --\n    |\n    = help: The following declaration may resolve this error:\n            #[verifier::external_type_specification]\n            pub struct ExTryFromFloatSecsError(std::time::TryFromFloatSecsError);\n\nerror: aborting due to 1 previous error\n\n"
+            }
+          },
+          "anti_vacuity_issues": [
+            "checker_status:verus_error"
+          ],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        },
+        {
+          "round": 1,
+          "llm_ms": 43692,
+          "candidate": {
+            "decision": "skip",
+            "contract_form": "assume_specification",
+            "contract_code": "",
+            "requires": [],
+            "ensures": [],
+            "feature_gates": [],
+            "imports": [],
+            "useful": false,
+            "rationale": "The exact signature is unsupported because current vstd does not model core::time::TryFromFloatSecsError. A useful Result-variant and Duration-view contract requires an additional external type specification that the determinism harness does not retain.",
+            "risks": [
+              "requires_external_type_specification",
+              "unsupported_result_error_type"
+            ]
+          },
+          "checker": {
+            "status": "not_run"
+          },
+          "anti_vacuity_issues": [],
+          "raw_det_reward": 0,
+          "guarded_reward": 0,
+          "soundness_status": "unverified_trusted_external_contract",
+          "apply_upstream": false
+        }
+      ],
+      "final": {
+        "round": 1,
+        "llm_ms": 43692,
+        "candidate": {
+          "decision": "skip",
+          "contract_form": "assume_specification",
+          "contract_code": "",
+          "requires": [],
+          "ensures": [],
+          "feature_gates": [],
+          "imports": [],
+          "useful": false,
+          "rationale": "The exact signature is unsupported because current vstd does not model core::time::TryFromFloatSecsError. A useful Result-variant and Duration-view contract requires an additional external type specification that the determinism harness does not retain.",
+          "risks": [
+            "requires_external_type_specification",
+            "unsupported_result_error_type"
+          ]
+        },
+        "checker": {
+          "status": "not_run"
+        },
+        "anti_vacuity_issues": [],
+        "raw_det_reward": 0,
+        "guarded_reward": 0,
+        "soundness_status": "unverified_trusted_external_contract",
+        "apply_upstream": false
+      }
+    }
+  ],
+  "final_candidates": [
+    {
+      "target": "alloc::collections::BinaryHeap::peek_mut",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::collections::VecDeque::binary_search",
+      "category": "data_structure",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_back",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::collections::VecDeque::swap_remove_front",
+      "category": "data_structure",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::alloc::Layout::extend",
+      "category": "memory_pointer",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::alloc::Layout::extend_packed",
+      "category": "memory_pointer",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::alloc::Layout::repeat",
+      "category": "memory_pointer",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::alloc::Layout::repeat_packed",
+      "category": "memory_pointer",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::panic::Location::caller",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::panic::Location::file_as_c_str",
+      "category": "other",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::as_secs_f32",
+      "category": "other",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::as_secs_f64",
+      "category": "other",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::div_duration_f32",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::div_duration_f64",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::div_f32",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::div_f64",
+      "category": "other",
+      "status": "",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "useful_claim": true,
+      "raw_det_reward": 1,
+      "guarded_reward": 1,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::mul_f32",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::try_from_secs_f64",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "alloc::ffi::CString::new",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    },
+    {
+      "target": "core::time::Duration::try_from_secs_f32",
+      "category": "other",
+      "status": "",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "useful_claim": false,
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "issues": [],
+      "soundness_status": "unverified_trusted_external_contract"
+    }
+  ]
+}

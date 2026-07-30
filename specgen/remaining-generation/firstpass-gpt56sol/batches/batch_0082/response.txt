@@ -1,0 +1,94 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::split_inclusive_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Behavior is deferred to an iterator yielding mutable subslices. Relating those prophetic mutations to the original slice and the evolving FnMut predicate requires a missing mutable-iterator model.",
+      "risks": [
+        "missing_prophetic_mutable_iterator_model",
+        "stateful_fnmut_sequence_unmodeled"
+      ]
+    },
+    {
+      "target": "core::slice::split_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator exposes mutable subslices while retaining separators. Current vstd cannot connect its future items and mutations to predicate calls and final(self).",
+      "risks": [
+        "missing_prophetic_mutable_iterator_model",
+        "separator_and_aliasing_relation_unmodeled"
+      ]
+    },
+    {
+      "target": "core::slice::splitn_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source wraps split_mut with a result-count limit. A useful contract therefore inherits the unavailable prophetic mutable-subslice and ordered FnMut-call model.",
+      "risks": [
+        "missing_prophetic_mutable_iterator_model",
+        "limited_split_sequence_unmodeled"
+      ]
+    },
+    {
+      "target": "std::panic::catch_unwind",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<F: FnOnce() -> R + std::panic::UnwindSafe, R>\n    [ std::panic::catch_unwind::<F, R> ](f: F) -> (result: std::thread::Result<R>)\n    requires\n        call_requires(f, ()),\n    ensures\n        result is Ok ==> call_ensures(f, (), result->Ok_0),\n;",
+      "requires": [
+        "call_requires(f, ())"
+      ],
+      "ensures": [
+        "result is Ok ==> call_ensures(f, (), result->Ok_0)"
+      ],
+      "feature_gates": [
+        "std"
+      ],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "When the runtime catcher returns Ok, its value is the normal result of invoking f, which call_ensures can describe without claiming whether unwinding occurs.",
+      "risks": [
+        "unwind_vs_abort_unmodeled",
+        "panic_payload_unmodeled"
+      ]
+    },
+    {
+      "target": "std::panic::take_hook",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source replaces hidden process-global hook state and returns the previous function object. vstd has no public hook-state or callable-identity model, and the function may panic on a panicking thread.",
+      "risks": [
+        "hidden_global_hook_state",
+        "function_object_identity_unmodeled",
+        "thread_panicking_state_unmodeled"
+      ]
+    }
+  ]
+}
+

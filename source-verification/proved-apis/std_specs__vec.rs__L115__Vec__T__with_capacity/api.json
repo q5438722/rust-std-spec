@@ -1,0 +1,127 @@
+{
+  "id": "std_specs__vec.rs__L115__Vec__T__with_capacity",
+  "api_path": "alloc::vec::Vec::with_capacity",
+  "normalized_api_path": "alloc::vec::Vec::with_capacity",
+  "raw_target": "Vec::<T>::with_capacity",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 115,
+  "rust_declaration": {
+    "declaration_id": "alloc:4875",
+    "name": "with_capacity",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgTrace([Not(NameValue { name: \"no_global_oom_handling\", value: None, span: alloc/src/vec/mod.rs:517:15: 517:37 (#0) }, alloc/src/vec/mod.rs:517:14: 517:38 (#0))])]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"vec_with_capacity\")]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 79597}, feature: \"const_heap\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        523,
+        5
+      ],
+      "end": [
+        525,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "capacity",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "Self"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4892",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   503:     /// }\n   504:     /// assert_eq!(vec.len(), 10);\n   505:     /// assert!(vec.capacity() >= 10);\n   506:     ///\n   507:     /// // ...but this may make the vector reallocate\n   508:     /// vec.push(11);\n   509:     /// assert_eq!(vec.len(), 11);\n   510:     /// assert!(vec.capacity() >= 11);\n   511:     ///\n   512:     /// // A vector of a zero-sized type will always over-allocate, since no\n   513:     /// // allocation is necessary\n   514:     /// let vec_units = Vec::<()>::with_capacity(10);\n   515:     /// assert_eq!(vec_units.capacity(), usize::MAX);\n   516:     /// ```\n   517:     #[cfg(not(no_global_oom_handling))]\n   518:     #[inline]\n   519:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   520:     #[must_use]\n   521:     #[rustc_diagnostic_item = \"vec_with_capacity\"]\n   522:     #[rustc_const_unstable(feature = \"const_heap\", issue = \"79597\")]\n   523:     pub const fn with_capacity(capacity: usize) -> Self {\n   524:         Self::with_capacity_in(capacity, Global)\n   525:     }\n   526: \n   527:     /// Constructs a new, empty `Vec<T>` with at least the specified capacity.\n   528:     ///\n   529:     /// The vector will be able to hold at least `capacity` elements without\n   530:     /// reallocating. This method is allowed to allocate for more elements than\n   531:     /// `capacity`. If `capacity` is zero, the vector will not allocate.\n   532:     ///\n   533:     /// # Errors\n   534:     ///\n   535:     /// Returns an error if the capacity exceeds `isize::MAX` _bytes_,\n   536:     /// or if the allocator reports allocation failure.\n   537:     #[inline]\n   538:     #[unstable(feature = \"try_with_capacity\", issue = \"91913\")]\n   539:     pub fn try_with_capacity(capacity: usize) -> Result<Self, TryReserveError> {\n   540:         Self::try_with_capacity_in(capacity, Global)\n   541:     }\n   542: \n   543:     /// Creates a `Vec<T>` directly from a pointer, a length, and a capacity.",
+    "source_text": "pub const fn with_capacity(capacity: usize) -> Self {\n        Self::with_capacity_in(capacity, Global)\n    }",
+    "has_body": true
+  }
+}

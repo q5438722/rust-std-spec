@@ -1,0 +1,140 @@
+{
+  "id": "std__sync__LockResult__unwrap_unchecked__bbcab3fc2f35",
+  "api_path": "std::sync::LockResult::unwrap_unchecked",
+  "raw_target": "Result::<T, E>::unwrap_unchecked",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 58, patch: 0 })},\nfeature: \"option_result_unwrap_unchecked\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 148714}, feature: \"const_result_unwrap_unchecked\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29308",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": true
+    },
+    "name": "unwrap_unchecked",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  1605:     ///\n  1606:     /// ```\n  1607:     /// fn count(x: &str) -> usize { x.len() }\n  1608:     ///\n  1609:     /// assert_eq!(Ok(2).unwrap_or_else(count), 2);\n  1610:     /// assert_eq!(Err(\"foo\").unwrap_or_else(count), 3);\n  1611:     /// ```\n  1612:     #[inline]\n  1613:     #[track_caller]\n  1614:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1615:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1616:     pub const fn unwrap_or_else<F>(self, op: F) -> T\n  1617:     where\n  1618:         F: [const] FnOnce(E) -> T + [const] Destruct,\n  1619:     {\n  1620:         match self {\n  1621:             Ok(t) => t,\n  1622:             Err(e) => op(e),\n  1623:         }\n  1624:     }\n  1625: \n  1626:     /// Returns the contained [`Ok`] value, consuming the `self` value,\n  1627:     /// without checking that the value is not an [`Err`].\n  1628:     ///\n  1629:     /// # Safety\n  1630:     ///\n  1631:     /// Calling this method on an [`Err`] is *[undefined behavior]*.\n  1632:     ///\n  1633:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  1634:     ///\n  1635:     /// # Examples\n  1636:     ///\n  1637:     /// ```\n  1638:     /// let x: Result<u32, &str> = Ok(2);\n  1639:     /// assert_eq!(unsafe { x.unwrap_unchecked() }, 2);\n  1640:     /// ```\n  1641:     ///\n  1642:     /// ```no_run\n  1643:     /// let x: Result<u32, &str> = Err(\"emergency failure\");\n  1644:     /// unsafe { x.unwrap_unchecked() }; // Undefined behavior!\n  1645:     /// ```\n  1646:     #[inline]\n  1647:     #[track_caller]\n  1648:     #[stable(feature = \"option_result_unwrap_unchecked\", since = \"1.58.0\")]\n  1649:     #[rustc_const_unstable(feature = \"const_result_unwrap_unchecked\", issue = \"148714\")]\n  1650:     pub const unsafe fn unwrap_unchecked(self) -> T {\n  1651:         match self {\n  1652:             Ok(t) => t,\n  1653:             Err(e) => {\n  1654:                 // FIXME(const-hack): to avoid E: const Destruct bound\n  1655:                 super::mem::forget(e);\n  1656:                 // SAFETY: the safety contract must be upheld by the caller.\n  1657:                 unsafe { hint::unreachable_unchecked() }\n  1658:             }\n  1659:         }\n  1660:     }\n  1661: \n  1662:     /// Returns the contained [`Err`] value, consuming the `self` value,\n  1663:     /// without checking that the value is not an [`Ok`].\n  1664:     ///\n  1665:     /// # Safety\n  1666:     ///\n  1667:     /// Calling this method on an [`Ok`] is *[undefined behavior]*.\n  1668:     ///\n  1669:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  1670:     ///\n  1671:     /// # Examples\n  1672:     ///\n  1673:     /// ```no_run\n  1674:     /// let x: Result<u32, &str> = Ok(2);\n  1675:     /// unsafe { x.unwrap_err_unchecked() }; // Undefined behavior!\n  1676:     /// ```\n  1677:     ///\n  1678:     /// ```\n  1679:     /// let x: Result<u32, &str> = Err(\"emergency failure\");\n  1680:     /// assert_eq!(unsafe { x.unwrap_err_unchecked() }, \"emergency failure\");\n  1681:     /// ```\n  1682:     #[inline]\n  1683:     #[track_caller]\n  1684:     #[stable(feature = \"option_result_unwrap_unchecked\", since = \"1.58.0\")]\n  1685:     pub unsafe fn unwrap_err_unchecked(self) -> E {\n  1686:         match self {\n  1687:             // SAFETY: the safety contract must be upheld by the caller.\n  1688:             Ok(_) => unsafe { hint::unreachable_unchecked() },\n  1689:             Err(e) => e,\n  1690:         }\n  1691:     }\n  1692: }\n  1693: \n  1694: impl<T, E> Result<&T, E> {\n  1695:     /// Maps a `Result<&T, E>` to a `Result<T, E>` by copying the contents of the",
+    "span": {
+      "begin": [
+        1650,
+        5
+      ],
+      "end": [
+        1660,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const unsafe fn unwrap_unchecked(self) -> T {\n        match self {\n            Ok(t) => t,\n            Err(e) => {\n                // FIXME(const-hack): to avoid E: const Destruct bound\n                super::mem::forget(e);\n                // SAFETY: the safety contract must be upheld by the caller.\n                unsafe { hint::unreachable_unchecked() }\n            }\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The minimal no-unwind specification for core::mem::forget.",
+    "The vstd specification of core::hint::unreachable_unchecked."
+  ],
+  "rationale": "The source-faithful match preserves both Err-arm operations. The precondition eliminates that arm, while the Ok arm returns exactly its payload.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/std__sync__LockResult__unwrap_unchecked__bbcab3fc2f35"
+}

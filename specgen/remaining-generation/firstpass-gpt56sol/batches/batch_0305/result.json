@@ -1,0 +1,114 @@
+{
+  "batch": 305,
+  "group": "trait_contract_integration",
+  "duration_ms": 23344,
+  "targets": [
+    "std::os::unix::fs::MetadataExt::blksize",
+    "std::os::unix::fs::MetadataExt::blocks",
+    "std::os::unix::fs::MetadataExt::ctime",
+    "std::os::unix::fs::MetadataExt::ctime_nsec",
+    "std::os::unix::fs::MetadataExt::dev",
+    "std::os::unix::fs::MetadataExt::gid"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::unix::fs::MetadataExt::blksize",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source only identifies the result as a filesystem I/O block size. Without a public metadata model, no useful relation to self is expressible.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_metadata_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::MetadataExt::blocks",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source describes 512-byte allocation units and warns that sparse files can use fewer blocks, but supplies no universally valid relation expressible without a file-metadata abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_metadata_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::MetadataExt::ctime",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The value represents externally obtained filesystem metadata, and current vstd has no public model connecting self to its Unix status-change timestamp.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_metadata_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::MetadataExt::ctime_nsec",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source describes a nanosecond timestamp component but states no portable numeric bound or modeled relation to ctime that can be safely specified in current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "platform_dependent_semantics",
+        "missing_metadata_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::MetadataExt::dev",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A device ID is an opaque value stored in external filesystem metadata; without a model for MetadataExt, only the inherent u64 type bounds are available.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "opaque_identifier",
+        "missing_metadata_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::MetadataExt::gid",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The group ID is an opaque field of external filesystem metadata, with no public vstd abstraction relating the returned u32 to self.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "opaque_identifier",
+        "missing_metadata_abstraction"
+      ]
+    }
+  ]
+}

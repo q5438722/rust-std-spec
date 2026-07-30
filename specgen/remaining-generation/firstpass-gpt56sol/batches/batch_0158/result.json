@@ -1,0 +1,111 @@
+{
+  "batch": 158,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 23671,
+  "targets": [
+    "std::path::PathBuf::clear",
+    "std::path::PathBuf::into_boxed_path",
+    "std::path::PathBuf::into_os_string",
+    "std::path::PathBuf::new",
+    "std::path::PathBuf::pop",
+    "std::path::PathBuf::push"
+  ],
+  "candidates": [
+    {
+      "target": "std::path::PathBuf::clear",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source clears the private OsString storage, but vstd has no public PathBuf/OsString content abstraction with which to describe final(self).",
+      "risks": [
+        "missing PathBuf content model",
+        "hidden OsString state"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::into_boxed_path",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the boxed Path to the consumed PathBuf requires an extensional path-content abstraction that current vstd does not provide.",
+      "risks": [
+        "missing Path/PathBuf model",
+        "unsized boxed Path representation"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::into_os_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private inner OsString, but no public shared view exists to relate it to the consumed PathBuf without mentioning hidden state.",
+      "risks": [
+        "missing PathBuf/OsString shared view",
+        "hidden private field"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source constructs an empty OsString, current vstd has no PathBuf observation capable of expressing that the returned path is empty.",
+      "risks": [
+        "missing PathBuf emptiness abstraction"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::pop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the boolean and final(self) to the old path's parent; current vstd lacks modeled path contents, components, and parent semantics.",
+      "risks": [
+        "missing path-component model",
+        "platform-dependent path semantics"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::push",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Describing final(self) requires modeled AsRef<Path> conversion and platform-sensitive path joining/replacement semantics, none of which are available in current vstd vocabulary.",
+      "risks": [
+        "missing PathBuf join abstraction",
+        "unmodeled AsRef<Path> result",
+        "platform-dependent path semantics"
+      ]
+    }
+  ]
+}

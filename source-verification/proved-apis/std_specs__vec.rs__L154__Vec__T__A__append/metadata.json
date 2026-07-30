@@ -1,0 +1,171 @@
+{
+  "id": "std_specs__vec.rs__L154__Vec__T__A__append",
+  "api_path": "alloc::vec::Vec::append",
+  "raw_target": "Vec::<T, A>::append",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 154,
+  "rust_declaration": {
+    "declaration_id": "alloc:4932",
+    "name": "append",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgTrace([Not(NameValue { name: \"no_global_oom_handling\", value: None, span: alloc/src/vec/mod.rs:2890:15: 2890:37 (#0) }, alloc/src/vec/mod.rs:2890:14: 2890:38 (#0))])]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 4, patch: 0 })},\nfeature: \"append\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        2893,
+        5
+      ],
+      "end": [
+        2898,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "other",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self",
+        "other"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2873:     }\n  2874: \n  2875:     /// Moves all the elements of `other` into `self`, leaving `other` empty.\n  2876:     ///\n  2877:     /// # Panics\n  2878:     ///\n  2879:     /// Panics if the new capacity exceeds `isize::MAX` _bytes_.\n  2880:     ///\n  2881:     /// # Examples\n  2882:     ///\n  2883:     /// ```\n  2884:     /// let mut vec = vec![1, 2, 3];\n  2885:     /// let mut vec2 = vec![4, 5, 6];\n  2886:     /// vec.append(&mut vec2);\n  2887:     /// assert_eq!(vec, [1, 2, 3, 4, 5, 6]);\n  2888:     /// assert_eq!(vec2, []);\n  2889:     /// ```\n  2890:     #[cfg(not(no_global_oom_handling))]\n  2891:     #[inline]\n  2892:     #[stable(feature = \"append\", since = \"1.4.0\")]\n  2893:     pub fn append(&mut self, other: &mut Self) {\n  2894:         unsafe {\n  2895:             self.append_elements(other.as_slice() as _);\n  2896:             other.set_len(0);\n  2897:         }\n  2898:     }\n  2899: \n  2900:     /// Appends elements to `self` from other buffer.\n  2901:     #[cfg(not(no_global_oom_handling))]\n  2902:     #[inline]\n  2903:     unsafe fn append_elements(&mut self, other: *const [T]) {\n  2904:         let count = other.len();\n  2905:         self.reserve(count);\n  2906:         let len = self.len();\n  2907:         if count > 0 {\n  2908:             unsafe {\n  2909:                 ptr::copy_nonoverlapping(other as *const T, self.as_mut_ptr().add(len), count)\n  2910:             };\n  2911:         }\n  2912:         self.len += count;\n  2913:     }",
+    "source_text": "pub fn append(&mut self, other: &mut Self) {\n        unsafe {\n            self.append_elements(other.as_slice() as _);\n            other.set_len(0);\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for Vec::<T, A>::len and its view bridge",
+    "vstd contract for Vec::<T, A>::reserve",
+    "vstd contract for Vec::<T, A>::is_empty",
+    "vstd contract for Vec::<T, A>::remove",
+    "vstd contract for Vec::<T, A>::push"
+  ],
+  "rationale": "Inlines append_elements' reserve and positive-count control flow, then expands the raw bulk move and set_len(0) into safe element transfers while preserving concatenation.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L154__Vec__T__A__append"
+}

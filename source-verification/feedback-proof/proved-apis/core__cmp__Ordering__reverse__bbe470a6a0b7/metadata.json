@@ -1,0 +1,106 @@
+{
+  "id": "core__cmp__Ordering__reverse__bbe470a6a0b7",
+  "api_path": "core::cmp::Ordering::reverse",
+  "raw_target": "core::cmp::Ordering::reverse",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 48, patch: 0 })},\nfeature: \"const_ordering\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "declaration_id": "core:11178",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "reverse",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": null,
+          "id": 1682,
+          "path": "Ordering"
+        }
+      },
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "impl_id": "core:11181",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:1682",
+      "resolved_owner_path": [
+        "core",
+        "cmp",
+        "Ordering"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": null,
+          "id": 1682,
+          "path": "Ordering"
+        }
+      }
+    },
+    "source_context": "   529:     /// assert_eq!(Ordering::Less.is_ge(), false);\n   530:     /// assert_eq!(Ordering::Equal.is_ge(), true);\n   531:     /// assert_eq!(Ordering::Greater.is_ge(), true);\n   532:     /// ```\n   533:     #[inline]\n   534:     #[must_use]\n   535:     #[rustc_const_stable(feature = \"ordering_helpers\", since = \"1.53.0\")]\n   536:     #[stable(feature = \"ordering_helpers\", since = \"1.53.0\")]\n   537:     pub const fn is_ge(self) -> bool {\n   538:         self.as_raw() >= 0\n   539:     }\n   540: \n   541:     /// Reverses the `Ordering`.\n   542:     ///\n   543:     /// * `Less` becomes `Greater`.\n   544:     /// * `Greater` becomes `Less`.\n   545:     /// * `Equal` becomes `Equal`.\n   546:     ///\n   547:     /// # Examples\n   548:     ///\n   549:     /// Basic behavior:\n   550:     ///\n   551:     /// ```\n   552:     /// use std::cmp::Ordering;\n   553:     ///\n   554:     /// assert_eq!(Ordering::Less.reverse(), Ordering::Greater);\n   555:     /// assert_eq!(Ordering::Equal.reverse(), Ordering::Equal);\n   556:     /// assert_eq!(Ordering::Greater.reverse(), Ordering::Less);\n   557:     /// ```\n   558:     ///\n   559:     /// This method can be used to reverse a comparison:\n   560:     ///\n   561:     /// ```\n   562:     /// let data: &mut [_] = &mut [2, 10, 5, 8];\n   563:     ///\n   564:     /// // sort the array from largest to smallest.\n   565:     /// data.sort_by(|a, b| a.cmp(b).reverse());\n   566:     ///\n   567:     /// let b: &mut [_] = &mut [10, 8, 5, 2];\n   568:     /// assert!(data == b);\n   569:     /// ```\n   570:     #[inline]\n   571:     #[must_use]\n   572:     #[rustc_const_stable(feature = \"const_ordering\", since = \"1.48.0\")]\n   573:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   574:     pub const fn reverse(self) -> Ordering {\n   575:         match self {\n   576:             Less => Greater,\n   577:             Equal => Equal,\n   578:             Greater => Less,\n   579:         }\n   580:     }\n   581: \n   582:     /// Chains two orderings.\n   583:     ///\n   584:     /// Returns `self` when it's not `Equal`. Otherwise returns `other`.\n   585:     ///\n   586:     /// # Examples\n   587:     ///\n   588:     /// ```\n   589:     /// use std::cmp::Ordering;\n   590:     ///\n   591:     /// let result = Ordering::Equal.then(Ordering::Less);\n   592:     /// assert_eq!(result, Ordering::Less);\n   593:     ///\n   594:     /// let result = Ordering::Less.then(Ordering::Equal);\n   595:     /// assert_eq!(result, Ordering::Less);\n   596:     ///\n   597:     /// let result = Ordering::Less.then(Ordering::Greater);\n   598:     /// assert_eq!(result, Ordering::Less);\n   599:     ///\n   600:     /// let result = Ordering::Equal.then(Ordering::Equal);\n   601:     /// assert_eq!(result, Ordering::Equal);\n   602:     ///\n   603:     /// let x: (i64, i64, i64) = (1, 2, 7);\n   604:     /// let y: (i64, i64, i64) = (1, 5, 3);\n   605:     /// let result = x.0.cmp(&y.0).then(x.1.cmp(&y.1)).then(x.2.cmp(&y.2));\n   606:     ///\n   607:     /// assert_eq!(result, Ordering::Less);\n   608:     /// ```\n   609:     #[inline]\n   610:     #[must_use]\n   611:     #[rustc_const_stable(feature = \"const_ordering\", since = \"1.48.0\")]\n   612:     #[stable(feature = \"ordering_chaining\", since = \"1.17.0\")]\n   613:     pub const fn then(self, other: Ordering) -> Ordering {\n   614:         match self {\n   615:             Equal => other,\n   616:             _ => self,\n   617:         }\n   618:     }\n   619: ",
+    "span": {
+      "begin": [
+        574,
+        5
+      ],
+      "end": [
+        580,
+        6
+      ],
+      "filename": "core/src/cmp.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn reverse(self) -> Ordering {\n        match self {\n            Less => Greater,\n            Equal => Equal,\n            Greater => Less,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum-match control flow directly proves the postcondition without external contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__cmp__Ordering__reverse__bbe470a6a0b7"
+}

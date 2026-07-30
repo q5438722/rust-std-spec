@@ -1,0 +1,122 @@
+{
+  "batch": 89,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 817101,
+  "targets": [
+    "core::iter::Peekable::next_if_eq",
+    "core::iter::Peekable::next_if_map",
+    "core::iter::Peekable::next_if_map_mut",
+    "core::iter::Peekable::peek",
+    "core::iter::chain",
+    "core::iter::empty"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::Peekable::next_if_eq",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "On mismatch, next_if_eq retains the candidate in Peekable's private cache. Current vstd lacks a Peekable state model relating that cache to the iterator's remaining sequence.",
+      "risks": [
+        "missing_peekable_state_model",
+        "hidden_cached_item"
+      ]
+    },
+    {
+      "target": "core::iter::Peekable::next_if_map",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Ok consumes and maps the next item, while Err may replace the retained item. Expressing both outcomes requires a prophetic Peekable cache model absent from current vstd.",
+      "risks": [
+        "missing_peekable_state_model",
+        "hidden_replacement_item",
+        "fn_once_result_relation"
+      ]
+    },
+    {
+      "target": "core::iter::Peekable::next_if_map_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "When the closure returns None, its mutated argument becomes the retained cached item. This needs both mutable-reference callback prophecy and a Peekable cache model.",
+      "risks": [
+        "missing_peekable_state_model",
+        "mutable_reference_callback_model",
+        "hidden_mutated_cached_item"
+      ]
+    },
+    {
+      "target": "core::iter::Peekable::peek",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "peek may advance the underlying iterator to populate private cache state, then returns a reference into that cache. No public Peekable model connects this reference to the logical remaining sequence.",
+      "risks": [
+        "missing_peekable_state_model",
+        "hidden_iterator_advancement",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::iter::chain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "For arbitrary IntoIterator inputs, current vstd does not expose the converted iterators' prophetic-law and termination state needed to establish Chain's concatenated future sequence.",
+      "risks": [
+        "missing_chain_iterator_model",
+        "unmodeled_into_iterator_state",
+        "potentially_infinite_or_nonterminating_inputs"
+      ]
+    },
+    {
+      "target": "core::iter::empty",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::accept_recursive_types(T)]\n#[verifier::external_type_specification]\npub struct ExEmpty<T>(Empty<T>);\n\npub assume_specification<T>[ core::iter::empty ]() -> (res: Empty<T>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&res),\n        IteratorSpec::remaining(&res) == seq![],\n        IteratorSpec::will_return_none(&res),\n        IteratorSpec::decrease(&res) is Some,\n        IteratorSpec::initial_value_relation(&res, &res),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res) == seq![]",
+        "IteratorSpec::will_return_none(&res)",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::Empty",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "Empty::next always returns None, so IteratorSpec precisely captures its empty finite sequence and immediate termination.",
+      "risks": []
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{"candidates":[{"target":"core::cmp::max_by","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, F: FnOnce(&T, &T) -> core::cmp::Ordering>[ core::cmp::max_by ](\n    v1: T,\n    v2: T,\n    compare: F,\n) -> (result: T)\n    requires\n        compare.requires((&v1, &v2)),\n    ensures\n        exists|ordering: core::cmp::Ordering| {\n            &&& #[trigger] compare.ensures((&v1, &v2), ordering)\n            &&& result == if ordering == core::cmp::Ordering::Greater { v1 } else { v2 }\n        },\n;","requires":["compare.requires((&v1, &v2))"],"ensures":["exists|ordering: core::cmp::Ordering| { &&& #[trigger] compare.ensures((&v1, &v2), ordering) &&& result == if ordering == core::cmp::Ordering::Greater { v1 } else { v2 } }"],"feature_gates":[],"imports":["vstd::prelude::*"],"useful":true,"rationale":"The source calls the comparator once and returns v1 only for Greater, otherwise v2, including ties.","risks":["Precision depends on the comparator's declared ensures relation.","Comparator unwinding is outside the postcondition."]},{"target":"core::cmp::max_by_key","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, F, K>[ core::cmp::max_by_key ](\n    v1: T,\n    v2: T,\n    f: F,\n) -> (result: T)\nwhere\n    F: FnMut(&T) -> K,\n    K: core::cmp::Ord,\n    requires\n        f.requires((&v2,)),\n        f.requires((&v1,)),\n    ensures\n        exists|key2: K| {\n            &&& #[trigger] f.ensures((&v2,), key2)\n            &&& exists|key1: K| {\n                &&& #[trigger] f.ensures((&v1,), key1)\n                &&& exists|is_less: bool| {\n                    &&& #[trigger] call_ensures(\n                        <K as core::cmp::PartialOrd>::lt,\n                        (&key2, &key1),\n                        is_less,\n                    )\n                    &&& result == if is_less { v1 } else { v2 }\n                }\n            }\n        },\n;","requires":["f.requires((&v2,))","f.requires((&v1,))"],"ensures":["exists|key2: K| { &&& #[trigger] f.ensures((&v2,), key2) &&& exists|key1: K| { &&& #[trigger] f.ensures((&v1,), key1) &&& exists|is_less: bool| { &&& #[trigger] call_ensures(<K as core::cmp::PartialOrd>::lt, (&key2, &key1), is_less) &&& result == if is_less { v1 } else { v2 } } } }"],"feature_gates":[],"imports":["vstd::prelude::*"],"useful":true,"rationale":"The source computes the key of v2, then v1, and returns v1 exactly when the first key is less than the second.","risks":["Precision depends on the FnMut and PartialOrd::lt callable contracts.","Captured-state updates and unwinding are not exposed."]},{"target":"core::cmp::min_by","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, F: FnOnce(&T, &T) -> core::cmp::Ordering>[ core::cmp::min_by ](\n    v1: T,\n    v2: T,\n    compare: F,\n) -> (result: T)\n    requires\n        compare.requires((&v1, &v2)),\n    ensures\n        exists|ordering: core::cmp::Ordering| {\n            &&& #[trigger] compare.ensures((&v1, &v2), ordering)\n            &&& result == if ordering == core::cmp::Ordering::Greater { v2 } else { v1 }\n        },\n;","requires":["compare.requires((&v1, &v2))"],"ensures":["exists|ordering: core::cmp::Ordering| { &&& #[trigger] compare.ensures((&v1, &v2), ordering) &&& result == if ordering == core::cmp::Ordering::Greater { v2 } else { v1 } }"],"feature_gates":[],"imports":["vstd::prelude::*"],"useful":true,"rationale":"The source calls the comparator once and returns v1 for Less or Equal, otherwise v2.","risks":["Precision depends on the comparator's declared ensures relation.","Comparator unwinding is outside the postcondition."]},{"target":"core::cmp::min_by_key","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, F, K>[ core::cmp::min_by_key ](\n    v1: T,\n    v2: T,\n    f: F,\n) -> (result: T)\nwhere\n    F: FnMut(&T) -> K,\n    K: core::cmp::Ord,\n    requires\n        f.requires((&v2,)),\n        f.requires((&v1,)),\n    ensures\n        exists|key2: K| {\n            &&& #[trigger] f.ensures((&v2,), key2)\n            &&& exists|key1: K| {\n                &&& #[trigger] f.ensures((&v1,), key1)\n                &&& exists|is_less: bool| {\n                    &&& #[trigger] call_ensures(\n                        <K as core::cmp::PartialOrd>::lt,\n                        (&key2, &key1),\n                        is_less,\n                    )\n                    &&& result == if is_less { v2 } else { v1 }\n                }\n            }\n        },\n;","requires":["f.requires((&v2,))","f.requires((&v1,))"],"ensures":["exists|key2: K| { &&& #[trigger] f.ensures((&v2,), key2) &&& exists|key1: K| { &&& #[trigger] f.ensures((&v1,), key1) &&& exists|is_less: bool| { &&& #[trigger] call_ensures(<K as core::cmp::PartialOrd>::lt, (&key2, &key1), is_less) &&& result == if is_less { v2 } else { v1 } } } }"],"feature_gates":[],"imports":["vstd::prelude::*"],"useful":true,"rationale":"The source computes the key of v2, then v1, and returns v2 exactly when its key is less; ties return v1.","risks":["Precision depends on the FnMut and PartialOrd::lt callable contracts.","Captured-state updates and unwinding are not exposed."]},{"target":"core::future::poll_fn","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The constructor only stores f in PollFn's private field. vstd has no public PollFn or Future-polling model relating the returned future to that closure.","risks":["missing PollFn/Future polling model","stored closure is private"]},{"target":"core::ops::Bound::map","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, U, F: FnOnce(T) -> U>[ core::ops::Bound::<T>::map ](\n    bound: core::ops::Bound<T>,\n    f: F,\n) -> (result: core::ops::Bound<U>)\n    requires\n        spec_bound(bound) is Included ==> f.requires((spec_bound(bound)->Included_0,)),\n        spec_bound(bound) is Excluded ==> f.requires((spec_bound(bound)->Excluded_0,)),\n    ensures\n        spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded,\n        spec_bound(bound) is Included ==> spec_bound(result) is Included && f.ensures(\n            (spec_bound(bound)->Included_0,),\n            spec_bound(result)->Included_0,\n        ),\n        spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded && f.ensures(\n            (spec_bound(bound)->Excluded_0,),\n            spec_bound(result)->Excluded_0,\n        ),\n;","requires":["spec_bound(bound) is Included ==> f.requires((spec_bound(bound)->Included_0,))","spec_bound(bound) is Excluded ==> f.requires((spec_bound(bound)->Excluded_0,))"],"ensures":["spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded","spec_bound(bound) is Included ==> spec_bound(result) is Included && f.ensures((spec_bound(bound)->Included_0,), spec_bound(result)->Included_0)","spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded && f.ensures((spec_bound(bound)->Excluded_0,), spec_bound(result)->Excluded_0)"],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::range::spec_bound"],"useful":true,"rationale":"The public spec_bound model exposes Bound's variants; the source preserves the variant and calls f only for Included or Excluded.","risks":["Closure unwinding is outside the postcondition."]}]}{"candidates":[{"target":"core::cmp::max_by","decision":"add_spec","contract_form":"assume_specifica
+tion","contract_code":"pub assume_specification<T, F: FnOnce(&T, &T) -> core::cmp::Ordering>[
+core::cmp::max_by ](\n    v1: T,\n    v2: T,\n    compare: F,\n) -> (result: T)\n    requires\n
+   compare.requires((&v1, &v2)),\n    ensures\n        exists|ordering: core::cmp::Ordering| {\n
+        &&& #[trigger] compare.ensures((&v1, &v2), ordering)\n            &&& result == if ordering
+== core::cmp::Ordering::Greater { v1 } else { v2 }\n
+},\n;","requires":["compare.requires((&v1, &v2))"],"ensures":["exists|ordering: core::cmp::Ordering|
+ { &&& #[trigger] compare.ensures((&v1, &v2), ordering) &&& result == if ordering ==
+core::cmp::Ordering::Greater { v1 } else { v2 }
+}"],"feature_gates":[],"imports":["vstd::prelude::"],"useful":true,"rationale":"The source calls the
+ comparator once and returns v1 only for Greater, otherwise v2, including ties.","risks":["Precision
+ depends on the comparator's declared ensures relation.","Comparator unwinding is outside the
+postcondition."]},{"target":"core::cmp::max_by_key","decision":"add_spec","contract_form":"assume_sp
+ecification","contract_code":"pub assume_specification<T, F, K>[ core::cmp::max_by_key ](\n    v1:
+T,\n    v2: T,\n    f: F,\n) -> (result: T)\nwhere\n    F: FnMut(&T) -> K,\n    K: core::cmp::Ord,\n
+    requires\n        f.requires((&v2,)),\n        f.requires((&v1,)),\n    ensures\n
+exists|key2: K| {\n            &&& #[trigger] f.ensures((&v2,), key2)\n            &&& exists|key1:
+K| {\n                &&& #[trigger] f.ensures((&v1,), key1)\n                &&& exists|is_less:
+bool| {\n                    &&& #[trigger] call_ensures(\n                        <K as
+core::cmp::PartialOrd>::lt,\n                        (&key2, &key1),\n
+is_less,\n                    )\n                    &&& result == if is_less { v1 } else { v2 }\n
+              }\n            }\n
+},\n;","requires":["f.requires((&v2,))","f.requires((&v1,))"],"ensures":["exists|key2: K| { &&&
+#[trigger] f.ensures((&v2,), key2) &&& exists|key1: K| { &&& #[trigger] f.ensures((&v1,), key1) &&&
+exists|is_less: bool| { &&& #[trigger] call_ensures(<K as core::cmp::PartialOrd>::lt, (&key2,
+&key1), is_less) &&& result == if is_less { v1 } else { v2 } } }
+}"],"feature_gates":[],"imports":["vstd::prelude::"],"useful":true,"rationale":"The source computes
+the key of v2, then v1, and returns v1 exactly when the first key is less than the
+second.","risks":["Precision depends on the FnMut and PartialOrd::lt callable
+contracts.","Captured-state updates and unwinding are not exposed."]},{"target":"core::cmp::min_by",
+"decision":"add_spec","contract_form":"assume_specification","contract_code":"pub
+assume_specification<T, F: FnOnce(&T, &T) -> core::cmp::Ordering>[ core::cmp::min_by ](\n    v1:
+T,\n    v2: T,\n    compare: F,\n) -> (result: T)\n    requires\n        compare.requires((&v1,
+&v2)),\n    ensures\n        exists|ordering: core::cmp::Ordering| {\n            &&& #[trigger]
+compare.ensures((&v1, &v2), ordering)\n            &&& result == if ordering ==
+core::cmp::Ordering::Greater { v2 } else { v1 }\n        },\n;","requires":["compare.requires((&v1,
+&v2))"],"ensures":["exists|ordering: core::cmp::Ordering| { &&& #[trigger] compare.ensures((&v1,
+&v2), ordering) &&& result == if ordering == core::cmp::Ordering::Greater { v2 } else { v1 }
+}"],"feature_gates":[],"imports":["vstd::prelude::"],"useful":true,"rationale":"The source calls the
+ comparator once and returns v1 for Less or Equal, otherwise v2.","risks":["Precision depends on the
+ comparator's declared ensures relation.","Comparator unwinding is outside the
+postcondition."]},{"target":"core::cmp::min_by_key","decision":"add_spec","contract_form":"assume_sp
+ecification","contract_code":"pub assume_specification<T, F, K>[ core::cmp::min_by_key ](\n    v1:
+T,\n    v2: T,\n    f: F,\n) -> (result: T)\nwhere\n    F: FnMut(&T) -> K,\n    K: core::cmp::Ord,\n
+    requires\n        f.requires((&v2,)),\n        f.requires((&v1,)),\n    ensures\n
+exists|key2: K| {\n            &&& #[trigger] f.ensures((&v2,), key2)\n            &&& exists|key1:
+K| {\n                &&& #[trigger] f.ensures((&v1,), key1)\n                &&& exists|is_less:
+bool| {\n                    &&& #[trigger] call_ensures(\n                        <K as
+core::cmp::PartialOrd>::lt,\n                        (&key2, &key1),\n
+is_less,\n                    )\n                    &&& result == if is_less { v2 } else { v1 }\n
+              }\n            }\n
+},\n;","requires":["f.requires((&v2,))","f.requires((&v1,))"],"ensures":["exists|key2: K| { &&&
+#[trigger] f.ensures((&v2,), key2) &&& exists|key1: K| { &&& #[trigger] f.ensures((&v1,), key1) &&&
+exists|is_less: bool| { &&& #[trigger] call_ensures(<K as core::cmp::PartialOrd>::lt, (&key2,
+&key1), is_less) &&& result == if is_less { v2 } else { v1 } } }
+}"],"feature_gates":[],"imports":["vstd::prelude::"],"useful":true,"rationale":"The source computes
+the key of v2, then v1, and returns v2 exactly when its key is less; ties return
+v1.","risks":["Precision depends on the FnMut and PartialOrd::lt callable
+contracts.","Captured-state updates and unwinding are not exposed."]},{"target":"core::future::poll_
+fn","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensur
+es":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The constructor only stores f in
+PollFn's private field. vstd has no public PollFn or Future-polling model relating the returned
+future to that closure.","risks":["missing PollFn/Future polling model","stored closure is
+private"]},{"target":"core::ops::Bound::map","decision":"add_spec","contract_form":"assume_specifica
+tion","contract_code":"pub assume_specification<T, U, F: FnOnce(T) -> U>[ core::ops::Bound::<T>::map
+ ](\n    bound: core::ops::Bound<T>,\n    f: F,\n) -> (result: core::ops::Bound<U>)\n    requires\n
+       spec_bound(bound) is Included ==> f.requires((spec_bound(bound)->Included_0,)),\n
+spec_bound(bound) is Excluded ==> f.requires((spec_bound(bound)->Excluded_0,)),\n    ensures\n
+  spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded,\n        spec_bound(bound) is
+Included ==> spec_bound(result) is Included && f.ensures(\n
+(spec_bound(bound)->Included_0,),\n            spec_bound(result)->Included_0,\n        ),\n
+spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded && f.ensures(\n
+(spec_bound(bound)->Excluded_0,),\n            spec_bound(result)->Excluded_0,\n
+),\n;","requires":["spec_bound(bound) is Included ==>
+f.requires((spec_bound(bound)->Included_0,))","spec_bound(bound) is Excluded ==>
+f.requires((spec_bound(bound)->Excluded_0,))"],"ensures":["spec_bound(bound) is Unbounded ==>
+spec_bound(result) is Unbounded","spec_bound(bound) is Included ==> spec_bound(result) is Included
+&& f.ensures((spec_bound(bound)->Included_0,), spec_bound(result)->Included_0)","spec_bound(bound)
+is Excluded ==> spec_bound(result) is Excluded && f.ensures((spec_bound(bound)->Excluded_0,),
+spec_bound(result)->Excluded_0)"],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs:
+:range::spec_bound"],"useful":true,"rationale":"The public spec_bound model exposes Bound's
+variants; the source preserves the variant and calls f only for Included or
+Excluded.","risks":["Closure unwinding is outside the postcondition."]}]}
+

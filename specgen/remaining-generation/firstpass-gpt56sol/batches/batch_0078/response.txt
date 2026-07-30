@@ -1,0 +1,131 @@
+{
+  "candidates": [
+    {
+      "target": "core::result::Result::and_then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> Result<U, E>>[ Result::<T, E>::and_then ](\n    result: Result<T, E>,\n    op: F,\n) -> (chained: Result<U, E>)\n    requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> op.ensures((result->Ok_0,), chained),\n        result is Err ==> chained == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> op.ensures((result->Ok_0,), chained)",
+        "result is Err ==> chained == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use core::result::Result;"
+      ],
+      "useful": true,
+      "rationale": "The source calls op with the Ok payload and otherwise preserves the Err; vstd closure call predicates express the higher-order branch.",
+      "risks": []
+    },
+    {
+      "target": "core::result::Result::inspect",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(&T)>[ Result::<T, E>::inspect ](\n    result: Result<T, E>,\n    f: F,\n) -> (inspected: Result<T, E>)\n    requires\n        result is Ok ==> f.requires((&result->Ok_0,)),\n    ensures\n        inspected == result,\n        result is Ok ==> f.ensures((&result->Ok_0,), ()),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((&result->Ok_0,))"
+      ],
+      "ensures": [
+        "inspected == result",
+        "result is Ok ==> f.ensures((&result->Ok_0,), ())"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use core::result::Result;"
+      ],
+      "useful": true,
+      "rationale": "The source calls f on a shared reference to the Ok payload and then returns the original Result unchanged.",
+      "risks": []
+    },
+    {
+      "target": "core::result::Result::inspect_err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(&E)>[ Result::<T, E>::inspect_err ](\n    result: Result<T, E>,\n    f: F,\n) -> (inspected: Result<T, E>)\n    requires\n        result is Err ==> f.requires((&result->Err_0,)),\n    ensures\n        inspected == result,\n        result is Err ==> f.ensures((&result->Err_0,), ()),\n;",
+      "requires": [
+        "result is Err ==> f.requires((&result->Err_0,))"
+      ],
+      "ensures": [
+        "inspected == result",
+        "result is Err ==> f.ensures((&result->Err_0,), ())"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use core::result::Result;"
+      ],
+      "useful": true,
+      "rationale": "The source calls f on a shared reference to the Err payload and then returns the original Result unchanged.",
+      "risks": []
+    },
+    {
+      "target": "core::result::Result::is_err_and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(E) -> bool>[ Result::<T, E>::is_err_and ](\n    result: Result<T, E>,\n    f: F,\n) -> (matches_err: bool)\n    requires\n        result is Err ==> f.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> !matches_err,\n        result is Err ==> f.ensures((result->Err_0,), matches_err),\n;",
+      "requires": [
+        "result is Err ==> f.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> !matches_err",
+        "result is Err ==> f.ensures((result->Err_0,), matches_err)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use core::result::Result;"
+      ],
+      "useful": true,
+      "rationale": "The source returns a negative boolean for Ok and otherwise returns the closure result for the consumed Err payload.",
+      "risks": []
+    },
+    {
+      "target": "core::result::Result::is_ok_and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(T) -> bool>[ Result::<T, E>::is_ok_and ](\n    result: Result<T, E>,\n    f: F,\n) -> (matches_ok: bool)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Err ==> !matches_ok,\n        result is Ok ==> f.ensures((result->Ok_0,), matches_ok),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Err ==> !matches_ok",
+        "result is Ok ==> f.ensures((result->Ok_0,), matches_ok)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use core::result::Result;"
+      ],
+      "useful": true,
+      "rationale": "The source returns a negative boolean for Err and otherwise returns the closure result for the consumed Ok payload.",
+      "risks": []
+    },
+    {
+      "target": "core::result::Result::map_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or ](\n    result: Result<T, E>,\n    default: U,\n    f: F,\n) -> (mapped: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), mapped),\n        result is Err ==> mapped == default,\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), mapped)",
+        "result is Err ==> mapped == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use core::result::Result;"
+      ],
+      "useful": true,
+      "rationale": "The source applies f to the Ok payload and returns the supplied default for Err.",
+      "risks": []
+    }
+  ]
+}
+

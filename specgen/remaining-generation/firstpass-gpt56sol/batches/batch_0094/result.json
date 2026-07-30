@@ -1,0 +1,111 @@
+{
+  "batch": 94,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 324765,
+  "targets": [
+    "core::slice::split_inclusive",
+    "core::slice::splitn",
+    "core::slice::utf8_chunks",
+    "core::slice::windows",
+    "core::str::bytes",
+    "core::str::char_indices"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::split_inclusive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The yielded subslices depend on deferred, stateful FnMut calls, including which matched elements terminate each subslice. Current vstd has no SplitInclusive prophecy and callback-state model.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "deferred_fnmut_state_unmodeled"
+      ]
+    },
+    {
+      "target": "core::slice::splitn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The future subslices and final remainder depend on deferred predicate calls and the n-item limit. Current vstd cannot characterize this SplitN state without a prophetic iterator and FnMut trace model.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "deferred_fnmut_state_unmodeled",
+        "partial_consumption"
+      ]
+    },
+    {
+      "target": "core::slice::utf8_chunks",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Useful semantics require relating every future Utf8Chunk's valid and invalid portions to the source bytes. No public vstd model connects Utf8Chunks and Utf8Chunk values to that decomposition.",
+      "risks": [
+        "missing_utf8_chunks_iterator_model",
+        "missing_utf8_chunk_item_model"
+      ]
+    },
+    {
+      "target": "core::slice::windows",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is the ordered sequence of overlapping subslices. Current vstd has no concrete Windows iterator model relating future yields to the source slice; size > 0 alone is insufficient.",
+      "risks": [
+        "missing_prophetic_iterator_model"
+      ]
+    },
+    {
+      "target": "core::str::bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source wraps as_bytes().iter().copied(), the opaque Bytes result has no public vstd model relating its future yielded sequence to the string's bytes.",
+      "risks": [
+        "missing_bytes_iterator_model",
+        "future_yields_unobservable_at_construction"
+      ]
+    },
+    {
+      "target": "core::str::char_indices",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must describe the future sequence of characters paired with UTF-8 byte offsets. Current vstd has no CharIndices iterator model exposing that sequence.",
+      "risks": [
+        "missing_char_indices_iterator_model",
+        "utf8_byte_offsets_require_prophetic_sequence"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "batch": 173,
+  "group": "representation_or_allocator",
+  "duration_ms": 251987,
+  "targets": [
+    "alloc::vec::Vec::shrink_to",
+    "alloc::vec::Vec::shrink_to_fit",
+    "alloc::vec::Vec::try_reserve_exact",
+    "core::alloc::Layout::dangling_ptr",
+    "core::ptr::fn_addr_eq",
+    "std::collections::HashMap::capacity"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::vec::Vec::shrink_to",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Vec::<T, A>::shrink_to ](\n    vec: &mut Vec<T, A>,\n    min_capacity: usize,\n)\n    ensures\n        final(vec)@ == old(vec)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(vec)@ == old(vec)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::vec::Vec",
+        "core::alloc::Allocator",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The method changes only allocation capacity; Vec's sequence view can soundly record that all logical contents remain unchanged.",
+      "risks": [
+        "Capacity and allocator behavior remain unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::shrink_to_fit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Vec::<T, A>::shrink_to_fit ](\n    vec: &mut Vec<T, A>,\n)\n    ensures\n        final(vec)@ == old(vec)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(vec)@ == old(vec)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::vec::Vec",
+        "core::alloc::Allocator",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Shrinking the backing allocation preserves the Vec's length, elements, and ordering, which is expressible as sequence-view preservation.",
+      "risks": [
+        "The resulting capacity is intentionally unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::try_reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Vec::<T, A>::try_reserve_exact ](\n    vec: &mut Vec<T, A>,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(vec)@ == old(vec)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(vec)@ == old(vec)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::collections::TryReserveError",
+        "alloc::vec::Vec",
+        "core::alloc::Allocator",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Buffer reservation preserves logical Vec contents on both success and failure; the allocator-dependent result is left unconstrained.",
+      "risks": [
+        "Successful reserved capacity and allocation-failure causes remain unmodeled."
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::dangling_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee relates a NonNull pointer address to Layout alignment, but current vstd lacks the required Layout-to-NonNull address abstraction.",
+      "risks": [
+        "Pointer provenance and NonNull address semantics cannot be expressed soundly."
+      ]
+    },
+    {
+      "target": "core::ptr::fn_addr_eq",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Verus does not support function-pointer types or expose a function-address model that could relate the Boolean result to its inputs.",
+      "risks": [
+        "Function addresses are representation- and code-generation-dependent."
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<K, V, S, A: Allocator>[\n    HashMap::<K, V, S, A>::capacity\n](map: &HashMap<K, V, S, A>) -> (capacity: usize)\n    ensures\n        capacity >= map.len(),\n;",
+      "requires": [],
+      "ensures": [
+        "capacity >= map.len()"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "std::collections::HashMap",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Although exact capacity is hidden, the documented capacity necessarily accommodates all current entries, yielding a useful lower bound via the existing len specification.",
+      "risks": [
+        "Exact capacity and future reallocation behavior remain opaque."
+      ]
+    }
+  ]
+}

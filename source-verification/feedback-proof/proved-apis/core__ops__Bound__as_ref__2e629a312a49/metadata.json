@@ -1,0 +1,147 @@
+{
+  "id": "core__ops__Bound__as_ref__2e629a312a49",
+  "api_path": "core::ops::Bound::as_ref",
+  "raw_target": "Bound::<T>::as_ref",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 65, patch: 0 })},\nfeature: \"bound_as_ref_shared\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None},\nfeature: \"const_range\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:24008",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "as_ref",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9759,
+          "path": "Bound"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:24011",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:9759",
+      "resolved_owner_path": [
+        "core",
+        "ops",
+        "range",
+        "Bound"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "is_mutable": false,
+                      "lifetime": null,
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9759,
+          "path": "Bound"
+        }
+      }
+    },
+    "source_context": "   664: /// assert_eq!((..100).start_bound(), Unbounded);\n   665: /// assert_eq!((1..12).start_bound(), Included(&1));\n   666: /// assert_eq!((1..12).end_bound(), Excluded(&12));\n   667: /// ```\n   668: ///\n   669: /// Using a tuple of `Bound`s as an argument to [`BTreeMap::range`].\n   670: /// Note that in most cases, it's better to use range syntax (`1..5`) instead.\n   671: ///\n   672: /// ```\n   673: /// use std::collections::BTreeMap;\n   674: /// use std::ops::Bound::{Excluded, Included, Unbounded};\n   675: ///\n   676: /// let mut map = BTreeMap::new();\n   677: /// map.insert(3, \"a\");\n   678: /// map.insert(5, \"b\");\n   679: /// map.insert(8, \"c\");\n   680: ///\n   681: /// for (key, value) in map.range((Excluded(3), Included(8))) {\n   682: ///     println!(\"{key}: {value}\");\n   683: /// }\n   684: ///\n   685: /// assert_eq!(Some((&3, &\"a\")), map.range((Unbounded, Included(5))).next());\n   686: /// ```\n   687: ///\n   688: /// [`BTreeMap::range`]: ../../std/collections/btree_map/struct.BTreeMap.html#method.range\n   689: #[stable(feature = \"collections_bound\", since = \"1.17.0\")]\n   690: #[derive(Copy, Debug, Hash)]\n   691: #[derive_const(Clone, Eq, PartialEq)]\n   692: pub enum Bound<T> {\n   693:     /// An inclusive bound.\n   694:     #[stable(feature = \"collections_bound\", since = \"1.17.0\")]\n   695:     Included(#[stable(feature = \"collections_bound\", since = \"1.17.0\")] T),\n   696:     /// An exclusive bound.\n   697:     #[stable(feature = \"collections_bound\", since = \"1.17.0\")]\n   698:     Excluded(#[stable(feature = \"collections_bound\", since = \"1.17.0\")] T),\n   699:     /// An infinite endpoint. Indicates that there is no bound in this direction.\n   700:     #[stable(feature = \"collections_bound\", since = \"1.17.0\")]\n   701:     Unbounded,\n   702: }\n   703: \n   704: impl<T> Bound<T> {\n   705:     /// Converts from `&Bound<T>` to `Bound<&T>`.\n   706:     #[inline]\n   707:     #[stable(feature = \"bound_as_ref_shared\", since = \"1.65.0\")]\n   708:     #[rustc_const_unstable(feature = \"const_range\", issue = \"none\")]\n   709:     pub const fn as_ref(&self) -> Bound<&T> {\n   710:         match *self {\n   711:             Included(ref x) => Included(x),\n   712:             Excluded(ref x) => Excluded(x),\n   713:             Unbounded => Unbounded,\n   714:         }\n   715:     }\n   716: \n   717:     /// Converts from `&mut Bound<T>` to `Bound<&mut T>`.\n   718:     #[inline]\n   719:     #[unstable(feature = \"bound_as_ref\", issue = \"80996\")]\n   720:     pub const fn as_mut(&mut self) -> Bound<&mut T> {\n   721:         match *self {\n   722:             Included(ref mut x) => Included(x),\n   723:             Excluded(ref mut x) => Excluded(x),\n   724:             Unbounded => Unbounded,\n   725:         }\n   726:     }\n   727: \n   728:     /// Maps a `Bound<T>` to a `Bound<U>` by applying a function to the contained value (including\n   729:     /// both `Included` and `Excluded`), returning a `Bound` of the same kind.\n   730:     ///\n   731:     /// # Examples\n   732:     ///\n   733:     /// ```\n   734:     /// use std::ops::Bound::*;\n   735:     ///\n   736:     /// let bound_string = Included(\"Hello, World!\");\n   737:     ///\n   738:     /// assert_eq!(bound_string.map(|s| s.len()), Included(13));\n   739:     /// ```\n   740:     ///\n   741:     /// ```\n   742:     /// use std::ops::Bound;\n   743:     /// use Bound::*;\n   744:     ///\n   745:     /// let unbounded_string: Bound<String> = Unbounded;\n   746:     ///\n   747:     /// assert_eq!(unbounded_string.map(|s| s.len()), Unbounded);\n   748:     /// ```\n   749:     #[inline]\n   750:     #[stable(feature = \"bound_map\", since = \"1.77.0\")]\n   751:     pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> Bound<U> {\n   752:         match self {\n   753:             Unbounded => Unbounded,\n   754:             Included(x) => Included(f(x)),",
+    "span": {
+      "begin": [
+        709,
+        5
+      ],
+      "end": [
+        715,
+        6
+      ],
+      "filename": "core/src/ops/range.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn as_ref(&self) -> Bound<&T> {\n        match *self {\n            Included(ref x) => Included(x),\n            Excluded(ref x) => Excluded(x),\n            Unbounded => Unbounded,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The copied enum match directly proves the structural vstd contract without external contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ops__Bound__as_ref__2e629a312a49"
+}

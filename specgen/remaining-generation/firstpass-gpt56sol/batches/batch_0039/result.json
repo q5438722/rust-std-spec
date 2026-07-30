@@ -1,0 +1,114 @@
+{
+  "batch": 39,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 19845,
+  "targets": [
+    "alloc::collections::LinkedList::push_front_mut",
+    "alloc::collections::VecDeque::as_mut_slices",
+    "alloc::collections::VecDeque::back_mut",
+    "alloc::collections::VecDeque::front_mut",
+    "alloc::collections::VecDeque::get_mut",
+    "alloc::collections::VecDeque::insert_mut"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::LinkedList::push_front_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a mutable reference to the newly inserted front element. Current vstd cannot express the required reference-to-list-element identity and subsequent mutation relation.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "reference identity cannot be recovered from the list view"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::as_mut_slices",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains two mutable slices that partition the deque's logical contents according to hidden ring-buffer layout. Existing public vstd vocabulary cannot model their aliasing, ordering, and write-back relation.",
+      "risks": [
+        "unsupported mutable-reference returns",
+        "hidden physical layout",
+        "missing split-borrow write-back abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::back_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Option contains a mutable reference to the deque's last element. Current vstd cannot express that reference's identity and its write-back effect on the deque view.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "reference identity versus sequence view"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::front_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Option contains a mutable reference to the deque's first element. Current vstd cannot connect mutations through that reference to the corresponding element of the deque view.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "reference identity versus sequence view"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source identifies the logical index, the result is an optional mutable reference whose later writes must update that indexed deque element. This relation is unsupported in the current vocabulary.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing indexed write-back abstraction",
+        "reference identity versus sequence view"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::insert_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method both inserts a value and returns a mutable reference to that inserted element. A useful contract must preserve the reference's identity and describe later write-back, which current vstd cannot express.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "reference identity cannot be recovered from the deque view",
+        "missing write-back abstraction"
+      ]
+    }
+  ]
+}

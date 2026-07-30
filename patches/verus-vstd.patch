@@ -1,0 +1,2626 @@
+diff --git a/source/vstd/std_specs/control_flow.rs b/source/vstd/std_specs/control_flow.rs
+index 52f1e2e4..19c360b8 100644
+--- a/source/vstd/std_specs/control_flow.rs
++++ b/source/vstd/std_specs/control_flow.rs
+@@ -1,4 +1,5 @@
+ use super::super::prelude::*;
++use super::convert::FromSpec;
+ use core::convert::Infallible;
+ use core::ops::ControlFlow;
+ use core::ops::FromResidual;
+@@ -47,28 +48,70 @@ pub assume_specification<T>[ Option::<T>::from_residual ](option: Option<Infalli
+     no_unwind
+ ;
+ 
+-pub uninterp spec fn spec_from<S, T>(value: T, ret: S) -> bool;
++pub assume_specification<B, C>[ ControlFlow::<B, C>::is_break ](
++    value: &ControlFlow<B, C>,
++) -> (result: bool)
++    ensures
++        result <==> value is Break,
++;
++
++pub assume_specification<B, C>[ ControlFlow::<B, C>::is_continue ](
++    value: &ControlFlow<B, C>,
++) -> (result: bool)
++    ensures
++        result <==> value is Continue,
++;
+ 
+-pub broadcast proof fn spec_from_blanket_identity<T>(t: T, s: T)
++pub assume_specification<B, C>[ ControlFlow::<B, C>::break_value ](
++    value: ControlFlow<B, C>,
++) -> (result: Option<B>)
+     ensures
+-        #[trigger] spec_from::<T, T>(t, s) ==> t == s,
+-{
+-    admit();
+-}
++        result == match value {
++            ControlFlow::Break(b) => Some(b),
++            ControlFlow::Continue(_) => None,
++        },
++;
++
++pub assume_specification<B, C>[ ControlFlow::<B, C>::continue_value ](
++    value: ControlFlow<B, C>,
++) -> (result: Option<C>)
++    ensures
++        result == match value {
++            ControlFlow::Break(_) => None,
++            ControlFlow::Continue(c) => Some(c),
++        },
++;
++
++pub assume_specification<B, C>[ ControlFlow::<B, C>::break_ok ](
++    value: ControlFlow<B, C>,
++) -> (result: Result<B, C>)
++    ensures
++        result == match value {
++            ControlFlow::Break(b) => Ok(b),
++            ControlFlow::Continue(c) => Err(c),
++        },
++;
++
++pub assume_specification<B, C>[ ControlFlow::<B, C>::continue_ok ](
++    value: ControlFlow<B, C>,
++) -> (result: Result<C, B>)
++    ensures
++        result == match value {
++            ControlFlow::Break(b) => Err(b),
++            ControlFlow::Continue(c) => Ok(c),
++        },
++;
+ 
+ pub assume_specification<T, E, F: From<E>>[ Result::<T, F>::from_residual ](
+     result: Result<Infallible, E>,
+ ) -> (result2: Result<T, F>)
++    requires
++        F::obeys_from_spec(),
+     ensures
+         match (result, result2) {
+-            (Err(e), Err(e2)) => spec_from::<F, E>(e, e2),
++            (Err(e), Err(e2)) => e2 == F::from_spec(e),
+             _ => false,
+         },
+-    no_unwind
+ ;
+ 
+-pub broadcast group group_control_flow_axioms {
+-    spec_from_blanket_identity,
+-}
+-
+ } // verus!
+diff --git a/source/vstd/std_specs/convert.rs b/source/vstd/std_specs/convert.rs
+index ef8a86ee..ae1f1a2a 100644
+--- a/source/vstd/std_specs/convert.rs
++++ b/source/vstd/std_specs/convert.rs
+@@ -41,7 +41,17 @@ impl<T, U: From<T>> IntoSpecImpl<U> for T {
+     }
+ 
+     open spec fn into_spec(self) -> U {
+-        U::from_spec(self)
++        <U as FromSpec<Self>>::from_spec(self)
++    }
++}
++
++impl<T> FromSpecImpl<T> for T {
++    open spec fn obeys_from_spec() -> bool {
++        true
++    }
++
++    open spec fn from_spec(value: T) -> T {
++        value
+     }
+ }
+ 
+diff --git a/source/vstd/std_specs/mod.rs b/source/vstd/std_specs/mod.rs
+index b83a8904..5e153ba8 100644
+--- a/source/vstd/std_specs/mod.rs
++++ b/source/vstd/std_specs/mod.rs
+@@ -4,16 +4,26 @@ pub mod alloc;
+ pub mod atomic;
+ pub mod bits;
+ pub mod borrow;
++#[cfg(feature = "alloc")]
++pub mod capacity;
+ pub mod clone;
+ pub mod cmp;
++#[cfg(feature = "alloc")]
++pub mod collections_extra;
+ pub mod control_flow;
+ pub mod convert;
+ pub mod core;
+ pub mod default;
++pub mod duration;
++pub mod ffi;
+ pub mod iter;
++pub mod layout_value;
++pub mod location;
+ pub mod manually_drop;
+ pub mod maybe_uninit;
++pub mod net;
+ pub mod ops;
++pub mod ordering;
+ 
+ #[cfg(feature = "alloc")]
+ pub mod btree;
+diff --git a/source/vstd/std_specs/vecdeque.rs b/source/vstd/std_specs/vecdeque.rs
+index 44f1a0e7..567ae9f7 100644
+--- a/source/vstd/std_specs/vecdeque.rs
++++ b/source/vstd/std_specs/vecdeque.rs
+@@ -1,8 +1,10 @@
+ /// This code adds specifications for the standard-library type
+ /// `std::collections::VecDeque`.
+ use super::super::prelude::*;
++use super::cmp::{PartialEqSpec, PartialEqSpecImpl};
+ use super::iter::IteratorSpec;
+ 
++use alloc::collections::TryReserveError;
+ use alloc::collections::vec_deque::Iter;
+ use alloc::collections::vec_deque::VecDeque;
+ use core::alloc::Allocator;
+@@ -106,6 +108,22 @@ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::reserve ](
+         final(v)@ == old(v)@,
+ ;
+ 
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::reserve_exact ](
++    v: &mut VecDeque<T, A>,
++    additional: usize,
++)
++    ensures
++        final(v)@ == old(v)@,
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::try_reserve_exact ](
++    v: &mut VecDeque<T, A>,
++    additional: usize,
++) -> (result: Result<(), TryReserveError>)
++    ensures
++        final(v)@ == old(v)@,
++;
++
+ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::push_back ](
+     v: &mut VecDeque<T, A>,
+     value: T,
+@@ -156,6 +174,132 @@ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_front ](
+         },
+ ;
+ 
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_back ](
++    v: &mut VecDeque<T, A>,
++    index: usize,
++) -> (result: Option<T>)
++    ensures
++        match result {
++            Some(value) => {
++                &&& index < old(v)@.len()
++                &&& value == old(v)@[index as int]
++                &&& final(v)@ == old(v)@.update(index as int, old(v)@.last()).drop_last()
++            },
++            None => {
++                &&& old(v)@.len() <= index
++                &&& final(v)@ == old(v)@
++            },
++        },
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap_remove_front ](
++    v: &mut VecDeque<T, A>,
++    index: usize,
++) -> (result: Option<T>)
++    ensures
++        match result {
++            Some(value) => {
++                &&& index < old(v)@.len()
++                &&& value == old(v)@[index as int]
++                &&& final(v)@ == old(v)@.update(index as int, old(v)@[0]).subrange(
++                    1,
++                    old(v)@.len() as int,
++                )
++            },
++            None => {
++                &&& old(v)@.len() <= index
++                &&& final(v)@ == old(v)@
++            },
++        },
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::is_empty ](
++    v: &VecDeque<T, A>,
++) -> (result: bool)
++    ensures
++        result <==> v@.len() == 0,
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::front ](v: &VecDeque<T, A>) -> (result:
++    Option<&T>)
++    ensures
++        v@.len() == 0 ==> result is None,
++        v@.len() > 0 ==> (result matches Some(value) && *value == v@[0]),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::back ](v: &VecDeque<T, A>) -> (result:
++    Option<&T>)
++    ensures
++        v@.len() == 0 ==> result is None,
++        v@.len() > 0 ==> (result matches Some(value) && *value == v@.last()),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::get ](
++    v: &VecDeque<T, A>,
++    index: usize,
++) -> (result: Option<&T>)
++    ensures
++        index < v@.len() ==> (result matches Some(value) && *value == v@[index as int]),
++        index >= v@.len() ==> result is None,
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::as_slices ](
++    v: &VecDeque<T, A>,
++) -> (result: (&[T], &[T]))
++    ensures
++        result.0@ + result.1@ == v@,
++;
++
++pub assume_specification<T: PartialEq, A: Allocator>[ VecDeque::<T, A>::contains ](
++    v: &VecDeque<T, A>,
++    value: &T,
++) -> (result: bool)
++    requires
++        T::obeys_eq_spec(),
++    ensures
++        result <==> exists|i: int| 0 <= i < v@.len() && #[trigger] v@[i].eq_spec(value),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::rotate_left ](
++    v: &mut VecDeque<T, A>,
++    mid: usize,
++)
++    requires
++        mid <= old(v)@.len(),
++    ensures
++        final(v)@ == old(v)@.subrange(mid as int, old(v)@.len() as int) + old(v)@.subrange(
++            0,
++            mid as int,
++        ),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::rotate_right ](
++    v: &mut VecDeque<T, A>,
++    k: usize,
++)
++    requires
++        k <= old(v)@.len(),
++    ensures
++        final(v)@ == old(v)@.subrange(old(v)@.len() as int - k as int, old(v)@.len() as int) + old(
++            v,
++        )@.subrange(0, old(v)@.len() as int - k as int),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::swap ](
++    v: &mut VecDeque<T, A>,
++    i: usize,
++    j: usize,
++)
++    requires
++        i < old(v)@.len(),
++        j < old(v)@.len(),
++    ensures
++        final(v)@ == old(v)@.update(i as int, old(v)@[j as int]).update(
++            j as int,
++            old(v)@[i as int],
++        ),
++;
++
+ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::append ](
+     v: &mut VecDeque<T, A>,
+     other: &mut VecDeque<T, A>,
+diff --git a/source/vstd/vstd.rs b/source/vstd/vstd.rs
+index 0ba7a4d5..6c85994b 100644
+--- a/source/vstd/vstd.rs
++++ b/source/vstd/vstd.rs
+@@ -128,7 +128,6 @@ pub broadcast group group_vstd_default {
+     //
+     std_specs::range::group_range_axioms,
+     std_specs::bits::group_bits_axioms,
+-    std_specs::control_flow::group_control_flow_axioms,
+     std_specs::slice::group_slice_axioms,
+     std_specs::manually_drop::group_manually_drop_axioms,
+     std_specs::iter::group_iter_axioms,
+diff --git a/source/vstd/std_specs/capacity.rs b/source/vstd/std_specs/capacity.rs
+new file mode 100644
+index 00000000..a1ae82b9
+--- /dev/null
++++ b/source/vstd/std_specs/capacity.rs
+@@ -0,0 +1,230 @@
++//! Experimental capacity specifications for allocation-backed collections.
++use super::super::multiset::Multiset;
++use super::super::prelude::*;
++use super::super::utf8::encode_utf8;
++
++use alloc::collections::{BinaryHeap, TryReserveError, VecDeque};
++use alloc::string::String;
++use alloc::vec::Vec;
++use core::alloc::Allocator;
++
++verus! {
++
++pub trait CapacitySpec {
++    spec fn spec_capacity(&self) -> nat;
++}
++
++impl<T, A: Allocator> CapacitySpec for Vec<T, A> {
++    #[verifier::external_body]
++    uninterp spec fn spec_capacity(&self) -> nat;
++}
++
++impl CapacitySpec for String {
++    #[verifier::external_body]
++    uninterp spec fn spec_capacity(&self) -> nat;
++}
++
++impl<T, A: Allocator> CapacitySpec for VecDeque<T, A> {
++    #[verifier::external_body]
++    uninterp spec fn spec_capacity(&self) -> nat;
++}
++
++impl<T, A: Allocator> CapacitySpec for BinaryHeap<T, A> {
++    #[verifier::external_body]
++    uninterp spec fn spec_capacity(&self) -> nat;
++}
++
++pub assume_specification<T, A: Allocator>[ Vec::<T, A>::capacity ](v: &Vec<T, A>) -> (result: usize)
++    ensures
++        result as nat == v.spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ Vec::<T, A>::reserve_exact ](
++    v: &mut Vec<T, A>,
++    additional: usize,
++)
++    ensures
++        final(v)@ == old(v)@,
++        final(v).spec_capacity() >= old(v)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ Vec::<T, A>::try_reserve_exact ](
++    v: &mut Vec<T, A>,
++    additional: usize,
++) -> (result: Result<(), TryReserveError>)
++    ensures
++        final(v)@ == old(v)@,
++        result is Ok ==> final(v).spec_capacity() >= old(v)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ Vec::<T, A>::shrink_to_fit ](v: &mut Vec<T, A>)
++    ensures
++        final(v)@ == old(v)@,
++        final(v).spec_capacity() >= old(v)@.len(),
++        final(v).spec_capacity() <= old(v).spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ Vec::<T, A>::shrink_to ](
++    v: &mut Vec<T, A>,
++    min_capacity: usize,
++)
++    ensures
++        final(v)@ == old(v)@,
++        final(v).spec_capacity() >= old(v)@.len(),
++        final(v).spec_capacity() <= old(v).spec_capacity(),
++;
++
++pub assume_specification[ String::capacity ](s: &String) -> (result: usize)
++    ensures
++        result as nat == s.spec_capacity(),
++;
++
++pub assume_specification[ String::with_capacity ](capacity: usize) -> (result: String)
++    ensures
++        result@ == Seq::<char>::empty(),
++        result.spec_capacity() >= capacity as nat,
++;
++
++pub assume_specification[ String::reserve ](s: &mut String, additional: usize)
++    ensures
++        final(s)@ == old(s)@,
++        final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat,
++;
++
++pub assume_specification[ String::reserve_exact ](s: &mut String, additional: usize)
++    ensures
++        final(s)@ == old(s)@,
++        final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat,
++;
++
++pub assume_specification[ String::try_reserve ](s: &mut String, additional: usize) -> (result:
++    Result<(), TryReserveError>)
++    ensures
++        final(s)@ == old(s)@,
++        result is Ok ==> final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat,
++;
++
++pub assume_specification[ String::try_reserve_exact ](s: &mut String, additional: usize) -> (result:
++    Result<(), TryReserveError>)
++    ensures
++        final(s)@ == old(s)@,
++        result is Ok ==> final(s).spec_capacity() >= encode_utf8(old(s)@).len() + additional as nat,
++;
++
++pub assume_specification[ String::shrink_to_fit ](s: &mut String)
++    ensures
++        final(s)@ == old(s)@,
++        final(s).spec_capacity() >= encode_utf8(old(s)@).len(),
++        final(s).spec_capacity() <= old(s).spec_capacity(),
++;
++
++pub assume_specification[ String::shrink_to ](s: &mut String, min_capacity: usize)
++    ensures
++        final(s)@ == old(s)@,
++        final(s).spec_capacity() >= encode_utf8(old(s)@).len(),
++        final(s).spec_capacity() <= old(s).spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::capacity ](
++    v: &VecDeque<T, A>,
++) -> (result: usize)
++    ensures
++        result as nat == v.spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::try_reserve ](
++    v: &mut VecDeque<T, A>,
++    additional: usize,
++) -> (result: Result<(), TryReserveError>)
++    ensures
++        final(v)@ == old(v)@,
++        result is Ok ==> final(v).spec_capacity() >= old(v)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::shrink_to_fit ](v: &mut VecDeque<T, A>)
++    ensures
++        final(v)@ == old(v)@,
++        final(v).spec_capacity() >= old(v)@.len(),
++        final(v).spec_capacity() <= old(v).spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::shrink_to ](
++    v: &mut VecDeque<T, A>,
++    min_capacity: usize,
++)
++    ensures
++        final(v)@ == old(v)@,
++        final(v).spec_capacity() >= old(v)@.len(),
++        final(v).spec_capacity() <= old(v).spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::capacity ](
++    heap: &BinaryHeap<T, A>,
++) -> (result: usize)
++    ensures
++        result as nat == heap.spec_capacity(),
++;
++
++pub assume_specification<T>[ BinaryHeap::<T>::with_capacity ](capacity: usize) -> (result:
++    BinaryHeap<T>)
++    ensures
++        result@ == Multiset::<T>::empty(),
++        result.spec_capacity() >= capacity as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::reserve ](
++    heap: &mut BinaryHeap<T, A>,
++    additional: usize,
++)
++    ensures
++        final(heap)@ == old(heap)@,
++        final(heap).spec_capacity() >= old(heap)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::reserve_exact ](
++    heap: &mut BinaryHeap<T, A>,
++    additional: usize,
++)
++    ensures
++        final(heap)@ == old(heap)@,
++        final(heap).spec_capacity() >= old(heap)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::try_reserve ](
++    heap: &mut BinaryHeap<T, A>,
++    additional: usize,
++) -> (result: Result<(), TryReserveError>)
++    ensures
++        final(heap)@ == old(heap)@,
++        result is Ok ==> final(heap).spec_capacity() >= old(heap)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::try_reserve_exact ](
++    heap: &mut BinaryHeap<T, A>,
++    additional: usize,
++) -> (result: Result<(), TryReserveError>)
++    ensures
++        final(heap)@ == old(heap)@,
++        result is Ok ==> final(heap).spec_capacity() >= old(heap)@.len() + additional as nat,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::shrink_to_fit ](
++    heap: &mut BinaryHeap<T, A>,
++)
++    ensures
++        final(heap)@ == old(heap)@,
++        final(heap).spec_capacity() >= old(heap)@.len(),
++        final(heap).spec_capacity() <= old(heap).spec_capacity(),
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::shrink_to ](
++    heap: &mut BinaryHeap<T, A>,
++    min_capacity: usize,
++)
++    ensures
++        final(heap)@ == old(heap)@,
++        final(heap).spec_capacity() >= old(heap)@.len(),
++        final(heap).spec_capacity() <= old(heap).spec_capacity(),
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/collections_extra.rs b/source/vstd/std_specs/collections_extra.rs
+new file mode 100644
+index 00000000..e2504a43
+--- /dev/null
++++ b/source/vstd/std_specs/collections_extra.rs
+@@ -0,0 +1,236 @@
++//! Experimental specifications for additional `alloc::collections` types.
++use super::super::laws_eq::obeys_concrete_eq;
++use super::super::multiset::Multiset;
++use super::super::prelude::*;
++
++use alloc::collections::{BinaryHeap, LinkedList};
++use alloc::vec::Vec;
++use core::alloc::Allocator;
++
++verus! {
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++#[verifier::accept_recursive_types(T)]
++#[verifier::reject_recursive_types(A)]
++pub struct ExBinaryHeap<T, A: Allocator>(BinaryHeap<T, A>);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++#[verifier::accept_recursive_types(T)]
++#[verifier::reject_recursive_types(A)]
++pub struct ExLinkedList<T, A: Allocator>(LinkedList<T, A>);
++
++impl<T, A: Allocator> View for BinaryHeap<T, A> {
++    type V = Multiset<T>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Multiset<T>;
++}
++
++impl<T, A: Allocator> View for LinkedList<T, A> {
++    type V = Seq<T>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Seq<T>;
++}
++
++impl<T: DeepView, A: Allocator> DeepView for LinkedList<T, A> {
++    type V = Seq<T::V>;
++
++    open spec fn deep_view(&self) -> Seq<T::V> {
++        Seq::new(self@.len(), |i: int| self@[i].deep_view())
++    }
++}
++
++pub assume_specification<T>[ BinaryHeap::<T>::new ]() -> (result: BinaryHeap<T>)
++    ensures
++        result@ == Multiset::<T>::empty(),
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::len ](
++    heap: &BinaryHeap<T, A>,
++) -> (result: usize)
++    ensures
++        result as nat == heap@.len(),
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::is_empty ](
++    heap: &BinaryHeap<T, A>,
++) -> (result: bool)
++    ensures
++        result <==> heap@.len() == 0,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::clear ](heap: &mut BinaryHeap<T, A>)
++    ensures
++        final(heap)@ == Multiset::<T>::empty(),
++;
++
++pub assume_specification<T: Ord, A: Allocator>[ BinaryHeap::<T, A>::push ](
++    heap: &mut BinaryHeap<T, A>,
++    item: T,
++)
++    ensures
++        final(heap)@ == old(heap)@.insert(item),
++;
++
++pub assume_specification<T: Ord, A: Allocator>[ BinaryHeap::<T, A>::append ](
++    heap: &mut BinaryHeap<T, A>,
++    other: &mut BinaryHeap<T, A>,
++)
++    ensures
++        final(heap)@ == old(heap)@.add(old(other)@),
++        final(other)@ == Multiset::<T>::empty(),
++;
++
++pub assume_specification<T: Ord, A: Allocator>[ BinaryHeap::<T, A>::pop ](
++    heap: &mut BinaryHeap<T, A>,
++) -> (result: Option<T>)
++    ensures
++        match result {
++            None => {
++                &&& old(heap)@.len() == 0
++                &&& final(heap)@ == old(heap)@
++            },
++            Some(value) => {
++                &&& old(heap)@.contains(value)
++                &&& final(heap)@ == old(heap)@.remove(value)
++            },
++        },
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::peek ](
++    heap: &BinaryHeap<T, A>,
++) -> (result: Option<&T>)
++    ensures
++        result is None <==> heap@.len() == 0,
++        result matches Some(value) ==> heap@.contains(*value),
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::as_slice ](
++    heap: &BinaryHeap<T, A>,
++) -> (result: &[T])
++    ensures
++        result@.to_multiset() == heap@,
++;
++
++pub assume_specification<T, A: Allocator>[ BinaryHeap::<T, A>::into_vec ](
++    heap: BinaryHeap<T, A>,
++) -> (result: Vec<T, A>)
++    ensures
++        result@.to_multiset() == heap@,
++;
++
++pub assume_specification<T: Ord, A: Allocator>[ BinaryHeap::<T, A>::into_sorted_vec ](
++    heap: BinaryHeap<T, A>,
++) -> (result: Vec<T, A>)
++    ensures
++        result@.to_multiset() == heap@,
++;
++
++pub assume_specification<T>[ LinkedList::<T>::new ]() -> (result: LinkedList<T>)
++    ensures
++        result@ == Seq::<T>::empty(),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::len ](
++    list: &LinkedList<T, A>,
++) -> (result: usize)
++    ensures
++        result as nat == list@.len(),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::is_empty ](
++    list: &LinkedList<T, A>,
++) -> (result: bool)
++    ensures
++        result <==> list@.len() == 0,
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::contains ](
++    list: &LinkedList<T, A>,
++    value: &T,
++) -> (result: bool) where T: core::cmp::PartialEq<T>
++    requires
++        obeys_concrete_eq::<T>(),
++    ensures
++        result <==> list@.contains(*value),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::clear ](list: &mut LinkedList<T, A>)
++    ensures
++        final(list)@ == Seq::<T>::empty(),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::push_front ](
++    list: &mut LinkedList<T, A>,
++    item: T,
++)
++    ensures
++        final(list)@ == seq![item] + old(list)@,
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::push_back ](
++    list: &mut LinkedList<T, A>,
++    item: T,
++)
++    ensures
++        final(list)@ == old(list)@.push(item),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::pop_front ](
++    list: &mut LinkedList<T, A>,
++) -> (result: Option<T>)
++    ensures
++        old(list)@.len() == 0 ==> result is None && final(list)@ == old(list)@,
++        old(list)@.len() > 0 ==> (result matches Some(value) && value == old(list)@[0]
++            && final(list)@ == old(list)@.drop_first()),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::pop_back ](
++    list: &mut LinkedList<T, A>,
++) -> (result: Option<T>)
++    ensures
++        old(list)@.len() == 0 ==> result is None && final(list)@ == old(list)@,
++        old(list)@.len() > 0 ==> (result matches Some(value) && value == old(list)@.last()
++            && final(list)@ == old(list)@.drop_last()),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::front ](
++    list: &LinkedList<T, A>,
++) -> (result: Option<&T>)
++    ensures
++        list@.len() == 0 ==> result is None,
++        list@.len() > 0 ==> (result matches Some(value) && *value == list@[0]),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::back ](
++    list: &LinkedList<T, A>,
++) -> (result: Option<&T>)
++    ensures
++        list@.len() == 0 ==> result is None,
++        list@.len() > 0 ==> (result matches Some(value) && *value == list@.last()),
++;
++
++pub assume_specification<T>[ LinkedList::<T>::append ](
++    list: &mut LinkedList<T>,
++    other: &mut LinkedList<T>,
++)
++    ensures
++        final(list)@ == old(list)@ + old(other)@,
++        final(other)@ == Seq::<T>::empty(),
++;
++
++pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::split_off ](
++    list: &mut LinkedList<T, A>,
++    at: usize,
++) -> (result: LinkedList<T, A>) where A: Clone
++    requires
++        at <= old(list)@.len(),
++    ensures
++        final(list)@ == old(list)@.take(at as int),
++        result@ == old(list)@.skip(at as int),
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/duration.rs b/source/vstd/std_specs/duration.rs
+new file mode 100644
+index 00000000..645f3751
+--- /dev/null
++++ b/source/vstd/std_specs/duration.rs
+@@ -0,0 +1,433 @@
++//! Experimental specifications for `core::time::Duration`.
++use super::super::arithmetic::power2::pow2;
++use super::super::float::{FloatBitsProperties, ieee_float_cast};
++use super::super::prelude::*;
++
++use core::time::{Duration, TryFromFloatSecsError};
++
++verus! {
++
++pub open spec fn nanos_per_second() -> nat {
++    1_000_000_000
++}
++
++pub open spec fn duration_max_nanos() -> nat {
++    u64::MAX as nat * nanos_per_second() + 999_999_999
++}
++
++/// True when executable floating-point operations follow the RFC 3514
++/// finite-result semantics modeled by Verus's deterministic IEEE spec operators.
++pub uninterp spec fn duration_float_ieee_semantics() -> bool;
++
++pub enum TryFromFloatSecsErrorView {
++    Negative,
++    OverflowOrNan,
++}
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExTryFromFloatSecsError(TryFromFloatSecsError);
++
++impl View for TryFromFloatSecsError {
++    type V = TryFromFloatSecsErrorView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> TryFromFloatSecsErrorView;
++}
++
++pub open spec fn duration_secs_f32_is_negative(secs: f32) -> bool {
++    let bits = secs.to_bits_abs_spec() as nat;
++    secs.is_sign_negative_spec() && bits != 0 && !secs.is_nan_spec()
++}
++
++pub open spec fn duration_secs_f64_is_negative(secs: f64) -> bool {
++    let bits = secs.to_bits_abs_spec() as nat;
++    secs.is_sign_negative_spec() && bits != 0 && !secs.is_nan_spec()
++}
++
++pub open spec fn duration_secs_f32_valid(secs: f32) -> bool {
++    !duration_secs_f32_is_negative(secs) && secs.to_bits_abs_spec() as nat / 0x80_0000 < 191
++}
++
++pub open spec fn duration_secs_f64_valid(secs: f64) -> bool {
++    !duration_secs_f64_is_negative(secs) && secs.to_bits_abs_spec() as nat / 0x10_0000_0000_0000
++        < 1087
++}
++
++pub open spec fn duration_from_secs_f32_nanos(secs: f32) -> nat {
++    let bits = secs.to_bits_abs_spec() as nat;
++    let exponent = bits / 0x80_0000;
++    let mantissa = bits % 0x80_0000;
++    let significand = if exponent == 0 {
++        mantissa
++    } else {
++        0x80_0000 + mantissa
++    };
++    let numerator = if exponent < 150 {
++        1_000_000_000 * significand
++    } else {
++        1_000_000_000 * significand * pow2((exponent - 150) as nat)
++    };
++    let denominator = if exponent < 150 {
++        if exponent == 0 {
++            pow2(149)
++        } else {
++            pow2((150 - exponent) as nat)
++        }
++    } else {
++        1
++    };
++    let quotient = numerator / denominator;
++    let remainder = numerator % denominator;
++    if remainder * 2 < denominator {
++        quotient
++    } else if remainder * 2 > denominator || quotient % 2 == 1 {
++        quotient + 1
++    } else {
++        quotient
++    }
++}
++
++pub open spec fn duration_from_secs_f64_nanos(secs: f64) -> nat {
++    let bits = secs.to_bits_abs_spec() as nat;
++    let exponent = bits / 0x10_0000_0000_0000;
++    let mantissa = bits % 0x10_0000_0000_0000;
++    let significand = if exponent == 0 {
++        mantissa
++    } else {
++        0x10_0000_0000_0000 + mantissa
++    };
++    let numerator = if exponent < 1075 {
++        1_000_000_000 * significand
++    } else {
++        1_000_000_000 * significand * pow2((exponent - 1075) as nat)
++    };
++    let denominator = if exponent < 1075 {
++        if exponent == 0 {
++            pow2(1074)
++        } else {
++            pow2((1075 - exponent) as nat)
++        }
++    } else {
++        1
++    };
++    let quotient = numerator / denominator;
++    let remainder = numerator % denominator;
++    if remainder * 2 < denominator {
++        quotient
++    } else if remainder * 2 > denominator || quotient % 2 == 1 {
++        quotient + 1
++    } else {
++        quotient
++    }
++}
++
++pub open spec fn duration_as_secs_f32(nanos: nat) -> f32 {
++    ieee_float_cast::<u64, f32>((nanos / nanos_per_second()) as u64) + ieee_float_cast::<u32, f32>(
++        (nanos % nanos_per_second()) as u32,
++    ) / ieee_float_cast::<u32, f32>(1_000_000_000u32)
++}
++
++pub open spec fn duration_as_secs_f64(nanos: nat) -> f64 {
++    ieee_float_cast::<u64, f64>((nanos / nanos_per_second()) as u64) + ieee_float_cast::<u32, f64>(
++        (nanos % nanos_per_second()) as u32,
++    ) / ieee_float_cast::<u32, f64>(1_000_000_000u32)
++}
++
++pub open spec fn duration_as_nanos_f32(nanos: nat) -> f32 {
++    ieee_float_cast::<u64, f32>((nanos / nanos_per_second()) as u64) * ieee_float_cast::<u32, f32>(
++        1_000_000_000u32,
++    ) + ieee_float_cast::<u32, f32>((nanos % nanos_per_second()) as u32)
++}
++
++pub open spec fn duration_as_nanos_f64(nanos: nat) -> f64 {
++    ieee_float_cast::<u64, f64>((nanos / nanos_per_second()) as u64) * ieee_float_cast::<u32, f64>(
++        1_000_000_000u32,
++    ) + ieee_float_cast::<u32, f64>((nanos % nanos_per_second()) as u32)
++}
++
++impl View for Duration {
++    type V = nat;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> nat;
++}
++
++pub axiom fn axiom_duration_view_valid(duration: &Duration)
++    ensures
++        duration@ <= duration_max_nanos(),
++;
++
++pub assume_specification[ Duration::new ](secs: u64, nanos: u32) -> (result: Duration)
++    requires
++        secs as nat + nanos as nat / nanos_per_second() <= u64::MAX as nat,
++    ensures
++        result@ == secs as nat * nanos_per_second() + nanos as nat,
++;
++
++pub assume_specification[ Duration::from_secs ](secs: u64) -> (result: Duration)
++    ensures
++        result@ == secs as nat * nanos_per_second(),
++;
++
++pub assume_specification[ Duration::from_millis ](millis: u64) -> (result: Duration)
++    ensures
++        result@ == millis as nat * 1_000_000,
++;
++
++pub assume_specification[ Duration::from_micros ](micros: u64) -> (result: Duration)
++    ensures
++        result@ == micros as nat * 1_000,
++;
++
++pub assume_specification[ Duration::from_nanos ](nanos: u64) -> (result: Duration)
++    ensures
++        result@ == nanos as nat,
++;
++
++pub assume_specification[ Duration::from_nanos_u128 ](nanos: u128) -> (result: Duration)
++    requires
++        nanos as nat <= duration_max_nanos(),
++    ensures
++        result@ == nanos as nat,
++;
++
++pub assume_specification[ Duration::from_hours ](hours: u64) -> (result: Duration)
++    requires
++        hours as nat * 3_600 <= u64::MAX as nat,
++    ensures
++        result@ == hours as nat * 3_600 * nanos_per_second(),
++;
++
++pub assume_specification[ Duration::from_mins ](mins: u64) -> (result: Duration)
++    requires
++        mins as nat * 60 <= u64::MAX as nat,
++    ensures
++        result@ == mins as nat * 60 * nanos_per_second(),
++;
++
++pub assume_specification[ Duration::is_zero ](duration: &Duration) -> (result: bool)
++    ensures
++        result <==> duration@ == 0,
++;
++
++pub assume_specification[ Duration::as_secs ](duration: &Duration) -> (result: u64)
++    ensures
++        result as nat == duration@ / nanos_per_second(),
++;
++
++pub assume_specification[ Duration::as_secs_f32 ](duration: &Duration) -> (result: f32)
++    requires
++        duration_float_ieee_semantics(),
++    ensures
++        result == duration_as_secs_f32(duration@),
++;
++
++pub assume_specification[ Duration::as_secs_f64 ](duration: &Duration) -> (result: f64)
++    requires
++        duration_float_ieee_semantics(),
++    ensures
++        result == duration_as_secs_f64(duration@),
++;
++
++pub assume_specification[ Duration::subsec_millis ](duration: &Duration) -> (result: u32)
++    ensures
++        result as nat == duration@ % nanos_per_second() / 1_000_000,
++;
++
++pub assume_specification[ Duration::subsec_micros ](duration: &Duration) -> (result: u32)
++    ensures
++        result as nat == duration@ % nanos_per_second() / 1_000,
++;
++
++pub assume_specification[ Duration::subsec_nanos ](duration: &Duration) -> (result: u32)
++    ensures
++        result as nat == duration@ % nanos_per_second(),
++;
++
++pub assume_specification[ Duration::as_millis ](duration: &Duration) -> (result: u128)
++    ensures
++        result as nat == duration@ / 1_000_000,
++;
++
++pub assume_specification[ Duration::as_micros ](duration: &Duration) -> (result: u128)
++    ensures
++        result as nat == duration@ / 1_000,
++;
++
++pub assume_specification[ Duration::as_nanos ](duration: &Duration) -> (result: u128)
++    ensures
++        result as nat == duration@,
++;
++
++pub assume_specification[ Duration::abs_diff ](lhs: Duration, rhs: Duration) -> (result: Duration)
++    ensures
++        result@ == if lhs@ >= rhs@ {
++            lhs@ - rhs@
++        } else {
++            rhs@ - lhs@
++        },
++;
++
++pub assume_specification[ Duration::checked_add ](lhs: Duration, rhs: Duration) -> (result: Option<
++    Duration,
++>)
++    ensures
++        lhs@ + rhs@ <= duration_max_nanos() ==> (result matches Some(value) && value@ == lhs@
++            + rhs@),
++        lhs@ + rhs@ > duration_max_nanos() ==> result is None,
++;
++
++pub assume_specification[ Duration::saturating_add ](lhs: Duration, rhs: Duration) -> (result:
++    Duration)
++    ensures
++        result@ == if lhs@ + rhs@ <= duration_max_nanos() {
++            lhs@ + rhs@
++        } else {
++            duration_max_nanos()
++        },
++;
++
++pub assume_specification[ Duration::checked_sub ](lhs: Duration, rhs: Duration) -> (result: Option<
++    Duration,
++>)
++    ensures
++        lhs@ >= rhs@ ==> (result matches Some(value) && value@ == lhs@ - rhs@),
++        lhs@ < rhs@ ==> result is None,
++;
++
++pub assume_specification[ Duration::saturating_sub ](lhs: Duration, rhs: Duration) -> (result:
++    Duration)
++    ensures
++        result@ == if lhs@ >= rhs@ {
++            lhs@ - rhs@
++        } else {
++            0
++        },
++;
++
++pub assume_specification[ Duration::checked_mul ](lhs: Duration, rhs: u32) -> (result: Option<
++    Duration,
++>)
++    ensures
++        lhs@ * rhs as nat <= duration_max_nanos() ==> (result matches Some(value) && value@ == lhs@
++            * rhs as nat),
++        lhs@ * rhs as nat > duration_max_nanos() ==> result is None,
++;
++
++pub assume_specification[ Duration::saturating_mul ](lhs: Duration, rhs: u32) -> (result: Duration)
++    ensures
++        result@ == if lhs@ * rhs as nat <= duration_max_nanos() {
++            lhs@ * rhs as nat
++        } else {
++            duration_max_nanos()
++        },
++;
++
++pub assume_specification[ Duration::checked_div ](lhs: Duration, rhs: u32) -> (result: Option<
++    Duration,
++>)
++    ensures
++        rhs != 0 ==> (result matches Some(value) && value@ == lhs@ / rhs as nat),
++        rhs == 0 ==> result is None,
++;
++
++pub assume_specification[ Duration::mul_f64 ](duration: Duration, rhs: f64) -> (result: Duration)
++    requires
++        duration_float_ieee_semantics(),
++        duration_secs_f64_valid(rhs * duration_as_secs_f64(duration@)),
++    ensures
++        result@ == duration_from_secs_f64_nanos(rhs * duration_as_secs_f64(duration@)),
++;
++
++pub assume_specification[ Duration::mul_f32 ](duration: Duration, rhs: f32) -> (result: Duration)
++    requires
++        duration_float_ieee_semantics(),
++        duration_secs_f32_valid(rhs * duration_as_secs_f32(duration@)),
++    ensures
++        result@ == duration_from_secs_f32_nanos(rhs * duration_as_secs_f32(duration@)),
++;
++
++pub assume_specification[ Duration::div_f64 ](duration: Duration, rhs: f64) -> (result: Duration)
++    requires
++        duration_float_ieee_semantics(),
++        duration_secs_f64_valid(duration_as_secs_f64(duration@) / rhs),
++    ensures
++        result@ == duration_from_secs_f64_nanos(duration_as_secs_f64(duration@) / rhs),
++;
++
++pub assume_specification[ Duration::div_f32 ](duration: Duration, rhs: f32) -> (result: Duration)
++    requires
++        duration_float_ieee_semantics(),
++        duration_secs_f32_valid(duration_as_secs_f32(duration@) / rhs),
++    ensures
++        result@ == duration_from_secs_f32_nanos(duration_as_secs_f32(duration@) / rhs),
++;
++
++pub assume_specification[ Duration::from_secs_f32 ](secs: f32) -> (result: Duration)
++    requires
++        duration_secs_f32_valid(secs),
++    ensures
++        result@ == duration_from_secs_f32_nanos(secs),
++;
++
++pub assume_specification[ Duration::from_secs_f64 ](secs: f64) -> (result: Duration)
++    requires
++        duration_secs_f64_valid(secs),
++    ensures
++        result@ == duration_from_secs_f64_nanos(secs),
++;
++
++pub assume_specification[ Duration::try_from_secs_f32 ](secs: f32) -> (result: Result<
++    Duration,
++    TryFromFloatSecsError,
++>)
++    ensures
++        duration_secs_f32_valid(secs) ==> (result matches Ok(value) && value@
++            == duration_from_secs_f32_nanos(secs)),
++        !duration_secs_f32_valid(secs) ==> (result matches Err(error) && error@
++            == if duration_secs_f32_is_negative(secs) {
++            TryFromFloatSecsErrorView::Negative
++        } else {
++            TryFromFloatSecsErrorView::OverflowOrNan
++        }),
++;
++
++pub assume_specification[ Duration::try_from_secs_f64 ](secs: f64) -> (result: Result<
++    Duration,
++    TryFromFloatSecsError,
++>)
++    ensures
++        duration_secs_f64_valid(secs) ==> (result matches Ok(value) && value@
++            == duration_from_secs_f64_nanos(secs)),
++        !duration_secs_f64_valid(secs) ==> (result matches Err(error) && error@
++            == if duration_secs_f64_is_negative(secs) {
++            TryFromFloatSecsErrorView::Negative
++        } else {
++            TryFromFloatSecsErrorView::OverflowOrNan
++        }),
++;
++
++pub assume_specification[ Duration::div_duration_f32 ](lhs: Duration, rhs: Duration) -> (result:
++    f32)
++    requires
++        duration_float_ieee_semantics(),
++    ensures
++        lhs@ == 0 && rhs@ == 0 ==> result.is_nan_spec(),
++        !(lhs@ == 0 && rhs@ == 0) ==> result == duration_as_nanos_f32(lhs@) / duration_as_nanos_f32(
++            rhs@,
++        ),
++;
++
++pub assume_specification[ Duration::div_duration_f64 ](lhs: Duration, rhs: Duration) -> (result:
++    f64)
++    requires
++        duration_float_ieee_semantics(),
++    ensures
++        lhs@ == 0 && rhs@ == 0 ==> result.is_nan_spec(),
++        !(lhs@ == 0 && rhs@ == 0) ==> result == duration_as_nanos_f64(lhs@) / duration_as_nanos_f64(
++            rhs@,
++        ),
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/ffi.rs b/source/vstd/std_specs/ffi.rs
+new file mode 100644
+index 00000000..431375af
+--- /dev/null
++++ b/source/vstd/std_specs/ffi.rs
+@@ -0,0 +1,347 @@
++//! Experimental specifications for `CStr` and `CString`.
++use super::super::prelude::*;
++use super::super::utf8::{decode_utf8, valid_utf8};
++
++use core::ffi::CStr;
++
++#[cfg(feature = "alloc")]
++use alloc::boxed::Box;
++#[cfg(feature = "alloc")]
++use alloc::ffi::CString;
++#[cfg(feature = "alloc")]
++use alloc::string::FromUtf8Error;
++#[cfg(feature = "alloc")]
++use alloc::string::String;
++#[cfg(feature = "alloc")]
++use alloc::vec::Vec;
++
++verus! {
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExCStr(CStr);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExFromBytesWithNulError(core::ffi::FromBytesWithNulError);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExFromBytesUntilNulError(core::ffi::FromBytesUntilNulError);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExUtf8Error(core::str::Utf8Error);
++
++#[cfg(feature = "alloc")]
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExFromUtf8Error(FromUtf8Error);
++
++#[cfg(feature = "alloc")]
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExNulError(alloc::ffi::NulError);
++
++#[cfg(feature = "alloc")]
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExCString(CString);
++
++#[cfg(feature = "alloc")]
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExFromVecWithNulError(alloc::ffi::FromVecWithNulError);
++
++#[cfg(feature = "alloc")]
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExIntoStringError(alloc::ffi::IntoStringError);
++
++pub struct Utf8ErrorView {
++    pub valid_up_to: usize,
++    pub error_len: Option<usize>,
++}
++
++#[cfg(feature = "alloc")]
++pub struct FromUtf8ErrorView {
++    pub bytes: Seq<u8>,
++    pub error: Utf8ErrorView,
++}
++
++#[cfg(feature = "alloc")]
++pub struct NulErrorView {
++    pub position: usize,
++    pub bytes: Seq<u8>,
++}
++
++#[cfg(feature = "alloc")]
++pub struct IntoStringErrorView {
++    pub value: Seq<u8>,
++    pub error: Utf8ErrorView,
++}
++
++impl View for CStr {
++    type V = Seq<u8>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Seq<u8>;
++}
++
++impl View for core::str::Utf8Error {
++    type V = Utf8ErrorView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Utf8ErrorView;
++}
++
++#[cfg(feature = "alloc")]
++impl View for CString {
++    type V = Seq<u8>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Seq<u8>;
++}
++
++#[cfg(feature = "alloc")]
++impl View for FromUtf8Error {
++    type V = FromUtf8ErrorView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> FromUtf8ErrorView;
++}
++
++#[cfg(feature = "alloc")]
++impl View for alloc::ffi::NulError {
++    type V = NulErrorView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> NulErrorView;
++}
++
++#[cfg(feature = "alloc")]
++impl View for alloc::ffi::FromVecWithNulError {
++    type V = Seq<u8>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Seq<u8>;
++}
++
++#[cfg(feature = "alloc")]
++impl View for alloc::ffi::IntoStringError {
++    type V = IntoStringErrorView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> IntoStringErrorView;
++}
++
++pub open spec fn c_string_bytes_valid(bytes: Seq<u8>) -> bool {
++    forall|i: int| 0 <= i < bytes.len() ==> #[trigger] bytes[i] != 0
++}
++
++pub open spec fn c_string_bytes_with_nul_valid(bytes: Seq<u8>) -> bool {
++    bytes.len() > 0 && bytes.last() == 0 && c_string_bytes_valid(bytes.drop_last())
++}
++
++pub open spec fn contains_nul(bytes: Seq<u8>) -> bool {
++    exists|i: int| 0 <= i < bytes.len() && #[trigger] bytes[i] == 0
++}
++
++pub closed spec fn first_nul_index(bytes: Seq<u8>) -> int
++    recommends
++        contains_nul(bytes),
++{
++    choose|i: int|
++        0 <= i < bytes.len() && bytes[i] == 0 && forall|j: int|
++            0 <= j < i ==> #[trigger] bytes[j] != 0
++}
++
++pub assume_specification[ CStr::count_bytes ](value: &CStr) -> (result: usize)
++    ensures
++        result as nat == value@.len(),
++;
++
++pub assume_specification[ CStr::is_empty ](value: &CStr) -> (result: bool)
++    ensures
++        result <==> value@.len() == 0,
++;
++
++pub assume_specification[ CStr::to_bytes ](value: &CStr) -> (result: &[u8])
++    ensures
++        result@ == value@,
++;
++
++pub assume_specification[ CStr::to_bytes_with_nul ](value: &CStr) -> (result: &[u8])
++    ensures
++        result@ == value@.push(0),
++;
++
++pub assume_specification[ CStr::from_bytes_with_nul ](bytes: &[u8]) -> (result: Result<
++    &CStr,
++    core::ffi::FromBytesWithNulError,
++>)
++    ensures
++        c_string_bytes_with_nul_valid(bytes@) ==> (result matches Ok(value) && value@
++            == bytes@.drop_last()),
++        !c_string_bytes_with_nul_valid(bytes@) ==> result is Err,
++;
++
++pub assume_specification[ CStr::from_bytes_until_nul ](bytes: &[u8]) -> (result: Result<
++    &CStr,
++    core::ffi::FromBytesUntilNulError,
++>)
++    ensures
++        contains_nul(bytes@) ==> (result matches Ok(value) && value@ == bytes@.subrange(
++            0,
++            first_nul_index(bytes@),
++        )),
++        !contains_nul(bytes@) ==> result is Err,
++;
++
++pub assume_specification[ CStr::to_str ](value: &CStr) -> (result: Result<
++    &str,
++    core::str::Utf8Error,
++>)
++    ensures
++        valid_utf8(value@) ==> (result matches Ok(string) && string@ == decode_utf8(value@)),
++        !valid_utf8(value@) ==> result is Err,
++;
++
++pub assume_specification[ core::str::Utf8Error::valid_up_to ](
++    error: &core::str::Utf8Error,
++) -> (result: usize)
++    ensures
++        result == error@.valid_up_to,
++;
++
++pub assume_specification[ core::str::Utf8Error::error_len ](
++    error: &core::str::Utf8Error,
++) -> (result: Option<usize>)
++    ensures
++        result == error@.error_len,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::as_bytes ](value: &CString) -> (result: &[u8])
++    ensures
++        result@ == value@,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::as_bytes_with_nul ](value: &CString) -> (result: &[u8])
++    ensures
++        result@ == value@.push(0),
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::as_c_str ](value: &CString) -> (result: &CStr)
++    ensures
++        result@ == value@,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::into_bytes ](value: CString) -> (result: Vec<u8>)
++    ensures
++        result@ == value@,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::into_bytes_with_nul ](value: CString) -> (result: Vec<u8>)
++    ensures
++        result@ == value@.push(0),
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::into_boxed_c_str ](value: CString) -> (result: Box<CStr>)
++    ensures
++        (*result)@ == value@,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::from_vec_with_nul ](bytes: Vec<u8>) -> (result: Result<
++    CString,
++    alloc::ffi::FromVecWithNulError,
++>)
++    ensures
++        c_string_bytes_with_nul_valid(bytes@) ==> (result matches Ok(value) && value@
++            == bytes@.drop_last()),
++        !c_string_bytes_with_nul_valid(bytes@) ==> result is Err,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ CString::into_string ](value: CString) -> (result: Result<
++    String,
++    alloc::ffi::IntoStringError,
++>)
++    ensures
++        valid_utf8(value@) ==> (result matches Ok(string) && string@ == decode_utf8(value@)),
++        !valid_utf8(value@) ==> result is Err,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ FromUtf8Error::as_bytes ](error: &FromUtf8Error) -> (result: &[u8])
++    ensures
++        result@ == error@.bytes,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ FromUtf8Error::into_bytes ](error: FromUtf8Error) -> (result: Vec<u8>)
++    ensures
++        result@ == error@.bytes,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ FromUtf8Error::utf8_error ](error: &FromUtf8Error) -> (result:
++    core::str::Utf8Error)
++    ensures
++        result@ == error@.error,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ alloc::ffi::NulError::nul_position ](
++    error: &alloc::ffi::NulError,
++) -> (result: usize)
++    ensures
++        result == error@.position,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ alloc::ffi::NulError::into_vec ](error: alloc::ffi::NulError) -> (result:
++    Vec<u8>)
++    ensures
++        result@ == error@.bytes,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ alloc::ffi::FromVecWithNulError::as_bytes ](
++    error: &alloc::ffi::FromVecWithNulError,
++) -> (result: &[u8])
++    ensures
++        result@ == error@,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ alloc::ffi::FromVecWithNulError::into_bytes ](
++    error: alloc::ffi::FromVecWithNulError,
++) -> (result: Vec<u8>)
++    ensures
++        result@ == error@,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ alloc::ffi::IntoStringError::into_cstring ](
++    error: alloc::ffi::IntoStringError,
++) -> (result: CString)
++    ensures
++        result@ == error@.value,
++;
++
++#[cfg(feature = "alloc")]
++pub assume_specification[ alloc::ffi::IntoStringError::utf8_error ](
++    error: &alloc::ffi::IntoStringError,
++) -> (result: core::str::Utf8Error)
++    ensures
++        result@ == error@.error,
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/layout_value.rs b/source/vstd/std_specs/layout_value.rs
+new file mode 100644
+index 00000000..8b6fd648
+--- /dev/null
++++ b/source/vstd/std_specs/layout_value.rs
+@@ -0,0 +1,238 @@
++//! Experimental value-level specifications for `core::alloc::Layout`.
++use super::super::layout::{
++    align_of_as_usize, align_of_val_as_usize, size_of_as_usize, size_of_val_as_usize, valid_layout,
++};
++use super::super::prelude::*;
++
++use core::alloc::{Layout, LayoutError};
++
++verus! {
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExLayout(Layout);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExLayoutError(LayoutError);
++
++pub struct LayoutView {
++    pub size: usize,
++    pub align: usize,
++}
++
++impl View for Layout {
++    type V = LayoutView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> LayoutView;
++}
++
++pub axiom fn axiom_layout_view_valid(layout: &Layout)
++    ensures
++        valid_layout(layout@.size, layout@.align),
++;
++
++pub open spec fn max_usize(lhs: usize, rhs: usize) -> usize {
++    if lhs >= rhs {
++        lhs
++    } else {
++        rhs
++    }
++}
++
++pub open spec fn round_up_to(size: nat, align: nat) -> nat
++    recommends
++        align > 0,
++{
++    if size % align == 0 {
++        size
++    } else {
++        (size + align - size % align) as nat
++    }
++}
++
++pub assume_specification[ Layout::from_size_align ](size: usize, align: usize) -> (result: Result<
++    Layout,
++    LayoutError,
++>)
++    ensures
++        valid_layout(size, align) ==> (result matches Ok(layout) && layout@ == (LayoutView {
++            size,
++            align,
++        })),
++        !valid_layout(size, align) ==> result is Err,
++;
++
++pub assume_specification[ Layout::from_size_align_unchecked ](size: usize, align: usize) -> (result:
++    Layout)
++    requires
++        valid_layout(size, align),
++    ensures
++        result@ == (LayoutView { size, align }),
++;
++
++pub assume_specification[ Layout::size ](layout: &Layout) -> (result: usize)
++    ensures
++        result == layout@.size,
++;
++
++pub assume_specification[ Layout::align ](layout: &Layout) -> (result: usize)
++    ensures
++        result == layout@.align,
++;
++
++pub assume_specification<T>[ Layout::new::<T> ]() -> (result: Layout)
++    ensures
++        result@ == (LayoutView { size: size_of_as_usize::<T>(), align: align_of_as_usize::<T>() }),
++;
++
++pub assume_specification<T: ?Sized>[ Layout::for_value::<T> ](value: &T) -> (result: Layout)
++    ensures
++        result@ == (LayoutView {
++            size: size_of_val_as_usize(value),
++            align: align_of_val_as_usize(value),
++        }),
++;
++
++pub assume_specification[ Layout::align_to ](layout: &Layout, align: usize) -> (result: Result<
++    Layout,
++    LayoutError,
++>)
++    ensures
++        valid_layout(0, align) && valid_layout(layout@.size, max_usize(layout@.align, align)) ==> (
++        result matches Ok(new_layout) && new_layout@ == (LayoutView {
++            size: layout@.size,
++            align: max_usize(layout@.align, align),
++        })),
++        (!valid_layout(0, align) || !valid_layout(layout@.size, max_usize(layout@.align, align)))
++            ==> result is Err,
++;
++
++pub assume_specification[ Layout::pad_to_align ](layout: &Layout) -> (result: Layout)
++    ensures
++        result@.align == layout@.align,
++        result@.size as nat == round_up_to(layout@.size as nat, layout@.align as nat),
++;
++
++pub assume_specification[ Layout::extend ](layout: &Layout, next: Layout) -> (result: Result<
++    (Layout, usize),
++    LayoutError,
++>)
++    ensures
++        ({
++            let offset = round_up_to(layout@.size as nat, next@.align as nat);
++            let size = offset + next@.size as nat;
++            size <= usize::MAX as nat && valid_layout(
++                size as usize,
++                max_usize(layout@.align, next@.align),
++            )
++        }) ==> ({
++            let offset = round_up_to(layout@.size as nat, next@.align as nat);
++            let size = offset + next@.size as nat;
++            result matches Ok(pair) && pair.0@ == (LayoutView {
++                size: size as usize,
++                align: max_usize(layout@.align, next@.align),
++            }) && pair.1 as nat == offset
++        }),
++        ({
++            let offset = round_up_to(layout@.size as nat, next@.align as nat);
++            let size = offset + next@.size as nat;
++            size > usize::MAX as nat || !valid_layout(
++                size as usize,
++                max_usize(layout@.align, next@.align),
++            )
++        }) ==> result is Err,
++;
++
++pub assume_specification[ Layout::extend_packed ](layout: &Layout, next: Layout) -> (result: Result<
++    Layout,
++    LayoutError,
++>)
++    ensures
++        ({
++            let size = layout@.size as nat + next@.size as nat;
++            size <= usize::MAX as nat && valid_layout(size as usize, layout@.align)
++        }) ==> (result matches Ok(new_layout) && new_layout@ == (LayoutView {
++            size: (layout@.size as nat + next@.size as nat) as usize,
++            align: layout@.align,
++        })),
++        ({
++            let size = layout@.size as nat + next@.size as nat;
++            size > usize::MAX as nat || !valid_layout(size as usize, layout@.align)
++        }) ==> result is Err,
++;
++
++pub assume_specification[ Layout::repeat ](layout: &Layout, n: usize) -> (result: Result<
++    (Layout, usize),
++    LayoutError,
++>)
++    ensures
++        ({
++            let stride = round_up_to(layout@.size as nat, layout@.align as nat);
++            let size = if n == 0 {
++                0
++            } else {
++                stride * (n as nat - 1) + layout@.size as nat
++            };
++            size <= usize::MAX as nat && valid_layout(size as usize, layout@.align)
++        }) ==> ({
++            let stride = round_up_to(layout@.size as nat, layout@.align as nat);
++            let size = if n == 0 {
++                0
++            } else {
++                stride * (n as nat - 1) + layout@.size as nat
++            };
++            result matches Ok(pair) && pair.0@ == (LayoutView {
++                size: size as usize,
++                align: layout@.align,
++            }) && pair.1 as nat == stride
++        }),
++        ({
++            let stride = round_up_to(layout@.size as nat, layout@.align as nat);
++            let size = if n == 0 {
++                0
++            } else {
++                stride * (n as nat - 1) + layout@.size as nat
++            };
++            size > usize::MAX as nat || !valid_layout(size as usize, layout@.align)
++        }) ==> result is Err,
++;
++
++pub assume_specification[ Layout::repeat_packed ](layout: &Layout, n: usize) -> (result: Result<
++    Layout,
++    LayoutError,
++>)
++    ensures
++        ({
++            let size = layout@.size as nat * n as nat;
++            size <= usize::MAX as nat && valid_layout(size as usize, layout@.align)
++        }) ==> (result matches Ok(new_layout) && new_layout@ == (LayoutView {
++            size: (layout@.size as nat * n as nat) as usize,
++            align: layout@.align,
++        })),
++        ({
++            let size = layout@.size as nat * n as nat;
++            size > usize::MAX as nat || !valid_layout(size as usize, layout@.align)
++        }) ==> result is Err,
++;
++
++pub assume_specification<T>[ Layout::array::<T> ](length: usize) -> (result: Result<
++    Layout,
++    LayoutError,
++>)
++    ensures
++        ({
++            let size = size_of_as_usize::<T>() as nat * length as nat;
++            size <= usize::MAX as nat && valid_layout(size as usize, align_of_as_usize::<T>())
++        }) ==> (result matches Ok(layout) && layout@ == (LayoutView {
++            size: (size_of_as_usize::<T>() as nat * length as nat) as usize,
++            align: align_of_as_usize::<T>(),
++        })),
++        ({
++            let size = size_of_as_usize::<T>() as nat * length as nat;
++            size > usize::MAX as nat || !valid_layout(size as usize, align_of_as_usize::<T>())
++        }) ==> result is Err,
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/location.rs b/source/vstd/std_specs/location.rs
+new file mode 100644
+index 00000000..15cf4357
+--- /dev/null
++++ b/source/vstd/std_specs/location.rs
+@@ -0,0 +1,47 @@
++//! Experimental specifications for `core::panic::Location`.
++use super::super::prelude::*;
++use super::super::utf8::encode_utf8;
++
++use core::panic::Location;
++
++verus! {
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExLocation<'a>(Location<'a>);
++
++pub struct LocationView {
++    pub file: Seq<char>,
++    pub line: u32,
++    pub column: u32,
++}
++
++impl<'a> View for Location<'a> {
++    type V = LocationView;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> LocationView;
++}
++
++pub assume_specification<'a>[ Location::file ](location: &Location<'a>) -> (result: &'a str)
++    ensures
++        result@ == location@.file,
++;
++
++pub assume_specification<'a>[ Location::file_as_c_str ](location: &Location<'a>) -> (result:
++    &'a core::ffi::CStr)
++    ensures
++        result@ == encode_utf8(location@.file),
++;
++
++pub assume_specification<'a>[ Location::line ](location: &Location<'a>) -> (result: u32)
++    ensures
++        result == location@.line,
++;
++
++pub assume_specification<'a>[ Location::column ](location: &Location<'a>) -> (result: u32)
++    ensures
++        result == location@.column,
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/net.rs b/source/vstd/std_specs/net.rs
+new file mode 100644
+index 00000000..9be8691c
+--- /dev/null
++++ b/source/vstd/std_specs/net.rs
+@@ -0,0 +1,660 @@
++//! Experimental specifications for pure `core::net` address values.
++use super::super::prelude::*;
++
++use core::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
++
++verus! {
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExIpv4Addr(Ipv4Addr);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExIpv6Addr(Ipv6Addr);
++
++#[verifier::external_type_specification]
++pub struct ExIpAddr(IpAddr);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExSocketAddrV4(SocketAddrV4);
++
++#[verifier::external_type_specification]
++#[verifier::external_body]
++pub struct ExSocketAddrV6(SocketAddrV6);
++
++#[verifier::external_type_specification]
++pub struct ExSocketAddr(SocketAddr);
++
++pub enum IpAddrView {
++    V4(Seq<u8>),
++    V6(Seq<u8>),
++}
++
++pub struct SocketAddrV4View {
++    pub ip: Seq<u8>,
++    pub port: u16,
++}
++
++pub struct SocketAddrV6View {
++    pub ip: Seq<u8>,
++    pub port: u16,
++    pub flowinfo: u32,
++    pub scope_id: u32,
++}
++
++pub enum SocketAddrView {
++    V4(SocketAddrV4View),
++    V6(SocketAddrV6View),
++}
++
++impl View for Ipv4Addr {
++    type V = Seq<u8>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Seq<u8>;
++}
++
++impl View for Ipv6Addr {
++    type V = Seq<u8>;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> Seq<u8>;
++}
++
++impl View for IpAddr {
++    type V = IpAddrView;
++
++    open spec fn view(&self) -> IpAddrView {
++        match self {
++            IpAddr::V4(address) => IpAddrView::V4(address@),
++            IpAddr::V6(address) => IpAddrView::V6(address@),
++        }
++    }
++}
++
++impl View for SocketAddrV4 {
++    type V = SocketAddrV4View;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> SocketAddrV4View;
++}
++
++impl View for SocketAddrV6 {
++    type V = SocketAddrV6View;
++
++    #[verifier::external_body]
++    uninterp spec fn view(&self) -> SocketAddrV6View;
++}
++
++impl View for SocketAddr {
++    type V = SocketAddrView;
++
++    open spec fn view(&self) -> SocketAddrView {
++        match self {
++            SocketAddr::V4(address) => SocketAddrView::V4(address@),
++            SocketAddr::V6(address) => SocketAddrView::V6(address@),
++        }
++    }
++}
++
++pub broadcast proof fn axiom_ipv4_view_len(address: &Ipv4Addr)
++    ensures
++        #[trigger] address@.len() == 4,
++{
++    admit();
++}
++
++pub broadcast proof fn axiom_ipv6_view_len(address: &Ipv6Addr)
++    ensures
++        #[trigger] address@.len() == 16,
++{
++    admit();
++}
++
++pub open spec fn ipv4_is_unspecified(bytes: Seq<u8>) -> bool {
++    bytes == seq![0u8, 0u8, 0u8, 0u8]
++}
++
++pub open spec fn ipv4_is_loopback(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 4,
++{
++    bytes[0] == 127
++}
++
++pub open spec fn ipv4_is_private(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 4,
++{
++    bytes[0] == 10 || (bytes[0] == 172 && 16 <= bytes[1] && bytes[1] <= 31) || (bytes[0] == 192
++        && bytes[1] == 168)
++}
++
++pub open spec fn ipv4_is_link_local(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 4,
++{
++    bytes[0] == 169 && bytes[1] == 254
++}
++
++pub open spec fn ipv4_is_multicast(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 4,
++{
++    224 <= bytes[0] && bytes[0] <= 239
++}
++
++pub open spec fn ipv4_is_broadcast(bytes: Seq<u8>) -> bool {
++    bytes == seq![255u8, 255u8, 255u8, 255u8]
++}
++
++pub open spec fn ipv4_is_documentation(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 4,
++{
++    (bytes[0] == 192 && bytes[1] == 0 && bytes[2] == 2) || (bytes[0] == 198 && bytes[1] == 51
++        && bytes[2] == 100) || (bytes[0] == 203 && bytes[1] == 0 && bytes[2] == 113)
++}
++
++pub open spec fn ipv6_is_unspecified(bytes: Seq<u8>) -> bool {
++    bytes == Seq::new(16, |i: int| 0u8)
++}
++
++pub open spec fn ipv6_is_loopback(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 16,
++{
++    bytes.subrange(0, 15) == Seq::new(15, |i: int| 0u8) && bytes[15] == 1
++}
++
++pub open spec fn ipv6_is_multicast(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 16,
++{
++    bytes[0] == 0xff
++}
++
++pub open spec fn ipv6_is_unique_local(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 16,
++{
++    bytes[0] / 2 == 0x7e
++}
++
++pub open spec fn ipv6_is_unicast_link_local(bytes: Seq<u8>) -> bool
++    recommends
++        bytes.len() == 16,
++{
++    bytes[0] == 0xfe && bytes[1] / 64 == 2
++}
++
++pub open spec fn ip_is_unspecified(address: IpAddrView) -> bool {
++    match address {
++        IpAddrView::V4(bytes) => ipv4_is_unspecified(bytes),
++        IpAddrView::V6(bytes) => ipv6_is_unspecified(bytes),
++    }
++}
++
++pub open spec fn ip_is_loopback(address: IpAddrView) -> bool {
++    match address {
++        IpAddrView::V4(bytes) => ipv4_is_loopback(bytes),
++        IpAddrView::V6(bytes) => ipv6_is_loopback(bytes),
++    }
++}
++
++pub open spec fn ip_is_multicast(address: IpAddrView) -> bool {
++    match address {
++        IpAddrView::V4(bytes) => ipv4_is_multicast(bytes),
++        IpAddrView::V6(bytes) => ipv6_is_multicast(bytes),
++    }
++}
++
++pub assume_specification[ Ipv4Addr::new ](a: u8, b: u8, c: u8, d: u8) -> (result: Ipv4Addr)
++    ensures
++        result@ == seq![a, b, c, d],
++;
++
++pub assume_specification[ Ipv4Addr::from_octets ](octets: [u8; 4]) -> (result: Ipv4Addr)
++    ensures
++        result@ == octets@,
++;
++
++pub assume_specification[ Ipv4Addr::octets ](address: &Ipv4Addr) -> (result: [u8; 4])
++    ensures
++        result@ == address@,
++;
++
++pub assume_specification[ Ipv4Addr::is_unspecified ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_unspecified(address@),
++;
++
++pub assume_specification[ Ipv4Addr::is_loopback ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_loopback(address@),
++;
++
++pub assume_specification[ Ipv4Addr::is_private ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_private(address@),
++;
++
++pub assume_specification[ Ipv4Addr::is_link_local ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_link_local(address@),
++;
++
++pub assume_specification[ Ipv4Addr::is_multicast ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_multicast(address@),
++;
++
++pub assume_specification[ Ipv4Addr::is_broadcast ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_broadcast(address@),
++;
++
++pub assume_specification[ Ipv4Addr::is_documentation ](address: &Ipv4Addr) -> (result: bool)
++    ensures
++        result == ipv4_is_documentation(address@),
++;
++
++pub assume_specification[ Ipv4Addr::to_ipv6_compatible ](address: &Ipv4Addr) -> (result: Ipv6Addr)
++    ensures
++        result@ == Seq::new(12, |i: int| 0u8) + address@,
++;
++
++pub assume_specification[ Ipv4Addr::to_ipv6_mapped ](address: &Ipv4Addr) -> (result: Ipv6Addr)
++    ensures
++        result@ == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8] + address@,
++;
++
++pub assume_specification[ Ipv6Addr::from_octets ](octets: [u8; 16]) -> (result: Ipv6Addr)
++    ensures
++        result@ == octets@,
++;
++
++pub assume_specification[ Ipv6Addr::octets ](address: &Ipv6Addr) -> (result: [u8; 16])
++    ensures
++        result@ == address@,
++;
++
++pub assume_specification[ Ipv6Addr::is_unspecified ](address: &Ipv6Addr) -> (result: bool)
++    ensures
++        result == ipv6_is_unspecified(address@),
++;
++
++pub assume_specification[ Ipv6Addr::is_loopback ](address: &Ipv6Addr) -> (result: bool)
++    ensures
++        result == ipv6_is_loopback(address@),
++;
++
++pub assume_specification[ Ipv6Addr::is_multicast ](address: &Ipv6Addr) -> (result: bool)
++    ensures
++        result == ipv6_is_multicast(address@),
++;
++
++pub assume_specification[ Ipv6Addr::is_unique_local ](address: &Ipv6Addr) -> (result: bool)
++    ensures
++        result == ipv6_is_unique_local(address@),
++;
++
++pub assume_specification[ Ipv6Addr::is_unicast_link_local ](address: &Ipv6Addr) -> (result: bool)
++    ensures
++        result == ipv6_is_unicast_link_local(address@),
++;
++
++pub assume_specification[ IpAddr::is_ipv4 ](address: &IpAddr) -> (result: bool)
++    ensures
++        result <==> address@ is V4,
++;
++
++pub assume_specification[ IpAddr::is_ipv6 ](address: &IpAddr) -> (result: bool)
++    ensures
++        result <==> address@ is V6,
++;
++
++pub assume_specification[ IpAddr::is_unspecified ](address: &IpAddr) -> (result: bool)
++    ensures
++        result == ip_is_unspecified(address@),
++;
++
++pub assume_specification[ IpAddr::is_loopback ](address: &IpAddr) -> (result: bool)
++    ensures
++        result == ip_is_loopback(address@),
++;
++
++pub assume_specification[ IpAddr::is_multicast ](address: &IpAddr) -> (result: bool)
++    ensures
++        result == ip_is_multicast(address@),
++;
++
++pub assume_specification[ SocketAddrV4::new ](ip: Ipv4Addr, port: u16) -> (result: SocketAddrV4)
++    ensures
++        result@ == (SocketAddrV4View { ip: ip@, port }),
++;
++
++pub assume_specification[ SocketAddrV4::ip ](address: &SocketAddrV4) -> (result: &Ipv4Addr)
++    ensures
++        result@ == address@.ip,
++;
++
++pub assume_specification[ SocketAddrV4::set_ip ](address: &mut SocketAddrV4, ip: Ipv4Addr)
++    ensures
++        final(address)@ == (SocketAddrV4View { ip: ip@, port: old(address)@.port }),
++;
++
++pub assume_specification[ SocketAddrV4::port ](address: &SocketAddrV4) -> (result: u16)
++    ensures
++        result == address@.port,
++;
++
++pub assume_specification[ SocketAddrV4::set_port ](address: &mut SocketAddrV4, port: u16)
++    ensures
++        final(address)@ == (SocketAddrV4View { ip: old(address)@.ip, port }),
++;
++
++pub assume_specification[ SocketAddrV6::new ](
++    ip: Ipv6Addr,
++    port: u16,
++    flowinfo: u32,
++    scope_id: u32,
++) -> (result: SocketAddrV6)
++    ensures
++        result@ == (SocketAddrV6View { ip: ip@, port, flowinfo, scope_id }),
++;
++
++pub assume_specification[ SocketAddrV6::ip ](address: &SocketAddrV6) -> (result: &Ipv6Addr)
++    ensures
++        result@ == address@.ip,
++;
++
++pub assume_specification[ SocketAddrV6::set_ip ](address: &mut SocketAddrV6, ip: Ipv6Addr)
++    ensures
++        final(address)@ == (SocketAddrV6View {
++            ip: ip@,
++            port: old(address)@.port,
++            flowinfo: old(address)@.flowinfo,
++            scope_id: old(address)@.scope_id,
++        }),
++;
++
++pub assume_specification[ SocketAddrV6::port ](address: &SocketAddrV6) -> (result: u16)
++    ensures
++        result == address@.port,
++;
++
++pub assume_specification[ SocketAddrV6::set_port ](address: &mut SocketAddrV6, port: u16)
++    ensures
++        final(address)@ == (SocketAddrV6View {
++            ip: old(address)@.ip,
++            port,
++            flowinfo: old(address)@.flowinfo,
++            scope_id: old(address)@.scope_id,
++        }),
++;
++
++pub assume_specification[ SocketAddrV6::flowinfo ](address: &SocketAddrV6) -> (result: u32)
++    ensures
++        result == address@.flowinfo,
++;
++
++pub assume_specification[ SocketAddrV6::set_flowinfo ](address: &mut SocketAddrV6, flowinfo: u32)
++    ensures
++        final(address)@ == (SocketAddrV6View {
++            ip: old(address)@.ip,
++            port: old(address)@.port,
++            flowinfo,
++            scope_id: old(address)@.scope_id,
++        }),
++;
++
++pub assume_specification[ SocketAddrV6::scope_id ](address: &SocketAddrV6) -> (result: u32)
++    ensures
++        result == address@.scope_id,
++;
++
++pub assume_specification[ SocketAddrV6::set_scope_id ](address: &mut SocketAddrV6, scope_id: u32)
++    ensures
++        final(address)@ == (SocketAddrV6View {
++            ip: old(address)@.ip,
++            port: old(address)@.port,
++            flowinfo: old(address)@.flowinfo,
++            scope_id,
++        }),
++;
++
++pub assume_specification[ SocketAddr::new ](ip: IpAddr, port: u16) -> (result: SocketAddr)
++    ensures
++        result@ == match ip@ {
++            IpAddrView::V4(bytes) => SocketAddrView::V4(SocketAddrV4View { ip: bytes, port }),
++            IpAddrView::V6(bytes) => SocketAddrView::V6(
++                SocketAddrV6View { ip: bytes, port, flowinfo: 0, scope_id: 0 },
++            ),
++        },
++;
++
++pub assume_specification[ SocketAddr::is_ipv4 ](address: &SocketAddr) -> (result: bool)
++    ensures
++        result <==> address@ is V4,
++;
++
++pub assume_specification[ SocketAddr::is_ipv6 ](address: &SocketAddr) -> (result: bool)
++    ensures
++        result <==> address@ is V6,
++;
++
++pub assume_specification[ SocketAddr::ip ](address: &SocketAddr) -> (result: IpAddr)
++    ensures
++        result@ == match address@ {
++            SocketAddrView::V4(v4) => IpAddrView::V4(v4.ip),
++            SocketAddrView::V6(v6) => IpAddrView::V6(v6.ip),
++        },
++;
++
++pub assume_specification[ SocketAddr::port ](address: &SocketAddr) -> (result: u16)
++    ensures
++        result == match address@ {
++            SocketAddrView::V4(v4) => v4.port,
++            SocketAddrView::V6(v6) => v6.port,
++        },
++;
++
++pub assume_specification[ SocketAddr::set_port ](address: &mut SocketAddr, port: u16)
++    ensures
++        final(address)@ == match old(address)@ {
++            SocketAddrView::V4(v4) => SocketAddrView::V4(SocketAddrV4View { ip: v4.ip, port }),
++            SocketAddrView::V6(v6) => SocketAddrView::V6(
++                SocketAddrV6View { ip: v6.ip, port, flowinfo: v6.flowinfo, scope_id: v6.scope_id },
++            ),
++        },
++;
++
++pub assume_specification[ IpAddr::to_canonical ](address: &IpAddr) -> (result: IpAddr)
++    ensures
++        result@ == match address@ {
++            IpAddrView::V4(bytes) => IpAddrView::V4(bytes),
++            IpAddrView::V6(bytes) => if bytes.len() == 16 && bytes.subrange(0, 12) == Seq::new(
++                10,
++                |i: int| 0u8,
++            ) + seq![0xffu8, 0xffu8] {
++                IpAddrView::V4(bytes.subrange(12, 16))
++            } else {
++                IpAddrView::V6(bytes)
++            },
++        },
++;
++
++pub assume_specification[ Ipv4Addr::from_bits ](bits: u32) -> (result: Ipv4Addr)
++    ensures
++        result@ == seq![
++            (bits >> 24) as u8,
++            ((bits >> 16) & 0xff) as u8,
++            ((bits >> 8) & 0xff) as u8,
++            (bits & 0xff) as u8,
++        ],
++;
++
++pub assume_specification[ Ipv4Addr::to_bits ](address: Ipv4Addr) -> (result: u32)
++    ensures
++        result == (((address@[0] as u32) << 24) | ((address@[1] as u32) << 16) | ((
++        address@[2] as u32) << 8) | (address@[3] as u32)),
++;
++
++pub assume_specification[ Ipv6Addr::from_bits ](bits: u128) -> (result: Ipv6Addr)
++    ensures
++        result@ == seq![
++            (((bits >> 120) & 0xffu128) as u8),
++            (((bits >> 112) & 0xffu128) as u8),
++            (((bits >> 104) & 0xffu128) as u8),
++            (((bits >> 96) & 0xffu128) as u8),
++            (((bits >> 88) & 0xffu128) as u8),
++            (((bits >> 80) & 0xffu128) as u8),
++            (((bits >> 72) & 0xffu128) as u8),
++            (((bits >> 64) & 0xffu128) as u8),
++            (((bits >> 56) & 0xffu128) as u8),
++            (((bits >> 48) & 0xffu128) as u8),
++            (((bits >> 40) & 0xffu128) as u8),
++            (((bits >> 32) & 0xffu128) as u8),
++            (((bits >> 24) & 0xffu128) as u8),
++            (((bits >> 16) & 0xffu128) as u8),
++            (((bits >> 8) & 0xffu128) as u8),
++            ((bits & 0xffu128) as u8),
++        ],
++;
++
++pub assume_specification[ Ipv6Addr::from_segments ](segments: [u16; 8]) -> (result: Ipv6Addr)
++    ensures
++        result@ == seq![
++            ((segments@[0] >> 8) & 0xff) as u8,
++            (segments@[0] & 0xff) as u8,
++            ((segments@[1] >> 8) & 0xff) as u8,
++            (segments@[1] & 0xff) as u8,
++            ((segments@[2] >> 8) & 0xff) as u8,
++            (segments@[2] & 0xff) as u8,
++            ((segments@[3] >> 8) & 0xff) as u8,
++            (segments@[3] & 0xff) as u8,
++            ((segments@[4] >> 8) & 0xff) as u8,
++            (segments@[4] & 0xff) as u8,
++            ((segments@[5] >> 8) & 0xff) as u8,
++            (segments@[5] & 0xff) as u8,
++            ((segments@[6] >> 8) & 0xff) as u8,
++            (segments@[6] & 0xff) as u8,
++            ((segments@[7] >> 8) & 0xff) as u8,
++            (segments@[7] & 0xff) as u8,
++        ],
++;
++
++pub assume_specification[ Ipv6Addr::new ](
++    a: u16,
++    b: u16,
++    c: u16,
++    d: u16,
++    e: u16,
++    f: u16,
++    g: u16,
++    h: u16,
++) -> (result: Ipv6Addr)
++    ensures
++        result@ == seq![
++            (a / 256) as u8,
++            (a % 256) as u8,
++            (b / 256) as u8,
++            (b % 256) as u8,
++            (c / 256) as u8,
++            (c % 256) as u8,
++            (d / 256) as u8,
++            (d % 256) as u8,
++            (e / 256) as u8,
++            (e % 256) as u8,
++            (f / 256) as u8,
++            (f % 256) as u8,
++            (g / 256) as u8,
++            (g % 256) as u8,
++            (h / 256) as u8,
++            (h % 256) as u8,
++        ],
++;
++
++pub assume_specification[ Ipv6Addr::segments ](address: &Ipv6Addr) -> (result: [u16; 8])
++    ensures
++        (result@[0] as int) == (address@[0] as int) * 256 + address@[1] as int,
++        (result@[1] as int) == (address@[2] as int) * 256 + address@[3] as int,
++        (result@[2] as int) == (address@[4] as int) * 256 + address@[5] as int,
++        (result@[3] as int) == (address@[6] as int) * 256 + address@[7] as int,
++        (result@[4] as int) == (address@[8] as int) * 256 + address@[9] as int,
++        (result@[5] as int) == (address@[10] as int) * 256 + address@[11] as int,
++        (result@[6] as int) == (address@[12] as int) * 256 + address@[13] as int,
++        (result@[7] as int) == (address@[14] as int) * 256 + address@[15] as int,
++;
++
++pub assume_specification[ Ipv6Addr::to_bits ](address: Ipv6Addr) -> (result: u128)
++    ensures
++        result as int == (address@[0] as int) * 0x100_0000_0000_0000_0000_0000_0000_0000 + (
++        address@[1] as int) * 0x1_0000_0000_0000_0000_0000_0000_0000 + (address@[2] as int)
++            * 0x100_0000_0000_0000_0000_0000_0000 + (address@[3] as int)
++            * 0x1_0000_0000_0000_0000_0000_0000 + (address@[4] as int)
++            * 0x100_0000_0000_0000_0000_0000 + (address@[5] as int) * 0x1_0000_0000_0000_0000_0000
++            + (address@[6] as int) * 0x100_0000_0000_0000_0000 + (address@[7] as int)
++            * 0x1_0000_0000_0000_0000 + (address@[8] as int) * 0x100_0000_0000_0000 + (
++        address@[9] as int) * 0x1_0000_0000_0000 + (address@[10] as int) * 0x100_0000_0000 + (
++        address@[11] as int) * 0x1_0000_0000 + (address@[12] as int) * 0x100_0000 + (
++        address@[13] as int) * 0x1_0000 + (address@[14] as int) * 0x100 + address@[15] as int,
++;
++
++pub assume_specification[ Ipv6Addr::to_canonical ](address: &Ipv6Addr) -> (result: IpAddr)
++    ensures
++        result@ == if address@.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![
++            0xffu8,
++            0xffu8,
++        ] {
++            IpAddrView::V4(address@.subrange(12, 16))
++        } else {
++            IpAddrView::V6(address@)
++        },
++;
++
++pub assume_specification[ Ipv6Addr::to_ipv4 ](address: &Ipv6Addr) -> (result: Option<Ipv4Addr>)
++    ensures
++        (result is Some) <==> (address@.subrange(0, 12) == Seq::new(12, |i: int| 0u8)
++            || address@.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8]),
++        result is Some ==> result->Some_0@ == address@.subrange(12, 16),
++;
++
++pub assume_specification[ Ipv6Addr::to_ipv4_mapped ](address: &Ipv6Addr) -> (result: Option<
++    Ipv4Addr,
++>)
++    ensures
++        (result is Some) <==> address@.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![
++            0xffu8,
++            0xffu8,
++        ],
++        result is Some ==> result->Some_0@ == address@.subrange(12, 16),
++;
++
++pub assume_specification[ SocketAddr::set_ip ](address: &mut SocketAddr, new_ip: IpAddr)
++    ensures
++        final(address)@ == match (old(address)@, new_ip@) {
++            (SocketAddrView::V4(old_v4), IpAddrView::V4(ip)) => SocketAddrView::V4(
++                SocketAddrV4View { ip, port: old_v4.port },
++            ),
++            (SocketAddrView::V4(old_v4), IpAddrView::V6(ip)) => SocketAddrView::V6(
++                SocketAddrV6View { ip, port: old_v4.port, flowinfo: 0, scope_id: 0 },
++            ),
++            (SocketAddrView::V6(old_v6), IpAddrView::V4(ip)) => SocketAddrView::V4(
++                SocketAddrV4View { ip, port: old_v6.port },
++            ),
++            (SocketAddrView::V6(old_v6), IpAddrView::V6(ip)) => SocketAddrView::V6(
++                SocketAddrV6View {
++                    ip,
++                    port: old_v6.port,
++                    flowinfo: old_v6.flowinfo,
++                    scope_id: old_v6.scope_id,
++                },
++            ),
++        },
++;
++
++} // verus!
+diff --git a/source/vstd/std_specs/ordering.rs b/source/vstd/std_specs/ordering.rs
+new file mode 100644
+index 00000000..96c4624e
+--- /dev/null
++++ b/source/vstd/std_specs/ordering.rs
+@@ -0,0 +1,57 @@
++//! Specifications for `core::cmp::Ordering` convenience methods.
++use super::super::prelude::*;
++
++use core::cmp::Ordering;
++
++verus! {
++
++pub assume_specification[ Ordering::is_eq ](ordering: Ordering) -> (result: bool)
++    ensures
++        result <==> ordering is Equal,
++;
++
++pub assume_specification[ Ordering::is_ne ](ordering: Ordering) -> (result: bool)
++    ensures
++        result <==> !(ordering is Equal),
++;
++
++pub assume_specification[ Ordering::is_lt ](ordering: Ordering) -> (result: bool)
++    ensures
++        result <==> ordering is Less,
++;
++
++pub assume_specification[ Ordering::is_gt ](ordering: Ordering) -> (result: bool)
++    ensures
++        result <==> ordering is Greater,
++;
++
++pub assume_specification[ Ordering::is_le ](ordering: Ordering) -> (result: bool)
++    ensures
++        result <==> !(ordering is Greater),
++;
++
++pub assume_specification[ Ordering::is_ge ](ordering: Ordering) -> (result: bool)
++    ensures
++        result <==> !(ordering is Less),
++;
++
++pub assume_specification[ Ordering::reverse ](ordering: Ordering) -> (result: Ordering)
++    ensures
++        result == match ordering {
++            Ordering::Less => Ordering::Greater,
++            Ordering::Equal => Ordering::Equal,
++            Ordering::Greater => Ordering::Less,
++        },
++;
++
++pub assume_specification[ Ordering::then ](ordering: Ordering, other: Ordering) -> (result:
++    Ordering)
++    ensures
++        result == if ordering is Equal {
++            other
++        } else {
++            ordering
++        },
++;
++
++} // verus!

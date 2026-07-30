@@ -1,0 +1,187 @@
+{
+  "id": "core__option__Option__transpose__9c633335f013",
+  "api_path": "core::option::Option::transpose",
+  "raw_target": "core::option::Option::<core::result::Result<T, E>>::transpose",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 33, patch: 0 })},\nfeature: \"transpose_result\"}}]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_precise_live_drops\"])]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"const_option\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28067",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "transpose",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "generic": "T"
+                              }
+                            },
+                            {
+                              "type": {
+                                "generic": "E"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      },
+                      "id": 90,
+                      "path": "Result"
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28068",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      },
+                      "id": 84,
+                      "path": "Option"
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "  2192:     }\n  2193: \n  2194:     /// Maps an `Option<&mut T>` to an `Option<T>` by cloning the contents of the\n  2195:     /// option.\n  2196:     ///\n  2197:     /// # Examples\n  2198:     ///\n  2199:     /// ```\n  2200:     /// let mut x = 12;\n  2201:     /// let opt_x = Some(&mut x);\n  2202:     /// assert_eq!(opt_x, Some(&mut 12));\n  2203:     /// let cloned = opt_x.cloned();\n  2204:     /// assert_eq!(cloned, Some(12));\n  2205:     /// ```\n  2206:     #[must_use = \"`self` will be dropped if the result is not used\"]\n  2207:     #[stable(since = \"1.26.0\", feature = \"option_ref_mut_cloned\")]\n  2208:     pub fn cloned(self) -> Option<T>\n  2209:     where\n  2210:         T: Clone,\n  2211:     {\n  2212:         self.as_deref().map(T::clone)\n  2213:     }\n  2214: }\n  2215: \n  2216: impl<T, E> Option<Result<T, E>> {\n  2217:     /// Transposes an `Option` of a [`Result`] into a [`Result`] of an `Option`.\n  2218:     ///\n  2219:     /// <code>[Some]\\([Ok]\\(\\_))</code> is mapped to <code>[Ok]\\([Some]\\(\\_))</code>,\n  2220:     /// <code>[Some]\\([Err]\\(\\_))</code> is mapped to <code>[Err]\\(\\_)</code>,\n  2221:     /// and [`None`] will be mapped to <code>[Ok]\\([None])</code>.\n  2222:     ///\n  2223:     /// # Examples\n  2224:     ///\n  2225:     /// ```\n  2226:     /// #[derive(Debug, Eq, PartialEq)]\n  2227:     /// struct SomeErr;\n  2228:     ///\n  2229:     /// let x: Option<Result<i32, SomeErr>> = Some(Ok(5));\n  2230:     /// let y: Result<Option<i32>, SomeErr> = Ok(Some(5));\n  2231:     /// assert_eq!(x.transpose(), y);\n  2232:     /// ```\n  2233:     #[inline]\n  2234:     #[stable(feature = \"transpose_result\", since = \"1.33.0\")]\n  2235:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  2236:     #[rustc_const_stable(feature = \"const_option\", since = \"1.83.0\")]\n  2237:     pub const fn transpose(self) -> Result<Option<T>, E> {\n  2238:         match self {\n  2239:             Some(Ok(x)) => Ok(Some(x)),\n  2240:             Some(Err(e)) => Err(e),\n  2241:             None => Ok(None),\n  2242:         }\n  2243:     }\n  2244: }\n  2245: \n  2246: #[cfg_attr(not(panic = \"immediate-abort\"), inline(never))]\n  2247: #[cfg_attr(panic = \"immediate-abort\", inline)]\n  2248: #[cold]\n  2249: #[track_caller]\n  2250: const fn unwrap_failed() -> ! {\n  2251:     panic(\"called `Option::unwrap()` on a `None` value\")\n  2252: }\n  2253: \n  2254: // This is a separate function to reduce the code size of .expect() itself.\n  2255: #[cfg_attr(not(panic = \"immediate-abort\"), inline(never))]\n  2256: #[cfg_attr(panic = \"immediate-abort\", inline)]\n  2257: #[cold]\n  2258: #[track_caller]\n  2259: const fn expect_failed(msg: &str) -> ! {\n  2260:     panic_display(&msg)\n  2261: }\n  2262: \n  2263: /////////////////////////////////////////////////////////////////////////////\n  2264: // Trait implementations\n  2265: /////////////////////////////////////////////////////////////////////////////\n  2266: \n  2267: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2268: #[rustc_const_unstable(feature = \"const_clone\", issue = \"142757\")]\n  2269: impl<T> const Clone for Option<T>\n  2270: where\n  2271:     // FIXME(const_hack): the T: [const] Destruct should be inferred from the Self: [const] Destruct in clone_from.\n  2272:     // See https://github.com/rust-lang/rust/issues/144207\n  2273:     T: [const] Clone + [const] Destruct,\n  2274: {\n  2275:     #[inline]\n  2276:     fn clone(&self) -> Self {\n  2277:         match self {\n  2278:             Some(x) => Some(x.clone()),\n  2279:             None => None,\n  2280:         }\n  2281:     }\n  2282: ",
+    "span": {
+      "begin": [
+        2237,
+        5
+      ],
+      "end": [
+        2243,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn transpose(self) -> Result<Option<T>, E> {\n        match self {\n            Some(Ok(x)) => Ok(Some(x)),\n            Some(Err(e)) => Err(e),\n            None => Ok(None),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact three-arm enum match proves the postcondition directly without lower-level contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__transpose__9c633335f013"
+}

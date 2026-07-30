@@ -1,0 +1,335 @@
+{
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::cloned",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn cloned<'a, T>(self) -> (r: core::iter::Cloned<Self>)\n    where\n        T: Clone + 'a,\n        Self: Sized + core::iter::Iterator<Item = &'a T>,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            ==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&& r.initial_value_relation(&r)\n                &&& (r.decrease() is Some <==> self.decrease() is Some)\n                &&& r.remaining().len() <= self.remaining().len()\n                &&& forall |i: int| 0 <= i < r.remaining().len() ==>\n                    cloned::<T>(*self.remaining()[i], r.remaining()[i])\n                &&& (r.will_return_none() ==> {\n                    &&& self.will_return_none()\n                    &&& r.remaining().len() == self.remaining().len()\n                })\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "The result obeys the prophetic iterator laws when the source does.",
+        "Its remaining sequence is an order-preserving cloned prefix of the source sequence.",
+        "If the result completes, the source completes and both remaining sequences have equal length."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "IteratorSpec models the lazy sequence, while vstd::cloned exactly accommodates either calling Clone or optimizing the clone into an identity copy.",
+      "risks": [
+        "Clone may not terminate, so source completion cannot imply adapter completion.",
+        "The generic cloned relation may be weak for types without a Clone specification.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::cmp",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn cmp<I>(self, other: I) -> (r: Ordering)\n    where\n        I: core::iter::IntoIterator<Item = Self::Item>,\n        Self::Item: Ord,\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as OrdSpec>::obeys_cmp_spec()\n            ==> {\n                let left = self.remaining();\n                let right = into_iter_remaining::<Self::Item, I>(other);\n                match r {\n                    Ordering::Equal => {\n                        &&& left.len() == right.len()\n                        &&& forall |i: int| 0 <= i < left.len() ==>\n                            <Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Equal\n                    },\n                    Ordering::Less =>\n                        (exists |i: int| {\n                            &&& 0 <= i < left.len()\n                            &&& 0 <= i < right.len()\n                            &&& forall |j: int| 0 <= j < i ==>\n                                <Self::Item as OrdSpec>::cmp_spec(&left[j], &right[j]) == Ordering::Equal\n                            &&& <Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Less\n                        })\n                        || (left.len() < right.len()\n                            && forall |i: int| 0 <= i < left.len() ==>\n                                <Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Equal),\n                    Ordering::Greater =>\n                        (exists |i: int| {\n                            &&& 0 <= i < left.len()\n                            &&& 0 <= i < right.len()\n                            &&& forall |j: int| 0 <= j < i ==>\n                                <Self::Item as OrdSpec>::cmp_spec(&left[j], &right[j]) == Ordering::Equal\n                            &&& <Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Greater\n                        })\n                        || (right.len() < left.len()\n                            && forall |i: int| 0 <= i < right.len() ==>\n                                <Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Equal),\n                }\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "The result is the lexicographic comparison of the two remaining sequences using OrdSpec::cmp_spec."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::OrdSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to cmp_by with Ord::cmp; IteratorSpec, into_iter_remaining, and OrdSpec express the documented lexicographic result.",
+      "risks": [
+        "The guarantee is conditional on the item Ord specification.",
+        "Generic IntoIterator values remain abstract through into_iter_remaining.",
+        "A nonconforming cmp_by override could violate the default-method semantics."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::copied",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn copied<'a, T>(self) -> (r: core::iter::Copied<Self>)\n    where\n        T: Copy + 'a,\n        Self: Sized + core::iter::Iterator<Item = &'a T>,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            ==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&& r.initial_value_relation(&r)\n                &&& r.will_return_none() == self.will_return_none()\n                &&& (r.decrease() is Some <==> self.decrease() is Some)\n                &&& r.remaining().len() == self.remaining().len()\n                &&& forall |i: int| 0 <= i < self.remaining().len() ==>\n                    r.remaining()[i] == *self.remaining()[i]\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "The result preserves completion and prophetic-law properties.",
+        "Its remaining sequence is the pointwise dereference of the source sequence."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "Copying a referenced item is deterministic and introduces no additional execution step, so IteratorSpec can express the adapter exactly.",
+      "risks": [
+        "The relation is conditional on the source prophetic model.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::count",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn count(self) -> (r: usize)\n    where\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            ==> self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && self.remaining().len() <= (usize::MAX as int)\n            ==> r as int == self.remaining().len(),\n;",
+      "requires": [],
+      "ensures": [
+        "Normal completion establishes that the modeled iterator reaches None.",
+        "When the modeled length fits in usize, the result equals that length."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source folds with one usize increment per element; remaining().len() gives the exact count when overflow is impossible.",
+      "risks": [
+        "No exact result is promised beyond usize::MAX.",
+        "The contract assumes conforming fold overrides.",
+        "default_ensures does not constrain count overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::cycle",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A nonempty cycle produces an infinite sequence, while IteratorSpec::remaining is finite; current vstd has no stream or periodic-iterator abstraction.",
+      "risks": [
+        "Infinite output is not representable by Seq.",
+        "Restarting depends on hidden cloned iterator state.",
+        "Clone may not terminate."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::enumerate",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn enumerate(self) -> (r: core::iter::Enumerate<Self>)\n    where\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && self.remaining().len() <= (usize::MAX as int)\n            ==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&& r.initial_value_relation(&r)\n                &&& r.will_return_none() == self.will_return_none()\n                &&& (r.decrease() is Some <==> self.decrease() is Some)\n                &&& r.remaining().len() == self.remaining().len()\n                &&& forall |i: int| 0 <= i < self.remaining().len() ==>\n                    r.remaining()[i] == (i as usize, self.remaining()[i])\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "When all counter increments fit in usize, the result preserves iterator completion and prophetic-law properties.",
+        "The remaining sequence pairs every source item with its zero-based index."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "Enumerate::new starts its deterministic counter at zero, and IteratorSpec can model the resulting indexed sequence when counter overflow is excluded.",
+      "risks": [
+        "No behavioral guarantee is given once the enumerate counter could overflow.",
+        "The relation is conditional on the source prophetic model.",
+        "default_ensures does not constrain overrides."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::iter::Iterator::cloned",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn cloned<'a, T>(self) -> (r: core::iter::Cloned<Self>)\n    where\n
+T: Clone + 'a,\n        Self: Sized + core::iter::Iterator<Item = &'a T>,\n    default_ensures\n
+    self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n
+ ==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&&
+r.initial_value_relation(&r)\n                &&& (r.decrease() is Some <==> self.decrease() is
+Some)\n                &&& r.remaining().len() <= self.remaining().len()\n                &&& forall
+ |i: int| 0 <= i < r.remaining().len() ==>\n                    cloned::<T>(self.remaining()[i],
+r.remaining()[i])\n                &&& (r.will_return_none() ==> {\n                    &&&
+self.will_return_none()\n                    &&& r.remaining().len() == self.remaining().len()\n
+            })\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "The result obeys the prophetic iterator laws when the source does.",
+        "Its remaining sequence is an order-preserving cloned prefix of the source sequence.",
+        "If the result completes, the source completes and both remaining sequences have equal
+length."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "IteratorSpec models the lazy sequence, while vstd::cloned exactly accommodates
+either calling Clone or optimizing the clone into an identity copy.",
+      "risks": [
+        "Clone may not terminate, so source completion cannot imply adapter completion.",
+        "The generic cloned relation may be weak for types without a Clone specification.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::cmp",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn cmp<I>(self, other: I) -> (r: Ordering)\n    where\n        I:
+core::iter::IntoIterator<Item = Self::Item>,\n        Self::Item: Ord,\n        Self: Sized,\n
+default_ensures\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self)\n            && <Self::Item as OrdSpec>::obeys_cmp_spec()\n
+      ==> {\n                let left = self.remaining();\n                let right =
+into_iter_remaining::<Self::Item, I>(other);\n                match r {\n
+Ordering::Equal => {\n                        &&& left.len() == right.len()\n
+ &&& forall |i: int| 0 <= i < left.len() ==>\n                            <Self::Item as
+OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Equal\n                    },\n
+    Ordering::Less =>\n                        (exists |i: int| {\n                            &&& 0
+ <= i < left.len()\n                            &&& 0 <= i < right.len()\n
+  &&& forall |j: int| 0 <= j < i ==>\n                                <Self::Item as
+OrdSpec>::cmp_spec(&left[j], &right[j]) == Ordering::Equal\n                            &&&
+<Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Less\n
+})\n                        || (left.len() < right.len()\n                            && forall |i:
+int| 0 <= i < left.len() ==>\n                                <Self::Item as
+OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Equal),\n                    Ordering::Greater
+=>\n                        (exists |i: int| {\n                            &&& 0 <= i <
+left.len()\n                            &&& 0 <= i < right.len()\n                            &&&
+forall |j: int| 0 <= j < i ==>\n                                <Self::Item as
+OrdSpec>::cmp_spec(&left[j], &right[j]) == Ordering::Equal\n                            &&&
+<Self::Item as OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Greater\n
+ })\n                        || (right.len() < left.len()\n                            && forall |i:
+ int| 0 <= i < right.len() ==>\n                                <Self::Item as
+OrdSpec>::cmp_spec(&left[i], &right[i]) == Ordering::Equal),\n                }\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "The result is the lexicographic comparison of the two remaining sequences using
+OrdSpec::cmp_spec."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::cmp::Ordering;",
+        "use vstd::prelude::;",
+        "use vstd::std_specs::cmp::OrdSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to cmp_by with Ord::cmp; IteratorSpec, into_iter_remaining,
+ and OrdSpec express the documented lexicographic result.",
+      "risks": [
+        "The guarantee is conditional on the item Ord specification.",
+        "Generic IntoIterator values remain abstract through into_iter_remaining.",
+        "A nonconforming cmp_by override could violate the default-method semantics."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::copied",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn copied<'a, T>(self) -> (r: core::iter::Copied<Self>)\n    where\n
+T: Copy + 'a,\n        Self: Sized + core::iter::Iterator<Item = &'a T>,\n    default_ensures\n
+   self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n
+==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&&
+r.initial_value_relation(&r)\n                &&& r.will_return_none() == self.will_return_none()\n
+               &&& (r.decrease() is Some <==> self.decrease() is Some)\n                &&&
+r.remaining().len() == self.remaining().len()\n                &&& forall |i: int| 0 <= i <
+self.remaining().len() ==>\n                    r.remaining()[i] == self.remaining()[i]\n
+ },\n;",
+      "requires": [],
+      "ensures": [
+        "The result preserves completion and prophetic-law properties.",
+        "Its remaining sequence is the pointwise dereference of the source sequence."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "Copying a referenced item is deterministic and introduces no additional
+execution step, so IteratorSpec can express the adapter exactly.",
+      "risks": [
+        "The relation is conditional on the source prophetic model.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::count",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn count(self) -> (r: usize)\n    where\n        Self: Sized,\n
+default_ensures\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self)\n            ==> self.will_return_none(),\n
+self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            &&
+self.remaining().len() <= (usize::MAX as int)\n            ==> r as int ==
+self.remaining().len(),\n;",
+      "requires": [],
+      "ensures": [
+        "Normal completion establishes that the modeled iterator reaches None.",
+        "When the modeled length fits in usize, the result equals that length."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source folds with one usize increment per element; remaining().len() gives
+the exact count when overflow is impossible.",
+      "risks": [
+        "No exact result is promised beyond usize::MAX.",
+        "The contract assumes conforming fold overrides.",
+        "default_ensures does not constrain count overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::cycle",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A nonempty cycle produces an infinite sequence, while IteratorSpec::remaining is
+ finite; current vstd has no stream or periodic-iterator abstraction.",
+      "risks": [
+        "Infinite output is not representable by Seq.",
+        "Restarting depends on hidden cloned iterator state.",
+        "Clone may not terminate."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::enumerate",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn enumerate(self) -> (r: core::iter::Enumerate<Self>)\n    where\n
+Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self)\n            && self.remaining().len() <= (usize::MAX as int)\n
+          ==> {\n                &&& r.obeys_prophetic_iter_laws()\n                &&&
+r.initial_value_relation(&r)\n                &&& r.will_return_none() == self.will_return_none()\n
+               &&& (r.decrease() is Some <==> self.decrease() is Some)\n                &&&
+r.remaining().len() == self.remaining().len()\n                &&& forall |i: int| 0 <= i <
+self.remaining().len() ==>\n                    r.remaining()[i] == (i as usize,
+self.remaining()[i])\n            },\n;",
+      "requires": [],
+      "ensures": [
+        "When all counter increments fit in usize, the result preserves iterator completion and
+prophetic-law properties.",
+        "The remaining sequence pairs every source item with its zero-based index."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "Enumerate::new starts its deterministic counter at zero, and IteratorSpec can
+model the resulting indexed sequence when counter overflow is excluded.",
+      "risks": [
+        "No behavioral guarantee is given once the enumerate counter could overflow.",
+        "The relation is conditional on the source prophetic model.",
+        "default_ensures does not constrain overrides."
+      ]
+    } ]
+}
+

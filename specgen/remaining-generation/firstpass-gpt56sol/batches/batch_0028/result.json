@@ -1,0 +1,118 @@
+{
+  "batch": 28,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 31001,
+  "targets": [
+    "core::sync::atomic::AtomicPtr::update",
+    "core::sync::atomic::AtomicU16::as_ptr",
+    "core::sync::atomic::AtomicU16::compare_and_swap",
+    "core::sync::atomic::AtomicU16::fetch_update",
+    "core::sync::atomic::AtomicU16::from_mut",
+    "core::sync::atomic::AtomicU16::from_mut_slice"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicPtr::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and update depend on linearizable hidden atomic state and concurrent interference; the closure may also be invoked repeatedly. Current vstd has no atomic-state abstraction expressing this behavior.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "repeated_closure_invocation"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned pointer exposes the atomic's hidden storage. Existing public vstd vocabulary cannot relate that storage identity to the AtomicU16 without inventing representation details.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_storage_identity_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its returned prior value and conditional write are defined at a linearization point in hidden atomic state, which cannot be represented by an ordinary view or current vstd contract.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden atomic state, concurrent retries, and potentially repeated calls to the FnMut closure. Current vstd cannot express the required linearizable transition.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "repeated_closure_invocation",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This reinterprets mutable storage as AtomicU16 and returns a mutable reference. Current vstd lacks a public representation/identity relation that can specify this alias-preserving conversion.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_storage_identity_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU16::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This reinterprets an entire mutable slice as atomic storage. Slice views can express element values but not the required mutable-reference identity and representation-preserving aliasing.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_storage_identity_abstraction"
+      ]
+    }
+  ]
+}

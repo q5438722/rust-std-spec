@@ -1,0 +1,133 @@
+{
+  "id": "core__ptr__wrapping_byte_sub__291c0303041a",
+  "api_path": "core::ptr::wrapping_byte_sub",
+  "raw_target": "<*const T>::wrapping_byte_sub",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"pointer_byte_offsets\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"const_pointer_byte_offsets\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29447",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "wrapping_byte_sub",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51637",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "count",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "Self"
+      }
+    },
+    "source_context": "  1107:     ///\n  1108:     /// # Examples\n  1109:     ///\n  1110:     /// ```\n  1111:     /// # use std::fmt::Write;\n  1112:     /// // Iterate using a raw pointer in increments of two elements (backwards)\n  1113:     /// let data = [1u8, 2, 3, 4, 5];\n  1114:     /// let mut ptr: *const u8 = data.as_ptr();\n  1115:     /// let start_rounded_down = ptr.wrapping_sub(2);\n  1116:     /// ptr = ptr.wrapping_add(4);\n  1117:     /// let step = 2;\n  1118:     /// let mut out = String::new();\n  1119:     /// while ptr != start_rounded_down {\n  1120:     ///     unsafe {\n  1121:     ///         write!(&mut out, \"{}, \", *ptr)?;\n  1122:     ///     }\n  1123:     ///     ptr = ptr.wrapping_sub(step);\n  1124:     /// }\n  1125:     /// assert_eq!(out, \"5, 3, 1, \");\n  1126:     /// # std::fmt::Result::Ok(())\n  1127:     /// ```\n  1128:     #[stable(feature = \"pointer_methods\", since = \"1.26.0\")]\n  1129:     #[must_use = \"returns a new pointer rather than modifying its argument\"]\n  1130:     #[rustc_const_stable(feature = \"const_ptr_offset\", since = \"1.61.0\")]\n  1131:     #[inline(always)]\n  1132:     pub const fn wrapping_sub(self, count: usize) -> Self\n  1133:     where\n  1134:         T: Sized,\n  1135:     {\n  1136:         self.wrapping_offset((count as isize).wrapping_neg())\n  1137:     }\n  1138: \n  1139:     /// Subtracts an unsigned offset in bytes from a pointer using wrapping arithmetic.\n  1140:     ///\n  1141:     /// `count` is in units of bytes.\n  1142:     ///\n  1143:     /// This is purely a convenience for casting to a `u8` pointer and\n  1144:     /// using [wrapping_sub][pointer::wrapping_sub] on it. See that method for documentation.\n  1145:     ///\n  1146:     /// For non-`Sized` pointees this operation changes only the data pointer,\n  1147:     /// leaving the metadata untouched.\n  1148:     #[must_use]\n  1149:     #[inline(always)]\n  1150:     #[stable(feature = \"pointer_byte_offsets\", since = \"1.75.0\")]\n  1151:     #[rustc_const_stable(feature = \"const_pointer_byte_offsets\", since = \"1.75.0\")]\n  1152:     pub const fn wrapping_byte_sub(self, count: usize) -> Self {\n  1153:         self.cast::<u8>().wrapping_sub(count).with_metadata_of(self)\n  1154:     }\n  1155: \n  1156:     /// Reads the value from `self` without moving it. This leaves the\n  1157:     /// memory in `self` unchanged.\n  1158:     ///\n  1159:     /// See [`ptr::read`] for safety concerns and examples.\n  1160:     ///\n  1161:     /// [`ptr::read`]: crate::ptr::read()\n  1162:     #[stable(feature = \"pointer_methods\", since = \"1.26.0\")]\n  1163:     #[rustc_const_stable(feature = \"const_ptr_read\", since = \"1.71.0\")]\n  1164:     #[inline]\n  1165:     #[track_caller]\n  1166:     pub const unsafe fn read(self) -> T\n  1167:     where\n  1168:         T: Sized,\n  1169:     {\n  1170:         // SAFETY: the caller must uphold the safety contract for `read`.\n  1171:         unsafe { read(self) }\n  1172:     }\n  1173: \n  1174:     /// Performs a volatile read of the value from `self` without moving it. This\n  1175:     /// leaves the memory in `self` unchanged.\n  1176:     ///\n  1177:     /// Volatile operations are intended to act on I/O memory, and are guaranteed\n  1178:     /// to not be elided or reordered by the compiler across other volatile\n  1179:     /// operations.\n  1180:     ///\n  1181:     /// See [`ptr::read_volatile`] for safety concerns and examples.\n  1182:     ///\n  1183:     /// [`ptr::read_volatile`]: crate::ptr::read_volatile()\n  1184:     #[stable(feature = \"pointer_methods\", since = \"1.26.0\")]\n  1185:     #[inline]\n  1186:     #[track_caller]\n  1187:     pub unsafe fn read_volatile(self) -> T\n  1188:     where\n  1189:         T: Sized,\n  1190:     {\n  1191:         // SAFETY: the caller must uphold the safety contract for `read_volatile`.\n  1192:         unsafe { read_volatile(self) }\n  1193:     }\n  1194: \n  1195:     /// Reads the value from `self` without moving it. This leaves the\n  1196:     /// memory in `self` unchanged.\n  1197:     ///",
+    "span": {
+      "begin": [
+        1152,
+        5
+      ],
+      "end": [
+        1154,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn wrapping_byte_sub(self, count: usize) -> Self {\n        self.cast::<u8>().wrapping_sub(count).with_metadata_of(self)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower raw-pointer cast contract equates its result with the corresponding pointer cast.",
+    "The lower wrapping_sub contract supplies modulo address subtraction and preserves provenance and metadata.",
+    "The lower with_metadata_of contract preserves address and provenance while copying metadata.",
+    "vstd guarantees size_of::<u8>() == 1."
+  ],
+  "rationale": "The exact three-operation Rust body verifies compositionally; a proved arithmetic lemma bridges modulo subtraction to usize::wrapping_sub.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__wrapping_byte_sub__291c0303041a"
+}

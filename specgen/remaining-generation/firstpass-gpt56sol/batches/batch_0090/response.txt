@@ -1,0 +1,282 @@
+{
+  "candidates": [
+    {
+      "target": "core::iter::from_fn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "FromFn repeatedly invokes a stateful FnMut and may be infinite or yield Some after None; current IteratorSpec only models finite, eventually fused prophetic sequences.",
+      "risks": [
+        "missing FnMut call-history abstraction",
+        "unsupported infinite or non-fused iterator behavior"
+      ]
+    },
+    {
+      "target": "core::iter::once",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::reject_recursive_types(T)]\n#[verifier::external_type_specification]\npub struct ExOnce<T>(Once<T>);\n\npub assume_specification<T>[ core::iter::once ](value: T) -> (res: Once<T>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&res),\n        IteratorSpec::remaining(&res) == seq![value],\n        IteratorSpec::will_return_none(&res),\n        IteratorSpec::decrease(&res) is Some,\n        IteratorSpec::initial_value_relation(&res, &res),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res) == seq![value]",
+        "IteratorSpec::will_return_none(&res)",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::Once",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source constructs an Option iterator containing exactly value, so the public prophetic IteratorSpec can precisely describe its singleton sequence and termination.",
+      "risks": []
+    },
+    {
+      "target": "core::iter::once_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::reject_recursive_types(F)]\n#[verifier::external_type_specification]\npub struct ExOnceWith<F>(OnceWith<F>);\n\npub assume_specification<A, F: FnOnce() -> A>[ core::iter::once_with ](make: F) -> (res: OnceWith<F>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&res),\n        IteratorSpec::remaining(&res).len() == 1,\n        IteratorSpec::decrease(&res) is Some,\n        IteratorSpec::initial_value_relation(&res, &res),\n        make.requires(()) ==> make.ensures((), IteratorSpec::remaining(&res)[0]),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res).len() == 1",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)",
+        "make.requires(()) ==> make.ensures((), IteratorSpec::remaining(&res)[0])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::OnceWith",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source stores make in an Option, so it is invoked at most once; IteratorSpec expresses the singleton future sequence and the existing closure vocabulary relates its element to make's postcondition.",
+      "risks": [
+        "closure termination is not expressible, so will_return_none remains unspecified",
+        "the element relation is conditional on make.requires(())"
+      ]
+    },
+    {
+      "target": "core::iter::repeat",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Repeat is explicitly endless, while the current IteratorSpec remaining model is a finite Seq and cannot soundly represent its future output.",
+      "risks": [
+        "missing infinite-iterator abstraction",
+        "generic Clone results need not equal the source element"
+      ]
+    },
+    {
+      "target": "core::iter::repeat_n",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::reject_recursive_types(T)]\n#[verifier::external_type_specification]\npub struct ExRepeatN<T>(RepeatN<T>);\n\npub assume_specification<T: Clone>[ core::iter::repeat_n ](element: T, count: usize) -> (res: RepeatN<T>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&res),\n        IteratorSpec::remaining(&res).len() == count,\n        IteratorSpec::decrease(&res) is Some,\n        IteratorSpec::initial_value_relation(&res, &res),\n        count > 0 ==> IteratorSpec::remaining(&res)[count as int - 1] == element,\n        forall |i: int| #![auto] 0 <= i < count ==> cloned(element, IteratorSpec::remaining(&res)[i]),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res).len() == count",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)",
+        "count > 0 ==> IteratorSpec::remaining(&res)[count as int - 1] == element",
+        "forall |i: int| #![auto] 0 <= i < count ==> cloned(element, IteratorSpec::remaining(&res)[i])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::RepeatN",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source fixes the finite count, and its documentation states that preceding items are clones while the last item is the original; IteratorSpec and cloned express both facts.",
+      "risks": [
+        "generic Clone results need not equal element",
+        "Clone termination is not modeled, so will_return_none remains unspecified"
+      ]
+    },
+    {
+      "target": "core::iter::repeat_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "RepeatWith is endless and each value depends on successive mutations of an FnMut closure; neither an infinite sequence nor that call history is representable in current vstd.",
+      "risks": [
+        "missing infinite-iterator abstraction",
+        "missing FnMut call-history abstraction",
+        "closure side effects and nontermination"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::iter::from_fn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "FromFn repeatedly invokes a stateful FnMut and may be infinite or yield Some
+after None; current IteratorSpec only models finite, eventually fused prophetic sequences.",
+      "risks": [
+        "missing FnMut call-history abstraction",
+        "unsupported infinite or non-fused iterator behavior"
+      ]
+    },
+    {
+      "target": "core::iter::once",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::reject_recursive_types(T)]\n#[verifi
+er::external_type_specification]\npub struct ExOnce<T>(Once<T>);\n\npub assume_specification<T>[
+core::iter::once ](value: T) -> (res: Once<T>)\n    ensures\n
+IteratorSpec::obeys_prophetic_iter_laws(&res),\n        IteratorSpec::remaining(&res) ==
+seq![value],\n        IteratorSpec::will_return_none(&res),\n        IteratorSpec::decrease(&res) is
+ Some,\n        IteratorSpec::initial_value_relation(&res, &res),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res) == seq![value]",
+        "IteratorSpec::will_return_none(&res)",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::Once",
+        "vstd::prelude::",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source constructs an Option iterator containing exactly value, so the public
+ prophetic IteratorSpec can precisely describe its singleton sequence and termination.",
+      "risks": []
+    },
+    {
+      "target": "core::iter::once_with",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::reject_recursive_types(F)]\n#[verifi
+er::external_type_specification]\npub struct ExOnceWith<F>(OnceWith<F>);\n\npub
+assume_specification<A, F: FnOnce() -> A>[ core::iter::once_with ](make: F) -> (res: OnceWith<F>)\n
+   ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&res),\n
+IteratorSpec::remaining(&res).len() == 1,\n        IteratorSpec::decrease(&res) is Some,\n
+IteratorSpec::initial_value_relation(&res, &res),\n        make.requires(()) ==> make.ensures((),
+IteratorSpec::remaining(&res)[0]),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res).len() == 1",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)",
+        "make.requires(()) ==> make.ensures((), IteratorSpec::remaining(&res)[0])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::OnceWith",
+        "vstd::prelude::",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source stores make in an Option, so it is invoked at most once; IteratorSpec
+ expresses the singleton future sequence and the existing closure vocabulary relates its element to
+make's postcondition.",
+      "risks": [
+        "closure termination is not expressible, so will_return_none remains unspecified",
+        "the element relation is conditional on make.requires(())"
+      ]
+    },
+    {
+      "target": "core::iter::repeat",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Repeat is explicitly endless, while the current IteratorSpec remaining model is
+a finite Seq and cannot soundly represent its future output.",
+      "risks": [
+        "missing infinite-iterator abstraction",
+        "generic Clone results need not equal the source element"
+      ]
+    },
+    {
+      "target": "core::iter::repeat_n",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "#[verifier::external_body]\n#[verifier::reject_recursive_types(T)]\n#[verifi
+er::external_type_specification]\npub struct ExRepeatN<T>(RepeatN<T>);\n\npub
+assume_specification<T: Clone>[ core::iter::repeat_n ](element: T, count: usize) -> (res:
+RepeatN<T>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&res),\n
+IteratorSpec::remaining(&res).len() == count,\n        IteratorSpec::decrease(&res) is Some,\n
+  IteratorSpec::initial_value_relation(&res, &res),\n        count > 0 ==>
+IteratorSpec::remaining(&res)[count as int - 1] == element,\n        forall |i: int| #![auto] 0 <= i
+ < count ==> cloned(element, IteratorSpec::remaining(&res)[i]),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&res)",
+        "IteratorSpec::remaining(&res).len() == count",
+        "IteratorSpec::decrease(&res) is Some",
+        "IteratorSpec::initial_value_relation(&res, &res)",
+        "count > 0 ==> IteratorSpec::remaining(&res)[count as int - 1] == element",
+        "forall |i: int| #![auto] 0 <= i < count ==> cloned(element,
+IteratorSpec::remaining(&res)[i])"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::RepeatN",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source fixes the finite count, and its documentation states that preceding
+items are clones while the last item is the original; IteratorSpec and cloned express both facts.",
+      "risks": [
+        "generic Clone results need not equal element",
+        "Clone termination is not modeled, so will_return_none remains unspecified"
+      ]
+    },
+    {
+      "target": "core::iter::repeat_with",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "RepeatWith is endless and each value depends on successive mutations of an FnMut
+ closure; neither an infinite sequence nor that call history is representable in current vstd.",
+      "risks": [
+        "missing infinite-iterator abstraction",
+        "missing FnMut call-history abstraction",
+        "closure side effects and nontermination"
+      ]
+    } ]
+}
+

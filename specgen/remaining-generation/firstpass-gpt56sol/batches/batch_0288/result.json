@@ -1,0 +1,149 @@
+{
+  "batch": 288,
+  "group": "trait_contract_integration",
+  "duration_ms": 1031248,
+  "targets": [
+    "core::iter::Iterator::is_sorted",
+    "core::iter::Iterator::is_sorted_by",
+    "core::iter::Iterator::is_sorted_by_key",
+    "core::iter::Iterator::last",
+    "core::iter::Iterator::le",
+    "core::iter::Iterator::lt"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::is_sorted",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn is_sorted(self) -> (ret: bool)\n    where\n        Self: Sized,\n        Self::Item: core::cmp::PartialOrd\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialOrdSpec>::obeys_partial_cmp_spec() ==> ({\n            let items = self.remaining();\n            ret <==> (forall |i: int| 0 <= i && i + 1 < items.len() ==>\n                #[trigger] <Self::Item as PartialOrdSpec>::partial_cmp_spec(\n                    &items[i],\n                    &items[i + 1],\n                ) matches Some(\n                    core::cmp::Ordering::Less | core::cmp::Ordering::Equal,\n                ))\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "For a modeled iterator and modeled PartialOrd, ret is equivalent to every adjacent pair comparing Less or Equal."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialOrdSpec;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The default body checks each consecutive pair with PartialOrd::le; IteratorSpec and PartialOrdSpec express that directly.",
+      "risks": [
+        "The guarantee is conditional on both vstd obedience predicates.",
+        "default_ensures does not constrain overriding implementations."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::is_sorted_by",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn is_sorted_by<F>(self, compare: F) -> (ret: bool)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item, &Self::Item) -> bool\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            if ret {\n                forall |i: int| 0 <= i && i + 1 < items.len() ==>\n                    #[trigger] compare.ensures((&items[i], &items[i + 1]), true)\n            } else {\n                exists |bad: int| {\n                    &&& 0 <= bad\n                    &&& bad + 1 < items.len()\n                    &&& compare.ensures((&items[bad], &items[bad + 1]), false)\n                    &&& forall |i: int| 0 <= i < bad ==>\n                        #[trigger] compare.ensures((&items[i], &items[i + 1]), true)\n                }\n            }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "For a modeled iterator, success records true comparator outcomes for every adjacent pair; failure identifies the first false outcome."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source invokes compare on consecutive elements and short-circuits at the first false result.",
+      "risks": [
+        "FnMut behavior is represented relationally through compare.ensures.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::is_sorted_by_key",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn is_sorted_by_key<F, K>(self, f: F) -> (ret: bool)\n    where\n        Self: Sized,\n        F: FnMut(Self::Item) -> K,\n        K: core::cmp::PartialOrd\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <K as PartialOrdSpec>::obeys_partial_cmp_spec() ==> ({\n            let items = self.remaining();\n            if ret {\n                exists |keys: Seq<K>| {\n                    &&& keys.len() == items.len()\n                    &&& forall |i: int| 0 <= i < items.len() ==>\n                        #[trigger] f.ensures((items[i],), keys[i])\n                    &&& forall |i: int| 0 <= i && i + 1 < keys.len() ==>\n                        #[trigger] <K as PartialOrdSpec>::partial_cmp_spec(\n                            &keys[i],\n                            &keys[i + 1],\n                        ) matches Some(\n                            core::cmp::Ordering::Less | core::cmp::Ordering::Equal,\n                        )\n                }\n            } else {\n                exists |bad: int, keys: Seq<K>| {\n                    &&& 0 <= bad\n                    &&& bad + 1 < items.len()\n                    &&& keys.len() == bad + 2\n                    &&& keys.len() <= items.len()\n                    &&& forall |i: int| 0 <= i < keys.len() ==>\n                        #[trigger] f.ensures((items[i],), keys[i])\n                    &&& forall |i: int| 0 <= i < bad ==>\n                        #[trigger] <K as PartialOrdSpec>::partial_cmp_spec(\n                            &keys[i],\n                            &keys[i + 1],\n                        ) matches Some(\n                            core::cmp::Ordering::Less | core::cmp::Ordering::Equal,\n                        )\n                    &&& !(<K as PartialOrdSpec>::partial_cmp_spec(\n                        &keys[bad],\n                        &keys[bad + 1],\n                    ) matches Some(\n                        core::cmp::Ordering::Less | core::cmp::Ordering::Equal,\n                    ))\n                }\n            }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "Success has one key per item and all adjacent keys are ordered; failure has an evaluated prefix ending at the first unordered key pair."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialOrdSpec;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source maps items to keys and performs the same adjacent sortedness check; an existential key trace preserves short-circuit evaluation.",
+      "risks": [
+        "Key-function effects are represented relationally.",
+        "Precision requires K::obeys_partial_cmp_spec().",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::last",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn last(self) -> (ret: Option<Self::Item>)\n    where\n        Self: Sized\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            ret == (if items.len() == 0 {\n                None\n            } else {\n                Some(items.last())\n            })\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "For a modeled iterator, ret is None for an empty remaining sequence and otherwise contains its last element."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The supplied body folds through the entire iterator while retaining the most recently produced item.",
+      "risks": [
+        "The value relation is conditional on the prophetic iterator model.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::le",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn le<I>(self, other: I) -> (ret: bool)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialOrd<I::Item>,\n        Self: Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialOrdSpec<I::Item>>::obeys_partial_cmp_spec() ==> ({\n            let left = self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n            let common_len = if left.len() <= right.len() {\n                left.len()\n            } else {\n                right.len()\n            };\n            ret <==> (\n                (exists |first: int| {\n                    &&& 0 <= first < common_len\n                    &&& forall |i: int| 0 <= i < first ==>\n                        #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                            &left[i],\n                            &right[i],\n                        ) == Some(core::cmp::Ordering::Equal)\n                    &&& <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[first],\n                        &right[first],\n                    ) == Some(core::cmp::Ordering::Less)\n                })\n                || ((forall |i: int| 0 <= i < common_len ==>\n                    #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[i],\n                        &right[i],\n                    ) == Some(core::cmp::Ordering::Equal))\n                    && left.len() <= right.len())\n            )\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "For modeled sequences and item ordering, ret holds exactly when the first differing pair is Less or the left sequence is an equal prefix no longer than the right."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialOrdSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The source accepts precisely the Less and Equal outcomes of lexicographic partial_cmp.",
+      "risks": [
+        "The other IntoIterator sequence remains abstract through into_iter_remaining.",
+        "Precision requires the item PartialOrd specification.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::lt",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn lt<I>(self, other: I) -> (ret: bool)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialOrd<I::Item>,\n        Self: Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialOrdSpec<I::Item>>::obeys_partial_cmp_spec() ==> ({\n            let left = self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n            let common_len = if left.len() <= right.len() {\n                left.len()\n            } else {\n                right.len()\n            };\n            ret <==> (\n                (exists |first: int| {\n                    &&& 0 <= first < common_len\n                    &&& forall |i: int| 0 <= i < first ==>\n                        #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                            &left[i],\n                            &right[i],\n                        ) == Some(core::cmp::Ordering::Equal)\n                    &&& <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[first],\n                        &right[first],\n                    ) == Some(core::cmp::Ordering::Less)\n                })\n                || ((forall |i: int| 0 <= i < common_len ==>\n                    #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[i],\n                        &right[i],\n                    ) == Some(core::cmp::Ordering::Equal))\n                    && left.len() < right.len())\n            )\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "For modeled sequences and item ordering, ret holds exactly when the first differing pair is Less or the left sequence is a proper equal prefix of the right."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialOrdSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The source returns true exactly when lexicographic partial_cmp produces Some(Less).",
+      "risks": [
+        "The other IntoIterator sequence remains abstract through into_iter_remaining.",
+        "Precision requires the item PartialOrd specification.",
+        "default_ensures does not constrain overrides."
+      ]
+    }
+  ]
+}

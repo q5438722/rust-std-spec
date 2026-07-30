@@ -1,0 +1,117 @@
+{
+  "batch": 186,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 27194,
+  "targets": [
+    "std::env::var_os",
+    "std::env::vars",
+    "std::env::vars_os",
+    "std::fs::DirBuilder::create",
+    "std::fs::DirBuilder::new",
+    "std::fs::DirBuilder::recursive"
+  ],
+  "candidates": [
+    {
+      "target": "std::env::var_os",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on the process environment, for which vstd provides no snapshot or lookup abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_environment_model"
+      ]
+    },
+    {
+      "target": "std::env::vars",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator captures a hidden runtime snapshot, and vstd has no environment-snapshot or Vars iterator model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_iterator_abstraction",
+        "possible_unicode_panic_during_iteration"
+      ]
+    },
+    {
+      "target": "std::env::vars_os",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned VarsOs represents a process-environment snapshot unavailable through any current public vstd abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_environment_model",
+        "missing_iterator_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::DirBuilder::create",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and filesystem effects depend on external state, while vstd provides no filesystem-state model relating the path and result.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_abstraction",
+        "platform_dependent_behavior"
+      ]
+    },
+    {
+      "target": "std::fs::DirBuilder::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source initializes non-recursive defaults, DirBuilder exposes no public spec-level view of its private recursive or platform-specific settings.",
+      "risks": [
+        "hidden_builder_state",
+        "missing_public_view",
+        "platform_dependent_options"
+      ]
+    },
+    {
+      "target": "std::fs::DirBuilder::recursive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates an unobservable private flag and returns the same mutable reference; current public vocabulary cannot express both effects usefully.",
+      "risks": [
+        "hidden_builder_state",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view",
+        "missing_public_view"
+      ]
+    }
+  ]
+}

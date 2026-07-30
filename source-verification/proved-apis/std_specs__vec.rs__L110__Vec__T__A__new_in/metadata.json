@@ -1,0 +1,145 @@
+{
+  "id": "std_specs__vec.rs__L110__Vec__T__A__new_in",
+  "api_path": "alloc::vec::Vec::new_in",
+  "raw_target": "Vec::<T, A>::new_in",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 110,
+  "rust_declaration": {
+    "declaration_id": "alloc:4896",
+    "name": "new_in",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Unstable {reason: None,\nissue: 32838}, feature: \"allocator_api\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        1069,
+        5
+      ],
+      "end": [
+        1071,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "alloc",
+          {
+            "generic": "A"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "Self"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1049:         }\n  1050:     }\n  1051: }\n  1052: \n  1053: impl<T, A: Allocator> Vec<T, A> {\n  1054:     /// Constructs a new, empty `Vec<T, A>`.\n  1055:     ///\n  1056:     /// The vector will not allocate until elements are pushed onto it.\n  1057:     ///\n  1058:     /// # Examples\n  1059:     ///\n  1060:     /// ```\n  1061:     /// #![feature(allocator_api)]\n  1062:     ///\n  1063:     /// use std::alloc::System;\n  1064:     ///\n  1065:     /// let vec: Vec<i32, System> = Vec::new_in(System);\n  1066:     /// ```\n  1067:     #[inline]\n  1068:     #[unstable(feature = \"allocator_api\", issue = \"32838\")]\n  1069:     pub const fn new_in(alloc: A) -> Self {\n  1070:         Vec { buf: RawVec::new_in(alloc), len: 0 }\n  1071:     }\n  1072: \n  1073:     /// Constructs a new, empty `Vec<T, A>` with at least the specified capacity\n  1074:     /// with the provided allocator.\n  1075:     ///\n  1076:     /// The vector will be able to hold at least `capacity` elements without\n  1077:     /// reallocating. This method is allowed to allocate for more elements than\n  1078:     /// `capacity`. If `capacity` is zero, the vector will not allocate.\n  1079:     ///\n  1080:     /// # Errors\n  1081:     ///\n  1082:     /// Returns an error if the capacity exceeds `isize::MAX` _bytes_,\n  1083:     /// or if the allocator reports allocation failure.\n  1084:     #[inline]\n  1085:     #[unstable(feature = \"allocator_api\", issue = \"32838\")]\n  1086:     // #[unstable(feature = \"try_with_capacity\", issue = \"91913\")]\n  1087:     pub fn try_with_capacity_in(capacity: usize, alloc: A) -> Result<Self, TryReserveError> {\n  1088:         Ok(Vec { buf: RawVec::try_with_capacity_in(capacity, alloc)?, len: 0 })\n  1089:     }",
+    "source_text": "pub const fn new_in(alloc: A) -> Self {\n        Vec { buf: RawVec::new_in(alloc), len: 0 }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for Vec::<T, A>::with_capacity_in, ensuring the returned vector has an empty sequence view."
+  ],
+  "rationale": "Zero-capacity with_capacity_in follows Rust 1.96's equivalent RawVec zero-layout construction and avoids calling Vec::new_in.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L110__Vec__T__A__new_in"
+}

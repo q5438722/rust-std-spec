@@ -1,0 +1,104 @@
+{
+  "candidates": [
+    {
+      "target": "std::os::unix::net::UnixDatagram::bind",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the returned socket depend on filesystem and kernel socket state, for which vstd has no public model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::bind_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Binding creates a kernel resource and changes external address state that cannot be related to SocketAddr using current vstd abstractions.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::connect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method changes the socket's kernel-maintained peer through a shared reference, with no vstd model for that hidden state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "interior_runtime_mutation",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::connect_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Connecting changes kernel-maintained peer state through a shared reference, which current vstd vocabulary cannot observe.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "interior_runtime_mutation",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::local_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is obtained from kernel socket state, and no current vstd abstraction connects a UnixDatagram to its local SocketAddr.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::pair",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee is that two newly created kernel sockets are connected, but vstd has no socket identity or peer-relation model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "resource_creation",
+        "missing_socket_state_abstraction"
+      ]
+    }
+  ]
+}
+

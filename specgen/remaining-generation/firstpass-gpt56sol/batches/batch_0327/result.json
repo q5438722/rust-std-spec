@@ -1,0 +1,122 @@
+{
+  "batch": 327,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 110971,
+  "targets": [
+    "core::ptr::NonNull::offset",
+    "core::ptr::NonNull::offset_from",
+    "core::ptr::NonNull::offset_from_unsigned",
+    "core::ptr::NonNull::read",
+    "core::ptr::NonNull::read_unaligned",
+    "core::ptr::NonNull::read_volatile"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::NonNull::offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source performs element-wise pointer offset while preserving provenance. Current vstd has no NonNull pointer view or allocation witness for expressing the result and its in-bounds safety condition.",
+      "risks": [
+        "missing_nonnull_pointer_view",
+        "pointer_provenance",
+        "missing_allocation_range_witness"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::offset_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to raw-pointer offset_from. Relating the result to the address difference requires observable NonNull pointer data plus same-allocation, non-ZST, and representability conditions unavailable through this signature.",
+      "risks": [
+        "missing_nonnull_pointer_view",
+        "same_allocation_not_expressible",
+        "zero_sized_type_case",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::offset_from_unsigned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to unsigned raw-pointer subtraction. Its useful relation requires pointer addresses, common allocation provenance, element divisibility, and ordering, but the exact NonNull-only signature exposes none of the required logical witnesses.",
+      "risks": [
+        "missing_nonnull_pointer_view",
+        "same_allocation_not_expressible",
+        "pointer_order_not_expressible",
+        "zero_sized_type_case"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::read",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads a bitwise copy while leaving memory bytes unchanged. A sound contract must relate the result to initialized memory and account for ownership of non-Copy values, but the signature carries no PointsTo permission.",
+      "risks": [
+        "missing_memory_permission_input",
+        "pointee_contents_unobservable",
+        "ownership_duplication",
+        "pointer_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::read_unaligned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads initialized memory without requiring alignment. Current vstd PointsTo permissions enforce alignment, and this signature carries neither a memory permission nor an unaligned byte-content abstraction.",
+      "risks": [
+        "unaligned_memory_not_modeled",
+        "missing_memory_permission_input",
+        "pointee_contents_unobservable",
+        "ownership_duplication"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::read_volatile",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source performs an observable volatile read that may access I/O memory and participates in volatile ordering. Current vstd has no volatile-event or external-memory state model, and the signature carries no memory permission.",
+      "risks": [
+        "runtime_volatile_effect",
+        "hidden_io_state",
+        "ordering_not_modeled",
+        "missing_memory_permission_input"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "batch": 170,
+  "group": "representation_or_allocator",
+  "duration_ms": 193190,
+  "targets": [
+    "alloc::collections::BinaryHeap::try_reserve_exact",
+    "alloc::collections::BinaryHeap::with_capacity",
+    "alloc::collections::VecDeque::capacity",
+    "alloc::collections::VecDeque::reserve_exact",
+    "alloc::collections::VecDeque::shrink_to",
+    "alloc::collections::VecDeque::shrink_to_fit"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::BinaryHeap::try_reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on allocator state, while BinaryHeap has no public vstd contents or capacity abstraction for stating preservation or the success capacity bound.",
+      "risks": [
+        "allocator_outcome_nondeterministic",
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The requested capacity is hidden allocator state, and current vstd lacks a BinaryHeap view through which to express even the constructor's empty-heap guarantee.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::capacity\n](v: &VecDeque<T, A>) -> (capacity: usize)\n    ensures\n        v@.len() <= capacity as int,\n;",
+      "requires": [],
+      "ensures": [
+        "v@.len() <= capacity as int"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::vec_deque::VecDeque;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Exact allocator capacity is hidden, but the returned capacity necessarily accommodates the deque's current logical sequence, yielding a useful public lower bound.",
+      "risks": [
+        "exact allocator capacity remains unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::reserve_exact\n](\n    v: &mut VecDeque<T, A>,\n    additional: usize,\n)\n    ensures\n        final(v)@ == old(v)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::vec_deque::VecDeque;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The implementation changes allocation and physical layout only; VecDeque's public sequence view can state that logical contents and order are preserved.",
+      "risks": [
+        "post-call capacity is unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::shrink_to",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::shrink_to\n](\n    v: &mut VecDeque<T, A>,\n    min_capacity: usize,\n)\n    ensures\n        final(v)@ == old(v)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::vec_deque::VecDeque;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Although shrinkage and its lower bound concern hidden capacity, the source preserves the deque's complete logical sequence.",
+      "risks": [
+        "resulting allocator capacity is unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::shrink_to_fit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::shrink_to_fit\n](v: &mut VecDeque<T, A>)\n    ensures\n        final(v)@ == old(v)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(v)@ == old(v)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::vec_deque::VecDeque;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The method delegates to shrink_to and preserves all logical elements and their order, which is expressible through the existing VecDeque view.",
+      "risks": [
+        "allocator-dependent shrinkage is unmodeled"
+      ]
+    }
+  ]
+}

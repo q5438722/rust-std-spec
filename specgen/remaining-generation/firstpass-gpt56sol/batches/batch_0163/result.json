@@ -1,0 +1,125 @@
+{
+  "batch": 163,
+  "group": "ownership_or_uninitialized_model",
+  "duration_ms": 193822,
+  "targets": [
+    "alloc::boxed::Box::into_pin",
+    "alloc::boxed::Box::new_uninit_slice",
+    "alloc::boxed::Box::new_zeroed",
+    "alloc::boxed::Box::new_zeroed_slice",
+    "alloc::boxed::Box::pin",
+    "alloc::boxed::Box::write"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::boxed::Box::into_pin",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves the boxed allocation while wrapping it in Pin, but current vstd exposes no Pin pointee or allocation-identity model.",
+      "risks": [
+        "Missing Pin abstraction",
+        "Pinned allocation identity is unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::new_uninit_slice",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Box::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Box<[MaybeUninit<T>]>)\n    ensures\n        res@.len() == len,\n        forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit(),\n;",
+      "requires": [],
+      "ensures": [
+        "res@.len() == len",
+        "forall|i: int| 0 <= i < res@.len() ==> res@[i].mem_contents().is_uninit()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::boxed::Box",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The slice view expresses the source-guaranteed length, and vstd's MaybeUninit mem_contents model expresses that every element is initially uninitialized.",
+      "risks": [
+        "Allocation identity and OOM behavior are unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::new_zeroed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "vstd's MaybeUninit model distinguishes only Init(T) from Uninit and cannot represent zero-filled bytes that may not encode a valid T.",
+      "risks": [
+        "Missing byte-level initialization model",
+        "Validity depends on T"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::new_zeroed_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the result length is observable, current vstd cannot express the defining guarantee that every element's storage contains zero bytes; a length-only contract is insufficient.",
+      "risks": [
+        "Missing byte-level initialization model",
+        "Element validity depends on T"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::pin",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source places x in a boxed allocation and pins that allocation, but current vstd has no public Pin pointee model relating the result to x.",
+      "risks": [
+        "Missing Pin abstraction",
+        "Pinned allocation identity is unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::write",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    Box::<MaybeUninit<T>, A>::write\n](\n    boxed: Box<MaybeUninit<T>, A>,\n    value: T,\n) -> (res: Box<T, A>)\n    ensures\n        *res == value,\n;",
+      "requires": [],
+      "ensures": [
+        "*res == value"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::boxed::Box",
+        "core::alloc::Allocator",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source writes value into the supplied allocation and returns it as Box<T, A>; Box dereference directly exposes the resulting value.",
+      "risks": [
+        "Allocation identity and overwritten storage state are unmodeled"
+      ]
+    }
+  ]
+}

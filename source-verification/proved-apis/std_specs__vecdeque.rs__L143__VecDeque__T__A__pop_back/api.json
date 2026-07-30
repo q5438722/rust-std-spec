@@ -1,0 +1,161 @@
+{
+  "id": "std_specs__vecdeque.rs__L143__VecDeque__T__A__pop_back",
+  "api_path": "alloc::collections::vec_deque::VecDeque::pop_back",
+  "normalized_api_path": "alloc::collections::VecDeque::pop_back",
+  "raw_target": "VecDeque::<T, A>::pop_back",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 143,
+  "rust_declaration": {
+    "declaration_id": "alloc:3104",
+    "name": "pop_back",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        2099,
+        5
+      ],
+      "end": [
+        2109,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 181,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2079:                 Some(self.buffer_read(old_head))\n  2080:             }\n  2081:         }\n  2082:     }\n  2083: \n  2084:     /// Removes the last element from the deque and returns it, or `None` if\n  2085:     /// it is empty.\n  2086:     ///\n  2087:     /// # Examples\n  2088:     ///\n  2089:     /// ```\n  2090:     /// use std::collections::VecDeque;\n  2091:     ///\n  2092:     /// let mut buf = VecDeque::new();\n  2093:     /// assert_eq!(buf.pop_back(), None);\n  2094:     /// buf.push_back(1);\n  2095:     /// buf.push_back(3);\n  2096:     /// assert_eq!(buf.pop_back(), Some(3));\n  2097:     /// ```\n  2098:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2099:     pub fn pop_back(&mut self) -> Option<T> {\n  2100:         if self.is_empty() {\n  2101:             None\n  2102:         } else {\n  2103:             self.len -= 1;\n  2104:             unsafe {\n  2105:                 core::hint::assert_unchecked(self.len < self.capacity());\n  2106:                 Some(self.buffer_read(self.to_physical_idx(self.len)))\n  2107:             }\n  2108:         }\n  2109:     }\n  2110: \n  2111:     /// Removes and returns the first element from the deque if the predicate\n  2112:     /// returns `true`, or [`None`] if the predicate returns false or the deque\n  2113:     /// is empty (the predicate will not be called in that case).\n  2114:     ///\n  2115:     /// # Examples\n  2116:     ///\n  2117:     /// ```\n  2118:     /// use std::collections::VecDeque;\n  2119:     ///",
+    "source_text": "pub fn pop_back(&mut self) -> Option<T> {\n        if self.is_empty() {\n            None\n        } else {\n            self.len -= 1;\n            unsafe {\n                core::hint::assert_unchecked(self.len < self.capacity());\n                Some(self.buffer_read(self.to_physical_idx(self.len)))\n            }\n        }\n    }",
+    "has_body": true
+  }
+}

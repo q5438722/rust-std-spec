@@ -1,0 +1,120 @@
+{
+  "batch": 263,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 28310,
+  "targets": [
+    "std::thread::park",
+    "std::thread::park_timeout",
+    "std::thread::park_timeout_ms",
+    "std::thread::scope",
+    "std::thread::sleep",
+    "std::thread::sleep_ms"
+  ],
+  "candidates": [
+    {
+      "target": "std::thread::park",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its only behavior concerns a hidden per-thread token, blocking, and spurious wakeups; the unit result exposes no relation expressible in current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unit_return_variant",
+        "missing_thread_parking_abstraction"
+      ]
+    },
+    {
+      "target": "std::thread::park_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source specifies blocking, timeout, token consumption, and spurious wakeups, none of which are observable through its unit result or modeled by current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unit_return_variant",
+        "missing_time_and_parking_abstraction"
+      ]
+    },
+    {
+      "target": "std::thread::park_timeout_ms",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although implemented via park_timeout with a millisecond conversion, its only effect is hidden runtime blocking and its unit result provides no useful specification relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unit_return_variant",
+        "missing_time_and_parking_abstraction",
+        "deprecated_api"
+      ]
+    },
+    {
+      "target": "std::thread::scope",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the result to the consumed higher-ranked closure requires modeling scoped thread creation, joining, concurrent effects, and panic propagation, for which current vstd lacks a suitable abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency",
+        "missing_scoped_thread_abstraction",
+        "panic_propagation"
+      ]
+    },
+    {
+      "target": "std::thread::sleep",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The documented guarantee is elapsed runtime and OS scheduling behavior; current vstd has no trusted clock relation to express it, and the function returns unit.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unit_return_variant",
+        "missing_elapsed_time_abstraction"
+      ]
+    },
+    {
+      "target": "std::thread::sleep_ms",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The millisecond conversion is internal, while the only externally meaningful guarantee concerns elapsed runtime; its unit result exposes no useful current-vstd relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unit_return_variant",
+        "missing_elapsed_time_abstraction",
+        "deprecated_api"
+      ]
+    }
+  ]
+}

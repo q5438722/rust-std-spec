@@ -1,0 +1,117 @@
+{
+  "batch": 146,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 32830,
+  "targets": [
+    "core::time::Duration::try_from_secs_f32",
+    "core::time::Duration::try_from_secs_f64",
+    "std::ffi::OsStr::as_encoded_bytes",
+    "std::ffi::OsStr::display",
+    "std::ffi::OsStr::eq_ignore_ascii_case",
+    "std::ffi::OsStr::into_os_string"
+  ],
+  "candidates": [
+    {
+      "target": "core::time::Duration::try_from_secs_f32",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Exact success, error, and nanosecond-rounding behavior requires float and Duration abstractions absent from current vstd.",
+      "risks": [
+        "missing_float_semantics",
+        "missing_duration_view",
+        "rounding_and_nonfinite_semantics"
+      ]
+    },
+    {
+      "target": "core::time::Duration::try_from_secs_f64",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Exact success, error, and nanosecond-rounding behavior requires float and Duration abstractions absent from current vstd.",
+      "risks": [
+        "missing_float_semantics",
+        "missing_duration_view",
+        "rounding_and_nonfinite_semantics"
+      ]
+    },
+    {
+      "target": "std::ffi::OsStr::as_encoded_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned slice uses an unspecified platform-specific encoding, and current vstd has no public OsStr encoding view with which to relate it.",
+      "risks": [
+        "reference_identity_vs_view",
+        "missing_os_str_view",
+        "platform_specific_encoding"
+      ]
+    },
+    {
+      "target": "std::ffi::OsStr::display",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a formatting adapter whose observable behavior is platform-dependent lossy formatting; current vstd provides no suitable OsStr or formatting model.",
+      "risks": [
+        "formatting_effect",
+        "missing_os_str_view",
+        "platform_dependent_lossy_conversion"
+      ]
+    },
+    {
+      "target": "std::ffi::OsStr::eq_ignore_ascii_case",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the documented ASCII-only comparison requires modeled OsStr contents and a specified generic AsRef conversion, neither available in current vstd.",
+      "risks": [
+        "missing_os_str_view",
+        "unspecified_as_ref_relation",
+        "platform_specific_encoding"
+      ]
+    },
+    {
+      "target": "std::ffi::OsStr::into_os_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves private encoded storage while changing ownership, but current vstd has no OsStr/OsString content view for stating that preservation.",
+      "risks": [
+        "missing_os_str_view",
+        "missing_os_string_view",
+        "ownership_representation_hidden"
+      ]
+    }
+  ]
+}

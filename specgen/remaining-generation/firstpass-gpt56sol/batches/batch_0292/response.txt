@@ -1,0 +1,219 @@
+{
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::size_hint",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn size_hint(&self) -> (result: (usize, Option<usize>))\n    default_ensures\n        result == (0, None),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (0, None)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The supplied default body returns exactly `(0, None)`; `default_ensures` avoids making unsupported claims about overrides.",
+      "risks": [
+        "Iterator implementations overriding size_hint receive no guarantee."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::skip",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Skip behavior depends on the inner iterator's overridable `nth`, but current IteratorSpec only models `next`; no sound suffix relation is available.",
+      "risks": [
+        "A trusted suffix axiom would be unsound when next obeys IteratorSpec but nth does not."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::skip_while",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The opaque adapter retains mutable predicate state, and current vstd lacks an abstraction connecting its future call history to a resulting sequence.",
+      "risks": [
+        "Modeling the cutoff would require unsupported assumptions about stateful FnMut calls and delegated iterator methods."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::step_by",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The body only constructs an opaque StepBy adapter; current vstd has no model connecting its nth-based and specialized behavior to IteratorSpec::remaining.",
+      "risks": [
+        "An exact stride axiom would assume unmodeled nth and specialization behavior."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::sum",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is defined by an arbitrary `Sum<Self::Item>` implementation, and vstd has no Sum specification relating it to the iterator's remaining sequence.",
+      "risks": [
+        "A numeric fold contract would be false for custom Sum implementations and mishandle overflow or floating-point semantics."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::take",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn take(self, n: usize) -> (result: Take<Self>)\n    where\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws() ==> {\n            let taken = if (n as nat) <= self.remaining().len() {\n                n as int\n            } else {\n                self.remaining().len() as int\n            };\n            &&& result.obeys_prophetic_iter_laws()\n            &&& result.remaining() == self.remaining().subrange(0, taken)\n            &&& result.will_return_none()\n                == ((n as nat) <= self.remaining().len() || self.will_return_none())\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "self.obeys_prophetic_iter_laws() ==> result.obeys_prophetic_iter_laws()",
+        "self.obeys_prophetic_iter_laws() ==> result.remaining() == self.remaining().subrange(0, min(n as int, self.remaining().len() as int))",
+        "self.obeys_prophetic_iter_laws() ==> result.will_return_none() == ((n as nat) <= self.remaining().len() || self.will_return_none())"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::Take"
+      ],
+      "useful": true,
+      "rationale": "Take's documented behavior is exactly a capped prefix, expressible with IteratorSpec::remaining and Seq::subrange.",
+      "risks": [
+        "The relation is default-only and guarded by the source iterator's prophetic laws."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::iter::Iterator::size_hint",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn size_hint(&self) -> (result: (usize, Option<usize>))\n
+default_ensures\n        result == (0, None),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (0, None)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The supplied default body returns exactly (0, None); default_ensures avoids
+making unsupported claims about overrides.",
+      "risks": [
+        "Iterator implementations overriding size_hint receive no guarantee."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::skip",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Skip behavior depends on the inner iterator's overridable nth, but current
+IteratorSpec only models next; no sound suffix relation is available.",
+      "risks": [
+        "A trusted suffix axiom would be unsound when next obeys IteratorSpec but nth does not."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::skip_while",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The opaque adapter retains mutable predicate state, and current vstd lacks an
+abstraction connecting its future call history to a resulting sequence.",
+      "risks": [
+        "Modeling the cutoff would require unsupported assumptions about stateful FnMut calls and
+delegated iterator methods."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::step_by",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The body only constructs an opaque StepBy adapter; current vstd has no model
+connecting its nth-based and specialized behavior to IteratorSpec::remaining.",
+      "risks": [
+        "An exact stride axiom would assume unmodeled nth and specialization behavior."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::sum",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is defined by an arbitrary Sum<Self::Item> implementation, and vstd
+has no Sum specification relating it to the iterator's remaining sequence.",
+      "risks": [
+        "A numeric fold contract would be false for custom Sum implementations and mishandle
+overflow or floating-point semantics."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::take",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn take(self, n: usize) -> (result: Take<Self>)\n    where\n        Self:
+Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws() ==> {\n            let taken =
+ if (n as nat) <= self.remaining().len() {\n                n as int\n            } else {\n
+        self.remaining().len() as int\n            };\n            &&&
+result.obeys_prophetic_iter_laws()\n            &&& result.remaining() ==
+self.remaining().subrange(0, taken)\n            &&& result.will_return_none()\n                ==
+((n as nat) <= self.remaining().len() || self.will_return_none())\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "self.obeys_prophetic_iter_laws() ==> result.obeys_prophetic_iter_laws()",
+        "self.obeys_prophetic_iter_laws() ==> result.remaining() == self.remaining().subrange(0,
+min(n as int, self.remaining().len() as int))",
+        "self.obeys_prophetic_iter_laws() ==> result.will_return_none() == ((n as nat) <=
+self.remaining().len() || self.will_return_none())"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::iter::Take"
+      ],
+      "useful": true,
+      "rationale": "Take's documented behavior is exactly a capped prefix, expressible with
+IteratorSpec::remaining and Seq::subrange.",
+      "risks": [
+        "The relation is default-only and guarded by the source iterator's prophetic laws."
+      ]
+    } ]
+}
+

@@ -1,0 +1,152 @@
+{
+  "id": "std_specs__vec.rs__L120__Vec__T__A__with_capacity_in",
+  "api_path": "alloc::vec::Vec::with_capacity_in",
+  "raw_target": "Vec::<T, A>::with_capacity_in",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 120,
+  "rust_declaration": {
+    "declaration_id": "alloc:4893",
+    "name": "with_capacity_in",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Unstable {reason: None,\nissue: 32838}, feature: \"allocator_api\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        976,
+        5
+      ],
+      "end": [
+        978,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "capacity",
+          {
+            "primitive": "usize"
+          }
+        ],
+        [
+          "alloc",
+          {
+            "generic": "A"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "Self"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4895",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "maybe_const"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   956:     ///\n   957:     /// // These are all done without reallocating...\n   958:     /// for i in 0..10 {\n   959:     ///     vec.push(i);\n   960:     /// }\n   961:     /// assert_eq!(vec.len(), 10);\n   962:     /// assert!(vec.capacity() >= 10);\n   963:     ///\n   964:     /// // ...but this may make the vector reallocate\n   965:     /// vec.push(11);\n   966:     /// assert_eq!(vec.len(), 11);\n   967:     /// assert!(vec.capacity() >= 11);\n   968:     ///\n   969:     /// // A vector of a zero-sized type will always over-allocate, since no\n   970:     /// // allocation is necessary\n   971:     /// let vec_units = Vec::<(), System>::with_capacity_in(10, System);\n   972:     /// assert_eq!(vec_units.capacity(), usize::MAX);\n   973:     /// ```\n   974:     #[inline]\n   975:     #[unstable(feature = \"allocator_api\", issue = \"32838\")]\n   976:     pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {\n   977:         Vec { buf: RawVec::with_capacity_in(capacity, alloc), len: 0 }\n   978:     }\n   979: \n   980:     /// Appends an element to the back of a collection.\n   981:     ///\n   982:     /// # Panics\n   983:     ///\n   984:     /// Panics if the new capacity exceeds `isize::MAX` _bytes_.\n   985:     ///\n   986:     /// # Examples\n   987:     ///\n   988:     /// ```\n   989:     /// let mut vec = vec![1, 2];\n   990:     /// vec.push(3);\n   991:     /// assert_eq!(vec, [1, 2, 3]);\n   992:     /// ```\n   993:     ///\n   994:     /// # Time complexity\n   995:     ///\n   996:     /// Takes amortized *O*(1) time. If the vector's length would exceed its",
+    "source_text": "pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {\n        Vec { buf: RawVec::with_capacity_in(capacity, alloc), len: 0 }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for Vec::<T, A>::new_in",
+    "vstd contract for Vec::<T, A>::reserve_exact"
+  ],
+  "rationale": "The private RawVec construction is desugared through new_in followed by exact reservation; the lower contracts prove that the resulting vector remains empty.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L120__Vec__T__A__with_capacity_in"
+}

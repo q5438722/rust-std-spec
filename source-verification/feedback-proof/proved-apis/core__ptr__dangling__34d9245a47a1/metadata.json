@@ -1,0 +1,92 @@
+{
+  "id": "core__ptr__dangling__34d9245a47a1",
+  "api_path": "core::ptr::dangling",
+  "raw_target": "core::ptr::dangling",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"strict_provenance\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"strict_provenance\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:8277",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "dangling",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": true,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [],
+      "is_c_variadic": false,
+      "output": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      }
+    },
+    "source_context": "   861: #[inline(always)]\n   862: #[must_use]\n   863: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   864: #[rustc_promotable]\n   865: #[rustc_const_stable(feature = \"const_ptr_null\", since = \"1.24.0\")]\n   866: #[rustc_diagnostic_item = \"ptr_null_mut\"]\n   867: pub const fn null_mut<T: PointeeSized + Thin>() -> *mut T {\n   868:     from_raw_parts_mut(without_provenance_mut::<()>(0), ())\n   869: }\n   870: \n   871: /// Creates a pointer with the given address and no [provenance][crate::ptr#provenance].\n   872: ///\n   873: /// This is equivalent to `ptr::null().with_addr(addr)`.\n   874: ///\n   875: /// Without provenance, this pointer is not associated with any actual allocation. Such a\n   876: /// no-provenance pointer may be used for zero-sized memory accesses (if suitably aligned), but\n   877: /// non-zero-sized memory accesses with a no-provenance pointer are UB. No-provenance pointers are\n   878: /// little more than a `usize` address in disguise.\n   879: ///\n   880: /// This is different from `addr as *const T`, which creates a pointer that picks up a previously\n   881: /// exposed provenance. See [`with_exposed_provenance`] for more details on that operation.\n   882: ///\n   883: /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.\n   884: #[inline(always)]\n   885: #[must_use]\n   886: #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   887: #[rustc_const_stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   888: #[rustc_diagnostic_item = \"ptr_without_provenance\"]\n   889: pub const fn without_provenance<T>(addr: usize) -> *const T {\n   890:     without_provenance_mut(addr)\n   891: }\n   892: \n   893: /// Creates a new pointer that is dangling, but non-null and well-aligned.\n   894: ///\n   895: /// This is useful for initializing types which lazily allocate, like\n   896: /// `Vec::new` does.\n   897: ///\n   898: /// Note that the address of the returned pointer may potentially\n   899: /// be that of a valid pointer, which means this must not be used\n   900: /// as a \"not yet initialized\" sentinel value.\n   901: /// Types that lazily allocate must track initialization by some other means.\n   902: #[inline(always)]\n   903: #[must_use]\n   904: #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   905: #[rustc_const_stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   906: pub const fn dangling<T>() -> *const T {\n   907:     dangling_mut()\n   908: }\n   909: \n   910: /// Creates a pointer with the given address and no [provenance][crate::ptr#provenance].\n   911: ///\n   912: /// This is equivalent to `ptr::null_mut().with_addr(addr)`.\n   913: ///\n   914: /// Without provenance, this pointer is not associated with any actual allocation. Such a\n   915: /// no-provenance pointer may be used for zero-sized memory accesses (if suitably aligned), but\n   916: /// non-zero-sized memory accesses with a no-provenance pointer are UB. No-provenance pointers are\n   917: /// little more than a `usize` address in disguise.\n   918: ///\n   919: /// This is different from `addr as *mut T`, which creates a pointer that picks up a previously\n   920: /// exposed provenance. See [`with_exposed_provenance_mut`] for more details on that operation.\n   921: ///\n   922: /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.\n   923: #[inline(always)]\n   924: #[must_use]\n   925: #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   926: #[rustc_const_stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   927: #[rustc_diagnostic_item = \"ptr_without_provenance_mut\"]\n   928: #[allow(integer_to_ptr_transmutes)] // Expected semantics here.\n   929: pub const fn without_provenance_mut<T>(addr: usize) -> *mut T {\n   930:     // An int-to-pointer transmute currently has exactly the intended semantics: it creates a\n   931:     // pointer without provenance. Note that this is *not* a stable guarantee about transmute\n   932:     // semantics, it relies on sysroot crates having special status.\n   933:     // SAFETY: every valid integer is also a valid pointer (as long as you don't dereference that\n   934:     // pointer).\n   935:     unsafe { mem::transmute(addr) }\n   936: }\n   937: \n   938: /// Creates a new pointer that is dangling, but non-null and well-aligned.\n   939: ///\n   940: /// This is useful for initializing types which lazily allocate, like\n   941: /// `Vec::new` does.\n   942: ///\n   943: /// Note that the address of the returned pointer may potentially\n   944: /// be that of a valid pointer, which means this must not be used\n   945: /// as a \"not yet initialized\" sentinel value.\n   946: /// Types that lazily allocate must track initialization by some other means.\n   947: #[inline(always)]\n   948: #[must_use]\n   949: #[stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   950: #[rustc_const_stable(feature = \"strict_provenance\", since = \"1.84.0\")]\n   951: pub const fn dangling_mut<T>() -> *mut T {",
+    "span": {
+      "begin": [
+        906,
+        1
+      ],
+      "end": [
+        908,
+        2
+      ],
+      "filename": "core/src/ptr/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn dangling<T>() -> *const T {\n    dangling_mut()\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller core::ptr::dangling_mut::<T> contract guarantees a nonzero, properly aligned address."
+  ],
+  "rationale": "The body preserves the implementation's single dangling_mut call through an import alias, avoiding the target-path prefix false positive while proving compositionally.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__dangling__34d9245a47a1"
+}

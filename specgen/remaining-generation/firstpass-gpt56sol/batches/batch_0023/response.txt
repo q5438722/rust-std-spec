@@ -1,0 +1,174 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicIsize::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": ["atomic_from_mut"],
+      "imports": [],
+      "useful": false,
+      "rationale": "The mutable-reference result aliases the input storage as atomic objects, but vstd exposes neither the atomic state nor a suitable identity relation for this reinterpretation.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view", "unsupported_mutable_reference_return"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires pointer validity, alignment, lifetime, storage identity, and atomic-state abstractions not represented by this signature or current vstd vocabulary.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view", "missing_pointer_permission_abstraction"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned mutable isize reference to the consumed exclusive atomic state requires an AtomicIsize state model that vstd does not expose.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view", "unsupported_mutable_reference_return"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": ["atomic_from_mut"],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reinterprets mutable atomic storage as integers; current vstd cannot express the element-state correspondence or returned-reference identity.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view", "unsupported_mutable_reference_return"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned integer can only be related to the atomic's hidden stored value, for which current vstd provides no public specification-level observation.",
+      "risks": ["concurrency_or_hidden_state", "missing_atomic_state_abstraction"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and state change depend on concurrent atomic interference and potentially repeated FnMut invocations, which current vstd cannot model through this signature.",
+      "risks": ["concurrency_or_hidden_state", "missing_atomic_state_abstraction", "unmodeled_closure_invocation_count"]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicIsize::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": ["atomic_from_mut"],
+      "imports": [],
+      "useful": false,
+      "rationale": "The mutable-reference result aliases the input storage as atomic objects, but
+vstd exposes neither the atomic state nor a suitable identity relation for this reinterpretation.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view",
+"unsupported_mutable_reference_return"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires pointer validity, alignment, lifetime, storage
+identity, and atomic-state abstractions not represented by this signature or current vstd
+vocabulary.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view",
+"missing_pointer_permission_abstraction"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned mutable isize reference to the consumed exclusive atomic
+state requires an AtomicIsize state model that vstd does not expose.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view",
+"unsupported_mutable_reference_return"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": ["atomic_from_mut"],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reinterprets mutable atomic storage as integers; current vstd cannot
+express the element-state correspondence or returned-reference identity.",
+      "risks": ["concurrency_or_hidden_state", "reference_identity_vs_view",
+"unsupported_mutable_reference_return"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned integer can only be related to the atomic's hidden stored value,
+for which current vstd provides no public specification-level observation.",
+      "risks": ["concurrency_or_hidden_state", "missing_atomic_state_abstraction"]
+    },
+    {
+      "target": "core::sync::atomic::AtomicIsize::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and state change depend on concurrent atomic interference and
+potentially repeated FnMut invocations, which current vstd cannot model through this signature.",
+      "risks": ["concurrency_or_hidden_state", "missing_atomic_state_abstraction",
+"unmodeled_closure_invocation_count"]
+    } ]
+}
+

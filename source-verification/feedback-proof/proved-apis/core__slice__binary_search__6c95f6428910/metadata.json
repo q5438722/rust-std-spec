@@ -1,0 +1,159 @@
+{
+  "id": "core__slice__binary_search__6c95f6428910",
+  "api_path": "core::slice::binary_search",
+  "raw_target": "<[T]>::binary_search",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "declaration_id": "core:51827",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 50,
+                    "path": "Ord"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "binary_search",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "x",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "T"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "primitive": "usize"
+                  }
+                },
+                {
+                  "type": {
+                    "primitive": "usize"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "  2874:     /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];\n  2875:     ///\n  2876:     /// assert_eq!(s.binary_search(&13),  Ok(9));\n  2877:     /// assert_eq!(s.binary_search(&4),   Err(7));\n  2878:     /// assert_eq!(s.binary_search(&100), Err(13));\n  2879:     /// let r = s.binary_search(&1);\n  2880:     /// assert!(match r { Ok(1..=4) => true, _ => false, });\n  2881:     /// ```\n  2882:     ///\n  2883:     /// If you want to find that whole *range* of matching items, rather than\n  2884:     /// an arbitrary matching one, that can be done using [`partition_point`]:\n  2885:     /// ```\n  2886:     /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];\n  2887:     ///\n  2888:     /// let low = s.partition_point(|x| x < &1);\n  2889:     /// assert_eq!(low, 1);\n  2890:     /// let high = s.partition_point(|x| x <= &1);\n  2891:     /// assert_eq!(high, 5);\n  2892:     /// let r = s.binary_search(&1);\n  2893:     /// assert!((low..high).contains(&r.unwrap()));\n  2894:     ///\n  2895:     /// assert!(s[..low].iter().all(|&x| x < 1));\n  2896:     /// assert!(s[low..high].iter().all(|&x| x == 1));\n  2897:     /// assert!(s[high..].iter().all(|&x| x > 1));\n  2898:     ///\n  2899:     /// // For something not found, the \"range\" of equal items is empty\n  2900:     /// assert_eq!(s.partition_point(|x| x < &11), 9);\n  2901:     /// assert_eq!(s.partition_point(|x| x <= &11), 9);\n  2902:     /// assert_eq!(s.binary_search(&11), Err(9));\n  2903:     /// ```\n  2904:     ///\n  2905:     /// If you want to insert an item to a sorted vector, while maintaining\n  2906:     /// sort order, consider using [`partition_point`]:\n  2907:     ///\n  2908:     /// ```\n  2909:     /// let mut s = vec![0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];\n  2910:     /// let num = 42;\n  2911:     /// let idx = s.partition_point(|&x| x <= num);\n  2912:     /// // If `num` is unique, `s.partition_point(|&x| x < num)` (with `<`) is equivalent to\n  2913:     /// // `s.binary_search(&num).unwrap_or_else(|x| x)`, but using `<=` will allow `insert`\n  2914:     /// // to shift less elements.\n  2915:     /// s.insert(idx, num);\n  2916:     /// assert_eq!(s, [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 42, 55]);\n  2917:     /// ```\n  2918:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2919:     pub fn binary_search(&self, x: &T) -> Result<usize, usize>\n  2920:     where\n  2921:         T: Ord,\n  2922:     {\n  2923:         self.binary_search_by(|p| p.cmp(x))\n  2924:     }\n  2925: \n  2926:     /// Binary searches this slice with a comparator function.\n  2927:     ///\n  2928:     /// The comparator function should return an order code that indicates\n  2929:     /// whether its argument is `Less`, `Equal` or `Greater` the desired\n  2930:     /// target.\n  2931:     /// If the slice is not sorted or if the comparator function does not\n  2932:     /// implement an order consistent with the sort order of the underlying\n  2933:     /// slice, the returned result is unspecified and meaningless.\n  2934:     ///\n  2935:     /// If the value is found then [`Result::Ok`] is returned, containing the\n  2936:     /// index of the matching element. If there are multiple matches, then any\n  2937:     /// one of the matches could be returned. The index is chosen\n  2938:     /// deterministically, but is subject to change in future versions of Rust.\n  2939:     /// If the value is not found then [`Result::Err`] is returned, containing\n  2940:     /// the index where a matching element could be inserted while maintaining\n  2941:     /// sorted order.\n  2942:     ///\n  2943:     /// See also [`binary_search`], [`binary_search_by_key`], and [`partition_point`].\n  2944:     ///\n  2945:     /// [`binary_search`]: slice::binary_search\n  2946:     /// [`binary_search_by_key`]: slice::binary_search_by_key\n  2947:     /// [`partition_point`]: slice::partition_point\n  2948:     ///\n  2949:     /// # Examples\n  2950:     ///\n  2951:     /// Looks up a series of four elements. The first is found, with a\n  2952:     /// uniquely determined position; the second and third are not\n  2953:     /// found; the fourth could match any position in `[1, 4]`.\n  2954:     ///\n  2955:     /// ```\n  2956:     /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];\n  2957:     ///\n  2958:     /// let seek = 13;\n  2959:     /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Ok(9));\n  2960:     /// let seek = 4;\n  2961:     /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Err(7));\n  2962:     /// let seek = 100;\n  2963:     /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Err(13));\n  2964:     /// let seek = 1;",
+    "span": {
+      "begin": [
+        2919,
+        5
+      ],
+      "end": [
+        2924,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn binary_search(&self, x: &T) -> Result<usize, usize>\n    where\n        T: Ord,\n    {\n        self.binary_search_by(|p| p.cmp(x))\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower-level <[T]>::binary_search_by contract declared in this file.",
+    "vstd OrdSpec ties T::cmp to cmp_spec when T::obeys_cmp_spec()."
+  ],
+  "rationale": "The executable body mechanically names the source closure and result, then performs the exact binary_search_by call; erased proof code derives the callback ordering obligations from sorted_by and obeys_cmp.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__binary_search__6c95f6428910"
+}

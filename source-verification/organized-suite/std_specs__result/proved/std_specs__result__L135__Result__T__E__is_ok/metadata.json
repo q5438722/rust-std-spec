@@ -1,0 +1,145 @@
+{
+  "id": "std_specs__result.rs__L135__Result__T__E__is_ok",
+  "api_path": "core::result::Result::is_ok",
+  "raw_target": "Result::<T, E>::is_ok",
+  "contract_source_file": "std_specs/result.rs",
+  "contract_source_line": 135,
+  "rust_declaration": {
+    "declaration_id": "core:29278",
+    "name": "is_ok",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "if you intended to assert that this is ok, consider `.unwrap()` instead"
+        }
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 48, patch: 0 })},\nfeature: \"const_result_basics\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/result.rs",
+      "begin": [
+        593,
+        5
+      ],
+      "end": [
+        595,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:29310",
+      "for": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "E",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   573: impl<T, E> Result<T, E> {\n   574:     /////////////////////////////////////////////////////////////////////////\n   575:     // Querying the contained values\n   576:     /////////////////////////////////////////////////////////////////////////\n   577: \n   578:     /// Returns `true` if the result is [`Ok`].\n   579:     ///\n   580:     /// # Examples\n   581:     ///\n   582:     /// ```\n   583:     /// let x: Result<i32, &str> = Ok(-3);\n   584:     /// assert_eq!(x.is_ok(), true);\n   585:     ///\n   586:     /// let x: Result<i32, &str> = Err(\"Some error message\");\n   587:     /// assert_eq!(x.is_ok(), false);\n   588:     /// ```\n   589:     #[must_use = \"if you intended to assert that this is ok, consider `.unwrap()` instead\"]\n   590:     #[rustc_const_stable(feature = \"const_result_basics\", since = \"1.48.0\")]\n   591:     #[inline]\n   592:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   593:     pub const fn is_ok(&self) -> bool {\n   594:         matches!(*self, Ok(_))\n   595:     }\n   596: \n   597:     /// Returns `true` if the result is [`Ok`] and the value inside of it matches a predicate.\n   598:     ///\n   599:     /// # Examples\n   600:     ///\n   601:     /// ```\n   602:     /// let x: Result<u32, &str> = Ok(2);\n   603:     /// assert_eq!(x.is_ok_and(|x| x > 1), true);\n   604:     ///\n   605:     /// let x: Result<u32, &str> = Ok(0);\n   606:     /// assert_eq!(x.is_ok_and(|x| x > 1), false);\n   607:     ///\n   608:     /// let x: Result<u32, &str> = Err(\"hey\");\n   609:     /// assert_eq!(x.is_ok_and(|x| x > 1), false);\n   610:     ///\n   611:     /// let x: Result<String, &str> = Ok(\"ownership\".to_string());\n   612:     /// assert_eq!(x.as_ref().is_ok_and(|x| x.len() > 1), true);\n   613:     /// println!(\"still alive {:?}\", x);",
+    "source_text": "pub const fn is_ok(&self) -> bool {\n        matches!(*self, Ok(_))\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The matches! expression is faithfully desugared into its two-arm match, which proves the structural Result specification directly.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__result.rs__L135__Result__T__E__is_ok"
+}

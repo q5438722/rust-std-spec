@@ -1,0 +1,121 @@
+{
+  "batch": 204,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 19428,
+  "targets": [
+    "std::io::stdin",
+    "std::io::stdout",
+    "std::net::TcpListener::accept",
+    "std::net::TcpListener::bind",
+    "std::net::TcpListener::incoming",
+    "std::net::TcpListener::local_addr"
+  ],
+  "candidates": [
+    {
+      "target": "std::io::stdin",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned handle refers to a process-global, lazily initialized input stream whose state has no public vstd model.",
+      "risks": [
+        "external runtime state",
+        "hidden global state",
+        "missing I/O abstraction"
+      ]
+    },
+    {
+      "target": "std::io::stdout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned handle refers to hidden process-global buffered output state, which existing public vstd vocabulary cannot characterize usefully.",
+      "risks": [
+        "external runtime state",
+        "hidden global state",
+        "buffering state",
+        "missing I/O abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::accept",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, failure, the accepted stream, and peer address depend on nondeterministic OS and network state with no current vstd socket model.",
+      "risks": [
+        "blocking runtime effect",
+        "external network state",
+        "nondeterministic result",
+        "missing socket abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::bind",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Address resolution and binding depend on ToSocketAddrs behavior and OS socket state; no public vstd relation captures the resulting listener.",
+      "risks": [
+        "external OS state",
+        "address resolution effects",
+        "resource allocation",
+        "missing socket abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::incoming",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although construction only borrows the listener, the useful relation is stored in a private field and iteration delegates to runtime-dependent accept operations.",
+      "risks": [
+        "private representation",
+        "runtime-dependent iteration",
+        "missing iterator/socket abstraction"
+      ]
+    },
+    {
+      "target": "std::net::TcpListener::local_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result queries hidden OS socket state, and vstd provides no public model connecting a TcpListener to its bound local address.",
+      "risks": [
+        "external OS state",
+        "hidden socket identity",
+        "runtime failure",
+        "missing socket abstraction"
+      ]
+    }
+  ]
+}

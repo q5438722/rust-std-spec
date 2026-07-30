@@ -1,0 +1,150 @@
+{
+  "batch": 175,
+  "group": "representation_or_allocator",
+  "duration_ms": 730080,
+  "targets": [
+    "std::collections::HashSet::capacity",
+    "std::collections::HashSet::hasher",
+    "std::collections::HashSet::shrink_to",
+    "std::collections::HashSet::shrink_to_fit",
+    "std::collections::HashSet::try_reserve",
+    "std::collections::HashSet::with_capacity_and_hasher"
+  ],
+  "candidates": [
+    {
+      "target": "std::collections::HashSet::capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, S, A: Allocator>[\n    HashSet::<T, S, A>::capacity\n](set: &HashSet<T, S, A>) -> (capacity: usize)\n    ensures\n        capacity >= set.len(),\n;",
+      "requires": [],
+      "ensures": [
+        "capacity >= set.len()"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "std::collections::HashSet",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Exact capacity is hidden, but the documented capacity must accommodate every current element, yielding a useful lower bound through the existing len specification.",
+      "risks": [
+        "Exact capacity and future reallocation behavior remain unmodeled."
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::hasher",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "HashSet's public vstd view exposes only elements and has no projection for the stored BuildHasher or its reference identity.",
+      "risks": [
+        "stored_hasher_unmodeled",
+        "reference_identity_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::shrink_to",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Eq + Hash, S: BuildHasher, A: Allocator>[\n    HashSet::<T, S, A>::shrink_to\n](\n    set: &mut HashSet<T, S, A>,\n    min_capacity: usize,\n)\n    ensures\n        final(set)@ == old(set)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(set)@ == old(set)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "core::hash::{BuildHasher, Hash}",
+        "std::collections::HashSet",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Although capacity is unmodeled, shrinking preserves every logical set element, which the existing Set view expresses directly.",
+      "risks": [
+        "capacity_lower_bound_unmodeled",
+        "allocation_policy_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::shrink_to_fit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Eq + Hash, S: BuildHasher, A: Allocator>[\n    HashSet::<T, S, A>::shrink_to_fit\n](\n    set: &mut HashSet<T, S, A>,\n)\n    ensures\n        final(set)@ == old(set)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(set)@ == old(set)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "core::hash::{BuildHasher, Hash}",
+        "std::collections::HashSet",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The operation changes allocation capacity while preserving the HashSet's logical element set.",
+      "risks": [
+        "resulting_capacity_unmodeled",
+        "allocation_policy_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::try_reserve",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Eq + Hash, S: BuildHasher, A: Allocator>[\n    HashSet::<T, S, A>::try_reserve\n](\n    set: &mut HashSet<T, S, A>,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(set)@ == old(set)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(set)@ == old(set)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "core::hash::{BuildHasher, Hash}",
+        "std::collections::{HashSet, TryReserveError}",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Whether allocation succeeds or fails, reserving capacity preserves the set's logical elements; allocator-dependent outcomes remain unconstrained.",
+      "risks": [
+        "allocator_outcome_unmodeled",
+        "capacity_guarantee_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::with_capacity_and_hasher",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, S>[\n    HashSet::<T, S>::with_capacity_and_hasher\n](\n    capacity: usize,\n    hasher: S,\n) -> (result: HashSet<T, S>)\n    ensures\n        result@ == Set::<T>::empty(),\n;",
+      "requires": [],
+      "ensures": [
+        "result@ == Set::<T>::empty()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "std::collections::HashSet",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source constructs an empty set, which the existing Set view captures even though requested capacity and stored hasher state are unmodeled.",
+      "risks": [
+        "capacity_guarantee_unmodeled",
+        "stored_hasher_not_related_to_argument"
+      ]
+    }
+  ]
+}

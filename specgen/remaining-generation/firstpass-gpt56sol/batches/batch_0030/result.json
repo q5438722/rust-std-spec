@@ -1,0 +1,121 @@
+{
+  "batch": 30,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 32670,
+  "targets": [
+    "core::sync::atomic::AtomicU32::as_ptr",
+    "core::sync::atomic::AtomicU32::compare_and_swap",
+    "core::sync::atomic::AtomicU32::fetch_update",
+    "core::sync::atomic::AtomicU32::from_mut",
+    "core::sync::atomic::AtomicU32::from_mut_slice",
+    "core::sync::atomic::AtomicU32::from_ptr"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicU32::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "No public vstd atomic-storage or address-identity abstraction can relate the returned raw pointer to the atomic's hidden storage.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_storage_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU32::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and update depend on atomically observed hidden state at a linearization point, which an ordinary shared-reference view cannot express.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_model",
+        "memory_ordering_semantics"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU32::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires an atomic-state transition model and support for specifying a FnMut callback that may be invoked repeatedly; current public vstd vocabulary provides neither relation here.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_model",
+        "higher_order_callback_effects",
+        "memory_ordering_semantics"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU32::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful guarantee is storage-preserving reinterpretation of a mutable reference, but reference identity and the atomic's hidden state are not expressible through an ordinary view, and the result is mutable.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_storage_reinterpretation_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU32::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying this requires elementwise storage identity between mutable slices and an atomic-state model; length alone would omit the API's essential guarantee.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_slice_storage_reinterpretation_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicU32::from_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract needs expressible pointer validity, alignment, lifetime, storage identity, and atomic-access obligations, which are not supplied by an existing public atomic abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "raw_pointer_validity",
+        "missing_atomic_storage_abstraction"
+      ]
+    }
+  ]
+}

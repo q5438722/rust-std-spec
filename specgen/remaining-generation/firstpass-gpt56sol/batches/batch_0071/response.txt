@@ -1,0 +1,123 @@
+{"candidates":[{"target":"alloc::collections::VecDeque::binary_search_by","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<'a, T, A: Allocator, F: FnMut(&'a T) -> Ordering>[\n    VecDeque::<T, A>::binary_search_by\n](\n    v: &'a VecDeque<T, A>,\n    f: F,\n) -> (result: Result<usize, usize>)\n    requires\n        forall|i: int| 0 <= i < v@.len() ==> f.requires((v@.as_ref()[i],)),\n        exists|lo: int, hi: int| {\n            &&& 0 <= lo <= hi <= v@.len()\n            &&& forall|i: int, ord: Ordering|\n                0 <= i < v@.len() && f.ensures((v@.as_ref()[i],), ord) ==> {\n                    &&& (i < lo ==> ord == Ordering::Less)\n                    &&& (lo <= i < hi ==> ord == Ordering::Equal)\n                    &&& (hi <= i ==> ord == Ordering::Greater)\n                }\n        },\n    ensures\n        match result {\n            Ok(i) => {\n                &&& (i as int) < v@.len()\n                &&& f.ensures((v@.as_ref()[i as int],), Ordering::Equal)\n            },\n            Err(i) => {\n                &&& (i as int) <= v@.len()\n                &&& forall|j: int, ord: Ordering|\n                    0 <= j < v@.len() && f.ensures((v@.as_ref()[j],), ord) ==> {\n                        &&& (j < i as int ==> ord == Ordering::Less)\n                        &&& (i as int <= j ==> ord == Ordering::Greater)\n                    }\n            },\n        },\n;","requires":["forall|i: int| 0 <= i < v@.len() ==> f.requires((v@.as_ref()[i],))","The comparator's allowed results form Less, Equal, and Greater partitions."],"ensures":["Ok(i) identifies an in-bounds element for which the comparator permits Ordering::Equal.","Err(i) is an in-bounds insertion boundary separating permitted Less and Greater results."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use core::cmp::Ordering;","use core::result::Result;","use vstd::prelude::*;"],"useful":true,"rationale":"The public sequence view and FnMut requires/ensures vocabulary express both the documented sorted-comparator assumption and the returned search boundary.","risks":["The quantified comparator partition excludes history-dependent or inconsistent FnMut behavior."]},{"target":"alloc::collections::VecDeque::binary_search_by_key","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<'a, T, A: Allocator, B: Ord, F: FnMut(&'a T) -> B>[\n    VecDeque::<T, A>::binary_search_by_key\n](\n    v: &'a VecDeque<T, A>,\n    b: &B,\n    f: F,\n) -> (result: Result<usize, usize>)\n    requires\n        forall|i: int| 0 <= i < v@.len() ==> f.requires((v@.as_ref()[i],)),\n        exists|lo: int, hi: int| {\n            &&& 0 <= lo <= hi <= v@.len()\n            &&& forall|i: int, key: B, ord: Ordering|\n                0 <= i < v@.len()\n                && f.ensures((v@.as_ref()[i],), key)\n                && call_ensures(<B as Ord>::cmp, (&key, b), ord) ==> {\n                    &&& (i < lo ==> ord == Ordering::Less)\n                    &&& (lo <= i < hi ==> ord == Ordering::Equal)\n                    &&& (hi <= i ==> ord == Ordering::Greater)\n                }\n        },\n    ensures\n        match result {\n            Ok(i) => {\n                &&& (i as int) < v@.len()\n                &&& exists|key: B| {\n                    &&& f.ensures((v@.as_ref()[i as int],), key)\n                    &&& call_ensures(<B as Ord>::cmp, (&key, b), Ordering::Equal)\n                }\n            },\n            Err(i) => {\n                &&& (i as int) <= v@.len()\n                &&& forall|j: int, key: B, ord: Ordering|\n                    0 <= j < v@.len()\n                    && f.ensures((v@.as_ref()[j],), key)\n                    && call_ensures(<B as Ord>::cmp, (&key, b), ord) ==> {\n                        &&& (j < i as int ==> ord == Ordering::Less)\n                        &&& (i as int <= j ==> ord == Ordering::Greater)\n                    }\n            },\n        },\n;","requires":["forall|i: int| 0 <= i < v@.len() ==> f.requires((v@.as_ref()[i],))","Allowed extractor and Ord::cmp results form Less, Equal, and Greater partitions."],"ensures":["Ok(i) witnesses an extracted key whose comparison with b permits Ordering::Equal.","Err(i) is the insertion boundary for all modeled key comparisons."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use core::cmp::{Ord, Ordering};","use core::result::Result;","use vstd::prelude::*;"],"useful":true,"rationale":"Nested call_ensures relations model both key extraction and the generic Ord comparison without inventing a concrete ordering for B.","risks":["The quantified partition requires consistent extractor and comparison contracts."]},{"target":"alloc::collections::VecDeque::partition_point","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator, P: FnMut(&T) -> bool>[\n    VecDeque::<T, A>::partition_point\n](\n    v: &VecDeque<T, A>,\n    pred: P,\n) -> (result: usize)\n    requires\n        forall|i: int| 0 <= i < v@.len() ==> pred.requires((v@.as_ref()[i],)),\n        exists|cut: int| {\n            &&& 0 <= cut <= v@.len()\n            &&& forall|i: int, outcome: bool|\n                0 <= i < v@.len() && pred.ensures((v@.as_ref()[i],), outcome)\n                    ==> (outcome <==> i < cut)\n        },\n    ensures\n        (result as int) <= v@.len(),\n        forall|i: int, outcome: bool|\n            0 <= i < v@.len() && pred.ensures((v@.as_ref()[i],), outcome)\n                ==> (outcome <==> i < result as int),\n;","requires":["forall|i: int| 0 <= i < v@.len() ==> pred.requires((v@.as_ref()[i],))","The predicate's allowed outcomes describe one partition boundary."],"ensures":["(result as int) <= v@.len()","Allowed predicate outcomes hold exactly before result."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use vstd::prelude::*;"],"useful":true,"rationale":"The source explicitly assumes a partitioned deque, and call ensures can relate that partition directly to the returned index.","risks":["The contract intentionally excludes stateful predicates whose possible outcomes do not define one partition."]},{"target":"alloc::collections::VecDeque::pop_back_if","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::pop_back_if\n](\n    v: &mut VecDeque<T, A>,\n    predicate: impl FnOnce(&mut T) -> bool,\n) -> (result: Option<T>)\n    requires\n        old(v)@.len() > 0 ==> forall|x: &mut T|\n            *x == old(v)@[old(v)@.len() - 1] ==> predicate.requires((x,)),\n    ensures\n        old(v)@.len() == 0 ==> result is None && final(v)@ == old(v)@,\n        old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| {\n            &&& *x == old(v)@[old(v)@.len() - 1]\n            &&& predicate.ensures((x,), take)\n            &&& (take ==> {\n                &&& result == Some(*final(x))\n                &&& final(v)@ == old(v)@.subrange(0, old(v)@.len() - 1)\n            })\n            &&& (!take ==> {\n                &&& result is None\n                &&& final(v)@ == old(v)@.update(old(v)@.len() - 1, *final(x))\n            })\n        },\n;","requires":["When nonempty, the predicate accepts any mutable-reference prophecy initially containing the back element."],"ensures":["An empty deque is unchanged and returns None.","Otherwise the predicate's outcome either removes and returns its final element value or retains that final value at the back."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use core::option::Option;","use vstd::prelude::*;"],"useful":true,"rationale":"The predicate is called at most once, so a quantified mutable-reference prophecy precisely relates its mutation to the returned value or retained back element.","risks":["Mutable-reference prophecy quantifiers may require explicit trigger guidance in clients."]},{"target":"alloc::collections::VecDeque::pop_front_if","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::pop_front_if\n](\n    v: &mut VecDeque<T, A>,\n    predicate: impl FnOnce(&mut T) -> bool,\n) -> (result: Option<T>)\n    requires\n        old(v)@.len() > 0 ==> forall|x: &mut T|\n            *x == old(v)@[0] ==> predicate.requires((x,)),\n    ensures\n        old(v)@.len() == 0 ==> result is None && final(v)@ == old(v)@,\n        old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| {\n            &&& *x == old(v)@[0]\n            &&& predicate.ensures((x,), take)\n            &&& (take ==> {\n                &&& result == Some(*final(x))\n                &&& final(v)@ == old(v)@.subrange(1, old(v)@.len())\n            })\n            &&& (!take ==> {\n                &&& result is None\n                &&& final(v)@ == old(v)@.update(0, *final(x))\n            })\n        },\n;","requires":["When nonempty, the predicate accepts any mutable-reference prophecy initially containing the front element."],"ensures":["An empty deque is unchanged and returns None.","Otherwise the predicate's outcome either removes and returns its final element value or retains that final value at the front."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use core::option::Option;","use vstd::prelude::*;"],"useful":true,"rationale":"A single FnOnce call and mutable-reference prophecy capture both endpoint mutation and conditional removal using the public sequence view.","risks":["Mutable-reference prophecy quantifiers may require explicit trigger guidance in clients."]},{"target":"alloc::collections::VecDeque::resize_with","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::resize_with\n](\n    v: &mut VecDeque<T, A>,\n    new_len: usize,\n    generator: impl FnMut() -> T,\n)\n    requires\n        (new_len as int) > old(v)@.len() ==> generator.requires(()),\n    ensures\n        (new_len as int) <= old(v)@.len() ==>\n            final(v)@ == old(v)@.subrange(0, new_len as int),\n        (new_len as int) > old(v)@.len() ==> {\n            &&& final(v)@.len() == new_len as int\n            &&& final(v)@.subrange(0, old(v)@.len()) == old(v)@\n            &&& forall|i: int|\n                old(v)@.len() <= i < new_len as int\n                    ==> generator.ensures((), final(v)@[i])\n        },\n;","requires":["Growth requires the generator's zero-argument precondition."],"ensures":["Shrinking retains exactly the requested prefix.","Growing preserves the old prefix and appends one allowed generator output per new position."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use vstd::prelude::*;"],"useful":true,"rationale":"The sequence view expresses truncation, prefix preservation, final length, and the relation of every appended element to the generator contract.","risks":["The relation records allowed outputs but not call order or mutable-capture state transitions."]}]}{"candidates":[{"target":"alloc::collections::VecDeque::binary_search_by","decision":"add_spec","con
+tract_form":"assume_specification","contract_code":"pub assume_specification<'a, T, A: Allocator, F:
+ FnMut(&'a T) -> Ordering>[\n    VecDeque::<T, A>::binary_search_by\n](\n    v: &'a VecDeque<T,
+A>,\n    f: F,\n) -> (result: Result<usize, usize>)\n    requires\n        forall|i: int| 0 <= i <
+v@.len() ==> f.requires((v@.as_ref()[i],)),\n        exists|lo: int, hi: int| {\n            &&& 0
+<= lo <= hi <= v@.len()\n            &&& forall|i: int, ord: Ordering|\n                0 <= i <
+v@.len() && f.ensures((v@.as_ref()[i],), ord) ==> {\n                    &&& (i < lo ==> ord ==
+Ordering::Less)\n                    &&& (lo <= i < hi ==> ord == Ordering::Equal)\n
+    &&& (hi <= i ==> ord == Ordering::Greater)\n                }\n        },\n    ensures\n
+match result {\n            Ok(i) => {\n                &&& (i as int) < v@.len()\n
+&&& f.ensures((v@.as_ref()[i as int],), Ordering::Equal)\n            },\n            Err(i) => {\n
+               &&& (i as int) <= v@.len()\n                &&& forall|j: int, ord: Ordering|\n
+              0 <= j < v@.len() && f.ensures((v@.as_ref()[j],), ord) ==> {\n
+&&& (j < i as int ==> ord == Ordering::Less)\n                        &&& (i as int <= j ==> ord ==
+Ordering::Greater)\n                    }\n            },\n        },\n;","requires":["forall|i:
+int| 0 <= i < v@.len() ==> f.requires((v@.as_ref()[i],))","The comparator's allowed results form
+Less, Equal, and Greater partitions."],"ensures":["Ok(i) identifies an in-bounds element for which
+the comparator permits Ordering::Equal.","Err(i) is an in-bounds insertion boundary separating
+permitted Less and Greater results."],"feature_gates":[],"imports":["use
+alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use
+core::cmp::Ordering;","use core::result::Result;","use
+vstd::prelude::;"],"useful":true,"rationale":"The public sequence view and FnMut requires/ensures
+vocabulary express both the documented sorted-comparator assumption and the returned search
+boundary.","risks":["The quantified comparator partition excludes history-dependent or inconsistent
+FnMut behavior."]},{"target":"alloc::collections::VecDeque::binary_search_by_key","decision":"add_sp
+ec","contract_form":"assume_specification","contract_code":"pub assume_specification<'a, T, A:
+Allocator, B: Ord, F: FnMut(&'a T) -> B>[\n    VecDeque::<T, A>::binary_search_by_key\n](\n    v:
+&'a VecDeque<T, A>,\n    b: &B,\n    f: F,\n) -> (result: Result<usize, usize>)\n    requires\n
+   forall|i: int| 0 <= i < v@.len() ==> f.requires((v@.as_ref()[i],)),\n        exists|lo: int, hi:
+int| {\n            &&& 0 <= lo <= hi <= v@.len()\n            &&& forall|i: int, key: B, ord:
+Ordering|\n                0 <= i < v@.len()\n                && f.ensures((v@.as_ref()[i],), key)\n
+                && call_ensures(<B as Ord>::cmp, (&key, b), ord) ==> {\n                    &&& (i <
+ lo ==> ord == Ordering::Less)\n                    &&& (lo <= i < hi ==> ord == Ordering::Equal)\n
+                   &&& (hi <= i ==> ord == Ordering::Greater)\n                }\n        },\n
+ensures\n        match result {\n            Ok(i) => {\n                &&& (i as int) < v@.len()\n
+                &&& exists|key: B| {\n                    &&& f.ensures((v@.as_ref()[i as int],),
+key)\n                    &&& call_ensures(<B as Ord>::cmp, (&key, b), Ordering::Equal)\n
+     }\n            },\n            Err(i) => {\n                &&& (i as int) <= v@.len()\n
+         &&& forall|j: int, key: B, ord: Ordering|\n                    0 <= j < v@.len()\n
+           && f.ensures((v@.as_ref()[j],), key)\n                    && call_ensures(<B as
+Ord>::cmp, (&key, b), ord) ==> {\n                        &&& (j < i as int ==> ord ==
+Ordering::Less)\n                        &&& (i as int <= j ==> ord == Ordering::Greater)\n
+           }\n            },\n        },\n;","requires":["forall|i: int| 0 <= i < v@.len() ==>
+f.requires((v@.as_ref()[i],))","Allowed extractor and Ord::cmp results form Less, Equal, and Greater
+ partitions."],"ensures":["Ok(i) witnesses an extracted key whose comparison with b permits
+Ordering::Equal.","Err(i) is the insertion boundary for all modeled key
+comparisons."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use
+core::alloc::Allocator;","use core::cmp::{Ord, Ordering};","use core::result::Result;","use
+vstd::prelude::;"],"useful":true,"rationale":"Nested call_ensures relations model both key
+extraction and the generic Ord comparison without inventing a concrete ordering for
+B.","risks":["The quantified partition requires consistent extractor and comparison
+contracts."]},{"target":"alloc::collections::VecDeque::partition_point","decision":"add_spec","contr
+act_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator, P:
+FnMut(&T) -> bool>[\n    VecDeque::<T, A>::partition_point\n](\n    v: &VecDeque<T, A>,\n    pred:
+P,\n) -> (result: usize)\n    requires\n        forall|i: int| 0 <= i < v@.len() ==>
+pred.requires((v@.as_ref()[i],)),\n        exists|cut: int| {\n            &&& 0 <= cut <=
+v@.len()\n            &&& forall|i: int, outcome: bool|\n                0 <= i < v@.len() &&
+pred.ensures((v@.as_ref()[i],), outcome)\n                    ==> (outcome <==> i < cut)\n
+},\n    ensures\n        (result as int) <= v@.len(),\n        forall|i: int, outcome: bool|\n
+      0 <= i < v@.len() && pred.ensures((v@.as_ref()[i],), outcome)\n                ==> (outcome
+<==> i < result as int),\n;","requires":["forall|i: int| 0 <= i < v@.len() ==>
+pred.requires((v@.as_ref()[i],))","The predicate's allowed outcomes describe one partition
+boundary."],"ensures":["(result as int) <= v@.len()","Allowed predicate outcomes hold exactly before
+ result."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use
+core::alloc::Allocator;","use vstd::prelude::*;"],"useful":true,"rationale":"The source explicitly
+assumes a partitioned deque, and call ensures can relate that partition directly to the returned
+index.","risks":["The contract intentionally excludes stateful predicates whose possible outcomes do
+ not define one partition."]},{"target":"alloc::collections::VecDeque::pop_back_if","decision":"add_
+spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T, A:
+Allocator>[\n    VecDeque::<T, A>::pop_back_if\n](\n    v: &mut VecDeque<T, A>,\n    predicate: impl
+ FnOnce(&mut T) -> bool,\n) -> (result: Option<T>)\n    requires\n        old(v)@.len() > 0 ==>
+forall|x: &mut T|\n            *x == old(v)@[old(v)@.len() - 1] ==> predicate.requires((x,)),\n
+ensures\n        old(v)@.len() == 0 ==> result is None && final(v)@ == old(v)@,\n
+old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| {\n            &&& *x == old(v)@[old(v)@.len() -
+ 1]\n            &&& predicate.ensures((x,), take)\n            &&& (take ==> {\n                &&&
+ result == Some(*final(x))\n                &&& final(v)@ == old(v)@.subrange(0, old(v)@.len() -
+1)\n            })\n            &&& (!take ==> {\n                &&& result is None\n
+  &&& final(v)@ == old(v)@.update(old(v)@.len() - 1, final(x))\n            })\n
+},\n;","requires":["When nonempty, the predicate accepts any mutable-reference prophecy initially
+containing the back element."],"ensures":["An empty deque is unchanged and returns None.","Otherwise
+ the predicate's outcome either removes and returns its final element value or retains that final
+value at the back."],"feature_gates":[],"imports":["use
+alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use
+core::option::Option;","use vstd::prelude::;"],"useful":true,"rationale":"The predicate is called at
+ most once, so a quantified mutable-reference prophecy precisely relates its mutation to the
+returned value or retained back element.","risks":["Mutable-reference prophecy quantifiers may
+require explicit trigger guidance in clients."]},{"target":"alloc::collections::VecDeque::pop_front_
+if","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub
+assume_specification<T, A: Allocator>[\n    VecDeque::<T, A>::pop_front_if\n](\n    v: &mut
+VecDeque<T, A>,\n    predicate: impl FnOnce(&mut T) -> bool,\n) -> (result: Option<T>)\n
+requires\n        old(v)@.len() > 0 ==> forall|x: &mut T|\n            *x == old(v)@[0] ==>
+predicate.requires((x,)),\n    ensures\n        old(v)@.len() == 0 ==> result is None && final(v)@
+== old(v)@,\n        old(v)@.len() > 0 ==> exists|x: &mut T, take: bool| {\n            &&& *x ==
+old(v)@[0]\n            &&& predicate.ensures((x,), take)\n            &&& (take ==> {\n
+    &&& result == Some(final(x))\n                &&& final(v)@ == old(v)@.subrange(1,
+old(v)@.len())\n            })\n            &&& (!take ==> {\n                &&& result is None\n
+              &&& final(v)@ == old(v)@.update(0, final(x))\n            })\n
+},\n;","requires":["When nonempty, the predicate accepts any mutable-reference prophecy initially
+containing the front element."],"ensures":["An empty deque is unchanged and returns
+None.","Otherwise the predicate's outcome either removes and returns its final element value or
+retains that final value at the front."],"feature_gates":[],"imports":["use
+alloc::collections::vec_deque::VecDeque;","use core::alloc::Allocator;","use
+core::option::Option;","use vstd::prelude::;"],"useful":true,"rationale":"A single FnOnce call and
+mutable-reference prophecy capture both endpoint mutation and conditional removal using the public
+sequence view.","risks":["Mutable-reference prophecy quantifiers may require explicit trigger
+guidance in clients."]},{"target":"alloc::collections::VecDeque::resize_with","decision":"add_spec",
+"contract_form":"assume_specification","contract_code":"pub assume_specification<T, A: Allocator>[\n
+    VecDeque::<T, A>::resize_with\n](\n    v: &mut VecDeque<T, A>,\n    new_len: usize,\n
+generator: impl FnMut() -> T,\n)\n    requires\n        (new_len as int) > old(v)@.len() ==>
+generator.requires(()),\n    ensures\n        (new_len as int) <= old(v)@.len() ==>\n
+final(v)@ == old(v)@.subrange(0, new_len as int),\n        (new_len as int) > old(v)@.len() ==> {\n
+           &&& final(v)@.len() == new_len as int\n            &&& final(v)@.subrange(0,
+old(v)@.len()) == old(v)@\n            &&& forall|i: int|\n                old(v)@.len() <= i <
+new_len as int\n                    ==> generator.ensures((), final(v)@[i])\n
+},\n;","requires":["Growth requires the generator's zero-argument
+precondition."],"ensures":["Shrinking retains exactly the requested prefix.","Growing preserves the
+old prefix and appends one allowed generator output per new
+position."],"feature_gates":[],"imports":["use alloc::collections::vec_deque::VecDeque;","use
+core::alloc::Allocator;","use vstd::prelude::;"],"useful":true,"rationale":"The sequence view
+expresses truncation, prefix preservation, final length, and the relation of every appended element
+to the generator contract.","risks":["The relation records allowed outputs but not call order or
+mutable-capture state transitions."]}]}
+

@@ -1,0 +1,160 @@
+{
+  "id": "core__ops__ControlFlow__continue_value__d185eb039c99",
+  "api_path": "core::ops::ControlFlow::continue_value",
+  "raw_target": "ControlFlow::<B, C>::continue_value",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"control_flow_enum\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 148739}, feature: \"const_control_flow\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:23401",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "Self"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "continue_value",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "B"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "C"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9735,
+          "path": "ControlFlow"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "B"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "C"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:23404",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:9735",
+      "resolved_owner_path": [
+        "core",
+        "ops",
+        "control_flow",
+        "ControlFlow"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "C"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "   258:     /// };\n   259:     ///\n   260:     /// let res = node.find(|val: &i32| *val > 3);\n   261:     /// assert_eq!(res, Ok(&5));\n   262:     /// ```\n   263:     #[inline]\n   264:     #[stable(feature = \"control_flow_ok\", since = \"1.96.0\")]\n   265:     #[rustc_const_stable(feature = \"control_flow_ok\", since = \"1.96.0\")]\n   266:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n   267:     pub const fn break_ok(self) -> Result<B, C> {\n   268:         match self {\n   269:             ControlFlow::Continue(c) => Err(c),\n   270:             ControlFlow::Break(b) => Ok(b),\n   271:         }\n   272:     }\n   273: \n   274:     /// Maps `ControlFlow<B, C>` to `ControlFlow<T, C>` by applying a function\n   275:     /// to the break value in case it exists.\n   276:     #[inline]\n   277:     #[stable(feature = \"control_flow_enum\", since = \"1.83.0\")]\n   278:     #[rustc_const_unstable(feature = \"const_control_flow\", issue = \"148739\")]\n   279:     pub const fn map_break<T, F>(self, f: F) -> ControlFlow<T, C>\n   280:     where\n   281:         F: [const] FnOnce(B) -> T + [const] Destruct,\n   282:     {\n   283:         match self {\n   284:             ControlFlow::Continue(x) => ControlFlow::Continue(x),\n   285:             ControlFlow::Break(x) => ControlFlow::Break(f(x)),\n   286:         }\n   287:     }\n   288: \n   289:     /// Converts the `ControlFlow` into an `Option` which is `Some` if the\n   290:     /// `ControlFlow` was `Continue` and `None` otherwise.\n   291:     ///\n   292:     /// # Examples\n   293:     ///\n   294:     /// ```\n   295:     /// use std::ops::ControlFlow;\n   296:     ///\n   297:     /// assert_eq!(ControlFlow::<&str, i32>::Break(\"Stop right there!\").continue_value(), None);\n   298:     /// assert_eq!(ControlFlow::<&str, i32>::Continue(3).continue_value(), Some(3));\n   299:     /// ```\n   300:     #[inline]\n   301:     #[stable(feature = \"control_flow_enum\", since = \"1.83.0\")]\n   302:     #[rustc_const_unstable(feature = \"const_control_flow\", issue = \"148739\")]\n   303:     pub const fn continue_value(self) -> Option<C>\n   304:     where\n   305:         Self: [const] Destruct,\n   306:     {\n   307:         match self {\n   308:             ControlFlow::Continue(x) => Some(x),\n   309:             ControlFlow::Break(..) => None,\n   310:         }\n   311:     }\n   312: \n   313:     /// Converts the `ControlFlow` into a `Result` which is `Ok` if the\n   314:     /// `ControlFlow` was `Continue` and `Err` if otherwise.\n   315:     ///\n   316:     /// # Examples\n   317:     ///\n   318:     /// ```\n   319:     /// use std::ops::ControlFlow;\n   320:     ///\n   321:     /// struct TreeNode<T> {\n   322:     ///     value: T,\n   323:     ///     left: Option<Box<TreeNode<T>>>,\n   324:     ///     right: Option<Box<TreeNode<T>>>,\n   325:     /// }\n   326:     ///\n   327:     /// impl<T> TreeNode<T> {\n   328:     ///     fn validate<B>(&self, f: &mut impl FnMut(&T) -> ControlFlow<B>) -> Result<(), B> {\n   329:     ///         self.traverse_inorder(f).continue_ok()\n   330:     ///     }\n   331:     ///\n   332:     ///     fn traverse_inorder<B>(&self, f: &mut impl FnMut(&T) -> ControlFlow<B>) -> ControlFlow<B> {\n   333:     ///         if let Some(left) = &self.left {\n   334:     ///             left.traverse_inorder(f)?;\n   335:     ///         }\n   336:     ///         f(&self.value)?;\n   337:     ///         if let Some(right) = &self.right {\n   338:     ///             right.traverse_inorder(f)?;\n   339:     ///         }\n   340:     ///         ControlFlow::Continue(())\n   341:     ///     }\n   342:     ///\n   343:     ///     fn leaf(value: T) -> Option<Box<TreeNode<T>>> {\n   344:     ///         Some(Box::new(Self {\n   345:     ///             value,\n   346:     ///             left: None,\n   347:     ///             right: None,\n   348:     ///         }))",
+    "span": {
+      "begin": [
+        303,
+        5
+      ],
+      "end": [
+        311,
+        6
+      ],
+      "filename": "core/src/ops/control_flow.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn continue_value(self) -> Option<C>\n    where\n        Self: [const] Destruct,\n    {\n        match self {\n            ControlFlow::Continue(x) => Some(x),\n            ControlFlow::Break(..) => None,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum match proves the postcondition directly without external contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ops__ControlFlow__continue_value__d185eb039c99"
+}

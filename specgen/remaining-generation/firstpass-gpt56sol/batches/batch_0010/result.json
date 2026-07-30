@@ -1,0 +1,126 @@
+{
+  "batch": 10,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 32623,
+  "targets": [
+    "core::sync::atomic::Atomic::fetch_or",
+    "core::sync::atomic::Atomic::fetch_ptr_add",
+    "core::sync::atomic::Atomic::fetch_ptr_sub",
+    "core::sync::atomic::Atomic::fetch_sub",
+    "core::sync::atomic::Atomic::fetch_update",
+    "core::sync::atomic::Atomic::fetch_xor"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::fetch_or",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the previous pointer and atomically updates hidden interior state. Expressing its address OR and preserved provenance requires an atomic-state abstraction and pointer-provenance vocabulary not exposed by this signature.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_ptr_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source relates the result and update to the atomically stored pointer, but that prior and final state is not observable through a public logical view. Pointer wrapping and provenance also cannot be captured usefully from the arguments alone.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_ptr_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the returned previous pointer and wrapping subtraction requires access to the atomic value at the operation's linearization point. The signature exposes neither that state nor a suitable ghost token.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful wrapping-subtraction contract must relate the result and stored value to the atomic value at the linearization point. No ordinary view or state token is available for this shared-reference mutation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction",
+        "linearization_point"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden atomic state and on a FnMut closure that may be invoked repeatedly as concurrent compare-exchange attempts fail. Current public vocabulary cannot describe the linearization state and closure invocation trace without a dedicated abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction",
+        "repeated_closure_invocation",
+        "linearization_point"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_xor",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The promised previous pointer and atomic address XOR depend on inaccessible interior state. Preserving pointer provenance through the address transformation also cannot be represented by raw-pointer equality alone.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction",
+        "pointer_provenance"
+      ]
+    }
+  ]
+}

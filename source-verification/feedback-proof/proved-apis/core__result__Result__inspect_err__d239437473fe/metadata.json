@@ -1,0 +1,188 @@
+{
+  "id": "core__result__Result__inspect_err__d239437473fe",
+  "api_path": "core::result::Result::inspect_err",
+  "raw_target": "Result::<T, E>::inspect_err",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 76, patch: 0 })},\nfeature: \"result_option_inspect\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29292",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "borrowed_ref": {
+                              "is_mutable": false,
+                              "lifetime": null,
+                              "type": {
+                                "generic": "E"
+                              }
+                            }
+                          }
+                        ],
+                        "output": null
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "inspect_err",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "Self"
+      }
+    },
+    "source_context": "   971: \n   972:     /// Calls a function with a reference to the contained value if [`Ok`].\n   973:     ///\n   974:     /// Returns the original result.\n   975:     ///\n   976:     /// # Examples\n   977:     ///\n   978:     /// ```\n   979:     /// let x: u8 = \"4\"\n   980:     ///     .parse::<u8>()\n   981:     ///     .inspect(|x| println!(\"original: {x}\"))\n   982:     ///     .map(|x| x.pow(3))\n   983:     ///     .expect(\"failed to parse number\");\n   984:     /// ```\n   985:     #[inline]\n   986:     #[stable(feature = \"result_option_inspect\", since = \"1.76.0\")]\n   987:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   988:     pub const fn inspect<F>(self, f: F) -> Self\n   989:     where\n   990:         F: [const] FnOnce(&T) + [const] Destruct,\n   991:     {\n   992:         if let Ok(ref t) = self {\n   993:             f(t);\n   994:         }\n   995: \n   996:         self\n   997:     }\n   998: \n   999:     /// Calls a function with a reference to the contained value if [`Err`].\n  1000:     ///\n  1001:     /// Returns the original result.\n  1002:     ///\n  1003:     /// # Examples\n  1004:     ///\n  1005:     /// ```\n  1006:     /// use std::{fs, io};\n  1007:     ///\n  1008:     /// fn read() -> io::Result<String> {\n  1009:     ///     fs::read_to_string(\"address.txt\")\n  1010:     ///         .inspect_err(|e| eprintln!(\"failed to read file: {e}\"))\n  1011:     /// }\n  1012:     /// ```\n  1013:     #[inline]\n  1014:     #[stable(feature = \"result_option_inspect\", since = \"1.76.0\")]\n  1015:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1016:     pub const fn inspect_err<F>(self, f: F) -> Self\n  1017:     where\n  1018:         F: [const] FnOnce(&E) + [const] Destruct,\n  1019:     {\n  1020:         if let Err(ref e) = self {\n  1021:             f(e);\n  1022:         }\n  1023: \n  1024:         self\n  1025:     }\n  1026: \n  1027:     /// Converts from `Result<T, E>` (or `&Result<T, E>`) to `Result<&<T as Deref>::Target, &E>`.\n  1028:     ///\n  1029:     /// Coerces the [`Ok`] variant of the original [`Result`] via [`Deref`](crate::ops::Deref)\n  1030:     /// and returns the new [`Result`].\n  1031:     ///\n  1032:     /// # Examples\n  1033:     ///\n  1034:     /// ```\n  1035:     /// let x: Result<String, u32> = Ok(\"hello\".to_string());\n  1036:     /// let y: Result<&str, &u32> = Ok(\"hello\");\n  1037:     /// assert_eq!(x.as_deref(), y);\n  1038:     ///\n  1039:     /// let x: Result<String, u32> = Err(42);\n  1040:     /// let y: Result<&str, &u32> = Err(&42);\n  1041:     /// assert_eq!(x.as_deref(), y);\n  1042:     /// ```\n  1043:     #[inline]\n  1044:     #[stable(feature = \"inner_deref\", since = \"1.47.0\")]\n  1045:     #[rustc_const_unstable(feature = \"const_convert\", issue = \"143773\")]\n  1046:     pub const fn as_deref(&self) -> Result<&T::Target, &E>\n  1047:     where\n  1048:         T: [const] Deref,\n  1049:     {\n  1050:         self.as_ref().map(Deref::deref)\n  1051:     }\n  1052: \n  1053:     /// Converts from `Result<T, E>` (or `&mut Result<T, E>`) to `Result<&mut <T as DerefMut>::Target, &mut E>`.\n  1054:     ///\n  1055:     /// Coerces the [`Ok`] variant of the original [`Result`] via [`DerefMut`](crate::ops::DerefMut)\n  1056:     /// and returns the new [`Result`].\n  1057:     ///\n  1058:     /// # Examples\n  1059:     ///\n  1060:     /// ```\n  1061:     /// let mut s = \"HELLO\".to_string();",
+    "span": {
+      "begin": [
+        1016,
+        5
+      ],
+      "end": [
+        1025,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn inspect_err<F>(self, f: F) -> Self\n    where\n        F: [const] FnOnce(&E) + [const] Destruct,\n    {\n        if let Err(ref e) = self {\n            f(e);\n        }\n\n        self\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source-faithful body verifies directly using the closure contract and Result control flow.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__result__Result__inspect_err__d239437473fe"
+}

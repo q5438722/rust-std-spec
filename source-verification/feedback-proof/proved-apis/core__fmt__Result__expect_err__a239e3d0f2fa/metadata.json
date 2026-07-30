@@ -1,0 +1,168 @@
+{
+  "id": "core__fmt__Result__expect_err__a239e3d0f2fa",
+  "api_path": "core::fmt::Result::expect_err",
+  "raw_target": "Result::<T, E>::expect_err",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 17, patch: 0 })},\nfeature: \"result_expect_err\"}}]"
+      }
+    ],
+    "declaration_id": "core:29300",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 921,
+                    "path": "fmt::Debug"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "expect_err",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "msg",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "primitive": "str"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "E"
+      }
+    },
+    "source_context": "  1248:     /// [`Err`] on error.\n  1249:     ///\n  1250:     /// ```\n  1251:     /// let good_year_from_input = \"1909\";\n  1252:     /// let bad_year_from_input = \"190blarg\";\n  1253:     /// let good_year = good_year_from_input.parse().unwrap_or_default();\n  1254:     /// let bad_year = bad_year_from_input.parse().unwrap_or_default();\n  1255:     ///\n  1256:     /// assert_eq!(1909, good_year);\n  1257:     /// assert_eq!(0, bad_year);\n  1258:     /// ```\n  1259:     ///\n  1260:     /// [`parse`]: str::parse\n  1261:     /// [`FromStr`]: crate::str::FromStr\n  1262:     #[inline]\n  1263:     #[stable(feature = \"result_unwrap_or_default\", since = \"1.16.0\")]\n  1264:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1265:     pub const fn unwrap_or_default(self) -> T\n  1266:     where\n  1267:         T: [const] Default + [const] Destruct,\n  1268:         E: [const] Destruct,\n  1269:     {\n  1270:         match self {\n  1271:             Ok(x) => x,\n  1272:             Err(_) => Default::default(),\n  1273:         }\n  1274:     }\n  1275: \n  1276:     /// Returns the contained [`Err`] value, consuming the `self` value.\n  1277:     ///\n  1278:     /// # Panics\n  1279:     ///\n  1280:     /// Panics if the value is an [`Ok`], with a panic message including the\n  1281:     /// passed message, and the content of the [`Ok`].\n  1282:     ///\n  1283:     ///\n  1284:     /// # Examples\n  1285:     ///\n  1286:     /// ```should_panic\n  1287:     /// let x: Result<u32, &str> = Ok(10);\n  1288:     /// x.expect_err(\"Testing expect_err\"); // panics with `Testing expect_err: 10`\n  1289:     /// ```\n  1290:     #[inline]\n  1291:     #[track_caller]\n  1292:     #[stable(feature = \"result_expect_err\", since = \"1.17.0\")]\n  1293:     pub fn expect_err(self, msg: &str) -> E\n  1294:     where\n  1295:         T: fmt::Debug,\n  1296:     {\n  1297:         match self {\n  1298:             Ok(t) => unwrap_failed(msg, &t),\n  1299:             Err(e) => e,\n  1300:         }\n  1301:     }\n  1302: \n  1303:     /// Returns the contained [`Err`] value, consuming the `self` value.\n  1304:     ///\n  1305:     /// # Panics\n  1306:     ///\n  1307:     /// Panics if the value is an [`Ok`], with a custom panic message provided\n  1308:     /// by the [`Ok`]'s value.\n  1309:     ///\n  1310:     /// # Examples\n  1311:     ///\n  1312:     /// ```should_panic\n  1313:     /// let x: Result<u32, &str> = Ok(2);\n  1314:     /// x.unwrap_err(); // panics with `2`\n  1315:     /// ```\n  1316:     ///\n  1317:     /// ```\n  1318:     /// let x: Result<u32, &str> = Err(\"emergency failure\");\n  1319:     /// assert_eq!(x.unwrap_err(), \"emergency failure\");\n  1320:     /// ```\n  1321:     #[inline]\n  1322:     #[track_caller]\n  1323:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1324:     pub fn unwrap_err(self) -> E\n  1325:     where\n  1326:         T: fmt::Debug,\n  1327:     {\n  1328:         match self {\n  1329:             Ok(t) => unwrap_failed(\"called `Result::unwrap_err()` on an `Ok` value\", &t),\n  1330:             Err(e) => e,\n  1331:         }\n  1332:     }\n  1333: \n  1334:     /// Returns the contained [`Ok`] value, but never panics.\n  1335:     ///\n  1336:     /// Unlike [`unwrap`], this method is known to never panic on the\n  1337:     /// result types it is implemented for. Therefore, it can be used\n  1338:     /// instead of `unwrap` as a maintainability safeguard that will fail",
+    "span": {
+      "begin": [
+        1293,
+        5
+      ],
+      "end": [
+        1301,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn expect_err(self, msg: &str) -> E\n    where\n        T: fmt::Debug,\n    {\n        match self {\n            Ok(t) => unwrap_failed(msg, &t),\n            Err(e) => e,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "Copies the exact match and unwrap_failed body. The precondition proves the panic branch unreachable; Verus verifies without axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__fmt__Result__expect_err__a239e3d0f2fa"
+}

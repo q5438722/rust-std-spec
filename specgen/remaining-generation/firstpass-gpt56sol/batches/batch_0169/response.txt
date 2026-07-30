@@ -1,0 +1,218 @@
+I’m checking the existing BinaryHeap model before deciding whether any public relation is expressible.
+
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::BinaryHeap::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result exposes the private backing vector's allocator capacity. BinaryHeap has no public vstd view or capacity abstraction with which to state a useful relation.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation only changes private backing-vector capacity. Without a BinaryHeap content view or public capacity model, neither preservation nor the documented capacity bound is expressible usefully.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable guarantee concerns private allocator capacity, while exact allocation remains allocator-dependent. Current vstd lacks a BinaryHeap view or capacity abstraction.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::shrink_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The documented lower bound and possible shrinkage concern unmodeled backing-vector capacity. Content preservation also cannot be stated without a BinaryHeap view.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::shrink_to_fit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "How much capacity is discarded is allocator-dependent and absent from BinaryHeap's public vstd model; no content view exists to specify preservation instead.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::try_reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on allocator state, and its useful success guarantee concerns unmodeled capacity. Heap preservation cannot be expressed without a BinaryHeap content view.",
+      "risks": [
+        "allocator_outcome_nondeterministic",
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::collections::BinaryHeap::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result exposes the private backing vector's allocator capacity. BinaryHeap
+has no public vstd view or capacity abstraction with which to state a useful relation.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation only changes private backing-vector capacity. Without a
+BinaryHeap content view or public capacity model, neither preservation nor the documented capacity
+bound is expressible usefully.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable guarantee concerns private allocator capacity, while exact
+allocation remains allocator-dependent. Current vstd lacks a BinaryHeap view or capacity
+abstraction.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::shrink_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The documented lower bound and possible shrinkage concern unmodeled
+backing-vector capacity. Content preservation also cannot be stated without a BinaryHeap view.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::shrink_to_fit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "How much capacity is discarded is allocator-dependent and absent from
+BinaryHeap's public vstd model; no content view exists to specify preservation instead.",
+      "risks": [
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::try_reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on allocator state, and its useful success guarantee concerns
+unmodeled capacity. Heap preservation cannot be expressed without a BinaryHeap content view.",
+      "risks": [
+        "allocator_outcome_nondeterministic",
+        "allocator_capacity_unmodeled",
+        "missing_binary_heap_abstraction"
+      ]
+    } ]
+}
+

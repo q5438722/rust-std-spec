@@ -1,0 +1,36 @@
+{"candidates":[{"target":"std::sync::OnceLock::get_or_init","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned reference may denote either a preexisting value or the initializer result, depending on hidden concurrent state. vstd has no public OnceLock state model with which to express that distinction soundly.","risks":["concurrency_or_hidden_state","external_or_hidden_runtime_state","reference_identity_vs_view","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::into_inner","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result is determined by the consumed lock's opaque initialization state. Without a public OnceLock view, no useful relation between self and the returned Option can be stated.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::new","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source constructs an uninitialized cell, that state is represented by private runtime fields and has no public vstd abstraction. The signature alone yields no useful postcondition.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","private_state_modeling","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::set","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Success and the resulting cell contents depend on opaque concurrent initialization state mutated through a shared reference. vstd lacks a OnceLock state or protocol abstraction for expressing this transition.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","shared_reference_hidden_mutation","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::take","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned value and final uninitialized state depend on the lock's opaque prior state. old(self) and final(self) are not useful without a public logical view of OnceLock.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::wait","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This operation blocks on hidden synchronization state and returns a reference to a value established by another initialization action. Current vstd vocabulary cannot model that protocol or reference relation.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","reference_identity_vs_view","blocking_runtime_behavior","missing_once_lock_state_abstraction"]}]}{"candidates":[{"target":"std::sync::OnceLock::get_or_init","decision":"skip","contract_form":"assum
+e_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"usef
+ul":false,"rationale":"The returned reference may denote either a preexisting value or the
+initializer result, depending on hidden concurrent state. vstd has no public OnceLock state model
+with which to express that distinction
+soundly.","risks":["concurrency_or_hidden_state","external_or_hidden_runtime_state","reference_ident
+ity_vs_view","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::into_inner","de
+cision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],
+"feature_gates":[],"imports":[],"useful":false,"rationale":"The result is determined by the consumed
+ lock's opaque initialization state. Without a public OnceLock view, no useful relation between self
+ and the returned Option can be stated.","risks":["external_or_hidden_runtime_state","concurrency_or
+_hidden_state","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::new","decisio
+n":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feat
+ure_gates":[],"imports":[],"useful":false,"rationale":"Although the source constructs an
+uninitialized cell, that state is represented by private runtime fields and has no public vstd
+abstraction. The signature alone yields no useful
+postcondition.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","private_s
+tate_modeling","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::set","decisio
+n":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feat
+ure_gates":[],"imports":[],"useful":false,"rationale":"Success and the resulting cell contents
+depend on opaque concurrent initialization state mutated through a shared reference. vstd lacks a
+OnceLock state or protocol abstraction for expressing this
+transition.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","shared_refer
+ence_hidden_mutation","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::take",
+"decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":
+[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned value and final
+uninitialized state depend on the lock's opaque prior state. old(self) and final(self) are not
+useful without a public logical view of OnceLock.","risks":["external_or_hidden_runtime_state","conc
+urrency_or_hidden_state","missing_once_lock_state_abstraction"]},{"target":"std::sync::OnceLock::wai
+t","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensure
+s":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This operation blocks on hidden
+synchronization state and returns a reference to a value established by another initialization
+action. Current vstd vocabulary cannot model that protocol or reference
+relation.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","reference_iden
+tity_vs_view","blocking_runtime_behavior","missing_once_lock_state_abstraction"]}]}
+

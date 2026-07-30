@@ -1,0 +1,46 @@
+{"candidates":[{"target":"alloc::borrow::Cow::into_owned","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<'a, B: 'a + ?Sized + ToOwned>[ Cow::into_owned ](\n    cow: Cow<'a, B>,\n) -> (res: <B as ToOwned>::Owned)\n    ensures\n        cow matches Cow::Owned(owned) ==> res == owned,\n;","requires":[],"ensures":["cow matches Cow::Owned(owned) ==> res == owned"],"feature_gates":["alloc"],"imports":["alloc::borrow::{Cow, ToOwned}","vstd::prelude::*"],"useful":true,"rationale":"The source moves the Owned payload out unchanged. The Borrowed arm cannot be related generically because vstd lacks a public ToOwned::to_owned relation.","risks":["Borrowed-case output remains unspecified"]},{"target":"core::option::Option::as_deref","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: Deref>[ Option::<T>::as_deref ](\n    option: &Option<T>,\n) -> (res: Option<&T::Target>)\n    ensures\n        match option {\n            Some(value) => res is Some && call_ensures(\n                <T as Deref>::deref,\n                (value,),\n                res->0,\n            ),\n            None => res is None,\n        },\n;","requires":[],"ensures":["match option { Some(value) => res is Some && call_ensures(<T as Deref>::deref, (value,), res->0), None => res is None }"],"feature_gates":[],"imports":["core::ops::Deref","core::option::Option","vstd::prelude::*"],"useful":true,"rationale":"This captures variant preservation and delegates the Some payload relation to the existing Deref contract, exactly following as_ref().map(Deref::deref).","risks":["reference_identity_vs_view","Some-case precision depends on the concrete Deref specification"]},{"target":"core::pin::Pin::as_ref","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source derives the result through Pin's private pointer. vstd has no public Pin pointee/view relation that can connect the returned Pin reference to that pointer.","risks":["reference_identity_vs_view","missing Pin pointee abstraction"]},{"target":"core::pin::Pin::set","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful postcondition must describe mutation of the pinned pointee while preserving its location, but current vstd exposes neither Pin's pointer nor a suitable generic DerefMut mutation relation.","risks":["unit_return_variant","missing Pin/DerefMut mutation abstraction"]},{"target":"core::result::Result::as_deref","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: Deref, E>[ Result::<T, E>::as_deref ](\n    result: &Result<T, E>,\n) -> (res: Result<&T::Target, &E>)\n    ensures\n        match result {\n            Ok(value) => res is Ok && call_ensures(\n                <T as Deref>::deref,\n                (value,),\n                res->Ok_0,\n            ),\n            Err(error) => res is Err && res->Err_0 == error,\n        },\n;","requires":[],"ensures":["match result { Ok(value) => res is Ok && call_ensures(<T as Deref>::deref, (value,), res->Ok_0), Err(error) => res is Err && res->Err_0 == error }"],"feature_gates":[],"imports":["core::ops::Deref","core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"The contract follows as_ref().map(Deref::deref): Ok delegates to the registered Deref contract, while Err preserves the original error reference.","risks":["reference_identity_vs_view","Ok-case precision depends on the concrete Deref specification"]},{"target":"core::str::ends_with","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation delegates to Pattern::is_suffix_of, but current vstd has no public Pattern/ReverseSearcher specification. A generic pattern therefore cannot be related to the string's Seq<char> view.","risks":["missing Pattern abstraction","associated Searcher projection and ReverseSearcher behavior are unmodeled"]}]}{"candidates":[{"target":"alloc::borrow::Cow::into_owned","decision":"add_spec","contract_form":"ass
+ume_specification","contract_code":"pub assume_specification<'a, B: 'a + ?Sized + ToOwned>[
+Cow::into_owned ](\n    cow: Cow<'a, B>,\n) -> (res: <B as ToOwned>::Owned)\n    ensures\n
+cow matches Cow::Owned(owned) ==> res == owned,\n;","requires":[],"ensures":["cow matches
+Cow::Owned(owned) ==> res == owned"],"feature_gates":["alloc"],"imports":["alloc::borrow::{Cow,
+ToOwned}","vstd::prelude::"],"useful":true,"rationale":"The source moves the Owned payload out
+unchanged. The Borrowed arm cannot be related generically because vstd lacks a public
+ToOwned::to_owned relation.","risks":["Borrowed-case output remains
+unspecified"]},{"target":"core::option::Option::as_deref","decision":"add_spec","contract_form":"ass
+ume_specification","contract_code":"pub assume_specification<T: Deref>[ Option::<T>::as_deref ](\n
+  option: &Option<T>,\n) -> (res: Option<&T::Target>)\n    ensures\n        match option {\n
+    Some(value) => res is Some && call_ensures(\n                <T as Deref>::deref,\n
+   (value,),\n                res->0,\n            ),\n            None => res is None,\n
+},\n;","requires":[],"ensures":["match option { Some(value) => res is Some && call_ensures(<T as
+Deref>::deref, (value,), res->0), None => res is None }"],"feature_gates":[],"imports":["core::ops::
+Deref","core::option::Option","vstd::prelude::"],"useful":true,"rationale":"This captures variant
+preservation and delegates the Some payload relation to the existing Deref contract, exactly
+following as_ref().map(Deref::deref).","risks":["reference_identity_vs_view","Some-case precision
+depends on the concrete Deref specification"]},{"target":"core::pin::Pin::as_ref","decision":"skip",
+"contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates"
+:[],"imports":[],"useful":false,"rationale":"The source derives the result through Pin's private
+pointer. vstd has no public Pin pointee/view relation that can connect the returned Pin reference to
+ that pointer.","risks":["reference_identity_vs_view","missing Pin pointee abstraction"]},{"target":
+"core::pin::Pin::set","decision":"skip","contract_form":"assume_specification","contract_code":"","r
+equires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful
+postcondition must describe mutation of the pinned pointee while preserving its location, but
+current vstd exposes neither Pin's pointer nor a suitable generic DerefMut mutation
+relation.","risks":["unit_return_variant","missing Pin/DerefMut mutation
+abstraction"]},{"target":"core::result::Result::as_deref","decision":"add_spec","contract_form":"ass
+ume_specification","contract_code":"pub assume_specification<T: Deref, E>[ Result::<T, E>::as_deref
+](\n    result: &Result<T, E>,\n) -> (res: Result<&T::Target, &E>)\n    ensures\n        match
+result {\n            Ok(value) => res is Ok && call_ensures(\n                <T as
+Deref>::deref,\n                (value,),\n                res->Ok_0,\n            ),\n
+Err(error) => res is Err && res->Err_0 == error,\n        },\n;","requires":[],"ensures":["match
+result { Ok(value) => res is Ok && call_ensures(<T as Deref>::deref, (value,), res->Ok_0),
+Err(error) => res is Err && res->Err_0 == error }"],"feature_gates":[],"imports":["core::ops::Deref"
+,"core::result::Result","vstd::prelude::*"],"useful":true,"rationale":"The contract follows
+as_ref().map(Deref::deref): Ok delegates to the registered Deref contract, while Err preserves the
+original error reference.","risks":["reference_identity_vs_view","Ok-case precision depends on the
+concrete Deref specification"]},{"target":"core::str::ends_with","decision":"skip","contract_form":"
+assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],
+"useful":false,"rationale":"The implementation delegates to Pattern::is_suffix_of, but current vstd
+has no public Pattern/ReverseSearcher specification. A generic pattern therefore cannot be related
+to the string's Seq<char> view.","risks":["missing Pattern abstraction","associated Searcher
+projection and ReverseSearcher behavior are unmodeled"]}]}
+

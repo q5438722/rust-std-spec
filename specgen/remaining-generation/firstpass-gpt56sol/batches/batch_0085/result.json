@@ -1,0 +1,111 @@
+{
+  "batch": 85,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 276552,
+  "targets": [
+    "alloc::collections::BTreeSet::range",
+    "alloc::collections::BTreeSet::retain",
+    "alloc::collections::BTreeSet::symmetric_difference",
+    "alloc::collections::BTreeSet::union",
+    "alloc::collections::BinaryHeap::drain",
+    "alloc::collections::BinaryHeap::iter"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::BTreeSet::range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful behavior is the bounded, ordered contents of the returned Range iterator. The concrete iterator lacks a public prophetic model, and generic Borrow-based bound comparisons cannot be expressed precisely with the existing BTreeSet view.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "missing_generic_borrow_order_model"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The post-state depends on the ordered sequence of calls to a potentially stateful FnMut predicate. Existing function contracts do not expose the callback-state trace needed to characterize which elements remain without imposing unjustified determinism.",
+      "risks": [
+        "missing_fnmut_trace_model",
+        "callback_state_effects"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::symmetric_difference",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a lazy SymmetricDifference iterator. Relating its yielded references to the symmetric difference of the two set views requires a concrete prophetic iterator model that is not currently available for this adapter.",
+      "risks": [
+        "missing_prophetic_iterator_model"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::union",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a lazy Union iterator. A useful contract must connect its future yielded references to the union of both set views, but the concrete adapter has no existing prophetic iterator abstraction.",
+      "risks": [
+        "missing_prophetic_iterator_model"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::drain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Drain couples future iterator consumption and drop behavior with the final state of the mutably borrowed heap. Current vstd lacks both a BinaryHeap contents view and a prophetic model for this draining iterator.",
+      "risks": [
+        "missing_binary_heap_view",
+        "missing_prophetic_drain_model",
+        "drop_dependent_state"
+      ]
+    },
+    {
+      "target": "alloc::collections::BinaryHeap::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The iterator exposes heap elements in unspecified order. Current vstd has no BinaryHeap contents model or concrete prophetic model for binary_heap::Iter, so no useful relation to future yielded references can be stated.",
+      "risks": [
+        "missing_binary_heap_view",
+        "missing_prophetic_iterator_model",
+        "unspecified_iteration_order"
+      ]
+    }
+  ]
+}

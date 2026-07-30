@@ -1,0 +1,18 @@
+{"candidates":[{"target":"alloc::sync::Arc::unwrap_or_clone","decision":"add_spec","contract_form":"assume_specification","contract_code":"pub assume_specification<T: Clone, A: Allocator>[ Arc::<T, A>::unwrap_or_clone ](this: Arc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this, result),\n;","requires":[],"ensures":["cloned::<T>(*this, result)"],"feature_gates":["allocator_api"],"imports":["alloc::sync::Arc","core::alloc::Allocator","vstd::prelude::*"],"useful":true,"rationale":"The result is either the moved inner value or produced by T::clone; vstd::cloned is the reflexive closure of the Clone contract and captures both cases without modeling Arc uniqueness.","risks":["Does not distinguish unwrapping from cloning."]},{"target":"alloc::sync::Arc::weak_count","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result observes a relaxed atomic reference count that concurrent threads may change, while the public Arc vstd model exposes only the pointee and no weak-count state.","risks":["Hidden shared state","Concurrency"]},{"target":"core::mem::MaybeUninit::zeroed","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"vstd's MaybeUninit model distinguishes only Init(T) from Uninit and cannot represent zero-filled bytes that may or may not encode a valid T.","risks":["Missing byte-level initialization model","Validity depends on T"]}]}{"candidates":[{"target":"alloc::sync::Arc::unwrap_or_clone","decision":"add_spec","contract_form":"
+assume_specification","contract_code":"pub assume_specification<T: Clone, A: Allocator>[ Arc::<T,
+A>::unwrap_or_clone ](this: Arc<T, A>) -> (result: T)\n    ensures\n        cloned::<T>(*this,
+result),\n;","requires":[],"ensures":["cloned::<T>(this,
+result)"],"feature_gates":["allocator_api"],"imports":["alloc::sync::Arc","core::alloc::Allocator","
+vstd::prelude::"],"useful":true,"rationale":"The result is either the moved inner value or produced
+by T::clone; vstd::cloned is the reflexive closure of the Clone contract and captures both cases
+without modeling Arc uniqueness.","risks":["Does not distinguish unwrapping from cloning."]},{"targe
+t":"alloc::sync::Arc::weak_count","decision":"skip","contract_form":"assume_specification","contract
+_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+ result observes a relaxed atomic reference count that concurrent threads may change, while the
+public Arc vstd model exposes only the pointee and no weak-count state.","risks":["Hidden shared
+state","Concurrency"]},{"target":"core::mem::MaybeUninit::zeroed","decision":"skip","contract_form":
+"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[]
+,"useful":false,"rationale":"vstd's MaybeUninit model distinguishes only Init(T) from Uninit and
+cannot represent zero-filled bytes that may or may not encode a valid T.","risks":["Missing
+byte-level initialization model","Validity depends on T"]}]}
+

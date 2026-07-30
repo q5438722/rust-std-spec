@@ -1,0 +1,268 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ AtomicBool::as_ptr ](\n    atomic: &AtomicBool,\n) -> (result: *mut bool)\n    ensures\n        result.addr() != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::sync::atomic::AtomicBool"
+      ],
+      "useful": true,
+      "rationale": "The rustc_never_returns_null_ptr attribute directly supports a nonzero-address guarantee without exposing atomic contents or private fields.",
+      "risks": [
+        "atomic_storage_identity_unmodeled",
+        "raw_pointer_validity_and_permissions_unmodeled",
+        "mixed_atomic_non_atomic_access_unmodeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the hidden atomically observed prior bool and may be either value under interference. Without an atomic-state or linearization abstraction, no useful non-tautological relation is expressible.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "atomic_state_not_exposed_by_ordinary_view",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::compare_exchange",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ AtomicPtr::<T>::compare_exchange ](\n    atomic: &AtomicPtr<T>,\n    current: *mut T,\n    new: *mut T,\n    success: Ordering,\n    failure: Ordering,\n) -> (result: Result<*mut T, *mut T>)\n    ensures\n        result is Ok ==> (result->Ok_0).addr() == current.addr(),\n        result is Err ==> (result->Err_0).addr() != current.addr(),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> (result->Ok_0).addr() == current.addr()",
+        "result is Err ==> (result->Err_0).addr() != current.addr()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::sync::atomic::{AtomicPtr, Ordering}"
+      ],
+      "useful": true,
+      "rationale": "A strong comparison cannot fail spuriously: success returns the matched prior address, while failure returns a different observed address. This useful result-shape relation does not model hidden atomic state.",
+      "risks": [
+        "atomic_state_transition_unmodeled",
+        "raw_pointer_address_equality_not_identity",
+        "aba_problem",
+        "ordering_and_synchronization_unmodeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::compare_exchange_weak",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ AtomicPtr::<T>::compare_exchange_weak ](\n    atomic: &AtomicPtr<T>,\n    current: *mut T,\n    new: *mut T,\n    success: Ordering,\n    failure: Ordering,\n) -> (result: Result<*mut T, *mut T>)\n    ensures\n        result is Ok ==> (result->Ok_0).addr() == current.addr(),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> (result->Ok_0).addr() == current.addr()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::sync::atomic::{AtomicPtr, Ordering}"
+      ],
+      "useful": true,
+      "rationale": "Spurious failure prevents constraining Err, but every successful comparison still returns a prior pointer with current's address.",
+      "risks": [
+        "atomic_state_transition_unmodeled",
+        "spurious_failure_unconstrained",
+        "raw_pointer_address_equality_not_identity",
+        "aba_problem",
+        "ordering_and_synchronization_unmodeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The return value is an unconstrained hidden prior u8; wrapping addition describes only the unobservable stored successor. A useful contract requires an atomic-state abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "atomic_state_not_exposed_by_ordinary_view",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_and",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned pointer is the hidden prior value, while the address mask constrains only the unobservable stored successor. Neither provenance nor the state transition is expressible with an ordinary view.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "atomic_state_not_exposed_by_ordinary_view",
+        "raw_pointer_provenance",
+        "multiple_rust_declarations_share_path"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ AtomicBool::as_ptr ](\n    atomic: &AtomicBool,\n)
+ -> (result: *mut bool)\n    ensures\n        result.addr() != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::sync::atomic::AtomicBool"
+      ],
+      "useful": true,
+      "rationale": "The rustc_never_returns_null_ptr attribute directly supports a nonzero-address
+guarantee without exposing atomic contents or private fields.",
+      "risks": [
+        "atomic_storage_identity_unmodeled",
+        "raw_pointer_validity_and_permissions_unmodeled",
+        "mixed_atomic_non_atomic_access_unmodeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the hidden atomically observed prior bool and may be either value
+under interference. Without an atomic-state or linearization abstraction, no useful non-tautological
+ relation is expressible.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "atomic_state_not_exposed_by_ordinary_view",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::compare_exchange",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ AtomicPtr::<T>::compare_exchange ](\n
+atomic: &AtomicPtr<T>,\n    current: *mut T,\n    new: *mut T,\n    success: Ordering,\n    failure:
+ Ordering,\n) -> (result: Result<*mut T, *mut T>)\n    ensures\n        result is Ok ==>
+(result->Ok_0).addr() == current.addr(),\n        result is Err ==> (result->Err_0).addr() !=
+current.addr(),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> (result->Ok_0).addr() == current.addr()",
+        "result is Err ==> (result->Err_0).addr() != current.addr()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::sync::atomic::{AtomicPtr, Ordering}"
+      ],
+      "useful": true,
+      "rationale": "A strong comparison cannot fail spuriously: success returns the matched prior
+address, while failure returns a different observed address. This useful result-shape relation does
+not model hidden atomic state.",
+      "risks": [
+        "atomic_state_transition_unmodeled",
+        "raw_pointer_address_equality_not_identity",
+        "aba_problem",
+        "ordering_and_synchronization_unmodeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::compare_exchange_weak",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ AtomicPtr::<T>::compare_exchange_weak ](\n
+atomic: &AtomicPtr<T>,\n    current: *mut T,\n    new: *mut T,\n    success: Ordering,\n    failure:
+ Ordering,\n) -> (result: Result<*mut T, *mut T>)\n    ensures\n        result is Ok ==>
+(result->Ok_0).addr() == current.addr(),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> (result->Ok_0).addr() == current.addr()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::sync::atomic::{AtomicPtr, Ordering}"
+      ],
+      "useful": true,
+      "rationale": "Spurious failure prevents constraining Err, but every successful comparison
+still returns a prior pointer with current's address.",
+      "risks": [
+        "atomic_state_transition_unmodeled",
+        "spurious_failure_unconstrained",
+        "raw_pointer_address_equality_not_identity",
+        "aba_problem",
+        "ordering_and_synchronization_unmodeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The return value is an unconstrained hidden prior u8; wrapping addition
+describes only the unobservable stored successor. A useful contract requires an atomic-state
+abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "atomic_state_not_exposed_by_ordinary_view",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_and",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned pointer is the hidden prior value, while the address mask
+constrains only the unobservable stored successor. Neither provenance nor the state transition is
+expressible with an ordinary view.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "atomic_state_not_exposed_by_ordinary_view",
+        "raw_pointer_provenance",
+        "multiple_rust_declarations_share_path"
+      ]
+    } ]
+}
+

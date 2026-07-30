@@ -1,0 +1,210 @@
+{
+  "candidates": [
+    {
+      "target": "core::cmp::Ordering::is_gt",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_gt ](\n    ordering: core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering == core::cmp::Ordering::Greater),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Greater)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source identifies exactly the public Greater variant, expressible with spec equality.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_le",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_le ](\n    ordering: core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (\n            ordering == core::cmp::Ordering::Less\n                || ordering == core::cmp::Ordering::Equal\n        ),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Less || ordering == core::cmp::Ordering::Equal)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns success exactly for the public Less and Equal variants.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_lt",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_lt ](\n    ordering: core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering == core::cmp::Ordering::Less),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Less)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source identifies exactly the public Less variant, expressible with spec equality.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_ne",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_ne ](\n    ordering: core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering != core::cmp::Ordering::Equal),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering != core::cmp::Ordering::Equal)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns success exactly when the ordering is not the public Equal variant.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::reverse",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::reverse ](\n    ordering: core::cmp::Ordering,\n) -> (result: core::cmp::Ordering)\n    ensures\n        result == (match ordering {\n            core::cmp::Ordering::Less => core::cmp::Ordering::Greater,\n            core::cmp::Ordering::Equal => core::cmp::Ordering::Equal,\n            core::cmp::Ordering::Greater => core::cmp::Ordering::Less,\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (match ordering { core::cmp::Ordering::Less => core::cmp::Ordering::Greater, core::cmp::Ordering::Equal => core::cmp::Ordering::Equal, core::cmp::Ordering::Greater => core::cmp::Ordering::Less })"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The implementation is an exhaustive match over public variants, directly expressible in a postcondition.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::then ](\n    ordering: core::cmp::Ordering,\n    other: core::cmp::Ordering,\n) -> (result: core::cmp::Ordering)\n    ensures\n        result == (match ordering {\n            core::cmp::Ordering::Equal => other,\n            _ => ordering,\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (match ordering { core::cmp::Ordering::Equal => other, _ => ordering })"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns other only for Equal and otherwise returns the receiver; public enum matching expresses this exactly.",
+      "risks": []
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::cmp::Ordering::is_gt",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_gt ](\n    ordering:
+core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering ==
+core::cmp::Ordering::Greater),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Greater)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source identifies exactly the public Greater variant, expressible with spec
+equality.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_le",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_le ](\n    ordering:
+core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (\n            ordering ==
+ core::cmp::Ordering::Less\n                || ordering == core::cmp::Ordering::Equal\n
+),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Less || ordering ==
+core::cmp::Ordering::Equal)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns success exactly for the public Less and Equal variants.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_lt",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_lt ](\n    ordering:
+core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering ==
+core::cmp::Ordering::Less),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering == core::cmp::Ordering::Less)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source identifies exactly the public Less variant, expressible with spec
+equality.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::is_ne",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::is_ne ](\n    ordering:
+core::cmp::Ordering,\n) -> (result: bool)\n    ensures\n        result == (ordering !=
+core::cmp::Ordering::Equal),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (ordering != core::cmp::Ordering::Equal)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns success exactly when the ordering is not the public Equal
+variant.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::reverse",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::reverse ](\n    ordering:
+core::cmp::Ordering,\n) -> (result: core::cmp::Ordering)\n    ensures\n        result == (match
+ordering {\n            core::cmp::Ordering::Less => core::cmp::Ordering::Greater,\n
+core::cmp::Ordering::Equal => core::cmp::Ordering::Equal,\n            core::cmp::Ordering::Greater
+=> core::cmp::Ordering::Less,\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (match ordering { core::cmp::Ordering::Less => core::cmp::Ordering::Greater,
+core::cmp::Ordering::Equal => core::cmp::Ordering::Equal, core::cmp::Ordering::Greater =>
+core::cmp::Ordering::Less })"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The implementation is an exhaustive match over public variants, directly
+expressible in a postcondition.",
+      "risks": []
+    },
+    {
+      "target": "core::cmp::Ordering::then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ core::cmp::Ordering::then ](\n    ordering:
+core::cmp::Ordering,\n    other: core::cmp::Ordering,\n) -> (result: core::cmp::Ordering)\n
+ensures\n        result == (match ordering {\n            core::cmp::Ordering::Equal => other,\n
+        _ => ordering,\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "result == (match ordering { core::cmp::Ordering::Equal => other, _ => ordering })"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns other only for Equal and otherwise returns the receiver;
+public enum matching expresses this exactly.",
+      "risks": []
+    } ]
+}
+

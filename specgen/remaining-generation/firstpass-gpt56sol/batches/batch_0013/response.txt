@@ -1,0 +1,225 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicBool::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[AtomicBool::as_ptr](atomic: &AtomicBool) -> (result: *mut bool)\n    ensures\n        result.addr() != 0\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::sync::atomic::AtomicBool"
+      ],
+      "useful": true,
+      "rationale": "The implementation returns self.v.get().cast() and is explicitly annotated as never returning null, so pointer non-nullness is expressible without modeling atomic contents.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the value observed by an atomic read-modify-write, while the conditional update affects hidden concurrent state that ordinary AtomicBool has no public vstd view for.",
+      "risks": [
+        "concurrency_or_hidden_state"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::fetch_not",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Both the returned previous value and the negated stored value depend on hidden atomic state; no useful relation is expressible without an atomic permission abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden atomic observations and potentially repeated FnMut invocations under contention, neither of which is represented by the ordinary vstd AtomicBool model.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "callback_reexecution"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its essential behavior is a mutable reference aliasing the same storage under a different type; current vstd cannot express that identity or the resulting atomic hidden state.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable slice reinterprets and aliases every input element; vstd lacks an element-wise backing-storage relation and support for this mutable-reference return.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicBool::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[AtomicBool::as_ptr](atomic: &AtomicBool) ->
+(result: mut bool)\n    ensures\n        result.addr() != 0\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "core::sync::atomic::AtomicBool"
+      ],
+      "useful": true,
+      "rationale": "The implementation returns self.v.get().cast() and is explicitly annotated as
+never returning null, so pointer non-nullness is expressible without modeling atomic contents.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the value observed by an atomic read-modify-write, while the
+conditional update affects hidden concurrent state that ordinary AtomicBool has no public vstd view
+for.",
+      "risks": [
+        "concurrency_or_hidden_state"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::fetch_not",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Both the returned previous value and the negated stored value depend on hidden
+atomic state; no useful relation is expressible without an atomic permission abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::fetch_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden atomic observations and potentially repeated FnMut
+invocations under contention, neither of which is represented by the ordinary vstd AtomicBool
+model.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "callback_reexecution"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its essential behavior is a mutable reference aliasing the same storage under a
+different type; current vstd cannot express that identity or the resulting atomic hidden state.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicBool::from_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [
+        "atomic_from_mut"
+      ],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable slice reinterprets and aliases every input element; vstd
+lacks an element-wise backing-storage relation and support for this mutable-reference return.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    } ]
+}
+

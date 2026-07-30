@@ -1,0 +1,109 @@
+{
+  "batch": 141,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 31919,
+  "targets": [
+    "core::time::Duration::as_secs",
+    "core::time::Duration::as_secs_f32",
+    "core::time::Duration::as_secs_f64",
+    "core::time::Duration::checked_add",
+    "core::time::Duration::checked_div",
+    "core::time::Duration::checked_mul"
+  ],
+  "candidates": [
+    {
+      "target": "core::time::Duration::as_secs",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private `secs` field; current vstd has no public logical view of `Duration` that can relate it to the result.",
+      "risks": [
+        "Any deterministic postcondition would require inventing a missing `Duration` abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::as_secs_f32",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation combines private seconds and nanoseconds using floating-point conversion and division, none of which can be related to `Duration` through current public vstd vocabulary.",
+      "risks": [
+        "Requires a logical `Duration` view.",
+        "Requires trustworthy floating-point conversion and rounding semantics."
+      ]
+    },
+    {
+      "target": "core::time::Duration::as_secs_f64",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation combines private seconds and nanoseconds using floating-point conversion and division, but current vstd exposes no logical `Duration` representation for such a contract.",
+      "risks": [
+        "Requires a logical `Duration` view.",
+        "Requires trustworthy floating-point conversion and rounding semantics."
+      ]
+    },
+    {
+      "target": "core::time::Duration::checked_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the normalized sum and overflow result requires an integer-duration view exposing total nanoseconds or equivalent components, which current vstd lacks.",
+      "risks": [
+        "A contract based on private `secs` and `nanos` would invent hidden state.",
+        "Overflow and nanosecond normalization cannot be characterized usefully without a new abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::checked_div",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source returns `None` for zero, a useful contract for the quotient and truncated fractional nanoseconds requires a missing logical `Duration` value.",
+      "risks": [
+        "Division truncation cannot be related to the returned `Duration` without a public duration abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::checked_mul",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing the normalized product and overflow boundary requires a logical total-duration representation absent from current vstd vocabulary.",
+      "risks": [
+        "A precise contract would depend on private components.",
+        "Overflow and normalization need a new `Duration` abstraction."
+      ]
+    }
+  ]
+}

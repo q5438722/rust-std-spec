@@ -1,0 +1,234 @@
+{
+  "candidates": [
+    {
+      "target": "std::sync::LockResult::expect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "LockResult is a Result alias, and this resolves to canonical Result::expect, which vstd already specifies. An alias-path declaration would duplicate that specification and cannot add lock-poisoning semantics.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "duplicate_canonical_contract",
+        "panic_formatting_unmodeled"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::expect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied signature belongs to generic Result::expect_err, not a distinct LockResult method. Registering it here would affect every Result<T, E> and provide no alias-specific poisoning model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "panic_formatting_unmodeled"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::flatten",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This declaration belongs to Result<Result<T, E>, E>; LockResult is Result<Guard, PoisonError<Guard>> and does not define a distinct flatten API with that receiver. A contract would target the canonical nested Result method instead.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_receiver_mismatch",
+        "false_contract_domain"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::inspect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "LockResult exposes the canonical Result::inspect method through a type alias. A declaration would globally specify Result::inspect, while the signature exposes no lock or poisoning state for an alias-specific concurrency contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "duplicate_canonical_contract",
+        "callback_effects"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::inspect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias-surfaced method resolves to generic Result::inspect_err. Its signature provides no observable lock state, and an external declaration here would apply to all Results rather than model LockResult poisoning.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "callback_effects"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::is_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method resolves to canonical Result::is_err, whose discriminant contract already exists in vstd. LockResult supplies no separate method or additional observable lock-state relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::sync::LockResult::expect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "LockResult is a Result alias, and this resolves to canonical Result::expect,
+which vstd already specifies. An alias-path declaration would duplicate that specification and
+cannot add lock-poisoning semantics.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "duplicate_canonical_contract",
+        "panic_formatting_unmodeled"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::expect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied signature belongs to generic Result::expect_err, not a distinct
+LockResult method. Registering it here would affect every Result<T, E> and provide no alias-specific
+ poisoning model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "panic_formatting_unmodeled"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::flatten",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This declaration belongs to Result<Result<T, E>, E>; LockResult is Result<Guard,
+ PoisonError<Guard>> and does not define a distinct flatten API with that receiver. A contract would
+ target the canonical nested Result method instead.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_receiver_mismatch",
+        "false_contract_domain"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::inspect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "LockResult exposes the canonical Result::inspect method through a type alias. A
+declaration would globally specify Result::inspect, while the signature exposes no lock or poisoning
+ state for an alias-specific concurrency contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "duplicate_canonical_contract",
+        "callback_effects"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::inspect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias-surfaced method resolves to generic Result::inspect_err. Its
+signature provides no observable lock state, and an external declaration here would apply to all
+Results rather than model LockResult poisoning.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "callback_effects"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::is_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method resolves to canonical Result::is_err, whose discriminant contract
+already exists in vstd. LockResult supplies no separate method or additional observable lock-state
+relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    } ]
+}
+

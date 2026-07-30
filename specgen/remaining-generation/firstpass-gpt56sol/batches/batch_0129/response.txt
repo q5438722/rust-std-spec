@@ -1,0 +1,196 @@
+{
+  "candidates": [
+    {
+      "target": "core::net::SocketAddr::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves the IP and port while selecting a V4 or V6 representation, but vstd has no SocketAddr/IpAddr view or modeled projections with which to express that relation.",
+      "risks": [
+        "missing socket-address abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddr::port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to the active variant's port field, but current vstd provides no spec-level SocketAddr port projection; any contract using port() itself would be circular.",
+      "risks": [
+        "missing socket-address abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddr::set_ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source changes the IP, preserves the old port, and may change the enum variant. Expressing this over old(self) and final(self) requires absent IP and port projections.",
+      "risks": [
+        "missing mutable SocketAddr view"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddr::set_port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source updates the active variant's port while preserving its IP, but vstd has no SocketAddr view for relating old(self) and final(self).",
+      "risks": [
+        "missing mutable SocketAddr view"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV4::ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a reference to a private field. Current vstd has no SocketAddrV4 IP projection, and specifying reference identity would improperly depend on private representation.",
+      "risks": [
+        "reference identity versus value view",
+        "missing IPv4 socket-address abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV4::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor initializes private IP and port fields, but no public vstd view or modeled projections exist to relate the result to its arguments.",
+      "risks": [
+        "missing IPv4 socket-address abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::net::SocketAddr::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves the IP and port while selecting a V4 or V6 representation,
+but vstd has no SocketAddr/IpAddr view or modeled projections with which to express that relation.",
+      "risks": [
+        "missing socket-address abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddr::port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to the active variant's port field, but current vstd
+provides no spec-level SocketAddr port projection; any contract using port() itself would be
+circular.",
+      "risks": [
+        "missing socket-address abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddr::set_ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source changes the IP, preserves the old port, and may change the enum
+variant. Expressing this over old(self) and final(self) requires absent IP and port projections.",
+      "risks": [
+        "missing mutable SocketAddr view"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddr::set_port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source updates the active variant's port while preserving its IP, but vstd
+has no SocketAddr view for relating old(self) and final(self).",
+      "risks": [
+        "missing mutable SocketAddr view"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV4::ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a reference to a private field. Current vstd has no
+SocketAddrV4 IP projection, and specifying reference identity would improperly depend on private
+representation.",
+      "risks": [
+        "reference identity versus value view",
+        "missing IPv4 socket-address abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV4::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor initializes private IP and port fields, but no public vstd view
+or modeled projections exist to relate the result to its arguments.",
+      "risks": [
+        "missing IPv4 socket-address abstraction"
+      ]
+    } ]
+}
+

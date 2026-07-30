@@ -1,0 +1,123 @@
+{
+  "batch": 1,
+  "group": "associated_type_or_projection",
+  "duration_ms": 151462,
+  "targets": [
+    "core::str::get",
+    "core::str::parse",
+    "core::str::rfind",
+    "core::str::rmatch_indices",
+    "core::str::rmatches",
+    "core::str::rsplit"
+  ],
+  "candidates": [
+    {
+      "target": "core::str::get",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<I>[ str::get::<I> ](\n    s: &str,\n    i: I,\n) -> (res: Option<&<I as SliceIndex<str>>::Output>) where I: SliceIndex<str>\n    ensures\n        res == spec_slice_get(s, i),\n;",
+      "requires": [],
+      "ensures": [
+        "res == spec_slice_get(s, i)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::slice::SliceIndex",
+        "vstd::slice::spec_slice_get"
+      ],
+      "useful": true,
+      "rationale": "The source delegates to SliceIndex::get, and vstd already provides the projection-aware spec_slice_get model for possibly-unsized indexed types, including str.",
+      "risks": [
+        "Concrete reasoning requires specifications for the chosen SliceIndex<str> implementation.",
+        "Reference identity must not be weakened to view equality."
+      ]
+    },
+    {
+      "target": "core::str::parse",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source only delegates to FromStr::from_str, but vstd has no FromStr model relating the input to F or F::Err.",
+      "risks": [
+        "Missing FromStr external trait specification.",
+        "Unmodeled associated type F::Err."
+      ]
+    },
+    {
+      "target": "core::str::rfind",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on Pattern and ReverseSearcher semantics, for which vstd has no match abstraction.",
+      "risks": [
+        "Missing Pattern and ReverseSearcher specifications.",
+        "Unmodeled GAT projection P::Searcher<'a>.",
+        "Naming Pattern requires the unstable pattern feature."
+      ]
+    },
+    {
+      "target": "core::str::rmatch_indices",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Neither generic Pattern semantics nor the remaining sequence of RMatchIndices is modeled in vstd.",
+      "risks": [
+        "Missing Pattern and ReverseSearcher specifications.",
+        "Unmodeled GAT projection P::Searcher<'a>.",
+        "Missing IteratorSpec model for RMatchIndices.",
+        "Private iterator state cannot be exposed."
+      ]
+    },
+    {
+      "target": "core::str::rmatches",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd cannot describe generic Pattern matching or the remaining match sequence represented by RMatches.",
+      "risks": [
+        "Missing Pattern and ReverseSearcher specifications.",
+        "Unmodeled GAT projection P::Searcher<'a>.",
+        "Missing IteratorSpec model for RMatches.",
+        "Private iterator state cannot be exposed."
+      ]
+    },
+    {
+      "target": "core::str::rsplit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires Pattern semantics and an RSplit remaining-substrings model, neither of which exists in vstd.",
+      "risks": [
+        "Missing Pattern and ReverseSearcher specifications.",
+        "Unmodeled GAT projection P::Searcher<'a>.",
+        "Missing IteratorSpec model for RSplit.",
+        "Private iterator state cannot be exposed."
+      ]
+    }
+  ]
+}

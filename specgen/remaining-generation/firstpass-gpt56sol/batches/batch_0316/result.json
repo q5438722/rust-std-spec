@@ -1,0 +1,119 @@
+{
+  "batch": 316,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 209048,
+  "targets": [
+    "alloc::rc::Rc::increment_strong_count",
+    "alloc::rc::Rc::into_raw",
+    "alloc::rc::Weak::as_ptr",
+    "alloc::rc::Weak::from_raw",
+    "alloc::rc::Weak::into_raw",
+    "alloc::str::from_boxed_utf8_unchecked"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::rc::Rc::increment_strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation mutates a hidden strong count and requires Rc allocation provenance and liveness, none of which is represented by the raw-pointer argument or an existing vstd Rc abstraction.",
+      "risks": [
+        "A unit-return contract would omit both the safety obligation and reference-count effect."
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::into_raw",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized>[ Rc::<T>::into_raw ](this: Rc<T>) -> (result: *const T)\n    ensures\n        result@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::rc::Rc",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The supplied source explicitly marks the result as never null, and vstd's raw-pointer view exposes its address, permitting a useful non-null guarantee without modeling Rc internals.",
+      "risks": [
+        "Allocation provenance, pointee contents, and the retained strong ownership are not modeled."
+      ]
+    },
+    {
+      "target": "alloc::rc::Weak::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source permits a dangling, unaligned, or null result when no strong reference exists. vstd has no Weak identity or liveness model with which to relate the pointer to self.",
+      "risks": [
+        "Modeling the result requires a missing Weak allocation-identity abstraction."
+      ]
+    },
+    {
+      "target": "alloc::rc::Weak::from_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety and result depend on the pointer owning a live weak-count token produced by Weak::into_raw. A raw pointer does not encode that token, and Weak has no suitable public vstd model.",
+      "risks": [
+        "An unrestricted contract would conceal the one-time ownership-transfer requirement."
+      ]
+    },
+    {
+      "target": "alloc::rc::Weak::into_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The meaningful behavior is preservation and transfer of one hidden weak reference together with allocation identity; neither is expressible using the current Weak and raw-pointer vocabulary.",
+      "risks": [
+        "Pointer-only properties would omit the ownership token required for a sound round trip through Weak::from_raw."
+      ]
+    },
+    {
+      "target": "alloc::str::from_boxed_utf8_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ alloc::str::from_boxed_utf8_unchecked ](v: Box<[u8]>) -> (result: Box<str>)\n    requires\n        valid_utf8(v@),\n    ensures\n        result.spec_bytes() =~= v@,\n;",
+      "requires": [
+        "valid_utf8(v@)"
+      ],
+      "ensures": [
+        "result.spec_bytes() =~= v@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::boxed::Box",
+        "vstd::prelude::*",
+        "vstd::string::StringSliceAdditionalSpecFns",
+        "vstd::utf8::valid_utf8"
+      ],
+      "useful": true,
+      "rationale": "The source requires valid UTF-8 and preserves the boxed bytes while reinterpreting them as str; vstd already models Box and slice views, UTF-8 validity, and str bytes.",
+      "risks": [
+        "The caller must establish UTF-8 validity; allocation identity is intentionally not modeled."
+      ]
+    }
+  ]
+}

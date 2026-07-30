@@ -1,0 +1,38 @@
+{"candidates":[{"target":"core::ptr::offset","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Defined behavior requires a nonoverflowing scaled displacement whose traversed range remains within one live allocation. The raw-pointer signature carries no allocation-bound permission, so vstd cannot state the required safety condition soundly.","risks":["missing_allocation_extent_abstraction","pointer_provenance","scaled_offset_overflow","multiple_rust_declarations_share_path"]},{"target":"core::ptr::offset_from","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source explicitly requires common allocation provenance; equal addresses derived from different objects remain UB. Two raw pointers alone provide no live-allocation extent evidence, making an address-quotient contract insufficient.","risks":["missing_same_allocation_evidence","pointer_provenance","zero_sized_pointee","result_representability","multiple_rust_declarations_share_path"]},{"target":"core::ptr::offset_from_unsigned","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This operation additionally requires correctly ordered pointers within the same allocation. Address ordering and provenance fields cannot establish live allocation bounds from this signature alone.","risks":["missing_same_allocation_evidence","pointer_ordering","pointer_provenance","zero_sized_pointee","multiple_rust_declarations_share_path"]},{"target":"core::ptr::read","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned value depends on initialized memory while the source memory remains unchanged. vstd models such contents and ownership through a tracked PointsTo<T> permission, which this exact raw-pointer signature cannot carry.","risks":["missing_memory_permission","initialized_and_aligned_memory_required","ownership_duplication","multiple_rust_declarations_share_path"]},{"target":"core::ptr::read_unaligned","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result requires a model of initialized typed bytes at an unaligned address. Current PointsTo<T> permissions enforce alignment, so the necessary unaligned-memory abstraction is unavailable.","risks":["missing_unaligned_memory_abstraction","missing_memory_permission","ownership_duplication","multiple_rust_declarations_share_path"]},{"target":"core::ptr::read_volatile","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Volatile reads have observable ordering and may access I/O memory whose state is external to Rust memory. Current vstd has no volatile-event or MMIO-state model, and the signature carries no ordinary memory permission either.","risks":["volatile_runtime_effect","hidden_external_state","missing_memory_permission","ownership_sensitive_read","multiple_rust_declarations_share_path"]}]}{"candidates":[{"target":"core::ptr::offset","decision":"skip","contract_form":"assume_specification
+","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rati
+onale":"Defined behavior requires a nonoverflowing scaled displacement whose traversed range remains
+ within one live allocation. The raw-pointer signature carries no allocation-bound permission, so
+vstd cannot state the required safety condition soundly.","risks":["missing_allocation_extent_abstra
+ction","pointer_provenance","scaled_offset_overflow","multiple_rust_declarations_share_path"]},{"tar
+get":"core::ptr::offset_from","decision":"skip","contract_form":"assume_specification","contract_cod
+e":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+source explicitly requires common allocation provenance; equal addresses derived from different
+objects remain UB. Two raw pointers alone provide no live-allocation extent evidence, making an
+address-quotient contract
+insufficient.","risks":["missing_same_allocation_evidence","pointer_provenance","zero_sized_pointee"
+,"result_representability","multiple_rust_declarations_share_path"]},{"target":"core::ptr::offset_fr
+om_unsigned","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":
+[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This operation
+additionally requires correctly ordered pointers within the same allocation. Address ordering and
+provenance fields cannot establish live allocation bounds from this signature
+alone.","risks":["missing_same_allocation_evidence","pointer_ordering","pointer_provenance","zero_si
+zed_pointee","multiple_rust_declarations_share_path"]},{"target":"core::ptr::read","decision":"skip"
+,"contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates
+":[],"imports":[],"useful":false,"rationale":"The returned value depends on initialized memory while
+ the source memory remains unchanged. vstd models such contents and ownership through a tracked
+PointsTo<T> permission, which this exact raw-pointer signature cannot
+carry.","risks":["missing_memory_permission","initialized_and_aligned_memory_required","ownership_du
+plication","multiple_rust_declarations_share_path"]},{"target":"core::ptr::read_unaligned","decision
+":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"featu
+re_gates":[],"imports":[],"useful":false,"rationale":"The result requires a model of initialized
+typed bytes at an unaligned address. Current PointsTo<T> permissions enforce alignment, so the
+necessary unaligned-memory abstraction is
+unavailable.","risks":["missing_unaligned_memory_abstraction","missing_memory_permission","ownership
+_duplication","multiple_rust_declarations_share_path"]},{"target":"core::ptr::read_volatile","decisi
+on":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"fea
+ture_gates":[],"imports":[],"useful":false,"rationale":"Volatile reads have observable ordering and
+may access I/O memory whose state is external to Rust memory. Current vstd has no volatile-event or
+MMIO-state model, and the signature carries no ordinary memory permission
+either.","risks":["volatile_runtime_effect","hidden_external_state","missing_memory_permission","own
+ership_sensitive_read","multiple_rust_declarations_share_path"]}]}
+

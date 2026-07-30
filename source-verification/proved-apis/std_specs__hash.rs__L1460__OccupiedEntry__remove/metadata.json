@@ -1,0 +1,173 @@
+{
+  "id": "std_specs__hash.rs__L1460__OccupiedEntry__remove",
+  "api_path": "std::collections::hash_map::OccupiedEntry::remove",
+  "raw_target": "OccupiedEntry::remove",
+  "contract_source_file": "std_specs/hash.rs",
+  "contract_source_line": 1460,
+  "rust_declaration": {
+    "declaration_id": "std:1283",
+    "name": "remove",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "std/src/collections/hash/map.rs",
+      "begin": [
+        2853,
+        5
+      ],
+      "end": [
+        2855,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "V"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "std:1284",
+      "for": {
+        "resolved_path": {
+          "path": "OccupiedEntry",
+          "id": 1246,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "lifetime": "'a"
+                },
+                {
+                  "type": {
+                    "generic": "K"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "V"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "'a",
+            "kind": {
+              "lifetime": {
+                "outlives": []
+              }
+            }
+          },
+          {
+            "name": "K",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "V",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 834,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "std:1246",
+      "resolved_owner_path": [
+        "std",
+        "collections",
+        "hash",
+        "map",
+        "OccupiedEntry"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  2833: \n  2834:     /// Takes the value out of the entry, and returns it.\n  2835:     ///\n  2836:     /// # Examples\n  2837:     ///\n  2838:     /// ```\n  2839:     /// use std::collections::HashMap;\n  2840:     /// use std::collections::hash_map::Entry;\n  2841:     ///\n  2842:     /// let mut map: HashMap<&str, u32> = HashMap::new();\n  2843:     /// map.entry(\"poneyland\").or_insert(12);\n  2844:     ///\n  2845:     /// if let Entry::Occupied(o) = map.entry(\"poneyland\") {\n  2846:     ///     assert_eq!(o.remove(), 12);\n  2847:     /// }\n  2848:     ///\n  2849:     /// assert_eq!(map.contains_key(\"poneyland\"), false);\n  2850:     /// ```\n  2851:     #[inline]\n  2852:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2853:     pub fn remove(self) -> V {\n  2854:         self.base.remove()\n  2855:     }\n  2856: }\n  2857: \n  2858: impl<'a, K: 'a, V: 'a, A: Allocator> VacantEntry<'a, K, V, A> {\n  2859:     /// Gets a reference to the key that would be used when inserting a value\n  2860:     /// through the `VacantEntry`.\n  2861:     ///\n  2862:     /// # Examples\n  2863:     ///\n  2864:     /// ```\n  2865:     /// use std::collections::HashMap;\n  2866:     ///\n  2867:     /// let mut map: HashMap<&str, u32> = HashMap::new();\n  2868:     /// assert_eq!(map.entry(\"poneyland\").key(), &\"poneyland\");\n  2869:     /// ```\n  2870:     #[inline]\n  2871:     #[stable(feature = \"map_entry_keys\", since = \"1.10.0\")]\n  2872:     pub fn key(&self) -> &K {\n  2873:         self.base.key()",
+    "source_text": "pub fn remove(self) -> V {\n        self.base.remove()\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd specification of OccupiedEntry::remove_entry: it returns the entry's key/value pair and sets final_value() to None."
+  ],
+  "rationale": "The private hashbrown delegate implements remove as remove_entry().1; using the public wrapper faithfully reproduces that composition and proves the contract from the smaller API specification.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__hash.rs__L1460__OccupiedEntry__remove"
+}

@@ -1,0 +1,133 @@
+{
+  "id": "core__mem__MaybeUninit__assume_init_read__60be66d1ddf6",
+  "api_path": "core::mem::MaybeUninit::assume_init_read",
+  "raw_target": "MaybeUninit::<T>::assume_init_read",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 60, patch: 0 })},\nfeature: \"maybe_uninit_extra\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"const_maybe_uninit_assume_init_read\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "declaration_id": "core:8676",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": true
+    },
+    "name": "assume_init_read",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 8278,
+          "path": "MaybeUninit"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:8682",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:8278",
+      "resolved_owner_path": [
+        "core",
+        "mem",
+        "maybe_uninit",
+        "MaybeUninit"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "   748:     /// data (by calling `assume_init_read` multiple times, or first calling\n   749:     /// `assume_init_read` and then [`assume_init`]), it is your responsibility\n   750:     /// to ensure that data may indeed be duplicated.\n   751:     ///\n   752:     /// [inv]: #initialization-invariant\n   753:     /// [`assume_init`]: MaybeUninit::assume_init\n   754:     ///\n   755:     /// # Examples\n   756:     ///\n   757:     /// Correct usage of this method:\n   758:     ///\n   759:     /// ```rust\n   760:     /// use std::mem::MaybeUninit;\n   761:     ///\n   762:     /// let mut x = MaybeUninit::<u32>::uninit();\n   763:     /// x.write(13);\n   764:     /// let x1 = unsafe { x.assume_init_read() };\n   765:     /// // `u32` is `Copy`, so we may read multiple times.\n   766:     /// let x2 = unsafe { x.assume_init_read() };\n   767:     /// assert_eq!(x1, x2);\n   768:     ///\n   769:     /// let mut x = MaybeUninit::<Option<Vec<u32>>>::uninit();\n   770:     /// x.write(None);\n   771:     /// let x1 = unsafe { x.assume_init_read() };\n   772:     /// // Duplicating a `None` value is okay, so we may read multiple times.\n   773:     /// let x2 = unsafe { x.assume_init_read() };\n   774:     /// assert_eq!(x1, x2);\n   775:     /// ```\n   776:     ///\n   777:     /// *Incorrect* usage of this method:\n   778:     ///\n   779:     /// ```rust,no_run\n   780:     /// use std::mem::MaybeUninit;\n   781:     ///\n   782:     /// let mut x = MaybeUninit::<Option<Vec<u32>>>::uninit();\n   783:     /// x.write(Some(vec![0, 1, 2]));\n   784:     /// let x1 = unsafe { x.assume_init_read() };\n   785:     /// let x2 = unsafe { x.assume_init_read() };\n   786:     /// // We now created two copies of the same vector, leading to a double-free \u26a0\ufe0f when\n   787:     /// // they both get dropped!\n   788:     /// ```\n   789:     #[stable(feature = \"maybe_uninit_extra\", since = \"1.60.0\")]\n   790:     #[rustc_const_stable(feature = \"const_maybe_uninit_assume_init_read\", since = \"1.75.0\")]\n   791:     #[inline(always)]\n   792:     #[track_caller]\n   793:     pub const unsafe fn assume_init_read(&self) -> T {\n   794:         // SAFETY: the caller must guarantee that `self` is initialized.\n   795:         // Reading from `self.as_ptr()` is safe since `self` should be initialized.\n   796:         unsafe {\n   797:             intrinsics::assert_inhabited::<T>();\n   798:             self.as_ptr().read()\n   799:         }\n   800:     }\n   801: \n   802:     /// Drops the contained value in place.\n   803:     ///\n   804:     /// If you have ownership of the `MaybeUninit`, you can also use\n   805:     /// [`assume_init`] as an alternative.\n   806:     ///\n   807:     /// # Safety\n   808:     ///\n   809:     /// It is up to the caller to guarantee that the `MaybeUninit<T>` really is\n   810:     /// in an initialized state. Calling this when the content is not yet fully\n   811:     /// initialized causes undefined behavior.\n   812:     ///\n   813:     /// On top of that, all additional invariants of the type `T` must be\n   814:     /// satisfied, as the `Drop` implementation of `T` (or its members) may\n   815:     /// rely on this. For example, setting a `Vec<T>` to an invalid but\n   816:     /// non-null address makes it initialized (under the current implementation;\n   817:     /// this does not constitute a stable guarantee), because the only\n   818:     /// requirement the compiler knows about it is that the data pointer must be\n   819:     /// non-null. Dropping such a `Vec<T>` however will cause undefined\n   820:     /// behavior.\n   821:     ///\n   822:     /// [`assume_init`]: MaybeUninit::assume_init\n   823:     #[stable(feature = \"maybe_uninit_extra\", since = \"1.60.0\")]\n   824:     #[rustc_const_unstable(feature = \"const_drop_in_place\", issue = \"109342\")]\n   825:     pub const unsafe fn assume_init_drop(&mut self)\n   826:     where\n   827:         T: [const] Destruct,\n   828:     {\n   829:         // SAFETY: the caller must guarantee that `self` is initialized and\n   830:         // satisfies all invariants of `T`.\n   831:         // Dropping the value in place is safe if that is the case.\n   832:         unsafe { ptr::drop_in_place(self.as_mut_ptr()) }\n   833:     }\n   834: \n   835:     /// Gets a shared reference to the contained value.\n   836:     ///\n   837:     /// This can be useful when we want to access a `MaybeUninit` that has been\n   838:     /// initialized but don't have ownership of the `MaybeUninit` (preventing the use",
+    "span": {
+      "begin": [
+        793,
+        5
+      ],
+      "end": [
+        800,
+        6
+      ],
+      "filename": "core/src/mem/maybe_uninit.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const unsafe fn assume_init_read(&self) -> T {\n        // SAFETY: the caller must guarantee that `self` is initialized.\n        // Reading from `self.as_ptr()` is safe since `self` should be initialized.\n        unsafe {\n            intrinsics::assert_inhabited::<T>();\n            self.as_ptr().read()\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "core::intrinsics::assert_inhabited::<T> has no result and does not unwind.",
+    "MaybeUninit::<T>::as_ptr returns a pointer whose modeled contents equal m.mem_contents().",
+    "<*const T>::read returns the initialized value represented by the pointer-content model and does not unwind."
+  ],
+  "rationale": "The exact executable calls and control flow are preserved; the proof composes smaller contracts with a trusted MaybeUninit-to-pointer representation bridge.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__mem__MaybeUninit__assume_init_read__60be66d1ddf6"
+}

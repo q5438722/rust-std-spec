@@ -1,0 +1,36 @@
+{"candidates":[{"target":"core::cell::RefCell::get_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns a mutable reference into RefCell storage. A useful contract must model both the hidden contained value and write-back through the returned reference; current vstd has no suitable RefCell view or supported mutable-reference result relation.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_refcell_view"]},{"target":"core::cell::UnsafeCell::from_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation reinterprets the same storage as UnsafeCell<T>. Its essential guarantee is mutable-reference identity and aliasing, which cannot be expressed usefully with a value-only view in current vstd.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","aliasing_not_modeled"]},{"target":"core::cell::UnsafeCell::get_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns a mutable reference directly to the wrapped storage. Expressing subsequent write-back requires an UnsafeCell value model and supported mutable-reference result semantics, neither of which is available.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_unsafecell_view"]},{"target":"core::iter::Peekable::peek_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation may advance the underlying iterator to populate hidden cached state, then returns a mutable reference into that cache. Current vstd lacks the general iterator/cache abstraction and mutable-reference relation needed for a useful contract.","risks":["mutable_reference_return_not_supported","hidden_iterator_state","runtime_effects","reference_identity_vs_view","missing_iterator_abstraction"]},{"target":"core::mem::MaybeUninit::write","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source initializes the storage with val and returns a mutable reference to that exact storage. A useful contract requires initialized-state and write-back modeling for MaybeUninit plus supported mutable-reference results.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_initialization_state_abstraction"]},{"target":"core::option::Option::as_deref_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source preserves the Option shape while applying arbitrary DerefMut behavior and returning its mutable target reference. Current vstd lacks a general DerefMut target relation and supported mutable-reference output modeling.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_derefmut_abstraction"]}]}{"candidates":[{"target":"core::cell::RefCell::get_mut","decision":"skip","contract_form":"assume_sp
+ecification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":
+false,"rationale":"The source returns a mutable reference into RefCell storage. A useful contract
+must model both the hidden contained value and write-back through the returned reference; current
+vstd has no suitable RefCell view or supported mutable-reference result relation.","risks":["mutable
+_reference_return_not_supported","reference_identity_vs_view","missing_refcell_view"]},{"target":"co
+re::cell::UnsafeCell::from_mut","decision":"skip","contract_form":"assume_specification","contract_c
+ode":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+implementation reinterprets the same storage as UnsafeCell<T>. Its essential guarantee is
+mutable-reference identity and aliasing, which cannot be expressed usefully with a value-only view
+in current vstd.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","al
+iasing_not_modeled"]},{"target":"core::cell::UnsafeCell::get_mut","decision":"skip","contract_form":
+"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[]
+,"useful":false,"rationale":"The source returns a mutable reference directly to the wrapped storage.
+ Expressing subsequent write-back requires an UnsafeCell value model and supported mutable-reference
+ result semantics, neither of which is available.","risks":["mutable_reference_return_not_supported"
+,"reference_identity_vs_view","missing_unsafecell_view"]},{"target":"core::iter::Peekable::peek_mut"
+,"decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures"
+:[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation may advance the
+underlying iterator to populate hidden cached state, then returns a mutable reference into that
+cache. Current vstd lacks the general iterator/cache abstraction and mutable-reference relation
+needed for a useful contract.","risks":["mutable_reference_return_not_supported","hidden_iterator_st
+ate","runtime_effects","reference_identity_vs_view","missing_iterator_abstraction"]},{"target":"core
+::mem::MaybeUninit::write","decision":"skip","contract_form":"assume_specification","contract_code":
+"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source
+ initializes the storage with val and returns a mutable reference to that exact storage. A useful
+contract requires initialized-state and write-back modeling for MaybeUninit plus supported
+mutable-reference results.","risks":["mutable_reference_return_not_supported","reference_identity_vs
+_view","missing_initialization_state_abstraction"]},{"target":"core::option::Option::as_deref_mut","
+decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[
+],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source preserves the Option shape
+while applying arbitrary DerefMut behavior and returning its mutable target reference. Current vstd
+lacks a general DerefMut target relation and supported mutable-reference output
+modeling.","risks":["mutable_reference_return_not_supported","reference_identity_vs_view","missing_d
+erefmut_abstraction"]}]}
+

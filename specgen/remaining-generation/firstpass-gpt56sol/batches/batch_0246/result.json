@@ -1,0 +1,123 @@
+{
+  "batch": 246,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 255836,
+  "targets": [
+    "std::sync::TryLockResult::expect",
+    "std::sync::TryLockResult::expect_err",
+    "std::sync::TryLockResult::flatten",
+    "std::sync::TryLockResult::inspect",
+    "std::sync::TryLockResult::inspect_err",
+    "std::sync::TryLockResult::is_err"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::TryLockResult::expect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "TryLockResult is a Result alias, and this resolves to canonical Result::expect, which vstd already specifies. An alias-path declaration would duplicate that contract without modeling try-lock state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "duplicate_canonical_contract",
+        "panic_formatting_unmodeled"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::expect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The supplied signature belongs to generic Result::expect_err, not a distinct TryLockResult method. Registering it here would affect every Result<T, E> and add no try-lock-specific semantics.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "panic_formatting_unmodeled"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::flatten",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This declaration belongs to Result<Result<T, E>, E>, whereas TryLockResult is Result<Guard, TryLockError<Guard>>. A contract would target the canonical nested Result method rather than a distinct alias API.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_receiver_mismatch",
+        "false_contract_domain"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::inspect",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "TryLockResult exposes canonical Result::inspect through a type alias. A declaration would globally specify Result::inspect while providing no alias-specific model of lock or callback state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "callback_effects"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::inspect_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This alias-surfaced method resolves to generic Result::inspect_err. Its signature exposes no try-lock state, and an external declaration would apply to all Results instead.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_owner_mismatch",
+        "callback_effects"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::is_err",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method resolves to canonical Result::is_err, whose discriminant contract already exists in vstd. TryLockResult supplies no separate observable lock-state relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "alias_of_core_result_method",
+        "duplicate_external_specification"
+      ]
+    }
+  ]
+}

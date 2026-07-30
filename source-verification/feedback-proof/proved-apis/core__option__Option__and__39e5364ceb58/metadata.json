@@ -1,0 +1,185 @@
+{
+  "id": "core__option__Option__and__39e5364ceb58",
+  "api_path": "core::option::Option::and",
+  "raw_target": "core::option::Option::<T>::and",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28040",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "U"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "and",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "optb",
+          {
+            "resolved_path": {
+              "args": {
+                "angle_bracketed": {
+                  "args": [
+                    {
+                      "type": {
+                        "generic": "U"
+                      }
+                    }
+                  ],
+                  "constraints": []
+                }
+              },
+              "id": 84,
+              "path": "Option"
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "U"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  1452:     /// assert_eq!(x, Some(42));\n  1453:     ///\n  1454:     /// let mut x: Option<u32> = None;\n  1455:     /// assert_eq!(x.iter_mut().next(), None);\n  1456:     /// ```\n  1457:     #[inline]\n  1458:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1459:     pub fn iter_mut(&mut self) -> IterMut<'_, T> {\n  1460:         IterMut { inner: Item { opt: self.as_mut() } }\n  1461:     }\n  1462: \n  1463:     /////////////////////////////////////////////////////////////////////////\n  1464:     // Boolean operations on the values, eager and lazy\n  1465:     /////////////////////////////////////////////////////////////////////////\n  1466: \n  1467:     /// Returns [`None`] if the option is [`None`], otherwise returns `optb`.\n  1468:     ///\n  1469:     /// Arguments passed to `and` are eagerly evaluated; if you are passing the\n  1470:     /// result of a function call, it is recommended to use [`and_then`], which is\n  1471:     /// lazily evaluated.\n  1472:     ///\n  1473:     /// [`and_then`]: Option::and_then\n  1474:     ///\n  1475:     /// # Examples\n  1476:     ///\n  1477:     /// ```\n  1478:     /// let x = Some(2);\n  1479:     /// let y: Option<&str> = None;\n  1480:     /// assert_eq!(x.and(y), None);\n  1481:     ///\n  1482:     /// let x: Option<u32> = None;\n  1483:     /// let y = Some(\"foo\");\n  1484:     /// assert_eq!(x.and(y), None);\n  1485:     ///\n  1486:     /// let x = Some(2);\n  1487:     /// let y = Some(\"foo\");\n  1488:     /// assert_eq!(x.and(y), Some(\"foo\"));\n  1489:     ///\n  1490:     /// let x: Option<u32> = None;\n  1491:     /// let y: Option<&str> = None;\n  1492:     /// assert_eq!(x.and(y), None);\n  1493:     /// ```\n  1494:     #[inline]\n  1495:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1496:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1497:     pub const fn and<U>(self, optb: Option<U>) -> Option<U>\n  1498:     where\n  1499:         T: [const] Destruct,\n  1500:         U: [const] Destruct,\n  1501:     {\n  1502:         match self {\n  1503:             Some(_) => optb,\n  1504:             None => None,\n  1505:         }\n  1506:     }\n  1507: \n  1508:     /// Returns [`None`] if the option is [`None`], otherwise calls `f` with the\n  1509:     /// wrapped value and returns the result.\n  1510:     ///\n  1511:     /// Some languages call this operation flatmap.\n  1512:     ///\n  1513:     /// # Examples\n  1514:     ///\n  1515:     /// ```\n  1516:     /// fn sq_then_to_string(x: u32) -> Option<String> {\n  1517:     ///     x.checked_mul(x).map(|sq| sq.to_string())\n  1518:     /// }\n  1519:     ///\n  1520:     /// assert_eq!(Some(2).and_then(sq_then_to_string), Some(4.to_string()));\n  1521:     /// assert_eq!(Some(1_000_000).and_then(sq_then_to_string), None); // overflowed!\n  1522:     /// assert_eq!(None.and_then(sq_then_to_string), None);\n  1523:     /// ```\n  1524:     ///\n  1525:     /// Often used to chain fallible operations that may return [`None`].\n  1526:     ///\n  1527:     /// ```\n  1528:     /// let arr_2d = [[\"A0\", \"A1\"], [\"B0\", \"B1\"]];\n  1529:     ///\n  1530:     /// let item_0_1 = arr_2d.get(0).and_then(|row| row.get(1));\n  1531:     /// assert_eq!(item_0_1, Some(&\"A1\"));\n  1532:     ///\n  1533:     /// let item_2_0 = arr_2d.get(2).and_then(|row| row.get(0));\n  1534:     /// assert_eq!(item_2_0, None);\n  1535:     /// ```\n  1536:     #[doc(alias = \"flatmap\")]\n  1537:     #[inline]\n  1538:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1539:     #[rustc_confusables(\"flat_map\", \"flatmap\")]\n  1540:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1541:     pub const fn and_then<U, F>(self, f: F) -> Option<U>\n  1542:     where",
+    "span": {
+      "begin": [
+        1497,
+        5
+      ],
+      "end": [
+        1506,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn and<U>(self, optb: Option<U>) -> Option<U>\n    where\n        T: [const] Destruct,\n        U: [const] Destruct,\n    {\n        match self {\n            Some(_) => optb,\n            None => None,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum match and branch results prove the contract directly without lower external contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__and__39e5364ceb58"
+}

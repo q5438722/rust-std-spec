@@ -1,0 +1,340 @@
+target,category,status,rounds,initial_decision,final_decision,contract_form,typecheck_passed,det_status,r0_z3,classification,raw_det_reward,guarded_reward,semantic_guarded_reward,issues,semantic_gate_issues,requires,ensures,contract_code,rationale
+alloc::collections::BTreeMap::append,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,raw_btree_view_algebra,obeys_cmp::<Key>(),"final(m)@ == old(m)@.union_prefer_right(old(other)@); final(other)@ == Map::<Key, Value>::empty()","pub assume_specification<Key, Value, A: Allocator + Clone>[ BTreeMap::<Key, Value, A>::append ](
+    m: &mut BTreeMap<Key, Value, A>,
+    other: &mut BTreeMap<Key, Value, A>,
+) where Key: Ord, A: Clone
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        final(m)@ == old(m)@.union_prefer_right(old(other)@),
+        final(other)@ == Map::<Key, Value>::empty(),
+;","The implementation replaces `other` with an empty map and merges its former entries into `self`, selecting `other_val` on conflicts. Thus the resulting view is a right-preferential union and `other` is empty."
+alloc::collections::BTreeSet::append,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,raw_btree_view_algebra,obeys_cmp::<Key>(),final(m)@ == old(m)@.union(old(other)@); final(other)@ == Set::<Key>::empty(),"pub assume_specification<Key, A: Allocator + Clone>[ BTreeSet::<Key, A>::append ](
+    m: &mut BTreeSet<Key, A>,
+    other: &mut BTreeSet<Key, A>,
+) where
+    Key: Ord,
+    A: Clone,
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        final(m)@ == old(m)@.union(old(other)@),
+        final(other)@ == Set::<Key>::empty(),
+;","The documented operation and implementation move both sets' elements into self and leave other empty. Under obeys_cmp, comparator-based deduplication corresponds to semantic Set union. The repeated A: Clone method bound matches Rust 1.96."
+alloc::string::String::clear,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,final(s)@ == Seq::<char>::empty(),"pub assume_specification[ String::clear ](s: &mut String)
+    ensures
+        final(s)@ == Seq::<char>::empty(),
+;","The implementation delegates to Vec::clear, which removes all contents. The contract soundly exposes the resulting empty semantic character sequence; the unit return needs no result binding."
+core::mem::replace,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,res == *old(dest); *final(dest) == src,"pub assume_specification<T>[ core::mem::replace ](dest: &mut T, src: T) -> (res: T)
+    ensures
+        res == *old(dest),
+        *final(dest) == src,
+    opens_invariants none
+    no_unwind;","The implementation reads and returns the original destination value, then moves src into dest; it explicitly performs no drops and cannot panic."
+core::option::Option::replace,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,res == *old(option); *final(option) == core::option::Option::Some(value),"pub assume_specification<T>[ core::option::Option::<T>::replace ](
+    option: &mut core::option::Option<T>,
+    value: T,
+) -> (res: core::option::Option<T>)
+    ensures
+        res == *old(option),
+        *final(option) == core::option::Option::Some(value),
+;","The implementation delegates to mem::replace(self, Some(value)), so it returns the previous Option and leaves self as Some(value)."
+core::slice::clone_from_slice,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"The source justifies only the relational `cloned` postcondition for arbitrary `T: Clone`. Existing vstd vocabulary provides no law making two such clone results semantically equal, while asserting sequence equality or adding an ad hoc uniqueness precondition would be unjustified."
+core::str::make_ascii_lowercase,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"A useful contract must describe the post-state of the exact `&mut str` receiver. The determinism checker currently materializes that state as by-value `str`, which is unsized and cannot typecheck. No contract-only revision can preserve the source signature and observable semantics while avoiding this limitation."
+core::slice::split_off_last,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"The exact nested mutable-reference signature makes the determinism checker materialize the referenced slice as by-value `[T]`, which is unsized. No ordinary contract-only revision can preserve both the API signature and its observable post-state while avoiding this checker limitation."
+alloc::collections::BTreeMap::first_key_value,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,obeys_cmp::<Key>(),"match result {
+            Some((key, value)) => {
+                let min_key = m@.dom().find_unique_minimal(
+                    |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+                );
+                &&& !m@.is_empty()
+                &&& *key == min_key
+                &&& m@.contains_key(*key)
+                &&& *value == m@[*key]
+            },
+            None => m@.is_empty(),
+        }","pub assume_specification<
+    'a,
+    Key: Ord,
+    Value,
+    A: Allocator + Clone,
+>[ BTreeMap::<Key, Value, A>::first_key_value ](
+    m: &'a BTreeMap<Key, Value, A>,
+) -> (result: Option<(&'a Key, &'a Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        match result {
+            Some((key, value)) => {
+                let min_key = m@.dom().find_unique_minimal(
+                    |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+                );
+                &&& !m@.is_empty()
+                &&& *key == min_key
+                &&& m@.contains_key(*key)
+                &&& *value == m@[*key]
+            },
+            None => m@.is_empty(),
+        },
+;","The implementation and documentation identify the returned key as the minimum key. Under obeys_cmp, the finite key domain has a unique minimum; the contract uses vstd's canonical minimum operation and relates both dereferenced outputs to the map view."
+alloc::collections::BTreeSet::first,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,obeys_cmp::<Key>(),"match result { Some(v) => { &&& !m@.is_empty() &&& *v == m@.find_unique_minimal(|x: Key, y: Key| x.cmp_spec(&y) != Ordering::Greater,) &&& m@.contains(*v) &&& forall|x: Key| #[trigger] m@.contains(x) ==> v.cmp_spec(&x) != Ordering::Greater }, None => m@.is_empty(), }","pub assume_specification<'a, Key: Ord, A: Allocator + Clone>[
+    BTreeSet::<Key, A>::first
+](m: &'a BTreeSet<Key, A>) -> (result: Option<&'a Key>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        match result {
+            Some(v) => {
+                &&& !m@.is_empty()
+                &&& *v == m@.find_unique_minimal(
+                    |x: Key, y: Key| x.cmp_spec(&y) != Ordering::Greater,
+                )
+                &&& m@.contains(*v)
+                &&& forall|x: Key| #[trigger] m@.contains(x) ==>
+                    v.cmp_spec(&x) != Ordering::Greater
+            },
+            None => m@.is_empty(),
+        },
+;","The source returns the map's first key and documents it as the set minimum. find_unique_minimal fixes the semantic result, while the remaining clauses expose membership, nonemptiness, and minimum ordering."
+alloc::string::String::as_bytes,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,res@ == encode_utf8(s@),"pub assume_specification<'a>[ String::as_bytes ](s: &'a String) -> (res: &'a [u8])
+    ensures
+        res@ == encode_utf8(s@),
+;",The implementation returns the String's underlying byte slice. Relating the returned slice view to the UTF-8 encoding of the existing character view precisely specifies its contents without asserting reference identity.
+core::array::each_ref,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,forall|i: int| i >= 0 && N > i ==> *out[i] == ar[i],"pub assume_specification<T, const N: usize>[ <[T; N]>::each_ref ](
+    ar: &[T; N],
+) -> (out: [&T; N])
+    ensures
+        forall|i: int| i >= 0 && N > i ==> *out[i] == ar[i],
+;",The implementation constructs each output entry from the corresponding input element. Dereferencing each returned shared reference therefore yields that element's semantic value.
+core::ops::RangeInclusive::end,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,*ret == r@.end,"pub assume_specification<Idx>[ core::ops::RangeInclusive::<Idx>::end ](
+    r: &core::ops::RangeInclusive<Idx>,
+) -> (ret: &Idx)
+    ensures
+        *ret == r@.end,
+;","The implementation returns a shared reference to self.end, so its dereferenced semantic value equals the current end component of the existing RangeInclusive view."
+core::slice::as_array,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,ret.is_some() <==> slice@.len() == N; ret.is_some() ==> ret.unwrap()@ == slice@,"pub assume_specification<T, const N: usize>[ <[T]>::as_array::<N> ](
+    slice: &[T],
+) -> (ret: core::option::Option<&[T; N]>)
+    ensures
+        ret.is_some() <==> slice@.len() == N,
+        ret.is_some() ==> ret.unwrap()@ == slice@,
+;",The implementation returns Some exactly when the slice length equals N and reinterprets the same elements as an array. View equality captures those elements without asserting reference identity.
+core::str::split_at_checked,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,"res.is_some() <==> is_char_boundary(s.spec_bytes(), mid as int); res.is_some() ==> res.unwrap().0@ == decode_utf8(s.spec_bytes().subrange(0, mid as int)); res.is_some() ==> res.unwrap().1@ == decode_utf8(s.spec_bytes().subrange(mid as int, s.spec_bytes().len() as int))","pub assume_specification[ str::split_at_checked ](
+    s: &str,
+    mid: usize,
+) -> (res: core::option::Option<(&str, &str)>)
+    ensures
+        res.is_some() <==> is_char_boundary(s.spec_bytes(), mid as int),
+        res.is_some() ==> res.unwrap().0@ == decode_utf8(s.spec_bytes().subrange(0, mid as int)),
+        res.is_some() ==> res.unwrap().1@ == decode_utf8(s.spec_bytes().subrange(mid as int, s.spec_bytes().len() as int)),
+;","The implementation returns Some exactly at a UTF-8 character boundary. On success, decoding the byte prefix and suffix directly specifies both observable string views and uniquely determines the semantic result."
+alloc::collections::BTreeSet::is_disjoint,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,raw_btree_view_algebra,obeys_cmp::<T>(),result == m@.disjoint(other@),"pub assume_specification<T, A: Allocator + Clone>[ BTreeSet::<T, A>::is_disjoint ](
+    m: &BTreeSet<T, A>,
+    other: &BTreeSet<T, A>,
+) -> (result: bool) where T: Ord
+    requires
+        obeys_cmp::<T>(),
+    ensures
+        result == m@.disjoint(other@),
+;","The implementation returns whether the intersection iterator is empty, exactly matching disjointness of the modeled set views when T obeys the vstd ordering laws."
+alloc::string::String::into_bytes,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,res@ == vstd::utf8::encode_utf8(s@),"pub assume_specification[ alloc::string::String::into_bytes ](
+    s: alloc::string::String,
+) -> (res: alloc::vec::Vec<u8>)
+    ensures
+        res@ == vstd::utf8::encode_utf8(s@),
+;","The implementation consumes the String and returns its backing Vec directly. Because String contents are valid UTF-8, the result is exactly the UTF-8 encoding of the String's character view."
+alloc::vec::Vec::into_boxed_slice,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,slice@ == vec@,"pub assume_specification<T, A: Allocator>[ Vec::<T, A>::into_boxed_slice ](
+    vec: Vec<T, A>,
+) -> (slice: Box<[T], A>)
+    ensures
+        slice@ == vec@,
+;","The implementation shrinks excess capacity and transfers the same initialized buffer and length into Box<[T], A>, preserving the element sequence."
+core::array::repeat,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,clone_behavior_domain_strengthening,"N > 1 ==> (forall|x: T| strictly_cloned::<T>(val, x) ==> x == val)",forall|i: int| i >= 0 && N > i ==> result@[i] == val,"pub assume_specification<T: core::clone::Clone, const N: usize>[ core::array::repeat::<T, N> ](val: T) -> (result: [T; N])
+    requires
+        N > 1 ==> (forall|x: T| strictly_cloned::<T>(val, x) ==> x == val),
+    ensures
+        forall|i: int| i >= 0 && N > i ==> result@[i] == val,
+;","For N at most one, no clone result appears. For larger arrays, the source uses the original value once and N - 1 clone results; the precondition requires every permitted clone result of val to equal val, so every returned element equals val."
+core::cmp::max,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,T::obeys_cmp_spec(),"match v2.cmp_spec(&v1) { core::cmp::Ordering::Less => r == v1, core::cmp::Ordering::Equal => r == v2, core::cmp::Ordering::Greater => r == v2, }","pub assume_specification<T: core::cmp::Ord>[ core::cmp::max::<T> ](
+    v1: T,
+    v2: T,
+) -> (r: T)
+    requires
+        T::obeys_cmp_spec(),
+    ensures
+        match v2.cmp_spec(&v1) {
+            core::cmp::Ordering::Less => r == v1,
+            core::cmp::Ordering::Equal => r == v2,
+            core::cmp::Ordering::Greater => r == v2,
+        },
+;","The implementation delegates directly to v1.max(v2). Under OrdSpec, the existing Ord::max contract returns v1 only when v2 compares Less than v1 and otherwise returns v2, including ties."
+core::convert::identity,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,ret == x,"pub assume_specification<T>[ core::convert::identity::<T> ](x: T) -> (ret: T)
+    ensures
+        ret == x,
+    opens_invariants none
+    no_unwind
+;","The supplied Rust 1.96 and Nanvix Rust 1.99 implementations both return x directly, justifying exact logical equality between the result and input without preconditions."
+core::hint::black_box,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,output == dummy,"pub assume_specification<T>[core::hint::black_box](dummy: T) -> (output: T)
+    ensures
+        output == dummy,
+;",The supplied implementation forwards its owned input to the black-box intrinsic and returns the resulting value; its observable value semantics are identity.
+core::mem::discriminant,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,"Discriminant<T> is opaque, and public vstd has no generic active-variant model for T. A no_unwind-only contract would not usefully relate the result to v; doing so otherwise requires an unjustified model or private representation access."
+alloc::collections::BTreeMap::last_key_value,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,obeys_cmp::<Key>(),"match result { Some((key, value)) => { let max_key = m@.dom().find_unique_maximal(|left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,); &&& !m@.is_empty() &&& *key == max_key &&& m@.contains_key(*key) &&& *value == m@[*key] }, None => m@.is_empty(), }","pub assume_specification<
+    'a,
+    Key: Ord,
+    Value,
+    A: Allocator + Clone,
+>[ BTreeMap::<Key, Value, A>::last_key_value ](
+    m: &'a BTreeMap<Key, Value, A>,
+) -> (result: Option<(&'a Key, &'a Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        match result {
+            Some((key, value)) => {
+                let max_key = m@.dom().find_unique_maximal(
+                    |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+                );
+                &&& !m@.is_empty()
+                &&& *key == max_key
+                &&& m@.contains_key(*key)
+                &&& *value == m@[*key]
+            },
+            None => m@.is_empty(),
+        },
+;","The implementation and documentation identify the returned pair as the map entry with the maximum key. Under obeys_cmp, the finite key domain has a unique maximum, and the contract determines both returned semantic values."
+alloc::collections::BTreeMap::pop_first,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,obeys_cmp::<Key>(),"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_minimal(
+                |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        }","pub assume_specification<Key: Ord, Value, A: Allocator + Clone>[ BTreeMap::<Key, Value, A>::pop_first ](
+    m: &mut BTreeMap<Key, Value, A>,
+) -> (result: Option<(Key, Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_minimal(
+                |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        },
+;","The source removes the first entry, whose documented key is the map's minimum. For a nonempty old map, the contract names that unique minimum with vstd's canonical finite-set operation, returns its old value, and removes exactly that key; for an empty map it returns None and leaves the map unchanged."
+alloc::collections::BTreeMap::pop_last,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,obeys_cmp::<Key>(),"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_maximal(
+                |left: Key, right: Key| left.cmp_spec(&right) != core::cmp::Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        }","pub assume_specification<
+    Key: core::cmp::Ord,
+    Value,
+    A: alloc::alloc::Allocator + core::clone::Clone,
+>[ alloc::collections::BTreeMap::<Key, Value, A>::pop_last ](
+    m: &mut alloc::collections::BTreeMap<Key, Value, A>,
+) -> (result: core::option::Option<(Key, Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_maximal(
+                |left: Key, right: Key| left.cmp_spec(&right) != core::cmp::Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        },
+;","The source removes the last entry, whose documented key is the map's maximum. For a nonempty old map, the contract names that unique maximum with vstd's canonical finite-set operation, returns its old value, and removes exactly that key; for an empty map it returns None and leaves the map unchanged."
+alloc::collections::BTreeMap::remove_entry,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,borrowed_key_domain_strengthening;borrowed_key_uniqueness_precondition,"obeys_cmp::<Key>(); forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@.dom(), key, &left)
+                && sets_borrowed_key_to_key(old(m)@.dom(), key, &right)
+                ==> left == right","match result {
+            Some((stored_key, value)) => {
+                &&& contains_borrowed_key(old(m)@, key)
+                &&& sets_borrowed_key_to_key(old(m)@.dom(), key, &stored_key)
+                &&& old(m)@.contains_key(stored_key)
+                &&& old(m)@[stored_key] == value
+                &&& final(m)@ == old(m)@.remove(stored_key)
+            },
+            None => {
+                &&& !contains_borrowed_key(old(m)@, key)
+                &&& final(m)@ == old(m)@
+            },
+        }","pub assume_specification<
+    Key: core::borrow::Borrow<Q> + core::cmp::Ord,
+    Value,
+    A: alloc::alloc::Allocator + core::clone::Clone,
+    Q: core::cmp::Ord + ?Sized,
+>[ alloc::collections::BTreeMap::<Key, Value, A>::remove_entry::<Q> ](
+    m: &mut alloc::collections::BTreeMap<Key, Value, A>,
+    key: &Q,
+) -> (result: core::option::Option<(Key, Value)>)
+    requires
+        obeys_cmp::<Key>(),
+        forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@.dom(), key, &left)
+                && sets_borrowed_key_to_key(old(m)@.dom(), key, &right)
+                ==> left == right,
+    ensures
+        match result {
+            Some((stored_key, value)) => {
+                &&& contains_borrowed_key(old(m)@, key)
+                &&& sets_borrowed_key_to_key(old(m)@.dom(), key, &stored_key)
+                &&& old(m)@.contains_key(stored_key)
+                &&& old(m)@[stored_key] == value
+                &&& final(m)@ == old(m)@.remove(stored_key)
+            },
+            None => {
+                &&& !contains_borrowed_key(old(m)@, key)
+                &&& final(m)@ == old(m)@
+            },
+        },
+;","The stored-key predicate relates the returned key to the borrowed query. Its functionality precondition captures the necessary consequence of the documented ordering-compatibility requirement, after which the returned value and exact map mutation are uniquely determined."
+core::slice::split_off,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"A useful deterministic contract must model both the mutated nested slice reference and how R selects the split direction and index. The checker materializes the slice post-state as unsized by-value `[T]`, while existing vstd vocabulary has no declared semantic model for OneSidedRange::bound. The previous prefix-or-suffix disjunction therefore remains nondeterministic, and no source-justified ordinary contract-only revision avoids both limitations."
+alloc::vec::Vec::dedup,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,dedup_pure_old_sequence_model,T::obeys_eq_spec(),"final(vec)@ == old(vec)@.fold_left(
+            vstd::seq::Seq::<T>::empty(),
+            |kept: vstd::seq::Seq<T>, element: T| {
+                if kept.len() == 0 {
+                    kept.push(element)
+                } else if element.eq_spec(&kept.last()) {
+                    kept
+                } else {
+                    kept.push(element)
+                }
+            },
+        )","pub assume_specification<T: core::cmp::PartialEq, A: core::alloc::Allocator>[
+    alloc::vec::Vec::<T, A>::dedup
+](vec: &mut alloc::vec::Vec<T, A>)
+    requires
+        T::obeys_eq_spec(),
+    ensures
+        final(vec)@ == old(vec)@.fold_left(
+            vstd::seq::Seq::<T>::empty(),
+            |kept: vstd::seq::Seq<T>, element: T| {
+                if kept.len() == 0 {
+                    kept.push(element)
+                } else if element.eq_spec(&kept.last()) {
+                    kept
+                } else {
+                    kept.push(element)
+                }
+            },
+        ),
+;",The implementation compares each current element with the last retained element. The fold exactly models retaining the first element and then retaining an element precisely when that comparison is false.
+core::slice::split_off_first,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"The exact nested mutable-reference signature makes the determinism checker materialize the referenced slice as by-value `[T]`, which is unsized. No ordinary contract-only revision can preserve both the API signature and its observable post-state while avoiding this checker limitation."
+std::collections::HashMap::get_key_value,other,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"For generic Borrow<Q>, vstd's borrowed-key predicates are uninterpreted and provide no functionality law establishing a unique stored key. Thus the observable key-value pair cannot be determined without an ad hoc choice, uniqueness assertion, or unjustified precondition."
+alloc::collections::BTreeMap::get_key_value,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,"For generic Borrow<Q>, existing vstd borrowed-key relations are opaque and provide neither a cross-type ordering compatibility law nor a functional map/query-to-stored-key relation. Therefore the observable returned key-value pair cannot be determined without an unjustified precondition or ad hoc choice."

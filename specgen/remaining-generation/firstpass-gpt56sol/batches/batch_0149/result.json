@@ -1,0 +1,112 @@
+{
+  "batch": 149,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 57850,
+  "targets": [
+    "std::ffi::OsString::clear",
+    "std::ffi::OsString::into_boxed_os_str",
+    "std::ffi::OsString::into_encoded_bytes",
+    "std::ffi::OsString::into_string",
+    "std::ffi::OsString::new",
+    "std::ffi::OsString::push"
+  ],
+  "candidates": [
+    {
+      "target": "std::ffi::OsString::clear",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source truncates the private contents to zero length, but current vstd has no OsString content or length view for expressing the final empty state.",
+      "risks": [
+        "missing OsString content abstraction",
+        "unobservable mutation"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::into_boxed_os_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The conversion preserves the private encoded contents while changing ownership to Box<OsStr>; current vstd lacks a shared OsString/OsStr content view for stating that relation.",
+      "risks": [
+        "missing OsString/OsStr content abstraction",
+        "hidden ownership representation"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::into_encoded_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned vector contains an unspecified platform-specific encoding, and current vstd has no OsString encoding view with which to relate those bytes to the input.",
+      "risks": [
+        "missing OsString encoding abstraction",
+        "platform-specific encoding"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::into_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing the Ok and Err branches requires an OsString encoding view, UTF-8 validity, and a relation to String contents, none of which current vstd provides.",
+      "risks": [
+        "missing OsString encoding abstraction",
+        "missing UTF-8 validity relation",
+        "missing OsString/String content relation"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source constructs an empty OsString, but current vstd has no logical content, length, or emptiness abstraction for OsString.",
+      "risks": [
+        "missing OsString content abstraction"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::push",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source appends the encoded contents of s.as_ref(), but expressing that mutation requires OsString/OsStr content views and a modeled AsRef conversion absent from current vstd.",
+      "risks": [
+        "missing OsString/OsStr content abstraction",
+        "unspecified AsRef relation",
+        "platform-specific encoding"
+      ]
+    }
+  ]
+}

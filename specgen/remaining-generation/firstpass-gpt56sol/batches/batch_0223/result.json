@@ -1,0 +1,111 @@
+{
+  "batch": 223,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 37772,
+  "targets": [
+    "std::os::windows::fs::symlink_dir",
+    "std::os::windows::fs::symlink_file",
+    "std::os::windows::io::BorrowedHandle::borrow_raw",
+    "std::os::windows::io::BorrowedHandle::try_clone_to_owned",
+    "std::os::windows::io::BorrowedSocket::borrow_raw",
+    "std::os::windows::io::BorrowedSocket::try_clone_to_owned"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::windows::fs::symlink_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and filesystem effects depend on unmodeled Windows filesystem state, permissions, and privileges.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::symlink_file",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and filesystem effects depend on unmodeled Windows filesystem state, permissions, and privileges.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::BorrowedHandle::borrow_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety condition requires an open OS handle to remain valid for the returned lifetime, but vstd has no handle-validity or lifetime resource model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_handle_resource_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::BorrowedHandle::try_clone_to_owned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Cloning can fail based on OS state, and sharing the same underlying object cannot be expressed without a handle-identity model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_handle_identity_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::BorrowedSocket::borrow_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety condition requires a non-invalid socket that remains open for the returned lifetime, which current vstd cannot model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_resource_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::BorrowedSocket::try_clone_to_owned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Duplication depends on Winsock and process state, while shared underlying socket identity lacks a public vstd abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_identity_abstraction"
+      ]
+    }
+  ]
+}

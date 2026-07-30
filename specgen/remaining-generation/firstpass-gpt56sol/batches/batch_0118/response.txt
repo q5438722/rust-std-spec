@@ -1,0 +1,211 @@
+{
+  "candidates": [
+    {
+      "target": "core::cell::RefCell::borrow",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Ref and its relation to the wrapped value require a RefCell value model and dynamic borrow-state abstraction, neither of which exists in current vstd.",
+      "risks": [
+        "hidden dynamic borrow state",
+        "unmodeled Ref guard",
+        "panic when mutably borrowed"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::borrow_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing exclusive guarded access through RefMut requires models for RefCell contents, borrow state, and guard-mediated mutation that current vstd lacks.",
+      "risks": [
+        "hidden dynamic borrow state",
+        "unmodeled RefMut guard",
+        "panic when already borrowed"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source returns the wrapped value, current vstd has no public RefCell content view with which to relate the result to the consumed self.",
+      "risks": [
+        "missing RefCell value abstraction"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful postcondition must relate the new RefCell to value, but current vstd provides no public RefCell content view or constructor abstraction.",
+      "risks": [
+        "missing RefCell value abstraction"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::replace",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the old value and changes interior state through shared self; neither transition is expressible without a RefCell state model and borrow-state predicate.",
+      "risks": [
+        "hidden interior mutation",
+        "hidden dynamic borrow state",
+        "panic when borrowed"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the returned old value and replacement by T::default requires an observable RefCell content model, including interior mutation through shared self, which current vstd lacks.",
+      "risks": [
+        "hidden interior mutation",
+        "hidden dynamic borrow state",
+        "panic when borrowed",
+        "missing RefCell value abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::cell::RefCell::borrow",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Ref and its relation to the wrapped value require a RefCell value
+model and dynamic borrow-state abstraction, neither of which exists in current vstd.",
+      "risks": [
+        "hidden dynamic borrow state",
+        "unmodeled Ref guard",
+        "panic when mutably borrowed"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::borrow_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing exclusive guarded access through RefMut requires models for RefCell
+contents, borrow state, and guard-mediated mutation that current vstd lacks.",
+      "risks": [
+        "hidden dynamic borrow state",
+        "unmodeled RefMut guard",
+        "panic when already borrowed"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source returns the wrapped value, current vstd has no public
+RefCell content view with which to relate the result to the consumed self.",
+      "risks": [
+        "missing RefCell value abstraction"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful postcondition must relate the new RefCell to value, but current vstd
+provides no public RefCell content view or constructor abstraction.",
+      "risks": [
+        "missing RefCell value abstraction"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::replace",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the old value and changes interior state through shared self;
+ neither transition is expressible without a RefCell state model and borrow-state predicate.",
+      "risks": [
+        "hidden interior mutation",
+        "hidden dynamic borrow state",
+        "panic when borrowed"
+      ]
+    },
+    {
+      "target": "core::cell::RefCell::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the returned old value and replacement by T::default requires an
+observable RefCell content model, including interior mutation through shared self, which current
+vstd lacks.",
+      "risks": [
+        "hidden interior mutation",
+        "hidden dynamic borrow state",
+        "panic when borrowed",
+        "missing RefCell value abstraction"
+      ]
+    } ]
+}
+

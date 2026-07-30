@@ -1,0 +1,128 @@
+{
+  "batch": 332,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 172019,
+  "targets": [
+    "core::ptr::copy_from",
+    "core::ptr::copy_from_nonoverlapping",
+    "core::ptr::copy_nonoverlapping",
+    "core::ptr::copy_to",
+    "core::ptr::copy_to_nonoverlapping",
+    "core::ptr::dangling"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::copy_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its memmove-like effect requires readable and writable range permissions, alignment, initialization, and destination post-state, none of which are carried by the raw-pointer signature.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "overlap_semantics"
+      ]
+    },
+    {
+      "target": "core::ptr::copy_from_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound contract needs source and destination permissions, initialization, alignment, disjointness, and destination post-state; the exact method signature exposes none of that ghost state.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "nonoverlap_precondition"
+      ]
+    },
+    {
+      "target": "core::ptr::copy_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source's memcpy-like behavior and safety conditions require memory-range permissions and byte-level post-state unavailable through this raw-pointer-only signature.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "nonoverlap_precondition"
+      ]
+    },
+    {
+      "target": "core::ptr::copy_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The delegated overlapping copy mutates raw destination memory, but the signature supplies no permissions or observable memory state with which to state its safety conditions and post-state.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::copy_to_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Modeling the delegated copy requires readable and writable permissions, disjoint ranges, alignment, initialization, and destination post-state absent from the exact signature.",
+      "risks": [
+        "unit_return_variant",
+        "raw_memory_effect_unobservable",
+        "missing_permission_parameters",
+        "nonoverlap_precondition",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::dangling",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ core::ptr::dangling ]() -> (result: *const T)\n    ensures\n        result@.addr != 0,\n        result@.addr as nat % vstd::layout::align_of::<T>() == 0,\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result@.addr != 0",
+        "result@.addr as nat % vstd::layout::align_of::<T>() == 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source guarantees a non-null, well-aligned pointer, and vstd's public raw-pointer view and layout vocabulary express exactly those properties without claiming dereference validity.",
+      "risks": [
+        "does_not_establish_dereference_validity",
+        "provenance_and_exact_address_unconstrained",
+        "address_may_equal_valid_allocation"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "batch": 240,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 20375,
+  "targets": [
+    "std::sync::Once::is_completed",
+    "std::sync::Once::new",
+    "std::sync::Once::wait",
+    "std::sync::Once::wait_force",
+    "std::sync::OnceLock::get",
+    "std::sync::OnceLock::get_mut"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::Once::is_completed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result observes concurrent hidden runtime state, for which current vstd exposes no public model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state"
+      ]
+    },
+    {
+      "target": "std::sync::Once::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful property is the hidden initial Once state, which cannot be expressed using existing public vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Once::wait",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This blocking operation depends on concurrent hidden state and may panic on poisoning; no useful postcondition is expressible without a Once-state abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "blocking_runtime_effect",
+        "poisoning"
+      ]
+    },
+    {
+      "target": "std::sync::Once::wait_force",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This blocking operation changes only hidden synchronization knowledge, which current vstd cannot represent.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "blocking_runtime_effect",
+        "missing_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::OnceLock::get",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The optional reference depends on hidden concurrent initialization state and stored-value identity, neither modeled by existing public vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "missing_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::OnceLock::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the optional mutable reference to the hidden stored value requires an unavailable OnceLock state model and supported mutable-reference result abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_state_abstraction"
+      ]
+    }
+  ]
+}

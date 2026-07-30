@@ -1,0 +1,115 @@
+{
+  "batch": 151,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 49300,
+  "targets": [
+    "std::panic::panic_any",
+    "std::panic::resume_unwind",
+    "std::path::Component::as_os_str",
+    "std::path::Components::as_path",
+    "std::path::Iter::as_path",
+    "std::path::Path::ancestors"
+  ],
+  "candidates": [
+    {
+      "target": "std::panic::panic_any",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function only initiates a panic and has no normal return. Panic payload, hooks, and unwinding are runtime effects with no current vstd abstraction; the never type already expresses divergence.",
+      "risks": [
+        "unmodeled panic runtime effect",
+        "unmodeled panic payload"
+      ]
+    },
+    {
+      "target": "std::panic::resume_unwind",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function consumes an opaque panic payload and resumes unwinding without returning. Current vstd has no vocabulary for unwind state or payload propagation.",
+      "risks": [
+        "unmodeled unwinding effect",
+        "opaque panic payload"
+      ]
+    },
+    {
+      "target": "std::path::Component::as_os_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on the component variant, path contents, prefixes, and the platform separator. Without Path and OsStr content views, a useful extensional relation cannot be stated; reference equality would not model the documented value.",
+      "risks": [
+        "missing OsStr content view",
+        "missing path-component abstraction",
+        "reference identity versus value equality"
+      ]
+    },
+    {
+      "target": "std::path::Components::as_path",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Path is the unconsumed slice determined by private front/back iterator state and trimming. Components has no public vstd view exposing that remaining path.",
+      "risks": [
+        "hidden iterator state",
+        "missing Path content view",
+        "reference identity versus remaining-slice value"
+      ]
+    },
+    {
+      "target": "std::path::Iter::as_path",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to a private Components field. Neither Iter nor Components has a public spec view relating its state to the remaining Path.",
+      "risks": [
+        "hidden delegated state",
+        "missing iterator view",
+        "missing Path content view"
+      ]
+    },
+    {
+      "target": "std::path::Path::ancestors",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must describe the Ancestors iterator sequence beginning with self and repeatedly applying parent. Current vstd lacks Path-content and Ancestors-state abstractions for that relation.",
+      "risks": [
+        "missing Ancestors iterator model",
+        "missing Path parent/content view",
+        "hidden iterator state"
+      ]
+    }
+  ]
+}

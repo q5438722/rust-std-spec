@@ -1,0 +1,111 @@
+{
+  "batch": 159,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 144126,
+  "targets": [
+    "std::path::PathBuf::set_extension",
+    "std::path::PathBuf::set_file_name",
+    "std::path::Prefix::is_verbatim",
+    "std::path::PrefixComponent::as_os_str",
+    "std::path::PrefixComponent::kind",
+    "std::path::absolute"
+  ],
+  "candidates": [
+    {
+      "target": "std::path::PathBuf::set_extension",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the return value and PathBuf post-state requires missing logical views for paths, components, and OsStr.",
+      "risks": [
+        "missing PathBuf and OsStr abstractions",
+        "platform-dependent path semantics"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::set_file_name",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source mutates the path through pop and push; relating old(self), final(self), and file_name requires unavailable PathBuf and OsStr views.",
+      "risks": [
+        "missing mutable PathBuf abstraction",
+        "unit return exposes behavior only through hidden post-state"
+      ]
+    },
+    {
+      "target": "std::path::Prefix::is_verbatim",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a>[ std::path::Prefix::<'a>::is_verbatim ](\n    prefix: &std::path::Prefix<'a>,\n) -> (result: bool)\n    ensures\n        result <==> matches!(\n            *prefix,\n            std::path::Prefix::Verbatim(_)\n                | std::path::Prefix::VerbatimDisk(_)\n                | std::path::Prefix::VerbatimUNC(_, _)\n        ),\n;",
+      "requires": [],
+      "ensures": [
+        "result <==> matches!(*prefix, std::path::Prefix::Verbatim(_) | std::path::Prefix::VerbatimDisk(_) | std::path::Prefix::VerbatimUNC(_, _))"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The implementation is exactly a test of three public Prefix variants, so it is expressible directly without a path or OsStr view.",
+      "risks": []
+    },
+    {
+      "target": "std::path::PrefixComponent::as_os_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the private raw field; no public PrefixComponent view can express the returned OsStr slice or its reference identity.",
+      "risks": [
+        "private raw field",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "std::path::PrefixComponent::kind",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the private parsed field, and current vstd has no public logical accessor connecting a PrefixComponent to that Prefix value.",
+      "risks": [
+        "private parsed field",
+        "missing PrefixComponent abstraction"
+      ]
+    },
+    {
+      "target": "std::path::absolute",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on the process current directory, platform-specific normalization, and I/O failure behavior, none of which has a current vstd path/environment model.",
+      "risks": [
+        "runtime current-directory state",
+        "platform-dependent behavior",
+        "unmodeled io::Error outcomes"
+      ]
+    }
+  ]
+}

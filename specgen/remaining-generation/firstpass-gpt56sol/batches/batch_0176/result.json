@@ -1,0 +1,115 @@
+{
+  "batch": 176,
+  "group": "representation_or_allocator",
+  "duration_ms": 96286,
+  "targets": [
+    "std::collections::HashSet::with_hasher",
+    "std::ffi::OsString::capacity",
+    "std::ffi::OsString::reserve",
+    "std::ffi::OsString::reserve_exact",
+    "std::ffi::OsString::shrink_to",
+    "std::ffi::OsString::shrink_to_fit"
+  ],
+  "candidates": [
+    {
+      "target": "std::collections::HashSet::with_hasher",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, S>[ HashSet::<T, S>::with_hasher ](\n    hasher: S,\n) -> (result: HashSet<T, S>)\n    ensures\n        result@ == Set::<T>::empty(),\n;",
+      "requires": [],
+      "ensures": [
+        "result@ == Set::<T>::empty()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use std::collections::HashSet;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "HashSet has a public vstd Set view, so the constructor can usefully guarantee an empty abstract set without exposing or constraining the supplied hasher.",
+      "risks": [
+        "stored_hasher_state_remains_unmodeled"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Capacity is allocator-dependent representation state, and OsString has no public vstd view or capacity abstraction with which to express it.",
+      "risks": [
+        "allocator_state_unmodeled",
+        "missing_os_string_abstraction"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The capacity increase and preservation of contents cannot be stated usefully because vstd models neither OsString contents nor its allocation capacity.",
+      "risks": [
+        "allocator_state_unmodeled",
+        "missing_os_string_abstraction"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable guarantee concerns hidden capacity while allocator over-allocation remains permitted; no existing OsString view supports a content-preservation relation.",
+      "risks": [
+        "allocator_state_unmodeled",
+        "missing_os_string_abstraction"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::shrink_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The documented lower bound and shrinking behavior concern unmodeled capacity, and vstd lacks an OsString content view for stating preservation.",
+      "risks": [
+        "allocator_state_unmodeled",
+        "missing_os_string_abstraction"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::shrink_to_fit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Both retained capacity and unchanged contents require OsString abstractions absent from the current public vstd vocabulary.",
+      "risks": [
+        "allocator_state_unmodeled",
+        "missing_os_string_abstraction"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,243 @@
+{
+  "id": "alloc__collections__VecDeque__pop_back_if__e274686125f9",
+  "api_path": "alloc::collections::VecDeque::pop_back_if",
+  "raw_target": "VecDeque::<T, A>::pop_back_if",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 93, patch: 0 })},\nfeature: \"vec_deque_pop_if\"}}]"
+      }
+    ],
+    "declaration_id": "alloc:3106",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "none",
+                    "trait": {
+                      "args": {
+                        "parenthesized": {
+                          "inputs": [
+                            {
+                              "borrowed_ref": {
+                                "is_mutable": true,
+                                "lifetime": null,
+                                "type": {
+                                  "generic": "T"
+                                }
+                              }
+                            }
+                          ],
+                          "output": {
+                            "primitive": "bool"
+                          }
+                        }
+                      },
+                      "id": 441,
+                      "path": "FnOnce"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": true
+            }
+          },
+          "name": "impl FnOnce(&mut T) -> bool"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "pop_back_if",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [
+        "self",
+        "predicate"
+      ],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 2511,
+          "path": "VecDeque"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 4,
+                        "path": "Allocator"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "A"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:3127",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": true,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "predicate",
+          {
+            "impl_trait": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "borrowed_ref": {
+                              "is_mutable": true,
+                              "lifetime": null,
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          }
+                        ],
+                        "output": {
+                          "primitive": "bool"
+                        }
+                      }
+                    },
+                    "id": 441,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 181,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  2105:                 core::hint::assert_unchecked(self.len < self.capacity());\n  2106:                 Some(self.buffer_read(self.to_physical_idx(self.len)))\n  2107:             }\n  2108:         }\n  2109:     }\n  2110: \n  2111:     /// Removes and returns the first element from the deque if the predicate\n  2112:     /// returns `true`, or [`None`] if the predicate returns false or the deque\n  2113:     /// is empty (the predicate will not be called in that case).\n  2114:     ///\n  2115:     /// # Examples\n  2116:     ///\n  2117:     /// ```\n  2118:     /// use std::collections::VecDeque;\n  2119:     ///\n  2120:     /// let mut deque: VecDeque<i32> = vec![0, 1, 2, 3, 4].into();\n  2121:     /// let pred = |x: &mut i32| *x % 2 == 0;\n  2122:     ///\n  2123:     /// assert_eq!(deque.pop_front_if(pred), Some(0));\n  2124:     /// assert_eq!(deque, [1, 2, 3, 4]);\n  2125:     /// assert_eq!(deque.pop_front_if(pred), None);\n  2126:     /// ```\n  2127:     #[stable(feature = \"vec_deque_pop_if\", since = \"1.93.0\")]\n  2128:     pub fn pop_front_if(&mut self, predicate: impl FnOnce(&mut T) -> bool) -> Option<T> {\n  2129:         let first = self.front_mut()?;\n  2130:         if predicate(first) { self.pop_front() } else { None }\n  2131:     }\n  2132: \n  2133:     /// Removes and returns the last element from the deque if the predicate\n  2134:     /// returns `true`, or [`None`] if the predicate returns false or the deque\n  2135:     /// is empty (the predicate will not be called in that case).\n  2136:     ///\n  2137:     /// # Examples\n  2138:     ///\n  2139:     /// ```\n  2140:     /// use std::collections::VecDeque;\n  2141:     ///\n  2142:     /// let mut deque: VecDeque<i32> = vec![0, 1, 2, 3, 4].into();\n  2143:     /// let pred = |x: &mut i32| *x % 2 == 0;\n  2144:     ///\n  2145:     /// assert_eq!(deque.pop_back_if(pred), Some(4));\n  2146:     /// assert_eq!(deque, [0, 1, 2, 3]);\n  2147:     /// assert_eq!(deque.pop_back_if(pred), None);\n  2148:     /// ```\n  2149:     #[stable(feature = \"vec_deque_pop_if\", since = \"1.93.0\")]\n  2150:     pub fn pop_back_if(&mut self, predicate: impl FnOnce(&mut T) -> bool) -> Option<T> {\n  2151:         let last = self.back_mut()?;\n  2152:         if predicate(last) { self.pop_back() } else { None }\n  2153:     }\n  2154: \n  2155:     /// Prepends an element to the deque.\n  2156:     ///\n  2157:     /// # Examples\n  2158:     ///\n  2159:     /// ```\n  2160:     /// use std::collections::VecDeque;\n  2161:     ///\n  2162:     /// let mut d = VecDeque::new();\n  2163:     /// d.push_front(1);\n  2164:     /// d.push_front(2);\n  2165:     /// assert_eq!(d.front(), Some(&2));\n  2166:     /// ```\n  2167:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2168:     pub fn push_front(&mut self, value: T) {\n  2169:         let _ = self.push_front_mut(value);\n  2170:     }\n  2171: \n  2172:     /// Prepends an element to the deque, returning a reference to it.\n  2173:     ///\n  2174:     /// # Examples\n  2175:     ///\n  2176:     /// ```\n  2177:     /// use std::collections::VecDeque;\n  2178:     ///\n  2179:     /// let mut d = VecDeque::from([1, 2, 3]);\n  2180:     /// let x = d.push_front_mut(8);\n  2181:     /// *x -= 1;\n  2182:     /// assert_eq!(d.front(), Some(&7));\n  2183:     /// ```\n  2184:     #[stable(feature = \"push_mut\", since = \"1.95.0\")]\n  2185:     #[must_use = \"if you don't need a reference to the value, use `VecDeque::push_front` instead\"]\n  2186:     pub fn push_front_mut(&mut self, value: T) -> &mut T {\n  2187:         if self.is_full() {\n  2188:             self.grow();\n  2189:         }\n  2190: \n  2191:         self.head = self.wrap_sub(self.head, 1);\n  2192:         self.len += 1;\n  2193:         // SAFETY: We know that self.head is within range of the deque.\n  2194:         unsafe { self.buffer_write(self.head, value) }\n  2195:     }",
+    "span": {
+      "begin": [
+        2150,
+        5
+      ],
+      "end": [
+        2153,
+        6
+      ],
+      "filename": "alloc/src/collections/vec_deque/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn pop_back_if(&mut self, predicate: impl FnOnce(&mut T) -> bool) -> Option<T> {\n        let last = self.back_mut()?;\n        if predicate(last) { self.pop_back() } else { None }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "Locally declared contract for VecDeque::<T, A>::back_mut",
+    "vstd contract for VecDeque::<T, A>::pop_back"
+  ],
+  "rationale": "Mechanically desugars `?` while preserving the exact back_mut, predicate, and pop_back control flow; Verus proves the supplied contract compositionally.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__collections__VecDeque__pop_back_if__e274686125f9"
+}

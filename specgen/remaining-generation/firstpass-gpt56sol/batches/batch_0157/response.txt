@@ -1,0 +1,83 @@
+{
+  "candidates": [
+    {
+      "target": "std::path::Path::try_exists",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on runtime filesystem state and I/O errors, neither of which has a supplied public vstd model.",
+      "risks": ["runtime_filesystem_effects", "missing_path_and_io_abstraction", "toctou"]
+    },
+    {
+      "target": "std::path::Path::with_added_extension",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the documented extension-appending transformation requires logical models for Path, PathBuf, and OsStr that are absent from current vstd vocabulary.",
+      "risks": ["missing_path_abstraction", "missing_os_str_abstraction"]
+    },
+    {
+      "target": "std::path::Path::with_extension",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful postcondition must model path components and OsStr extension replacement; no such public vstd abstraction is available.",
+      "risks": ["missing_path_abstraction", "missing_os_str_abstraction"]
+    },
+    {
+      "target": "std::path::Path::with_file_name",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the result to replacement of the final path component requires unavailable logical models for Path, PathBuf, and OsStr.",
+      "risks": ["missing_path_abstraction", "missing_os_str_abstraction"]
+    },
+    {
+      "target": "std::path::PathBuf::add_extension",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The boolean result and final mutable PathBuf depend on modeled file-name and extension operations unavailable in current vstd vocabulary.",
+      "risks": ["missing_path_abstraction", "missing_os_str_abstraction", "unmodeled_mutation"]
+    },
+    {
+      "target": "std::path::PathBuf::as_path",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source establishes a borrowed Path view, but current vstd provides no public PathBuf-to-Path view relation; asserting reference identity would conflate identity with view semantics.",
+      "risks": ["missing_path_view_abstraction", "reference_identity_vs_view"]
+    }
+  ]
+}
+

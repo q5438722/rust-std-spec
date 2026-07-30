@@ -1,0 +1,115 @@
+{
+  "batch": 182,
+  "group": "retry_suitable_skip",
+  "duration_ms": 254794,
+  "targets": [
+    "core::slice::split_off_first",
+    "core::slice::split_off_last",
+    "core::slice::strip_circumfix",
+    "core::slice::strip_prefix",
+    "core::slice::strip_suffix",
+    "core::slice::subslice_range"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::split_off_first",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The exact `&mut &'a [T]` input requires modeling both the returned first element and the updated slice view. Current Verus lowering materializes the inner shared slice as unsized `[T]` when tracking the mutable reference, so no valid contract can express the observable post-state.",
+      "risks": [
+        "nested_reference_to_unsized_slice",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::split_off_last",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The exact `&mut &'a [T]` input requires modeling both the returned last element and the updated slice view. Current Verus lowering materializes the inner shared slice as unsized `[T]` when tracking the mutable reference, so no valid contract can express the observable post-state.",
+      "risks": [
+        "nested_reference_to_unsized_slice",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::strip_circumfix",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the returned middle subslice depend on both `SlicePattern::as_slice` values. Vstd has no semantic model for `SlicePattern`, so neither the `Option` discriminant nor the selected subrange can be determined.",
+      "risks": [
+        "missing_slice_pattern_model",
+        "underdetermined_option_discriminant",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::strip_prefix",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source compares the leading subslice with `prefix.as_slice()`, but vstd does not model `SlicePattern::as_slice`. A suffix-only postcondition would leave success and the removed length undetermined.",
+      "risks": [
+        "missing_slice_pattern_model",
+        "underdetermined_option_discriminant",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::strip_suffix",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source compares the trailing subslice with `suffix.as_slice()`, but vstd does not model `SlicePattern::as_slice`. A prefix-only postcondition would leave success and the removed length undetermined.",
+      "risks": [
+        "missing_slice_pattern_model",
+        "underdetermined_option_discriminant",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::subslice_range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is determined by pointer addresses, alignment, element size, and allocation provenance, which slice views erase. Vstd also lacks a model for `core::range::Range`, so no useful deterministic contract exists in current vocabulary.",
+      "risks": [
+        "pointer_address_and_provenance_dependence",
+        "missing_core_range_model",
+        "zero_sized_type_panic"
+      ]
+    }
+  ]
+}

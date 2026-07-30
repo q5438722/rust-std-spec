@@ -1,0 +1,115 @@
+{
+  "batch": 18,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 25044,
+  "targets": [
+    "core::sync::atomic::AtomicI32::get_mut_slice",
+    "core::sync::atomic::AtomicI32::into_inner",
+    "core::sync::atomic::AtomicI32::try_update",
+    "core::sync::atomic::AtomicI32::update",
+    "core::sync::atomic::AtomicI64::as_ptr",
+    "core::sync::atomic::AtomicI64::compare_and_swap"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicI32::get_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable slice aliases atomic storage, but vstd exposes neither the atomic value nor a suitable mutable-reference aliasing relation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the consumed atomic's hidden value, for which current vstd provides no public view or state abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and state transition depend on concurrent atomic state and potentially repeated FnMut calls, neither modeled by current public vstd vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "unmodeled_closure_invocations"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI32::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its returned prior value and atomic update depend on hidden concurrent state and potentially repeated FnMut calls, which current vstd cannot relate concretely.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "unmodeled_closure_invocations"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI64::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the raw pointer's identity and provenance to the atomic's hidden storage, for which current vstd has no suitable public abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_storage_identity_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicI64::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned old value and conditional write require a model of the atomic's concurrent hidden state, which current public vstd vocabulary does not expose.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}

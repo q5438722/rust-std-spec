@@ -1,0 +1,208 @@
+{
+  "metadata": {
+    "module_file": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd/std_specs/layout_value.rs",
+    "imports": [
+      "core::alloc::*",
+      "vstd::std_specs::layout_value::*",
+      "vstd::layout::*",
+      "vstd::prelude::*"
+    ]
+  },
+  "counts": {
+    "targets": 9,
+    "status": {
+      "ok": 9
+    },
+    "r0_z3": {
+      "unsat": 8,
+      "unknown": 1
+    },
+    "classification": {
+      "complete": 8,
+      "ok_inconclusive": 1
+    }
+  },
+  "results": [
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_layout(size, align) ==>\n            (result matches Ok(layout)\n                && layout@ == (LayoutView { size, align }))",
+        "!valid_layout(size, align) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 621,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::from_size_align",
+      "source_line": 47
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "valid_layout(size, align)"
+      ],
+      "ensures": [
+        "result@ == (LayoutView { size, align })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 587,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::from_size_align_unchecked",
+      "source_line": 58
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == layout@.size"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 556,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::size",
+      "source_line": 68
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == layout@.align"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 579,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::align",
+      "source_line": 73
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == (LayoutView {\n            size: size_of_as_usize::<T>(),\n            align: align_of_as_usize::<T>(),\n        })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 605,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::new::<T>",
+      "source_line": 78
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == (LayoutView {\n            size: size_of_val_as_usize(value),\n            align: align_of_val_as_usize(value),\n        })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 576,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::for_value::<T>",
+      "source_line": 86
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_layout(layout@.size, max_usize(layout@.align, align)) ==>\n            (result matches Ok(new_layout)\n                && new_layout@ == (LayoutView {\n                    size: layout@.size,\n                    align: max_usize(layout@.align, align),\n                }))",
+        "!valid_layout(layout@.size, max_usize(layout@.align, align)) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 664,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::align_to",
+      "source_line": 96
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@.align == layout@.align",
+        "result@.size as nat == round_up_to(layout@.size as nat, layout@.align as nat)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 585,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::pad_to_align",
+      "source_line": 110
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_layout(\n            (size_of_as_usize::<T>() as nat * length as nat) as usize,\n            align_of_as_usize::<T>(),\n        ) ==>\n            (result matches Ok(layout)\n                && layout@ == (LayoutView {\n                    size: (size_of_as_usize::<T>() as nat * length as nat) as usize,\n                    align: align_of_as_usize::<T>(),\n                }))"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 1,
+      "verus_ms": 480,
+      "r0_z3": "unknown",
+      "n_rounds": 10,
+      "assumes": [
+        "length == 0",
+        "r1 is Ok",
+        "r2 is Ok",
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "Layout::array::<T>",
+      "source_line": 116
+    }
+  ]
+}

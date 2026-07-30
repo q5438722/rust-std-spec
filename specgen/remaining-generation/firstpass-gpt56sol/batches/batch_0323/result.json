@@ -1,0 +1,124 @@
+{
+  "batch": 323,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 267108,
+  "targets": [
+    "core::mem::MaybeUninit::assume_init_read",
+    "core::mem::transmute_copy",
+    "core::mem::uninitialized",
+    "core::mem::zeroed",
+    "core::option::Option::copied",
+    "core::option::Option::unwrap_unchecked"
+  ],
+  "candidates": [
+    {
+      "target": "core::mem::MaybeUninit::assume_init_read",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ MaybeUninit::<T>::assume_init_read ](m: &MaybeUninit<T>) -> (ret: T)\n    requires\n        m.mem_contents().is_init(),\n    ensures\n        ret == m.mem_contents().value(),\n    opens_invariants none\n    no_unwind\n;",
+      "requires": [
+        "m.mem_contents().is_init()"
+      ],
+      "ensures": [
+        "ret == m.mem_contents().value()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::mem::MaybeUninit;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "vstd publicly models MaybeUninit contents; the source states that an initialized value is read without modifying self.",
+      "risks": [
+        "Repeated reads of non-Copy or drop-sensitive values remain an unsafe caller responsibility not modeled by this functional contract."
+      ]
+    },
+    {
+      "target": "core::mem::transmute_copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result depends on cross-type byte layout, validity, and provenance, for which current vstd has no generic value-representation relation.",
+      "risks": [
+        "A size-only precondition would not characterize the returned value or guarantee that Dst's bit pattern is valid."
+      ]
+    },
+    {
+      "target": "core::mem::uninitialized",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source says this is immediate UB for nearly all types, while vstd has no public predicate describing types valid with uninitialized storage.",
+      "risks": [
+        "No source-supported deterministic result can be expressed for generic T."
+      ]
+    },
+    {
+      "target": "core::mem::zeroed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing the safety condition and result requires generic zero-bit-pattern validity and representation abstractions absent from current vstd.",
+      "risks": [
+        "All-zero bytes are invalid for references, function pointers, and many niche-bearing types."
+      ]
+    },
+    {
+      "target": "core::option::Option::copied",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: Copy>[ Option::<&'a T>::copied ](opt: Option<&'a T>) -> (res: Option<T>)\n    ensures\n        res == (match opt {\n            Some(v) => Some(*v),\n            None => None,\n        }),\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "res == match opt { Some(v) => Some(*v), None => None }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::option::Option;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source directly matches the option, copying the referenced value for Some and preserving None.",
+      "risks": [
+        "The explicit Option<&T> receiver is necessary to disambiguate this declaration from the Option<&mut T> overload."
+      ]
+    },
+    {
+      "target": "core::option::Option::unwrap_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Option::<T>::unwrap_unchecked ](option: Option<T>) -> (ret: T)\n    requires\n        option is Some,\n    ensures\n        ret == option->0,\n    no_unwind\n;",
+      "requires": [
+        "option is Some"
+      ],
+      "ensures": [
+        "ret == option->0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::option::Option;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source returns the contained value for Some and invokes unreachable unchecked for None, exactly supporting a Some precondition.",
+      "risks": [
+        "Calling the real method on None is undefined behavior."
+      ]
+    }
+  ]
+}

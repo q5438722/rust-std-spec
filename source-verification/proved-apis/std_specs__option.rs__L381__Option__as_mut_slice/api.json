@@ -1,0 +1,137 @@
+{
+  "id": "std_specs__option.rs__L381__Option__as_mut_slice",
+  "api_path": "core::option::Option::as_mut_slice",
+  "normalized_api_path": "core::option::Option::as_mut_slice",
+  "raw_target": "Option::as_mut_slice",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 381,
+  "rust_declaration": {
+    "declaration_id": "core:28023",
+    "name": "as_mut_slice",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"option_as_slice\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"const_option_ext\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        899,
+        5
+      ],
+      "end": [
+        918,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": true,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": true,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "   879:     ///\n   880:     /// The result is a mutable slice of zero or one items that points into\n   881:     /// our original `Option`:\n   882:     ///\n   883:     /// ```rust\n   884:     /// let mut x = Some(1234);\n   885:     /// x.as_mut_slice()[0] += 1;\n   886:     /// assert_eq!(x, Some(1235));\n   887:     /// ```\n   888:     ///\n   889:     /// The inverse of this method (discounting borrowing)\n   890:     /// is [`[_]::first_mut`](slice::first_mut):\n   891:     ///\n   892:     /// ```rust\n   893:     /// assert_eq!(Some(123).as_mut_slice().first_mut(), Some(&mut 123))\n   894:     /// ```\n   895:     #[inline]\n   896:     #[must_use]\n   897:     #[stable(feature = \"option_as_slice\", since = \"1.75.0\")]\n   898:     #[rustc_const_stable(feature = \"const_option_ext\", since = \"1.84.0\")]\n   899:     pub const fn as_mut_slice(&mut self) -> &mut [T] {\n   900:         // SAFETY: When the `Option` is `Some`, we're using the actual pointer\n   901:         // to the payload, with a length of 1, so this is equivalent to\n   902:         // `slice::from_mut`, and thus is safe.\n   903:         // When the `Option` is `None`, the length used is 0, so to be safe it\n   904:         // just needs to be aligned, which it is because `&self` is aligned and\n   905:         // the offset used is a multiple of alignment.\n   906:         //\n   907:         // In the new version, the intrinsic creates a `*const T` from a\n   908:         // mutable reference  so it is safe to cast back to a mutable pointer\n   909:         // here. As with `as_slice`, the intrinsic always returns a pointer to\n   910:         // an in-bounds and correctly aligned position for a `T` (even if in\n   911:         // the `None` case it's just padding).\n   912:         unsafe {\n   913:             slice::from_raw_parts_mut(\n   914:                 (self as *mut Self).byte_add(core::mem::offset_of!(Self, Some.0)).cast(),\n   915:                 self.len(),\n   916:             )\n   917:         }\n   918:     }\n   919: ",
+    "source_text": "pub const fn as_mut_slice(&mut self) -> &mut [T] {\n        // SAFETY: When the `Option` is `Some`, we're using the actual pointer\n        // to the payload, with a length of 1, so this is equivalent to\n        // `slice::from_mut`, and thus is safe.\n        // When the `Option` is `None`, the length used is 0, so to be safe it\n        // just needs to be aligned, which it is because `&self` is aligned and\n        // the offset used is a multiple of alignment.\n        //\n        // In the new version, the intrinsic creates a `*const T` from a\n        // mutable reference  so it is safe to cast back to a mutable pointer\n        // here. As with `as_slice`, the intrinsic always returns a pointer to\n        // an in-bounds and correctly aligned position for a `T` (even if in\n        // the `None` case it's just padding).\n        unsafe {\n            slice::from_raw_parts_mut(\n                (self as *mut Self).byte_add(core::mem::offset_of!(Self, Some.0)).cast(),\n                self.len(),\n            )\n        }\n    }",
+    "has_body": true
+  }
+}

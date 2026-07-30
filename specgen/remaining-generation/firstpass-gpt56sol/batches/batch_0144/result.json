@@ -1,0 +1,113 @@
+{
+  "batch": 144,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 109586,
+  "targets": [
+    "core::time::Duration::from_secs_f32",
+    "core::time::Duration::from_secs_f64",
+    "core::time::Duration::is_zero",
+    "core::time::Duration::mul_f32",
+    "core::time::Duration::mul_f64",
+    "core::time::Duration::new"
+  ],
+  "candidates": [
+    {
+      "target": "core::time::Duration::from_secs_f32",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Exact behavior requires a modeled Duration value plus f32-to-nanoseconds rounding; neither relation exists in current vstd.",
+      "risks": [
+        "Missing Duration abstraction",
+        "IEEE-754 rounding and panic domain"
+      ]
+    },
+    {
+      "target": "core::time::Duration::from_secs_f64",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Exact behavior requires a modeled Duration value plus f64-to-nanoseconds rounding; neither relation exists in current vstd.",
+      "risks": [
+        "Missing Duration abstraction",
+        "IEEE-754 rounding and panic domain"
+      ]
+    },
+    {
+      "target": "core::time::Duration::is_zero",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation observes private seconds and nanoseconds fields, but current vstd exposes no Duration view with which to state the zero predicate.",
+      "risks": [
+        "Opaque private representation",
+        "Missing Duration view"
+      ]
+    },
+    {
+      "target": "core::time::Duration::mul_f32",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful result relation needs both a Duration model and precise floating-point multiplication, conversion, rounding, and overflow semantics.",
+      "risks": [
+        "Missing Duration abstraction",
+        "Platform-permitted floating-point nondeterminism",
+        "Rounding and panic domain"
+      ]
+    },
+    {
+      "target": "core::time::Duration::mul_f64",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful result relation needs both a Duration model and precise floating-point multiplication, rounding, and overflow semantics.",
+      "risks": [
+        "Missing Duration abstraction",
+        "Platform-permitted floating-point nondeterminism",
+        "Rounding and panic domain"
+      ]
+    },
+    {
+      "target": "core::time::Duration::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the carry-overflow precondition is expressible, normalized seconds and nanoseconds cannot be related to the opaque result without a Duration view.",
+      "risks": [
+        "Missing Duration abstraction",
+        "Private normalized representation"
+      ]
+    }
+  ]
+}

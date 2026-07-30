@@ -1,0 +1,256 @@
+{
+  "candidates": [
+    {
+      "target": "core::ptr::write_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning operation mutates a byte range, but its signature exposes no memory permission or modeled state. Current vstd lacks a byte-range ownership abstraction for expressing the effect.",
+      "risks": [
+        "raw_pointer_ownership_not_expressed",
+        "byte_range_memory_state_not_modeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::write_unaligned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The effect requires an unaligned memory permission absent from the signature. vstd's typed PointsTo abstraction requires alignment and explicitly does not support write_unaligned.",
+      "risks": [
+        "unaligned_memory_permission_missing",
+        "raw_pointer_ownership_not_expressed",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::write_volatile",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This operation's useful behavior is a volatile memory or I/O side effect. Neither that external state nor an ownership permission is represented by the signature or current vstd vocabulary.",
+      "risks": [
+        "volatile_runtime_effect_not_modeled",
+        "raw_pointer_ownership_not_expressed",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::result::Result::cloned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Clone, E>[ Result::<&T, E>::cloned ](\n    result: Result<&T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        result is Ok ==> res is Ok && cloned::<T>(*result->Ok_0, res->Ok_0),\n        result is Err ==> res == Result::<T, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res is Ok && cloned::<T>(*result->Ok_0, res->Ok_0)",
+        "result is Err ==> res == Result::<T, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source clones the Ok referent and preserves Err; vstd::cloned provides the existing public relational vocabulary for arbitrary Clone implementations.",
+      "risks": [
+        "The contract specializes the supplied Result<&T, E> declaration; Result<&mut T, E>::cloned is a separate declaration sharing the path.",
+        "Clone results are relational rather than necessarily equal to the input."
+      ]
+    },
+    {
+      "target": "core::result::Result::copied",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Copy, E>[ Result::<&T, E>::copied ](\n    result: Result<&T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        res == match result {\n            Result::Ok(value) => Result::Ok(*value),\n            Result::Err(error) => Result::Err(error),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "res == match result { Result::Ok(value) => Result::Ok(*value), Result::Err(error) => Result::Err(error), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source exactly copies the Ok referent or preserves the Err payload, which is directly expressible over Result variants.",
+      "risks": [
+        "The contract specializes the supplied Result<&T, E> declaration; Result<&mut T, E>::copied is a separate declaration sharing the path."
+      ]
+    },
+    {
+      "target": "core::result::Result::unwrap_err_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::unwrap_err_unchecked ](\n    result: Result<T, E>,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The safety condition is exactly that the input is Err, after which the source returns its payload.",
+      "risks": [
+        "Calling the unsafe method on Ok is undefined behavior."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ptr::write_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning operation mutates a byte range, but its signature exposes no
+memory permission or modeled state. Current vstd lacks a byte-range ownership abstraction for
+expressing the effect.",
+      "risks": [
+        "raw_pointer_ownership_not_expressed",
+        "byte_range_memory_state_not_modeled",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::write_unaligned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The effect requires an unaligned memory permission absent from the signature.
+vstd's typed PointsTo abstraction requires alignment and explicitly does not support
+write_unaligned.",
+      "risks": [
+        "unaligned_memory_permission_missing",
+        "raw_pointer_ownership_not_expressed",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::ptr::write_volatile",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This operation's useful behavior is a volatile memory or I/O side effect.
+Neither that external state nor an ownership permission is represented by the signature or current
+vstd vocabulary.",
+      "risks": [
+        "volatile_runtime_effect_not_modeled",
+        "raw_pointer_ownership_not_expressed",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::result::Result::cloned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Clone, E>[ Result::<&T, E>::cloned ](\n
+result: Result<&T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        result is Ok ==> res is Ok &&
+ cloned::<T>(*result->Ok_0, res->Ok_0),\n        result is Err ==> res == Result::<T,
+E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res is Ok && cloned::<T>(result->Ok_0, res->Ok_0)",
+        "result is Err ==> res == Result::<T, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source clones the Ok referent and preserves Err; vstd::cloned provides the
+existing public relational vocabulary for arbitrary Clone implementations.",
+      "risks": [
+        "The contract specializes the supplied Result<&T, E> declaration; Result<&mut T, E>::cloned
+is a separate declaration sharing the path.",
+        "Clone results are relational rather than necessarily equal to the input."
+      ]
+    },
+    {
+      "target": "core::result::Result::copied",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: Copy, E>[ Result::<&T, E>::copied ](\n
+result: Result<&T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        res == match result {\n
+      Result::Ok(value) => Result::Ok(value),\n            Result::Err(error) =>
+Result::Err(error),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "res == match result { Result::Ok(value) => Result::Ok(value), Result::Err(error) =>
+Result::Err(error), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source exactly copies the Ok referent or preserves the Err payload, which is
+ directly expressible over Result variants.",
+      "risks": [
+        "The contract specializes the supplied Result<&T, E> declaration; Result<&mut T, E>::copied
+is a separate declaration sharing the path."
+      ]
+    },
+    {
+      "target": "core::result::Result::unwrap_err_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::unwrap_err_unchecked ](\n
+ result: Result<T, E>,\n) -> (error: E)\n    requires\n        result is Err,\n    ensures\n
+error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The safety condition is exactly that the input is Err, after which the source
+returns its payload.",
+      "risks": [
+        "Calling the unsafe method on Ok is undefined behavior."
+      ]
+    } ]
+}
+

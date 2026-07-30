@@ -1,0 +1,110 @@
+{
+  "batch": 63,
+  "group": "formatting_effect",
+  "duration_ms": 88133,
+  "targets": [
+    "core::fmt::Formatter::sign_plus",
+    "core::fmt::Formatter::width",
+    "core::fmt::Formatter::write_fmt",
+    "core::fmt::Formatter::write_str",
+    "core::fmt::NumBuffer::new",
+    "core::fmt::Result::and"
+  ],
+  "candidates": [
+    {
+      "target": "core::fmt::Formatter::sign_plus",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reads a private formatting flag, but Formatter has no public vstd state model relating that flag to the receiver.",
+      "risks": [
+        "Any deterministic result contract would invent hidden formatter state."
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::width",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The optional width depends entirely on private Formatter flags and storage for which vstd provides no public abstraction.",
+      "risks": [
+        "A useful relation requires a missing formatter-options model."
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::write_fmt",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This mutates the hidden output writer, and both the formatted Arguments content and writer failure behavior lack suitable public vstd models.",
+      "risks": [
+        "The formatting effect and resulting writer state are unobservable."
+      ]
+    },
+    {
+      "target": "core::fmt::Formatter::write_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method delegates to Formatter's hidden writer; vstd cannot express that the string was appended or characterize the returned formatting error.",
+      "risks": [
+        "Writer mutation and failure behavior are unmodeled."
+      ]
+    },
+    {
+      "target": "core::fmt::NumBuffer::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor only initializes opaque internal buffer state, with no public observer or existing vstd abstraction supporting a useful postcondition.",
+      "risks": [
+        "Specifying initialization would require modeling private buffer representation."
+      ]
+    },
+    {
+      "target": "core::fmt::Result::and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U>[ Result::<T, E>::and ](\n    result: Result<T, E>,\n    res: Result<U, E>,\n) -> (out: Result<U, E>)\n    ensures\n        result is Ok ==> out == res,\n        result is Err ==> out == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> out == res",
+        "result is Err ==> out == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "Although reached through the fmt::Result alias, the supplied source is Result::and and explicitly selects res for Ok or preserves self's error for Err.",
+      "risks": [
+        "The contract intentionally does not specify destruction or unwinding of the discarded Ok payload."
+      ]
+    }
+  ]
+}

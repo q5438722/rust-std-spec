@@ -1,0 +1,132 @@
+{
+  "batch": 166,
+  "group": "ownership_or_uninitialized_model",
+  "duration_ms": 397877,
+  "targets": [
+    "alloc::sync::Arc::downcast",
+    "alloc::sync::Arc::downgrade",
+    "alloc::sync::Arc::into_inner",
+    "alloc::sync::Arc::new_cyclic",
+    "alloc::sync::Arc::new_uninit",
+    "alloc::sync::Arc::new_uninit_slice"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::sync::Arc::downcast",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source branches on Any::is::<T>() and casts the allocation on success, but vstd has no dynamic-type model relating the erased pointee to Arc<T, A>. Specifying only Err(self) would leave the successful result unconstrained.",
+      "risks": [
+        "Missing dyn Any and TypeId abstraction",
+        "Successful ownership-preserving type cast is unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::downgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source atomically increments hidden weak-count state. Current vstd cannot identify the returned Weak as referring to the same allocation as this.",
+      "risks": [
+        "Missing Arc/Weak allocation-identity model",
+        "Hidden concurrent reference-count state"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::into_inner",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Arc::<T, A>::into_inner ](\n    this: Arc<T, A>,\n) -> (result: Option<T>)\n    ensures\n        result matches Some(value) ==> value == *this,\n;",
+      "requires": [],
+      "ensures": [
+        "result matches Some(value) ==> value == *this"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::sync::Arc",
+        "core::alloc::Allocator",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "When the source obtains the final strong reference, it reads and returns the pointee. Arc dereference vocabulary can relate that successful result without predicting the hidden reference count.",
+      "risks": [
+        "The Some/None condition and exactly-one-winner guarantee remain unmodeled",
+        "Concurrent reference-count state is hidden"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::new_cyclic",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful closure contract must describe the temporary Weak passed during initialization and relate it to the returned Arc afterward. Current vstd has no Weak lifecycle or shared-allocation identity model.",
+      "risks": [
+        "Missing staged initialization model",
+        "Missing Arc/Weak allocation relation"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::new_uninit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Arc::<T>::new_uninit ]() -> (res: Arc<MaybeUninit<T>>)\n    ensures\n        (*res).mem_contents().is_uninit(),\n;",
+      "requires": [],
+      "ensures": [
+        "(*res).mem_contents().is_uninit()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::sync::Arc",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source allocates uninitialized storage, and vstd's MaybeUninit mem_contents model directly represents that state.",
+      "risks": [
+        "Fresh-allocation uniqueness and reference counts are unmodeled",
+        "OOM behavior is outside the contract"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::new_uninit_slice",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Arc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (res: Arc<[MaybeUninit<T>]>)\n    ensures\n        (&*res)@.len() == len,\n        forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit(),\n;",
+      "requires": [],
+      "ensures": [
+        "(&*res)@.len() == len",
+        "forall|i: int| 0 <= i < (&*res)@.len() ==> (&*res)@[i].mem_contents().is_uninit()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::sync::Arc",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source allocates a slice of the requested length, while the slice view and MaybeUninit mem_contents model express that every element is initially uninitialized.",
+      "risks": [
+        "Fresh-allocation uniqueness and reference counts are unmodeled",
+        "OOM behavior is outside the contract"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "id": "core__fmt__Result__flatten__132866477819",
+  "api_path": "core::fmt::Result::flatten",
+  "raw_target": "Result::<Result<T, E>, E>::flatten",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 89, patch: 0 })},\nfeature: \"result_flattening\"}}]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_precise_live_drops\"])]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 89, patch: 0 })},\nfeature: \"result_flattening\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29319",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "flatten",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "generic": "T"
+                              }
+                            },
+                            {
+                              "type": {
+                                "generic": "E"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      },
+                      "id": 90,
+                      "path": "Result"
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29320",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "  1807:     ///\n  1808:     /// let x: Result<Option<i32>, SomeErr> = Ok(Some(5));\n  1809:     /// let y: Option<Result<i32, SomeErr>> = Some(Ok(5));\n  1810:     /// assert_eq!(x.transpose(), y);\n  1811:     /// ```\n  1812:     #[inline]\n  1813:     #[stable(feature = \"transpose_result\", since = \"1.33.0\")]\n  1814:     #[rustc_const_stable(feature = \"const_result\", since = \"1.83.0\")]\n  1815:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1816:     pub const fn transpose(self) -> Option<Result<T, E>> {\n  1817:         match self {\n  1818:             Ok(Some(x)) => Some(Ok(x)),\n  1819:             Ok(None) => None,\n  1820:             Err(e) => Some(Err(e)),\n  1821:         }\n  1822:     }\n  1823: }\n  1824: \n  1825: impl<T, E> Result<Result<T, E>, E> {\n  1826:     /// Converts from `Result<Result<T, E>, E>` to `Result<T, E>`\n  1827:     ///\n  1828:     /// # Examples\n  1829:     ///\n  1830:     /// ```\n  1831:     /// let x: Result<Result<&'static str, u32>, u32> = Ok(Ok(\"hello\"));\n  1832:     /// assert_eq!(Ok(\"hello\"), x.flatten());\n  1833:     ///\n  1834:     /// let x: Result<Result<&'static str, u32>, u32> = Ok(Err(6));\n  1835:     /// assert_eq!(Err(6), x.flatten());\n  1836:     ///\n  1837:     /// let x: Result<Result<&'static str, u32>, u32> = Err(6);\n  1838:     /// assert_eq!(Err(6), x.flatten());\n  1839:     /// ```\n  1840:     ///\n  1841:     /// Flattening only removes one level of nesting at a time:\n  1842:     ///\n  1843:     /// ```\n  1844:     /// let x: Result<Result<Result<&'static str, u32>, u32>, u32> = Ok(Ok(Ok(\"hello\")));\n  1845:     /// assert_eq!(Ok(Ok(\"hello\")), x.flatten());\n  1846:     /// assert_eq!(Ok(\"hello\"), x.flatten().flatten());\n  1847:     /// ```\n  1848:     #[inline]\n  1849:     #[stable(feature = \"result_flattening\", since = \"1.89.0\")]\n  1850:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1851:     #[rustc_const_stable(feature = \"result_flattening\", since = \"1.89.0\")]\n  1852:     pub const fn flatten(self) -> Result<T, E> {\n  1853:         // FIXME(const-hack): could be written with `and_then`\n  1854:         match self {\n  1855:             Ok(inner) => inner,\n  1856:             Err(e) => Err(e),\n  1857:         }\n  1858:     }\n  1859: }\n  1860: \n  1861: // This is a separate function to reduce the code size of the methods\n  1862: #[cfg(not(panic = \"immediate-abort\"))]\n  1863: #[inline(never)]\n  1864: #[cold]\n  1865: #[track_caller]\n  1866: fn unwrap_failed(msg: &str, error: &dyn fmt::Debug) -> ! {\n  1867:     panic!(\"{msg}: {error:?}\");\n  1868: }\n  1869: \n  1870: // This is a separate function to avoid constructing a `dyn Debug`\n  1871: // that gets immediately thrown away, since vtables don't get cleaned up\n  1872: // by dead code elimination if a trait object is constructed even if it goes\n  1873: // unused\n  1874: #[cfg(panic = \"immediate-abort\")]\n  1875: #[inline]\n  1876: #[cold]\n  1877: #[track_caller]\n  1878: const fn unwrap_failed<T>(_msg: &str, _error: &T) -> ! {\n  1879:     panic!()\n  1880: }\n  1881: \n  1882: /////////////////////////////////////////////////////////////////////////////\n  1883: // Trait implementations\n  1884: /////////////////////////////////////////////////////////////////////////////\n  1885: \n  1886: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1887: impl<T, E> Clone for Result<T, E>\n  1888: where\n  1889:     T: Clone,\n  1890:     E: Clone,\n  1891: {\n  1892:     #[inline]\n  1893:     fn clone(&self) -> Self {\n  1894:         match self {\n  1895:             Ok(x) => Ok(x.clone()),\n  1896:             Err(x) => Err(x.clone()),\n  1897:         }",
+    "span": {
+      "begin": [
+        1852,
+        5
+      ],
+      "end": [
+        1858,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn flatten(self) -> Result<T, E> {\n        // FIXME(const-hack): could be written with `and_then`\n        match self {\n            Ok(inner) => inner,\n            Err(e) => Err(e),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The ordinary exec function copies the standard-library match exactly, and Verus proves the postcondition directly without lower-level contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__fmt__Result__flatten__132866477819"
+}

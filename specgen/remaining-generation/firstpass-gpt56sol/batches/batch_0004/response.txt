@@ -1,0 +1,108 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::collections::BTreeMap::first_entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a mutable entry for the minimum key. Current vstd models BTreeMap contents and ordering, but not btree_map::OccupiedEntry or its prophetic effect on the borrowed map, so the returned handle cannot be related usefully to the map view.",
+      "risks": [
+        "missing_btree_occupied_entry_model",
+        "missing_prophetic_final_map_relation",
+        "minimum_entry_semantics_unobservable"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::last_entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a mutable entry for the maximum key. Current vstd lacks a model for btree_map::OccupiedEntry and its eventual mutation or removal of the borrowed map entry.",
+      "risks": [
+        "missing_btree_occupied_entry_model",
+        "missing_prophetic_final_map_relation",
+        "maximum_entry_semantics_unobservable"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf16",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Result branch and String character view depend on strict UTF-16 surrogate decoding. Current vstd provides UTF-8 models but no public UTF-16 validity or decoding function.",
+      "risks": [
+        "missing_utf16_decoder_model",
+        "unmodeled_surrogate_pair_semantics",
+        "unmodeled_error_branch"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf16_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source decodes surrogate pairs and replaces each decoding error with U+FFFD. Current vstd has no lossy UTF-16 decoder relation capable of determining the resulting String view.",
+      "risks": [
+        "missing_utf16_decoder_model",
+        "unmodeled_surrogate_pair_semantics",
+        "unmodeled_replacement_character_semantics"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf16be",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result combines two-byte big-endian parsing, odd-length rejection, and strict UTF-16 decoding. Current vstd lacks the UTF-16 decoding abstraction needed to relate both the Result branch and successful String view to the input bytes.",
+      "risks": [
+        "missing_utf16_decoder_model",
+        "unmodeled_big_endian_pair_decoding",
+        "combined_odd_length_and_surrogate_errors"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf16be_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source lossily decodes big-endian code units and emits U+FFFD for invalid surrogates and an odd trailing byte. No current public vstd model expresses that transformation into String's character view.",
+      "risks": [
+        "missing_utf16_decoder_model",
+        "unmodeled_big_endian_pair_decoding",
+        "unmodeled_replacement_character_semantics",
+        "unmodeled_odd_trailing_byte_semantics"
+      ]
+    }
+  ]
+}
+

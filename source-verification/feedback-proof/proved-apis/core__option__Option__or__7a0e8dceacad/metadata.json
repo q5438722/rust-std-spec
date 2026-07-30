@@ -1,0 +1,165 @@
+{
+  "id": "core__option__Option__or__7a0e8dceacad",
+  "api_path": "core::option::Option::or",
+  "raw_target": "core::option::Option::<T>::or",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28043",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "or",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "optb",
+          {
+            "resolved_path": {
+              "args": {
+                "angle_bracketed": {
+                  "args": [
+                    {
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  ],
+                  "constraints": []
+                }
+              },
+              "id": 84,
+              "path": "Option"
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  1576:     #[stable(feature = \"option_filter\", since = \"1.27.0\")]\n  1577:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1578:     pub const fn filter<P>(self, predicate: P) -> Self\n  1579:     where\n  1580:         P: [const] FnOnce(&T) -> bool + [const] Destruct,\n  1581:         T: [const] Destruct,\n  1582:     {\n  1583:         if let Some(x) = self {\n  1584:             if predicate(&x) {\n  1585:                 return Some(x);\n  1586:             }\n  1587:         }\n  1588:         None\n  1589:     }\n  1590: \n  1591:     /// Returns the option if it contains a value, otherwise returns `optb`.\n  1592:     ///\n  1593:     /// Arguments passed to `or` are eagerly evaluated; if you are passing the\n  1594:     /// result of a function call, it is recommended to use [`or_else`], which is\n  1595:     /// lazily evaluated.\n  1596:     ///\n  1597:     /// [`or_else`]: Option::or_else\n  1598:     ///\n  1599:     /// # Examples\n  1600:     ///\n  1601:     /// ```\n  1602:     /// let x = Some(2);\n  1603:     /// let y = None;\n  1604:     /// assert_eq!(x.or(y), Some(2));\n  1605:     ///\n  1606:     /// let x = None;\n  1607:     /// let y = Some(100);\n  1608:     /// assert_eq!(x.or(y), Some(100));\n  1609:     ///\n  1610:     /// let x = Some(2);\n  1611:     /// let y = Some(100);\n  1612:     /// assert_eq!(x.or(y), Some(2));\n  1613:     ///\n  1614:     /// let x: Option<u32> = None;\n  1615:     /// let y = None;\n  1616:     /// assert_eq!(x.or(y), None);\n  1617:     /// ```\n  1618:     #[inline]\n  1619:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1620:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1621:     pub const fn or(self, optb: Option<T>) -> Option<T>\n  1622:     where\n  1623:         T: [const] Destruct,\n  1624:     {\n  1625:         match self {\n  1626:             x @ Some(_) => x,\n  1627:             None => optb,\n  1628:         }\n  1629:     }\n  1630: \n  1631:     /// Returns the option if it contains a value, otherwise calls `f` and\n  1632:     /// returns the result.\n  1633:     ///\n  1634:     /// # Examples\n  1635:     ///\n  1636:     /// ```\n  1637:     /// fn nobody() -> Option<&'static str> { None }\n  1638:     /// fn vikings() -> Option<&'static str> { Some(\"vikings\") }\n  1639:     ///\n  1640:     /// assert_eq!(Some(\"barbarians\").or_else(vikings), Some(\"barbarians\"));\n  1641:     /// assert_eq!(None.or_else(vikings), Some(\"vikings\"));\n  1642:     /// assert_eq!(None.or_else(nobody), None);\n  1643:     /// ```\n  1644:     #[inline]\n  1645:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1646:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1647:     pub const fn or_else<F>(self, f: F) -> Option<T>\n  1648:     where\n  1649:         F: [const] FnOnce() -> Option<T> + [const] Destruct,\n  1650:         //FIXME(const_hack): this `T: [const] Destruct` is unnecessary, but even precise live drops can't tell\n  1651:         // no value of type `T` gets dropped here\n  1652:         T: [const] Destruct,\n  1653:     {\n  1654:         match self {\n  1655:             x @ Some(_) => x,\n  1656:             None => f(),\n  1657:         }\n  1658:     }\n  1659: \n  1660:     /// Returns [`Some`] if exactly one of `self`, `optb` is [`Some`], otherwise returns [`None`].\n  1661:     ///\n  1662:     /// # Examples\n  1663:     ///\n  1664:     /// ```\n  1665:     /// let x = Some(2);\n  1666:     /// let y: Option<u32> = None;",
+    "span": {
+      "begin": [
+        1621,
+        5
+      ],
+      "end": [
+        1629,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn or(self, optb: Option<T>) -> Option<T>\n    where\n        T: [const] Destruct,\n    {\n        match self {\n            x @ Some(_) => x,\n            None => optb,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum match and alias pattern prove the contract directly without lower external contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__or__7a0e8dceacad"
+}

@@ -1,0 +1,106 @@
+{
+  "candidates": [
+    {
+      "target": "std::os::unix::net::UnixDatagram::peer_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The address or error comes from hidden kernel connection state, for which vstd has no socket-state abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::read_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful getter contract must relate the result to the OS-managed receive-timeout option, which is not modeled in current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_option_abstraction",
+        "platform_dependent_representation"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::recv",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and mutated buffer prefix depend on consuming an external datagram; a byte-count bound alone would not usefully model the operation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_buffer_payload",
+        "missing_io_trace_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::recv_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The payload, byte count, sender address, and queue consumption require a kernel socket-state or I/O-trace model absent from vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_source_address",
+        "missing_io_trace_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, byte count, and datagram emission depend on the hidden peer and kernel networking state; vstd has no model for that effect.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_peer_state",
+        "missing_io_trace_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixDatagram::send_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Address conversion, transmission, byte count, and failure depend on the path namespace and hidden OS socket state, neither of which vstd models.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_unix_socket_namespace_abstraction",
+        "missing_io_trace_abstraction"
+      ]
+    }
+  ]
+}
+

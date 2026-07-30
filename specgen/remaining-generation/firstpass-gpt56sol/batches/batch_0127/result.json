@@ -1,0 +1,105 @@
+{
+  "batch": 127,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 84464,
+  "targets": [
+    "core::net::Ipv6Addr::is_unique_local",
+    "core::net::Ipv6Addr::is_unspecified",
+    "core::net::Ipv6Addr::new",
+    "core::net::Ipv6Addr::octets",
+    "core::net::Ipv6Addr::segments",
+    "core::net::Ipv6Addr::to_bits"
+  ],
+  "candidates": [
+    {
+      "target": "core::net::Ipv6Addr::is_unique_local",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation inspects the first IPv6 segment, but vstd has no logical view connecting Ipv6Addr to its segments or octets.",
+      "risks": [
+        "An exact predicate requires a new Ipv6Addr representation abstraction."
+      ]
+    },
+    {
+      "target": "core::net::Ipv6Addr::is_unspecified",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source compares the address bytes with UNSPECIFIED, but neither the byte representation nor the associated constant has an existing vstd model.",
+      "risks": [
+        "Using opaque equality or an unmodeled constant would not establish the source-level byte semantics."
+      ]
+    },
+    {
+      "target": "core::net::Ipv6Addr::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful constructor contract must relate the result to its eight segments or sixteen octets, for which no Ipv6Addr view exists in vstd.",
+      "risks": [
+        "Specifying the result through other unmodeled Ipv6Addr methods would be circular."
+      ]
+    },
+    {
+      "target": "core::net::Ipv6Addr::octets",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method exposes a private byte field, and current vstd provides no public logical representation of an Ipv6Addr against which to specify the returned array.",
+      "risks": [
+        "A deterministic postcondition would require inventing a representation view or referencing private state."
+      ]
+    },
+    {
+      "target": "core::net::Ipv6Addr::segments",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned native-endian segments are derived from the private octets, but no existing vstd abstraction connects an Ipv6Addr to either representation.",
+      "risks": [
+        "Encoding the endian conversion requires a new Ipv6Addr logical view."
+      ]
+    },
+    {
+      "target": "core::net::Ipv6Addr::to_bits",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the big-endian interpretation of the private octets, which cannot be related to the opaque address using current vstd vocabulary.",
+      "risks": [
+        "An exact bit-level contract requires a modeled octet or numeric view of Ipv6Addr."
+      ]
+    }
+  ]
+}

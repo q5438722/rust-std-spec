@@ -1,0 +1,62 @@
+{
+  "batch": 162,
+  "group": "no_modeled_observable_output",
+  "duration_ms": 17163,
+  "targets": [
+    "core::mem::drop",
+    "core::mem::forget",
+    "std::panic::set_hook"
+  ],
+  "candidates": [
+    {
+      "target": "core::mem::drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function only consumes its argument and returns unit; ownership already models consumption, while destructor effects have no public vstd abstraction.",
+      "risks": [
+        "destructor effects are unmodeled",
+        "a vacuous unit contract would not be useful"
+      ]
+    },
+    {
+      "target": "core::mem::forget",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function consumes its argument and suppresses destruction, but returns unit and exposes no modeled state with which to express that effect.",
+      "risks": [
+        "destructor suppression is unmodeled",
+        "resource leakage has no applicable vstd abstraction"
+      ]
+    },
+    {
+      "target": "std::panic::set_hook",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function mutates hidden process-global panic-hook state and may panic when called from a panicking thread; current public vstd vocabulary does not model either effect.",
+      "risks": [
+        "hidden global state",
+        "thread panic state",
+        "possible panic",
+        "callback behavior is unmodeled"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::string::String::from_utf16le",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result requires little-endian byte pairing, UTF-16 surrogate validation, and decoding. Current vstd has no public UTF-16 validity or decoding model.",
+      "risks": [
+        "missing UTF-16LE decoder model",
+        "unmodeled surrogate-pair semantics",
+        "opaque FromUtf16Error details"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf16le_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd cannot express the UTF-16LE transformation that replaces lone surrogates and an odd trailing byte with U+FFFD.",
+      "risks": [
+        "missing lossy UTF-16LE decoder model",
+        "unmodeled replacement-character placement"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf8",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::from_utf8 ](\n    vec: Vec<u8>,\n) -> (res: Result<String, FromUtf8Error>)\n    ensures\n        match res {\n            Ok(s) => {\n                &&& valid_utf8(vec@)\n                &&& encode_utf8(s@) =~= vec@\n            },\n            Err(_) => !valid_utf8(vec@),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "match res { Ok(s) => valid_utf8(vec@) && encode_utf8(s@) =~= vec@, Err(_) => !valid_utf8(vec@) }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::string::{FromUtf8Error, String}",
+        "alloc::vec::Vec",
+        "core::result::Result",
+        "vstd::prelude::*",
+        "vstd::utf8::{encode_utf8, valid_utf8}"
+      ],
+      "useful": true,
+      "rationale": "vstd's UTF-8 validity and encoding models characterize the Result branch and the successful String contents exactly.",
+      "risks": [
+        "The retained bytes and detailed Utf8Error inside FromUtf8Error remain unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf8_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although Cow<str> has a view, vstd lacks a lossy UTF-8 decoder that models invalid-chunk boundaries and U+FFFD insertion. Modeling only valid inputs would omit the API's defining behavior.",
+      "risks": [
+        "missing lossy UTF-8 decoder model",
+        "unmodeled invalid-chunk replacement semantics"
+      ]
+    },
+    {
+      "target": "alloc::string::String::into_boxed_str",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::into_boxed_str ](\n    s: String,\n) -> (res: Box<str>)\n    ensures\n        res@ == s@,\n;",
+      "requires": [],
+      "ensures": [
+        "res@ == s@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::boxed::Box",
+        "alloc::string::String",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "String and Box<str> share the Seq<char> view, and the source transfers the same UTF-8 contents into the boxed string.",
+      "risks": [
+        "Allocation identity, capacity, reallocation, and OOM behavior are not modeled."
+      ]
+    },
+    {
+      "target": "core::option::Option::as_pin_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd has no Pin pointee model with which to inspect the pinned Option or relate the returned pinned reference to its Some field.",
+      "risks": [
+        "missing Pin abstraction",
+        "pinned-reference identity and provenance cannot be replaced by view equality"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::string::String::from_utf16le",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result requires little-endian byte pairing, UTF-16 surrogate validation, and
+ decoding. Current vstd has no public UTF-16 validity or decoding model.",
+      "risks": [
+        "missing UTF-16LE decoder model",
+        "unmodeled surrogate-pair semantics",
+        "opaque FromUtf16Error details"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf16le_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd cannot express the UTF-16LE transformation that replaces lone
+surrogates and an odd trailing byte with U+FFFD.",
+      "risks": [
+        "missing lossy UTF-16LE decoder model",
+        "unmodeled replacement-character placement"
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf8",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::from_utf8 ](\n    vec: Vec<u8>,\n) ->
+(res: Result<String, FromUtf8Error>)\n    ensures\n        match res {\n            Ok(s) => {\n
+            &&& valid_utf8(vec@)\n                &&& encode_utf8(s@) =~= vec@\n            },\n
+        Err() => !valid_utf8(vec@),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "match res { Ok(s) => valid_utf8(vec@) && encode_utf8(s@) =~= vec@, Err() =>
+!valid_utf8(vec@) }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::string::{FromUtf8Error, String}",
+        "alloc::vec::Vec",
+        "core::result::Result",
+        "vstd::prelude::",
+        "vstd::utf8::{encode_utf8, valid_utf8}"
+      ],
+      "useful": true,
+      "rationale": "vstd's UTF-8 validity and encoding models characterize the Result branch and the
+ successful String contents exactly.",
+      "risks": [
+        "The retained bytes and detailed Utf8Error inside FromUtf8Error remain unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::string::String::from_utf8_lossy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although Cow<str> has a view, vstd lacks a lossy UTF-8 decoder that models
+invalid-chunk boundaries and U+FFFD insertion. Modeling only valid inputs would omit the API's
+defining behavior.",
+      "risks": [
+        "missing lossy UTF-8 decoder model",
+        "unmodeled invalid-chunk replacement semantics"
+      ]
+    },
+    {
+      "target": "alloc::string::String::into_boxed_str",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::into_boxed_str ](\n    s: String,\n) ->
+(res: Box<str>)\n    ensures\n        res@ == s@,\n;",
+      "requires": [],
+      "ensures": [
+        "res@ == s@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::boxed::Box",
+        "alloc::string::String",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "String and Box<str> share the Seq<char> view, and the source transfers the same
+UTF-8 contents into the boxed string.",
+      "risks": [
+        "Allocation identity, capacity, reallocation, and OOM behavior are not modeled."
+      ]
+    },
+    {
+      "target": "core::option::Option::as_pin_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd has no Pin pointee model with which to inspect the pinned Option or
+ relate the returned pinned reference to its Some field.",
+      "risks": [
+        "missing Pin abstraction",
+        "pinned-reference identity and provenance cannot be replaced by view equality"
+      ]
+    } ]
+}
+

@@ -1,0 +1,117 @@
+{
+  "batch": 48,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 23899,
+  "targets": [
+    "core::result::Result::as_deref_mut",
+    "core::result::Result::as_mut",
+    "core::slice::ChunksExactMut::into_remainder",
+    "core::slice::IterMut::into_slice",
+    "core::slice::RChunksExactMut::into_remainder",
+    "core::slice::align_to_mut"
+  ],
+  "candidates": [
+    {
+      "target": "core::result::Result::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains mutable references obtained through DerefMut; current vstd cannot express their identity and mutation relationship to the corresponding Result payload.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_DerefMut_model"
+      ]
+    },
+    {
+      "target": "core::result::Result::as_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the returned mutable reference to the selected Ok or Err payload and its final value; that mutable-reference identity relation is unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::ChunksExactMut::into_remainder",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable slice is the iterator's private remainder, but current vstd exposes neither that hidden iterator state nor a supported mutable-reference return relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_iterator_state"
+      ]
+    },
+    {
+      "target": "core::slice::IterMut::into_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result aliases exactly the unconsumed private iterator range; current vstd lacks a public IterMut state model and support for specifying the returned mutable slice identity.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_iterator_state"
+      ]
+    },
+    {
+      "target": "core::slice::RChunksExactMut::into_remainder",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable slice is the iterator's private prefix remainder, which cannot be related to the consumed receiver using current public vstd abstractions.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "hidden_iterator_state"
+      ]
+    },
+    {
+      "target": "core::slice::align_to_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract needs byte-level reinterpretation, alignment, partitioning, and disjoint mutable-alias relations that current vstd vocabulary does not provide.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_byte_reinterpretation_model",
+        "missing_disjointness_model"
+      ]
+    }
+  ]
+}

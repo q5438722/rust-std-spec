@@ -1,0 +1,518 @@
+{
+  "metadata": {
+    "module_file": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd/std_specs/collections_extra.rs",
+    "imports": [
+      "alloc::collections::*",
+      "alloc::vec::Vec",
+      "core::alloc::Allocator",
+      "vstd::std_specs::collections_extra::*",
+      "vstd::multiset::Multiset",
+      "vstd::laws_eq::obeys_concrete_eq",
+      "vstd::prelude::*"
+    ]
+  },
+  "counts": {
+    "targets": 24,
+    "status": {
+      "ok": 24
+    },
+    "r0_z3": {
+      "unsat": 19,
+      "unknown": 5
+    },
+    "classification": {
+      "complete": 19,
+      "ok_inconclusive": 5
+    }
+  },
+  "results": [
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == Multiset::<T>::empty()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 876,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T>::new",
+      "source_line": 47
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == heap@.len()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 906,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::len",
+      "source_line": 52
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result <==> heap@.len() == 0"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 882,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::is_empty",
+      "source_line": 59
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == Multiset::<T>::empty()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 840,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::clear",
+      "source_line": 66
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@.insert(item)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 928,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::push",
+      "source_line": 73
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(heap)@ == old(heap)@.add(old(other)@)",
+        "final(other)@ == Multiset::<T>::empty()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 870,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "BinaryHeap::<T, A>::append",
+      "source_line": 81
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "match result {\n            None => {\n                &&& old(heap)@.len() == 0\n                &&& final(heap)@ == old(heap)@\n            },\n            Some(value) => {\n                &&& old(heap)@.contains(value)\n                &&& final(heap)@ == old(heap)@.remove(value)\n            },\n        }"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 1,
+      "verus_ms": 615,
+      "r0_z3": "unknown",
+      "n_rounds": 4,
+      "assumes": [
+        "r1 is Some",
+        "r2 is Some",
+        "!det___rust_std_candidate_equal(r1, r2, post1_heap, post2_heap)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::pop",
+      "source_line": 90
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result is None <==> heap@.len() == 0",
+        "result matches Some(value) ==> heap@.contains(*value)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 1,
+      "verus_ms": 592,
+      "r0_z3": "unknown",
+      "n_rounds": 4,
+      "assumes": [
+        "r1 is Some",
+        "r2 is Some",
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::peek",
+      "source_line": 106
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@.to_multiset() == heap@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 1,
+      "verus_ms": 677,
+      "r0_z3": "unknown",
+      "n_rounds": 5,
+      "assumes": [
+        "r1.len() == 0",
+        "r2.len() == 1",
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::as_slice",
+      "source_line": 114
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@.to_multiset() == heap@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 1,
+      "verus_ms": 710,
+      "r0_z3": "unknown",
+      "n_rounds": 5,
+      "assumes": [
+        "r1@.len() == 0",
+        "r2@.len() == 1",
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::into_vec",
+      "source_line": 121
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@.to_multiset() == heap@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 1,
+      "verus_ms": 680,
+      "r0_z3": "unknown",
+      "n_rounds": 5,
+      "assumes": [
+        "r1@.len() == 0",
+        "r2@.len() == 1",
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "BinaryHeap::<T, A>::into_sorted_vec",
+      "source_line": 128
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == Seq::<T>::empty()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 793,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T>::new",
+      "source_line": 135
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == list@.len()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 834,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::len",
+      "source_line": 140
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result <==> list@.len() == 0"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 887,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::is_empty",
+      "source_line": 147
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "obeys_concrete_eq::<T>()"
+      ],
+      "ensures": [
+        "result <==> list@.contains(*value)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 880,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::contains",
+      "source_line": 154
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(list)@ == Seq::<T>::empty()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 844,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::clear",
+      "source_line": 166
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(list)@ == seq![item] + old(list)@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 878,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::push_front",
+      "source_line": 173
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(list)@ == old(list)@.push(item)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 961,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::push_back",
+      "source_line": 181
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "old(list)@.len() == 0 ==> result is None && final(list)@ == old(list)@",
+        "old(list)@.len() > 0 ==>\n            (result matches Some(value)\n                && value == old(list)@[0]\n                && final(list)@ == old(list)@.drop_first())"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 896,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::pop_front",
+      "source_line": 189
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "old(list)@.len() == 0 ==> result is None && final(list)@ == old(list)@",
+        "old(list)@.len() > 0 ==>\n            (result matches Some(value)\n                && value == old(list)@.last()\n                && final(list)@ == old(list)@.drop_last())"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 841,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::pop_back",
+      "source_line": 200
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "list@.len() == 0 ==> result is None",
+        "list@.len() > 0 ==> (result matches Some(value) && *value == list@[0])"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 852,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::front",
+      "source_line": 211
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "list@.len() == 0 ==> result is None",
+        "list@.len() > 0 ==> (result matches Some(value) && *value == list@.last())"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 833,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::back",
+      "source_line": 219
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "final(list)@ == old(list)@ + old(other)@",
+        "final(other)@ == Seq::<T>::empty()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 885,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T>::append",
+      "source_line": 227
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "at <= old(list)@.len()"
+      ],
+      "ensures": [
+        "final(list)@ == old(list)@.take(at as int)",
+        "result@ == old(list)@.skip(at as int)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 950,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "LinkedList::<T, A>::split_off",
+      "source_line": 236
+    }
+  ]
+}

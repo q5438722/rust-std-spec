@@ -1,0 +1,135 @@
+{
+  "id": "std_specs__vecdeque.rs__L86__VecDeque__T__new",
+  "api_path": "alloc::collections::vec_deque::VecDeque::new",
+  "raw_target": "VecDeque::<T>::new",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 86,
+  "rust_declaration": {
+    "declaration_id": "alloc:3071",
+    "name": "new",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 68, patch: 0 })},\nfeature: \"const_vec_deque_new\", promotable: false}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        781,
+        5
+      ],
+      "end": [
+        784,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [],
+      "output": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3074",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   761:         R: RangeBounds<usize>,\n   762:     {\n   763:         ExtractIf::new(self, filter, range)\n   764:     }\n   765: }\n   766: \n   767: impl<T> VecDeque<T> {\n   768:     /// Creates an empty deque.\n   769:     ///\n   770:     /// # Examples\n   771:     ///\n   772:     /// ```\n   773:     /// use std::collections::VecDeque;\n   774:     ///\n   775:     /// let deque: VecDeque<u32> = VecDeque::new();\n   776:     /// ```\n   777:     #[inline]\n   778:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   779:     #[rustc_const_stable(feature = \"const_vec_deque_new\", since = \"1.68.0\")]\n   780:     #[must_use]\n   781:     pub const fn new() -> VecDeque<T> {\n   782:         // FIXME(const-hack): This should just be `VecDeque::new_in(Global)` once that hits stable.\n   783:         VecDeque { head: 0, len: 0, buf: RawVec::new() }\n   784:     }\n   785: \n   786:     /// Creates an empty deque with space for at least `capacity` elements.\n   787:     ///\n   788:     /// # Examples\n   789:     ///\n   790:     /// ```\n   791:     /// use std::collections::VecDeque;\n   792:     ///\n   793:     /// let deque: VecDeque<i32> = VecDeque::with_capacity(10);\n   794:     /// ```\n   795:     #[inline]\n   796:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   797:     #[must_use]\n   798:     pub fn with_capacity(capacity: usize) -> VecDeque<T> {\n   799:         Self::with_capacity_in(capacity, Global)\n   800:     }\n   801: ",
+    "source_text": "pub const fn new() -> VecDeque<T> {\n        // FIXME(const-hack): This should just be `VecDeque::new_in(Global)` once that hits stable.\n        VecDeque { head: 0, len: 0, buf: RawVec::new() }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for VecDeque::<T>::with_capacity ensures an empty sequence view."
+  ],
+  "rationale": "with_capacity(0) follows Rust 1.96's equivalent zero-layout RawVec construction without calling VecDeque::new.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vecdeque.rs__L86__VecDeque__T__new"
+}

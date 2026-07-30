@@ -1,0 +1,212 @@
+{
+  "candidates": [
+    {
+      "target": "std::ffi::OsString::try_reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation exposes only allocator success and hidden capacity changes. vstd has no public OsString content/capacity view with which to express a useful preservation or capacity guarantee.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "missing_os_string_view"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::try_reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and mutation concern allocation and hidden capacity. Without a public OsString view, neither content preservation nor successful reservation can be expressed usefully.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "missing_os_string_view"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its distinguishing guarantee is hidden allocation capacity. Expressing that the returned value has empty contents also requires an OsString content view unavailable in current vstd vocabulary.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "missing_os_string_view"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned number is delegated directly from OsString's hidden allocation capacity, for which no public vstd model exists.",
+      "risks": [
+        "hidden_capacity_state",
+        "missing_pathbuf_view"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning method changes only hidden allocation capacity. A content-preservation contract would require a PathBuf content view that current vstd does not provide.",
+      "risks": [
+        "hidden_capacity_state",
+        "missing_pathbuf_view",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method's effect is confined to hidden allocator capacity, and even exact reservation may over-allocate. No current public PathBuf view supports a useful preservation contract.",
+      "risks": [
+        "hidden_capacity_state",
+        "missing_pathbuf_view",
+        "unit_return_variant"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::ffi::OsString::try_reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation exposes only allocator success and hidden capacity changes. vstd
+has no public OsString content/capacity view with which to express a useful preservation or capacity
+ guarantee.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "missing_os_string_view"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::try_reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and mutation concern allocation and hidden capacity. Without a public
+ OsString view, neither content preservation nor successful reservation can be expressed usefully.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "missing_os_string_view"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its distinguishing guarantee is hidden allocation capacity. Expressing that the
+returned value has empty contents also requires an OsString content view unavailable in current vstd
+ vocabulary.",
+      "risks": [
+        "allocator_state_not_modeled",
+        "missing_os_string_view"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned number is delegated directly from OsString's hidden allocation
+capacity, for which no public vstd model exists.",
+      "risks": [
+        "hidden_capacity_state",
+        "missing_pathbuf_view"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::reserve",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning method changes only hidden allocation capacity. A
+content-preservation contract would require a PathBuf content view that current vstd does not
+provide.",
+      "risks": [
+        "hidden_capacity_state",
+        "missing_pathbuf_view",
+        "unit_return_variant"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::reserve_exact",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method's effect is confined to hidden allocator capacity, and even exact
+reservation may over-allocate. No current public PathBuf view supports a useful preservation
+contract.",
+      "risks": [
+        "hidden_capacity_state",
+        "missing_pathbuf_view",
+        "unit_return_variant"
+      ]
+    } ]
+}
+

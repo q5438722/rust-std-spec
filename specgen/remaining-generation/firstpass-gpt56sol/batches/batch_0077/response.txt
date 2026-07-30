@@ -1,0 +1,317 @@
+{
+  "candidates": [
+    {
+      "target": "core::option::Option::map_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, U, F: FnOnce(T) -> U>[ Option::<T>::map_or ](\n    option: Option<T>,\n    default: U,\n    f: F,\n) -> (result: U)\n    requires\n        option is Some ==> f.requires((option->0,)),\n    ensures\n        option is Some ==> f.ensures((option->0,), result),\n        option is None ==> result == default,\n;",
+      "requires": [
+        "option is Some ==> f.requires((option->0,))"
+      ],
+      "ensures": [
+        "option is Some ==> f.ensures((option->0,), result)",
+        "option is None ==> result == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source calls f on the Some payload and otherwise returns default; FnOnce call relations express both branches directly.",
+      "risks": [
+        "Precision on the Some branch depends on the closure contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::option::Option::map_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, U: core::default::Default, F: FnOnce(T) -> U>[ Option::<T>::map_or_default ](\n    option: Option<T>,\n    f: F,\n) -> (result: U)\n    requires\n        option is Some ==> f.requires((option->0,)),\n    ensures\n        option is Some ==> f.ensures((option->0,), result),\n        option is None ==> U::default.ensures((), result),\n;",
+      "requires": [
+        "option is Some ==> f.requires((option->0,))"
+      ],
+      "ensures": [
+        "option is Some ==> f.ensures((option->0,), result)",
+        "option is None ==> U::default.ensures((), result)"
+      ],
+      "feature_gates": [
+        "result_option_map_or_default"
+      ],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source calls f for Some and Default::default for None; existing callable ensures relations model both outcomes.",
+      "risks": [
+        "Precision depends on the closure and Default implementation contracts.",
+        "The API is feature-gated in Rust 1.96."
+      ]
+    },
+    {
+      "target": "core::option::Option::map_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, U, D: FnOnce() -> U, F: FnOnce(T) -> U>[ Option::<T>::map_or_else ](\n    option: Option<T>,\n    default: D,\n    f: F,\n) -> (result: U)\n    requires\n        option is Some ==> f.requires((option->0,)),\n        option is None ==> default.requires(()),\n    ensures\n        option is Some ==> f.ensures((option->0,), result),\n        option is None ==> default.ensures((), result),\n;",
+      "requires": [
+        "option is Some ==> f.requires((option->0,))",
+        "option is None ==> default.requires(())"
+      ],
+      "ensures": [
+        "option is Some ==> f.ensures((option->0,), result)",
+        "option is None ==> default.ensures((), result)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source invokes exactly one closure according to the Option variant, which FnOnce requires/ensures relations capture.",
+      "risks": [
+        "Precision depends on the selected closure contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::option::Option::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, F: FnOnce() -> Option<T>>[ Option::<T>::or_else ](\n    option: Option<T>,\n    f: F,\n) -> (result: Option<T>)\n    requires\n        option is None ==> f.requires(()),\n    ensures\n        option is Some ==> result == option,\n        option is None ==> f.ensures((), result),\n;",
+      "requires": [
+        "option is None ==> f.requires(())"
+      ],
+      "ensures": [
+        "option is Some ==> result == option",
+        "option is None ==> f.ensures((), result)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source preserves an existing Some and invokes f only for None, directly matching the callable contract vocabulary.",
+      "risks": [
+        "Precision on the None branch depends on the closure contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::option::Option::take_if",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, P: FnOnce(&mut T) -> bool>[ Option::<T>::take_if ](\n    option: &mut Option<T>,\n    predicate: P,\n) -> (result: Option<T>)\n    requires\n        *old(option) is Some ==> forall |arg: &mut T| #![auto]\n            *arg == old(option)->0 ==> predicate.requires((arg,)),\n    ensures\n        *old(option) is None ==> result is None && *final(option) is None,\n        *old(option) is Some ==> exists |arg: &mut T, take: bool| #![auto] {\n            &&& *arg == old(option)->0\n            &&& predicate.ensures((arg,), take)\n            &&& if take {\n                result == Some(*final(arg)) && *final(option) is None\n            } else {\n                result is None && *final(option) == Some(*final(arg))\n            }\n        },\n;",
+      "requires": [
+        "*old(option) is Some ==> forall |arg: &mut T| #![auto] *arg == old(option)->0 ==> predicate.requires((arg,))"
+      ],
+      "ensures": [
+        "*old(option) is None ==> result is None && *final(option) is None",
+        "*old(option) is Some ==> exists |arg: &mut T, take: bool| #![auto] predicate.ensures((arg,), take) relates the mutated payload to result and *final(option)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "A prophetic mutable-reference witness captures the predicate's mutation; its boolean result determines whether the mutated payload is returned or retained.",
+      "risks": [
+        "The callback precondition must hold for every prophetic future with the initial payload.",
+        "Precision depends on the predicate contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::map_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves strict provenance while replacing the address, but current vstd exposes no public NonNull address/provenance model connecting self to the result.",
+      "risks": [
+        "missing NonNull logical model",
+        "strict-provenance preservation is not expressible",
+        "unsafe_or_ownership_sensitive"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::option::Option::map_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, U, F: FnOnce(T) -> U>[ Option::<T>::map_or ](\n
+   option: Option<T>,\n    default: U,\n    f: F,\n) -> (result: U)\n    requires\n        option is
+ Some ==> f.requires((option->0,)),\n    ensures\n        option is Some ==> f.ensures((option->0,),
+ result),\n        option is None ==> result == default,\n;",
+      "requires": [
+        "option is Some ==> f.requires((option->0,))"
+      ],
+      "ensures": [
+        "option is Some ==> f.ensures((option->0,), result)",
+        "option is None ==> result == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source calls f on the Some payload and otherwise returns default; FnOnce
+call relations express both branches directly.",
+      "risks": [
+        "Precision on the Some branch depends on the closure contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::option::Option::map_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, U: core::default::Default, F: FnOnce(T) -> U>[
+Option::<T>::map_or_default ](\n    option: Option<T>,\n    f: F,\n) -> (result: U)\n    requires\n
+       option is Some ==> f.requires((option->0,)),\n    ensures\n        option is Some ==>
+f.ensures((option->0,), result),\n        option is None ==> U::default.ensures((), result),\n;",
+      "requires": [
+        "option is Some ==> f.requires((option->0,))"
+      ],
+      "ensures": [
+        "option is Some ==> f.ensures((option->0,), result)",
+        "option is None ==> U::default.ensures((), result)"
+      ],
+      "feature_gates": [
+        "result_option_map_or_default"
+      ],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source calls f for Some and Default::default for None; existing callable
+ensures relations model both outcomes.",
+      "risks": [
+        "Precision depends on the closure and Default implementation contracts.",
+        "The API is feature-gated in Rust 1.96."
+      ]
+    },
+    {
+      "target": "core::option::Option::map_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, U, D: FnOnce() -> U, F: FnOnce(T) -> U>[
+Option::<T>::map_or_else ](\n    option: Option<T>,\n    default: D,\n    f: F,\n) -> (result: U)\n
+   requires\n        option is Some ==> f.requires((option->0,)),\n        option is None ==>
+default.requires(()),\n    ensures\n        option is Some ==> f.ensures((option->0,), result),\n
+     option is None ==> default.ensures((), result),\n;",
+      "requires": [
+        "option is Some ==> f.requires((option->0,))",
+        "option is None ==> default.requires(())"
+      ],
+      "ensures": [
+        "option is Some ==> f.ensures((option->0,), result)",
+        "option is None ==> default.ensures((), result)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source invokes exactly one closure according to the Option variant, which
+FnOnce requires/ensures relations capture.",
+      "risks": [
+        "Precision depends on the selected closure contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::option::Option::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, F: FnOnce() -> Option<T>>[ Option::<T>::or_else
+](\n    option: Option<T>,\n    f: F,\n) -> (result: Option<T>)\n    requires\n        option is
+None ==> f.requires(()),\n    ensures\n        option is Some ==> result == option,\n        option
+is None ==> f.ensures((), result),\n;",
+      "requires": [
+        "option is None ==> f.requires(())"
+      ],
+      "ensures": [
+        "option is Some ==> result == option",
+        "option is None ==> f.ensures((), result)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source preserves an existing Some and invokes f only for None, directly
+matching the callable contract vocabulary.",
+      "risks": [
+        "Precision on the None branch depends on the closure contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::option::Option::take_if",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, P: FnOnce(&mut T) -> bool>[ Option::<T>::take_if
+ ](\n    option: &mut Option<T>,\n    predicate: P,\n) -> (result: Option<T>)\n    requires\n
+ *old(option) is Some ==> forall |arg: &mut T| #![auto]\n            *arg == old(option)->0 ==>
+predicate.requires((arg,)),\n    ensures\n        *old(option) is None ==> result is None &&
+*final(option) is None,\n        *old(option) is Some ==> exists |arg: &mut T, take: bool| #![auto]
+{\n            &&& *arg == old(option)->0\n            &&& predicate.ensures((arg,), take)\n
+    &&& if take {\n                result == Some(*final(arg)) && *final(option) is None\n
+  } else {\n                result is None && *final(option) == Some(*final(arg))\n            }\n
+      },\n;",
+      "requires": [
+        "*old(option) is Some ==> forall |arg: &mut T| #![auto] *arg == old(option)->0 ==>
+predicate.requires((arg,))"
+      ],
+      "ensures": [
+        "*old(option) is None ==> result is None && *final(option) is None",
+        "*old(option) is Some ==> exists |arg: &mut T, take: bool| #![auto]
+predicate.ensures((arg,), take) relates the mutated payload to result and final(option)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "A prophetic mutable-reference witness captures the predicate's mutation; its
+boolean result determines whether the mutated payload is returned or retained.",
+      "risks": [
+        "The callback precondition must hold for every prophetic future with the initial payload.",
+        "Precision depends on the predicate contract.",
+        "Closure unwinding is outside the postcondition."
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::map_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves strict provenance while replacing the address, but current
+vstd exposes no public NonNull address/provenance model connecting self to the result.",
+      "risks": [
+        "missing NonNull logical model",
+        "strict-provenance preservation is not expressible",
+        "unsafe_or_ownership_sensitive"
+      ]
+    } ]
+}
+

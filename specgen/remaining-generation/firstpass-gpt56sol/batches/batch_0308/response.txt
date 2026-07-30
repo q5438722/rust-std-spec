@@ -1,0 +1,104 @@
+{
+  "candidates": [
+    {
+      "target": "std::os::unix::fs::PermissionsExt::set_mode",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates opaque permission state. Expressing the documented relation to mode() requires a shared public permissions model that current vstd lacks.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_permissions_model"
+      ]
+    },
+    {
+      "target": "std::os::windows::ffi::OsStrExt::encode_wide",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd has neither an OsStr wide-code-unit view nor a model for the opaque EncodeWide iterator, so its lossless encoding cannot be expressed.",
+      "risks": [
+        "missing_osstr_wide_sequence_abstraction",
+        "opaque_iterator_state"
+      ]
+    },
+    {
+      "target": "std::os::windows::ffi::OsStringExt::from_wide",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The input has a sequence view, but the returned OsString/Self has no public wide-code-unit view. The promised round trip through encode_wide is therefore not expressible.",
+      "risks": [
+        "missing_osstring_wide_sequence_abstraction",
+        "private_representation_would_be_required"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::FileExt::seek_read",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and modified buffer depend on unmodeled file contents and I/O errors; current vstd has no file-state abstraction supporting a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_contents_model",
+        "unmodeled_io_errors"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::FileExt::seek_write",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful behavior is an external file update, and the returned count depends on unmodeled file and I/O state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_state_model",
+        "unmodeled_io_errors"
+      ]
+    },
+    {
+      "target": "std::os::windows::fs::FileTimesExt::set_created",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source updates private FileTimes state and returns Self, but current vstd exposes no creation-time view relating the result to the supplied SystemTime.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filetimes_model",
+        "missing_systemtime_relation"
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,33 @@
+{"candidates":[{"target":"core::cell::Cell::set","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method mutates interior Cell contents through &self and returns unit. Current vstd has no public abstraction exposing that hidden state, so no useful relation is expressible.","risks":["interior_mutability_unmodeled","missing_cell_state_abstraction","unit_result_without_mutable_output_state"]},{"target":"core::cell::Cell::swap","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The observable behavior is exchanging hidden Cell contents through shared references; it may also panic for partially overlapping cells. Neither contents nor overlap are modeled in current vstd vocabulary.","risks":["interior_mutability_unmodeled","missing_cell_state_abstraction","overlap_panic","unit_result_without_mutable_output_state"]},{"target":"core::cell::Cell::update","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method reads hidden Cell state, applies an arbitrary FnOnce, and stores its result through &self. Without a Cell state abstraction, the update cannot be related to the closure specification usefully.","risks":["interior_mutability_unmodeled","missing_cell_state_abstraction","closure_effects","unit_result_without_mutable_output_state"]},{"target":"core::cell::RefCell::swap","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation swaps values obtained through borrow_mut and can panic according to dynamic borrow state and aliasing. Current vstd exposes no suitable RefCell contents or borrow-state abstraction.","risks":["interior_mutability_unmodeled","missing_refcell_state_abstraction","dynamic_borrow_panic","unit_result_without_mutable_output_state"]},{"target":"core::hint::cold_path","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This function only supplies a compiler cold-path hint and returns unit with no modeled state. Its source provides no logical relation useful to callers.","risks":["compiler_hint_only","unit_result_without_mutable_output_state"]},{"target":"core::hint::spin_loop","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This target-dependent runtime CPU hint returns unit and has no modeled output or mutable input. Its performance/runtime effect has no useful contract in current vstd vocabulary.","risks":["runtime_effect_only","target_dependent_behavior","unit_result_without_mutable_output_state"]}]}{"candidates":[{"target":"core::cell::Cell::set","decision":"skip","contract_form":"assume_specifica
+tion","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"
+rationale":"The method mutates interior Cell contents through &self and returns unit. Current vstd
+has no public abstraction exposing that hidden state, so no useful relation is
+expressible.","risks":["interior_mutability_unmodeled","missing_cell_state_abstraction","unit_result
+_without_mutable_output_state"]},{"target":"core::cell::Cell::swap","decision":"skip","contract_form
+":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":
+[],"useful":false,"rationale":"The observable behavior is exchanging hidden Cell contents through
+shared references; it may also panic for partially overlapping cells. Neither contents nor overlap
+are modeled in current vstd vocabulary.","risks":["interior_mutability_unmodeled","missing_cell_stat
+e_abstraction","overlap_panic","unit_result_without_mutable_output_state"]},{"target":"core::cell::C
+ell::update","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":
+[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method reads hidden
+Cell state, applies an arbitrary FnOnce, and stores its result through &self. Without a Cell state
+abstraction, the update cannot be related to the closure specification
+usefully.","risks":["interior_mutability_unmodeled","missing_cell_state_abstraction","closure_effect
+s","unit_result_without_mutable_output_state"]},{"target":"core::cell::RefCell::swap","decision":"sk
+ip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_ga
+tes":[],"imports":[],"useful":false,"rationale":"The implementation swaps values obtained through
+borrow_mut and can panic according to dynamic borrow state and aliasing. Current vstd exposes no
+suitable RefCell contents or borrow-state
+abstraction.","risks":["interior_mutability_unmodeled","missing_refcell_state_abstraction","dynamic_
+borrow_panic","unit_result_without_mutable_output_state"]},{"target":"core::hint::cold_path","decisi
+on":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"fea
+ture_gates":[],"imports":[],"useful":false,"rationale":"This function only supplies a compiler
+cold-path hint and returns unit with no modeled state. Its source provides no logical relation
+useful to callers.","risks":["compiler_hint_only","unit_result_without_mutable_output_state"]},{"tar
+get":"core::hint::spin_loop","decision":"skip","contract_form":"assume_specification","contract_code
+":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This
+target-dependent runtime CPU hint returns unit and has no modeled output or mutable input. Its
+performance/runtime effect has no useful contract in current vstd vocabulary.","risks":["runtime_eff
+ect_only","target_dependent_behavior","unit_result_without_mutable_output_state"]}]}
+

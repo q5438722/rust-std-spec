@@ -1,0 +1,201 @@
+{
+  "candidates": [
+    {
+      "target": "core::slice::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must describe the mutated `&mut [T]` contents, but current contract handling materializes that post-state as unsized by-value `[T]`, which cannot typecheck.",
+      "risks": [
+        "missing_sized_slice_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::swap_with_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source supports exchanging both sequence views when lengths match, but both exact mutable-slice post-states are unsized `[T]` values that current contract handling cannot materialize.",
+      "risks": [
+        "missing_sized_slice_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::make_ascii_lowercase",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable behavior is the mutated string contents, but the exact `&mut str` post-state is currently materialized as unsized by-value `str` and cannot typecheck.",
+      "risks": [
+        "missing_sized_str_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::make_ascii_uppercase",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable behavior is the mutated string contents, but the exact `&mut str` post-state is currently materialized as unsized by-value `str` and cannot typecheck.",
+      "risks": [
+        "missing_sized_str_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::substr_range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on pointer location, including documented empty-string false positives, so semantic string views cannot determine it; vstd also lacks a model for the exact `core::range::Range<usize>` result.",
+      "risks": [
+        "missing_core_range_model",
+        "pointer_location_not_modeled",
+        "empty_substring_false_positives"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::get_key_value",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "For generic `Borrow<Q>`, vstd's borrowed-key predicates are uninterpreted and provide no functionality law uniquely identifying the stored key-value pair; reference identity is not a valid substitute.",
+      "risks": [
+        "missing_functional_borrowed_key_abstraction",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::slice::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must describe the mutated &mut [T] contents, but current
+contract handling materializes that post-state as unsized by-value [T], which cannot typecheck.",
+      "risks": [
+        "missing_sized_slice_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::swap_with_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source supports exchanging both sequence views when lengths match, but both
+exact mutable-slice post-states are unsized [T] values that current contract handling cannot
+materialize.",
+      "risks": [
+        "missing_sized_slice_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::make_ascii_lowercase",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable behavior is the mutated string contents, but the exact &mut str
+post-state is currently materialized as unsized by-value str and cannot typecheck.",
+      "risks": [
+        "missing_sized_str_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::make_ascii_uppercase",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable behavior is the mutated string contents, but the exact &mut str
+post-state is currently materialized as unsized by-value str and cannot typecheck.",
+      "risks": [
+        "missing_sized_str_post_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::str::substr_range",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on pointer location, including documented empty-string false
+positives, so semantic string views cannot determine it; vstd also lacks a model for the exact
+core::range::Range<usize> result.",
+      "risks": [
+        "missing_core_range_model",
+        "pointer_location_not_modeled",
+        "empty_substring_false_positives"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::get_key_value",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "For generic Borrow<Q>, vstd's borrowed-key predicates are uninterpreted and
+provide no functionality law uniquely identifying the stored key-value pair; reference identity is
+not a valid substitute.",
+      "risks": [
+        "missing_functional_borrowed_key_abstraction",
+        "reference_identity_vs_view"
+      ]
+    } ]
+}
+

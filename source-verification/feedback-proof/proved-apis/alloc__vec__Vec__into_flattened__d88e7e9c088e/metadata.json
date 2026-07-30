@@ -1,0 +1,183 @@
+{
+  "id": "alloc__vec__Vec__into_flattened__d88e7e9c088e",
+  "api_path": "alloc::vec::Vec::into_flattened",
+  "raw_target": "alloc::vec::Vec::<[T; N], A>::into_flattened",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 80, patch: 0 })},\nfeature: \"slice_flatten\"}}]"
+      }
+    ],
+    "declaration_id": "alloc:4944",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "into_flattened",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "array": {
+                      "len": "N",
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 114,
+          "path": "Vec"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 4,
+                        "path": "Allocator"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "A"
+          },
+          {
+            "kind": {
+              "const": {
+                "default": null,
+                "type": {
+                  "primitive": "usize"
+                }
+              }
+            },
+            "name": "N"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:4950",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 114,
+          "path": "Vec"
+        }
+      }
+    },
+    "source_context": "  3547:     /// numbers.extend_from_within(..2);\n  3548:     /// assert_eq!(numbers, [0, 1, 2, 3, 4, 0, 1]);\n  3549:     ///\n  3550:     /// let mut strings = vec![String::from(\"hello\"), String::from(\"world\"), String::from(\"!\")];\n  3551:     /// strings.extend_from_within(1..=2);\n  3552:     /// assert_eq!(strings, [\"hello\", \"world\", \"!\", \"world\", \"!\"]);\n  3553:     /// ```\n  3554:     #[cfg(not(no_global_oom_handling))]\n  3555:     #[stable(feature = \"vec_extend_from_within\", since = \"1.53.0\")]\n  3556:     pub fn extend_from_within<R>(&mut self, src: R)\n  3557:     where\n  3558:         R: RangeBounds<usize>,\n  3559:     {\n  3560:         let range = slice::range(src, ..self.len());\n  3561:         self.reserve(range.len());\n  3562: \n  3563:         // SAFETY:\n  3564:         // - `slice::range` guarantees that the given range is valid for indexing self\n  3565:         unsafe {\n  3566:             self.spec_extend_from_within(range);\n  3567:         }\n  3568:     }\n  3569: }\n  3570: \n  3571: impl<T, A: Allocator, const N: usize> Vec<[T; N], A> {\n  3572:     /// Takes a `Vec<[T; N]>` and flattens it into a `Vec<T>`.\n  3573:     ///\n  3574:     /// # Panics\n  3575:     ///\n  3576:     /// Panics if the length of the resulting vector would overflow a `usize`.\n  3577:     ///\n  3578:     /// This is only possible when flattening a vector of arrays of zero-sized\n  3579:     /// types, and thus tends to be irrelevant in practice. If\n  3580:     /// `size_of::<T>() > 0`, this will never panic.\n  3581:     ///\n  3582:     /// # Examples\n  3583:     ///\n  3584:     /// ```\n  3585:     /// let mut vec = vec![[1, 2, 3], [4, 5, 6], [7, 8, 9]];\n  3586:     /// assert_eq!(vec.pop(), Some([7, 8, 9]));\n  3587:     ///\n  3588:     /// let mut flattened = vec.into_flattened();\n  3589:     /// assert_eq!(flattened.pop(), Some(6));\n  3590:     /// ```\n  3591:     #[stable(feature = \"slice_flatten\", since = \"1.80.0\")]\n  3592:     pub fn into_flattened(self) -> Vec<T, A> {\n  3593:         let (ptr, len, cap, alloc) = self.into_raw_parts_with_alloc();\n  3594:         let (new_len, new_cap) = if T::IS_ZST {\n  3595:             (len.checked_mul(N).expect(\"vec len overflow\"), usize::MAX)\n  3596:         } else {\n  3597:             // SAFETY:\n  3598:             // - `cap * N` cannot overflow because the allocation is already in\n  3599:             // the address space.\n  3600:             // - Each `[T; N]` has `N` valid elements, so there are `len * N`\n  3601:             // valid elements in the allocation.\n  3602:             unsafe { (len.unchecked_mul(N), cap.unchecked_mul(N)) }\n  3603:         };\n  3604:         // SAFETY:\n  3605:         // - `ptr` was allocated by `self`\n  3606:         // - `ptr` is well-aligned because `[T; N]` has the same alignment as `T`.\n  3607:         // - `new_cap` refers to the same sized allocation as `cap` because\n  3608:         // `new_cap * size_of::<T>()` == `cap * size_of::<[T; N]>()`\n  3609:         // - `len` <= `cap`, so `len * N` <= `cap * N`.\n  3610:         unsafe { Vec::<T, A>::from_raw_parts_in(ptr.cast(), new_len, new_cap, alloc) }\n  3611:     }\n  3612: }\n  3613: \n  3614: impl<T: Clone, A: Allocator> Vec<T, A> {\n  3615:     #[cfg(not(no_global_oom_handling))]\n  3616:     /// Extend the vector by `n` clones of value.\n  3617:     fn extend_with(&mut self, n: usize, value: T) {\n  3618:         self.reserve(n);\n  3619: \n  3620:         unsafe {\n  3621:             let mut ptr = self.as_mut_ptr().add(self.len());\n  3622:             // Use SetLenOnDrop to work around bug where compiler\n  3623:             // might not realize the store through `ptr` through self.set_len()\n  3624:             // don't alias.\n  3625:             let mut local_len = SetLenOnDrop::new(&mut self.len);\n  3626: \n  3627:             // Write all elements except the last one\n  3628:             for _ in 1..n {\n  3629:                 ptr::write(ptr, value.clone());\n  3630:                 ptr = ptr.add(1);\n  3631:                 // Increment the length in every step in case clone() panics\n  3632:                 local_len.increment_len(1);\n  3633:             }\n  3634: \n  3635:             if n > 0 {\n  3636:                 // We can write the last element directly without cloning needlessly\n  3637:                 ptr::write(ptr, value);",
+    "span": {
+      "begin": [
+        3592,
+        5
+      ],
+      "end": [
+        3611,
+        6
+      ],
+      "filename": "alloc/src/vec/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn into_flattened(self) -> Vec<T, A> {\n        let (ptr, len, cap, alloc) = self.into_raw_parts_with_alloc();\n        let (new_len, new_cap) = if T::IS_ZST {\n            (len.checked_mul(N).expect(\"vec len overflow\"), usize::MAX)\n        } else {\n            // SAFETY:\n            // - `cap * N` cannot overflow because the allocation is already in\n            // the address space.\n            // - Each `[T; N]` has `N` valid elements, so there are `len * N`\n            // valid elements in the allocation.\n            unsafe { (len.unchecked_mul(N), cap.unchecked_mul(N)) }\n        };\n        // SAFETY:\n        // - `ptr` was allocated by `self`\n        // - `ptr` is well-aligned because `[T; N]` has the same alignment as `T`.\n        // - `new_cap` refers to the same sized allocation as `cap` because\n        // `new_cap * size_of::<T>()` == `cap * size_of::<[T; N]>()`\n        // - `len` <= `cap`, so `len * N` <= `cap * N`.\n        unsafe { Vec::<T, A>::from_raw_parts_in(ptr.cast(), new_len, new_cap, alloc) }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "The lower contract for Vec::into_raw_parts_with_alloc yields valid raw parts and preserves the input sequence in raw_vec_view.",
+    "The lower contract for usize::unchecked_mul returns mathematical multiplication when the product fits in usize.",
+    "The lower contract for Vec::from_raw_parts_in constructs the sequence represented by valid raw parts.",
+    "axiom_raw_array_capacity_fits: a valid Vec<[T; N]> allocation has cap * N fitting in usize when T is non-ZST.",
+    "axiom_raw_array_reinterpretation: recasting valid [T; N] raw parts as T preserves allocation validity and changes the raw view to the flattened array view.",
+    "The vstd contracts for usize::checked_mul and Option::expect provide the checked ZST-branch arithmetic."
+  ],
+  "rationale": "Rust 1.96 control flow is preserved; T::IS_ZST and ptr.cast() are mechanically inlined to their definitions. The proof composes smaller raw-parts contracts with explicit raw-layout representation axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__vec__Vec__into_flattened__d88e7e9c088e"
+}

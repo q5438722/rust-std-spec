@@ -1,0 +1,156 @@
+{
+  "id": "std_specs__option.rs__L357__Option__ok_or",
+  "api_path": "core::option::Option::ok_or",
+  "raw_target": "Option::ok_or",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 357,
+  "rust_declaration": {
+    "declaration_id": "core:28034",
+    "name": "ok_or",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        1337,
+        5
+      ],
+      "end": [
+        1342,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "err",
+          {
+            "generic": "E"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "E",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1317:     /// result of a function call, it is recommended to use [`ok_or_else`], which is\n  1318:     /// lazily evaluated.\n  1319:     ///\n  1320:     /// [`Ok(v)`]: Ok\n  1321:     /// [`Err(err)`]: Err\n  1322:     /// [`Some(v)`]: Some\n  1323:     /// [`ok_or_else`]: Option::ok_or_else\n  1324:     ///\n  1325:     /// # Examples\n  1326:     ///\n  1327:     /// ```\n  1328:     /// let x = Some(\"foo\");\n  1329:     /// assert_eq!(x.ok_or(0), Ok(\"foo\"));\n  1330:     ///\n  1331:     /// let x: Option<&str> = None;\n  1332:     /// assert_eq!(x.ok_or(0), Err(0));\n  1333:     /// ```\n  1334:     #[inline]\n  1335:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1336:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1337:     pub const fn ok_or<E: [const] Destruct>(self, err: E) -> Result<T, E> {\n  1338:         match self {\n  1339:             Some(v) => Ok(v),\n  1340:             None => Err(err),\n  1341:         }\n  1342:     }\n  1343: \n  1344:     /// Transforms the `Option<T>` into a [`Result<T, E>`], mapping [`Some(v)`] to\n  1345:     /// [`Ok(v)`] and [`None`] to [`Err(err())`].\n  1346:     ///\n  1347:     /// [`Ok(v)`]: Ok\n  1348:     /// [`Err(err())`]: Err\n  1349:     /// [`Some(v)`]: Some\n  1350:     ///\n  1351:     /// # Examples\n  1352:     ///\n  1353:     /// ```\n  1354:     /// let x = Some(\"foo\");\n  1355:     /// assert_eq!(x.ok_or_else(|| 0), Ok(\"foo\"));\n  1356:     ///\n  1357:     /// let x: Option<&str> = None;",
+    "source_text": "pub const fn ok_or<E: [const] Destruct>(self, err: E) -> Result<T, E> {\n        match self {\n            Some(v) => Ok(v),\n            None => Err(err),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The copied match exactly mirrors the open spec_ok_or definition and verifies without invoking Option::ok_or or relying on another external contract.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__option.rs__L357__Option__ok_or"
+}

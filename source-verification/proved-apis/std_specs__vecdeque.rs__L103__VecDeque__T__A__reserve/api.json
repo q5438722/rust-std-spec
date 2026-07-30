@@ -1,0 +1,156 @@
+{
+  "id": "std_specs__vecdeque.rs__L103__VecDeque__T__A__reserve",
+  "api_path": "alloc::collections::vec_deque::VecDeque::reserve",
+  "normalized_api_path": "alloc::collections::VecDeque::reserve",
+  "raw_target": "VecDeque::<T, A>::reserve",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 103,
+  "rust_declaration": {
+    "declaration_id": "alloc:3081",
+    "name": "reserve",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgAttrTrace]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"vecdeque_reserve\")]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        1054,
+        5
+      ],
+      "end": [
+        1066,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "additional",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1034:     }\n  1035: \n  1036:     /// Reserves capacity for at least `additional` more elements to be inserted in the given\n  1037:     /// deque. The collection may reserve more space to speculatively avoid frequent reallocations.\n  1038:     ///\n  1039:     /// # Panics\n  1040:     ///\n  1041:     /// Panics if the new capacity overflows `usize`.\n  1042:     ///\n  1043:     /// # Examples\n  1044:     ///\n  1045:     /// ```\n  1046:     /// use std::collections::VecDeque;\n  1047:     ///\n  1048:     /// let mut buf: VecDeque<i32> = [1].into();\n  1049:     /// buf.reserve(10);\n  1050:     /// assert!(buf.capacity() >= 11);\n  1051:     /// ```\n  1052:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1053:     #[cfg_attr(not(test), rustc_diagnostic_item = \"vecdeque_reserve\")]\n  1054:     pub fn reserve(&mut self, additional: usize) {\n  1055:         let new_cap = self.len.checked_add(additional).expect(\"capacity overflow\");\n  1056:         let old_cap = self.capacity();\n  1057: \n  1058:         if new_cap > old_cap {\n  1059:             // we don't need to reserve_exact(), as the size doesn't have\n  1060:             // to be a power of 2.\n  1061:             self.buf.reserve(self.len, additional);\n  1062:             unsafe {\n  1063:                 self.handle_capacity_increase(old_cap);\n  1064:             }\n  1065:         }\n  1066:     }\n  1067: \n  1068:     /// Tries to reserve the minimum capacity for at least `additional` more elements to\n  1069:     /// be inserted in the given deque. After calling `try_reserve_exact`,\n  1070:     /// capacity will be greater than or equal to `self.len() + additional` if\n  1071:     /// it returns `Ok(())`. Does nothing if the capacity is already sufficient.\n  1072:     ///\n  1073:     /// Note that the allocator may give the collection more space than it\n  1074:     /// requests. Therefore, capacity can not be relied upon to be precisely",
+    "source_text": "pub fn reserve(&mut self, additional: usize) {\n        let new_cap = self.len.checked_add(additional).expect(\"capacity overflow\");\n        let old_cap = self.capacity();\n\n        if new_cap > old_cap {\n            // we don't need to reserve_exact(), as the size doesn't have\n            // to be a power of 2.\n            self.buf.reserve(self.len, additional);\n            unsafe {\n                self.handle_capacity_increase(old_cap);\n            }\n        }\n    }",
+    "has_body": true
+  }
+}

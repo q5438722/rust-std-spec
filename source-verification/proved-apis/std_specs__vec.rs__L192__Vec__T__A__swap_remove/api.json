@@ -1,0 +1,154 @@
+{
+  "id": "std_specs__vec.rs__L192__Vec__T__A__swap_remove",
+  "api_path": "alloc::vec::Vec::swap_remove",
+  "normalized_api_path": "alloc::vec::Vec::swap_remove",
+  "raw_target": "Vec::<T, A>::swap_remove",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 192,
+  "rust_declaration": {
+    "declaration_id": "alloc:4922",
+    "name": "swap_remove",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        2223,
+        5
+      ],
+      "end": [
+        2245,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "index",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "T"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  2203:     ///\n  2204:     /// [`remove`]: Vec::remove\n  2205:     ///\n  2206:     /// # Panics\n  2207:     ///\n  2208:     /// Panics if `index` is out of bounds.\n  2209:     ///\n  2210:     /// # Examples\n  2211:     ///\n  2212:     /// ```\n  2213:     /// let mut v = vec![\"foo\", \"bar\", \"baz\", \"qux\"];\n  2214:     ///\n  2215:     /// assert_eq!(v.swap_remove(1), \"bar\");\n  2216:     /// assert_eq!(v, [\"foo\", \"qux\", \"baz\"]);\n  2217:     ///\n  2218:     /// assert_eq!(v.swap_remove(0), \"foo\");\n  2219:     /// assert_eq!(v, [\"baz\", \"qux\"]);\n  2220:     /// ```\n  2221:     #[inline]\n  2222:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2223:     pub fn swap_remove(&mut self, index: usize) -> T {\n  2224:         #[cold]\n  2225:         #[cfg_attr(not(panic = \"immediate-abort\"), inline(never))]\n  2226:         #[optimize(size)]\n  2227:         fn assert_failed(index: usize, len: usize) -> ! {\n  2228:             panic!(\"swap_remove index (is {index}) should be < len (is {len})\");\n  2229:         }\n  2230: \n  2231:         let len = self.len();\n  2232:         if index >= len {\n  2233:             assert_failed(index, len);\n  2234:         }\n  2235:         unsafe {\n  2236:             // We replace self[index] with the last element. Note that if the\n  2237:             // bounds check above succeeds there must be a last element (which\n  2238:             // can be self[index] itself).\n  2239:             let value = ptr::read(self.as_ptr().add(index));\n  2240:             let base_ptr = self.as_mut_ptr();\n  2241:             ptr::copy(base_ptr.add(len - 1), base_ptr.add(index), 1);\n  2242:             self.set_len(len - 1);\n  2243:             value",
+    "source_text": "pub fn swap_remove(&mut self, index: usize) -> T {\n        #[cold]\n        #[cfg_attr(not(panic = \"immediate-abort\"), inline(never))]\n        #[optimize(size)]\n        fn assert_failed(index: usize, len: usize) -> ! {\n            panic!(\"swap_remove index (is {index}) should be < len (is {len})\");\n        }\n\n        let len = self.len();\n        if index >= len {\n            assert_failed(index, len);\n        }\n        unsafe {\n            // We replace self[index] with the last element. Note that if the\n            // bounds check above succeeds there must be a last element (which\n            // can be self[index] itself).\n            let value = ptr::read(self.as_ptr().add(index));\n            let base_ptr = self.as_mut_ptr();\n            ptr::copy(base_ptr.add(len - 1), base_ptr.add(index), 1);\n            self.set_len(len - 1);\n            value\n        }\n    }",
+    "has_body": true
+  }
+}

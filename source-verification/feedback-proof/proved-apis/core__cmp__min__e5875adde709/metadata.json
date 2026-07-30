@@ -1,0 +1,115 @@
+{
+  "id": "core__cmp__min__e5875adde709",
+  "api_path": "core::cmp::min",
+  "raw_target": "core::cmp::min::<T>",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"cmp_min\")]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143800}, feature: \"const_cmp\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:11629",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "maybe_const",
+                    "trait": {
+                      "args": null,
+                      "id": 50,
+                      "path": "Ord"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "min",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [
+        [
+          "v1",
+          {
+            "generic": "T"
+          }
+        ],
+        [
+          "v2",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  1528: /// The behavior of this macro is described in detail [here](PartialOrd#derivable).\n  1529: #[rustc_builtin_macro]\n  1530: #[stable(feature = \"builtin_macro_prelude\", since = \"1.38.0\")]\n  1531: #[allow_internal_unstable(core_intrinsics)]\n  1532: pub macro PartialOrd($item:item) {\n  1533:     /* compiler built-in */\n  1534: }\n  1535: \n  1536: /// Compares and returns the minimum of two values.\n  1537: ///\n  1538: /// Returns the first argument if the comparison determines them to be equal.\n  1539: ///\n  1540: /// Internally uses an alias to [`Ord::min`].\n  1541: ///\n  1542: /// # Examples\n  1543: ///\n  1544: /// ```\n  1545: /// use std::cmp;\n  1546: ///\n  1547: /// assert_eq!(cmp::min(1, 2), 1);\n  1548: /// assert_eq!(cmp::min(2, 2), 2);\n  1549: /// ```\n  1550: /// ```\n  1551: /// use std::cmp::{self, Ordering};\n  1552: ///\n  1553: /// #[derive(Eq)]\n  1554: /// struct Equal(&'static str);\n  1555: ///\n  1556: /// impl PartialEq for Equal {\n  1557: ///     fn eq(&self, other: &Self) -> bool { true }\n  1558: /// }\n  1559: /// impl PartialOrd for Equal {\n  1560: ///     fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(Ordering::Equal) }\n  1561: /// }\n  1562: /// impl Ord for Equal {\n  1563: ///     fn cmp(&self, other: &Self) -> Ordering { Ordering::Equal }\n  1564: /// }\n  1565: ///\n  1566: /// assert_eq!(cmp::min(Equal(\"v1\"), Equal(\"v2\")).0, \"v1\");\n  1567: /// ```\n  1568: #[inline]\n  1569: #[must_use]\n  1570: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1571: #[rustc_diagnostic_item = \"cmp_min\"]\n  1572: #[rustc_const_unstable(feature = \"const_cmp\", issue = \"143800\")]\n  1573: pub const fn min<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {\n  1574:     v1.min(v2)\n  1575: }\n  1576: \n  1577: /// Returns the minimum of two values with respect to the specified comparison function.\n  1578: ///\n  1579: /// Returns the first argument if the comparison determines them to be equal.\n  1580: ///\n  1581: /// The parameter order is preserved when calling the `compare` function, i.e. `v1` is\n  1582: /// always passed as the first argument and `v2` as the second.\n  1583: ///\n  1584: /// # Examples\n  1585: ///\n  1586: /// ```\n  1587: /// use std::cmp;\n  1588: ///\n  1589: /// let abs_cmp = |x: &i32, y: &i32| x.abs().cmp(&y.abs());\n  1590: ///\n  1591: /// let result = cmp::min_by(2, -1, abs_cmp);\n  1592: /// assert_eq!(result, -1);\n  1593: ///\n  1594: /// let result = cmp::min_by(2, -3, abs_cmp);\n  1595: /// assert_eq!(result, 2);\n  1596: ///\n  1597: /// let result = cmp::min_by(1, -1, abs_cmp);\n  1598: /// assert_eq!(result, 1);\n  1599: /// ```\n  1600: #[inline]\n  1601: #[must_use]\n  1602: #[stable(feature = \"cmp_min_max_by\", since = \"1.53.0\")]\n  1603: #[rustc_const_unstable(feature = \"const_cmp\", issue = \"143800\")]\n  1604: pub const fn min_by<T: [const] Destruct, F: [const] FnOnce(&T, &T) -> Ordering>(\n  1605:     v1: T,\n  1606:     v2: T,\n  1607:     compare: F,\n  1608: ) -> T {\n  1609:     if compare(&v1, &v2).is_le() { v1 } else { v2 }\n  1610: }\n  1611: \n  1612: /// Returns the element that gives the minimum value from the specified function.\n  1613: ///\n  1614: /// Returns the first argument if the comparison determines them to be equal.\n  1615: ///\n  1616: /// # Examples\n  1617: ///\n  1618: /// ```",
+    "span": {
+      "begin": [
+        1573,
+        1
+      ],
+      "end": [
+        1575,
+        2
+      ],
+      "filename": "core/src/cmp.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn min<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {\n    v1.min(v2)\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd external trait specification for core::cmp::Ord::min"
+  ],
+  "rationale": "The source-faithful alias body verifies directly using the smaller Ord::min contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__cmp__min__e5875adde709"
+}

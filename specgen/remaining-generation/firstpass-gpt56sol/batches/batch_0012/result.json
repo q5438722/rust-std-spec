@@ -1,0 +1,125 @@
+{
+  "batch": 12,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 24667,
+  "targets": [
+    "core::sync::atomic::Atomic::load",
+    "core::sync::atomic::Atomic::new",
+    "core::sync::atomic::Atomic::store",
+    "core::sync::atomic::Atomic::swap",
+    "core::sync::atomic::Atomic::try_update",
+    "core::sync::atomic::Atomic::update"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::load",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned pointer is an atomic observation of hidden concurrent state; no public vstd view identifies the value observed at the operation's linearization point.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Construction initializes hidden atomic state, but AtomicBool has no ordinary public vstd view through which to relate the result to v.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::store",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This unit-returning method mutates atomic state through a shared reference; existing public vstd vocabulary cannot express that hidden state transition or its linearization.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "hidden_interior_mutation",
+        "unit_return_variant",
+        "missing_atomic_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned previous pointer to the installed pointer requires a model of the atomic state before and after the operation, including its linearization point, which vstd does not expose.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::try_update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on a concurrent observation and potentially repeated FnMut invocations after failed weak comparisons; current vstd lacks the atomic and callable-state abstractions needed to specify this soundly.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "repeated_fnmut_invocation",
+        "weak_compare_exchange",
+        "missing_atomic_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned old value and resulting hidden state arise at an unspecified successful retry after potentially repeated FnMut calls; this cannot be usefully related using current public vstd vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "repeated_fnmut_invocation",
+        "weak_compare_exchange",
+        "missing_atomic_state_abstraction",
+        "multiple_rust_declarations_share_path"
+      ]
+    }
+  ]
+}

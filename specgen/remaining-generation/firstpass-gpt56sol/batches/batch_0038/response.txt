@@ -1,0 +1,222 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::borrow::Cow::to_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method conditionally clones and replaces the Cow, then returns a mutable reference into the resulting owned variant. Current vstd vocabulary cannot relate that mutable borrow to the final Cow state.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing Cow/ToOwned view relation",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::leak",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation consumes the Box, forgets its allocator, and exposes its allocation through an arbitrarily long-lived mutable reference. Modeling this requires allocation provenance, leaked ownership, and mutable-reference output support absent from current vstd.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing leaked-allocation abstraction",
+        "reference provenance and lifetime"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is an optional mutable reference aliasing the value selected through Borrow-based ordered lookup. A useful contract must connect mutations through that reference to the corresponding final map entry, which is unsupported.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing final-state alias relation",
+        "Borrow ordering semantics"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::back_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned optional mutable reference directly aliases the tail element. Current vstd lacks a supported way to connect mutations through that result to the final LinkedList sequence.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing LinkedList mutable-view relation",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::front_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned optional mutable reference directly aliases the head element. Current vstd lacks a supported way to connect mutations through that result to the final LinkedList sequence.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing LinkedList mutable-view relation",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::push_back_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method appends the supplied element and returns a mutable reference to that new tail node. Specifying subsequent mutation requires relating the returned borrow to the final list, which current vstd cannot express usefully.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing LinkedList mutable-view relation",
+        "returned-reference aliasing"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::borrow::Cow::to_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method conditionally clones and replaces the Cow, then returns a mutable
+reference into the resulting owned variant. Current vstd vocabulary cannot relate that mutable
+borrow to the final Cow state.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing Cow/ToOwned view relation",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::boxed::Box::leak",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation consumes the Box, forgets its allocator, and exposes its
+allocation through an arbitrarily long-lived mutable reference. Modeling this requires allocation
+provenance, leaked ownership, and mutable-reference output support absent from current vstd.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing leaked-allocation abstraction",
+        "reference provenance and lifetime"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is an optional mutable reference aliasing the value selected through
+Borrow-based ordered lookup. A useful contract must connect mutations through that reference to the
+corresponding final map entry, which is unsupported.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing final-state alias relation",
+        "Borrow ordering semantics"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::back_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned optional mutable reference directly aliases the tail element.
+Current vstd lacks a supported way to connect mutations through that result to the final LinkedList
+sequence.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing LinkedList mutable-view relation",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::front_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned optional mutable reference directly aliases the head element.
+Current vstd lacks a supported way to connect mutations through that result to the final LinkedList
+sequence.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing LinkedList mutable-view relation",
+        "reference identity versus value view"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::push_back_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method appends the supplied element and returns a mutable reference to that
+new tail node. Specifying subsequent mutation requires relating the returned borrow to the final
+list, which current vstd cannot express usefully.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "missing LinkedList mutable-view relation",
+        "returned-reference aliasing"
+      ]
+    } ]
+}
+

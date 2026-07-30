@@ -1,0 +1,311 @@
+{
+  "candidates": [
+    {
+      "target": "std::thread::Result::map_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or ](\n    result: Result<T, E>,\n    default: U,\n    f: F,\n) -> (ret: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), ret),\n        result is Err ==> ret == default,\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)",
+        "result is Err ==> ret == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The resolved owner is core::result::Result; the source only pattern-matches the value and either invokes the modeled FnOnce or returns default.",
+      "risks": [
+        "The specification must attach to the resolved Result method rather than separately to the std::thread alias.",
+        "Precision depends on the closure's call contract."
+      ]
+    },
+    {
+      "target": "std::thread::Result::map_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U: core::default::Default, F: FnOnce(T) -> U>[ Result::<T, E>::map_or_default ](\n    result: Result<T, E>,\n    f: F,\n) -> (ret: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), ret),\n        result is Err ==> U::default.ensures((), ret),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)",
+        "result is Err ==> U::default.ensures((), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source is a pure Result match, and current vstd can relate the Err branch to the public Default::default call contract.",
+      "risks": [
+        "The Err-branch precision depends on the concrete Default implementation's contract.",
+        "The specification binds the resolved core Result method."
+      ]
+    },
+    {
+      "target": "std::thread::Result::map_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, D: FnOnce(E) -> U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or_else ](\n    result: Result<T, E>,\n    default: D,\n    f: F,\n) -> (ret: U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n        result is Err ==> default.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> f.ensures((result->Ok_0,), ret),\n        result is Err ==> default.ensures((result->Err_0,), ret),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))",
+        "result is Err ==> default.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)",
+        "result is Err ==> default.ensures((result->Err_0,), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Branch-conditioned FnOnce contracts exactly model the two calls shown by the source without exposing thread runtime state.",
+      "risks": [
+        "Precision depends on the two closure call contracts.",
+        "The specification binds the resolved core Result method."
+      ]
+    },
+    {
+      "target": "std::thread::Result::ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::ok ](\n    result: Result<T, E>,\n) -> (opt: Option<T>)\n    ensures\n        result is Ok ==> opt == Some(result->Ok_0),\n        result is Err ==> opt == None,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> opt == Some(result->Ok_0)",
+        "result is Err ==> opt == None"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source deterministically converts the public Result variants to Option and requires no runtime-state abstraction.",
+      "risks": [
+        "The specification must attach to core::result::Result because std::thread::Result is an alias."
+      ]
+    },
+    {
+      "target": "std::thread::Result::or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F>[ Result::<T, E>::or ](\n    result: Result<T, E>,\n    res: Result<T, F>,\n) -> (ret: Result<T, F>)\n    ensures\n        result is Ok ==> ret == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> ret == res,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ret == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> ret == res"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The implementation is a deterministic variant match selecting either the original Ok value or the supplied Result.",
+      "risks": [
+        "The specification binds the resolved core Result method rather than the alias path."
+      ]
+    },
+    {
+      "target": "std::thread::Result::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> Result<T, F>>[ Result::<T, E>::or_else ](\n    result: Result<T, E>,\n    op: O,\n) -> (ret: Result<T, F>)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> ret == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), ret),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> ret == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source preserves Ok and invokes the modeled FnOnce only for Err, which is directly expressible in vstd.",
+      "risks": [
+        "Err-branch precision depends on the closure's call contract.",
+        "The specification binds the resolved core Result method."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std:🧵:Result::map_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> U>[ Result::<T, E>::map_or
+ ](\n    result: Result<T, E>,\n    default: U,\n    f: F,\n) -> (ret: U)\n    requires\n
+result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==>
+f.ensures((result->Ok_0,), ret),\n        result is Err ==> ret == default,\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)",
+        "result is Err ==> ret == default"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The resolved owner is core::result::Result; the source only pattern-matches the
+value and either invokes the modeled FnOnce or returns default.",
+      "risks": [
+        "The specification must attach to the resolved Result method rather than separately to the
+std::thread alias.",
+        "Precision depends on the closure's call contract."
+      ]
+    },
+    {
+      "target": "std:🧵:Result::map_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U: core::default::Default, F: FnOnce(T) ->
+U>[ Result::<T, E>::map_or_default ](\n    result: Result<T, E>,\n    f: F,\n) -> (ret: U)\n
+requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n    ensures\n        result is Ok
+==> f.ensures((result->Ok_0,), ret),\n        result is Err ==> U::default.ensures((), ret),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)",
+        "result is Err ==> U::default.ensures((), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source is a pure Result match, and current vstd can relate the Err branch to
+ the public Default::default call contract.",
+      "risks": [
+        "The Err-branch precision depends on the concrete Default implementation's contract.",
+        "The specification binds the resolved core Result method."
+      ]
+    },
+    {
+      "target": "std:🧵:Result::map_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, D: FnOnce(E) -> U, F: FnOnce(T) -> U>[
+Result::<T, E>::map_or_else ](\n    result: Result<T, E>,\n    default: D,\n    f: F,\n) -> (ret:
+U)\n    requires\n        result is Ok ==> f.requires((result->Ok_0,)),\n        result is Err ==>
+default.requires((result->Err_0,)),\n    ensures\n        result is Ok ==>
+f.ensures((result->Ok_0,), ret),\n        result is Err ==> default.ensures((result->Err_0,),
+ret),\n;",
+      "requires": [
+        "result is Ok ==> f.requires((result->Ok_0,))",
+        "result is Err ==> default.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> f.ensures((result->Ok_0,), ret)",
+        "result is Err ==> default.ensures((result->Err_0,), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "Branch-conditioned FnOnce contracts exactly model the two calls shown by the
+source without exposing thread runtime state.",
+      "risks": [
+        "Precision depends on the two closure call contracts.",
+        "The specification binds the resolved core Result method."
+      ]
+    },
+    {
+      "target": "std:🧵:Result::ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::ok ](\n    result: Result<T,
+ E>,\n) -> (opt: Option<T>)\n    ensures\n        result is Ok ==> opt == Some(result->Ok_0),\n
+   result is Err ==> opt == None,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> opt == Some(result->Ok_0)",
+        "result is Err ==> opt == None"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source deterministically converts the public Result variants to Option and
+requires no runtime-state abstraction.",
+      "risks": [
+        "The specification must attach to core::result::Result because std:🧵:Result is an alias."
+      ]
+    },
+    {
+      "target": "std:🧵:Result::or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F>[ Result::<T, E>::or ](\n    result:
+Result<T, E>,\n    res: Result<T, F>,\n) -> (ret: Result<T, F>)\n    ensures\n        result is Ok
+==> ret == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> ret == res,\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ret == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> ret == res"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The implementation is a deterministic variant match selecting either the
+original Ok value or the supplied Result.",
+      "risks": [
+        "The specification binds the resolved core Result method rather than the alias path."
+      ]
+    },
+    {
+      "target": "std:🧵:Result::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> Result<T, F>>[ Result::<T,
+ E>::or_else ](\n    result: Result<T, E>,\n    op: O,\n) -> (ret: Result<T, F>)\n    requires\n
+    result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> ret ==
+Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), ret),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> ret == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), ret)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source preserves Ok and invokes the modeled FnOnce only for Err, which is
+directly expressible in vstd.",
+      "risks": [
+        "Err-branch precision depends on the closure's call contract.",
+        "The specification binds the resolved core Result method."
+      ]
+    } ]
+}
+

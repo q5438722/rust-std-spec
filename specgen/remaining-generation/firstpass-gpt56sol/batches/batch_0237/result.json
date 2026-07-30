@@ -1,0 +1,148 @@
+{
+  "batch": 237,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 380897,
+  "targets": [
+    "std::sync::LockResult::or_else",
+    "std::sync::LockResult::transpose",
+    "std::sync::LockResult::unwrap",
+    "std::sync::LockResult::unwrap_err",
+    "std::sync::LockResult::unwrap_err_unchecked",
+    "std::sync::LockResult::unwrap_or"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::LockResult::or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F, O: FnOnce(E) -> Result<T, F>>[\n    Result::<T, E>::or_else\n](result: Result<T, E>, op: O) -> (res: Result<T, F>)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0),\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == Result::<T, F>::Ok(result->Ok_0)",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The metadata resolves this alias method to Result::or_else. Its explicit branching and conditional FnOnce call are expressible using vstd closure contracts without inspecting lock state.",
+      "risks": [
+        "The Err branch is only as precise as the closure's declared contract; lock poisoning and other hidden runtime effects remain unmodeled."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::transpose",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[\n    Result::<Option<T>, E>::transpose\n](result: Result<Option<T>, E>) -> (res: Option<Result<T, E>>)\n    ensures\n        res == match result {\n            Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)),\n            Result::Ok(Option::None) => Option::None,\n            Result::Err(error) => Option::Some(Result::Err(error)),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "res == match result { Result::Ok(Option::Some(value)) => Option::Some(Result::Ok(value)), Result::Ok(Option::None) => Option::None, Result::Err(error) => Option::Some(Result::Err(error)), }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::option::Option",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source performs only a complete structural rearrangement of public Result and Option variants.",
+      "risks": [
+        "The contract does not specify how a LockResult was produced or any invariant associated with a guard payload."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::unwrap",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E: core::fmt::Debug>[\n    Result::<T, E>::unwrap\n](result: Result<T, E>) -> (value: T)\n    requires\n        result is Ok,\n    ensures\n        value == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "value == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "Requiring the public Ok variant excludes the documented panic path and precisely identifies the normally returned payload.",
+      "risks": [
+        "The Err panic and Debug-formatting behavior is intentionally outside the contract.",
+        "No lock invariant is asserted for the returned payload."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::unwrap_err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::fmt::Debug, E>[\n    Result::<T, E>::unwrap_err\n](result: Result<T, E>) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "Requiring the public Err variant excludes the documented panic path and precisely identifies the returned error.",
+      "risks": [
+        "The Ok panic and Debug-formatting behavior is intentionally outside the contract.",
+        "Any hidden state inside the error payload remains abstract."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::unwrap_err_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[\n    Result::<T, E>::unwrap_err_unchecked\n](result: Result<T, E>) -> (error: E)\n    requires\n        result is Err,\n    ensures\n        error == result->Err_0,\n;",
+      "requires": [
+        "result is Err"
+      ],
+      "ensures": [
+        "error == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The required Err variant is exactly the source's unsafe precondition, after which the method returns the explicit error payload.",
+      "risks": [
+        "Calling the method on Ok remains undefined behavior and is excluded by the precondition.",
+        "Any hidden state inside the error payload remains abstract."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::unwrap_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[\n    Result::<T, E>::unwrap_or\n](result: Result<T, E>, default: T) -> (value: T)\n    ensures\n        value == match result {\n            Result::Ok(contained) => contained,\n            Result::Err(_) => default,\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "value == match result { Result::Ok(contained) => contained, Result::Err(_) => default, }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source selects either the explicit Ok payload or the supplied default, which is directly expressible as a Result match.",
+      "risks": [
+        "Conditional drops may have runtime effects for guard-like payloads; the contract makes no hidden-state or unwinding claim."
+      ]
+    }
+  ]
+}

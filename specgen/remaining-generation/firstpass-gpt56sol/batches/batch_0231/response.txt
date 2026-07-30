@@ -1,0 +1,37 @@
+{"candidates":[{"target":"std::sync::Condvar::wait_timeout","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result depends on notifications, elapsed runtime, mutex poisoning, and hidden synchronization state. Vstd has no public abstraction relating the returned guard or timeout result to that state.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","missing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::Condvar::wait_timeout_ms","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although this delegates to wait_timeout and negates timed_out(), the underlying wait result and poison status remain runtime-dependent; no useful standalone relation is expressible without modeling that hidden call.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","missing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::Condvar::wait_timeout_while","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method repeatedly invokes a stateful FnMut predicate while combining Instant, timeout, notification, mutex, and poison state. Current vstd vocabulary cannot describe this interaction soundly.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","unmodeled_callback_effects","missing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::Condvar::wait_while","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Its behavior depends on repeated FnMut calls, concurrent changes protected by the mutex, notifications, and poisoning. No existing public vstd abstraction captures the returned guard's relation to those effects.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","unmodeled_callback_effects","missing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::LazyLock::force","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned reference denotes a value created by a hidden once-only initializer, with initialization and poison state stored privately. LazyLock has no public vstd state/view abstraction supporting a useful relation.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","reference_identity_vs_view","missing_lazy_initialization_abstraction"]},{"target":"std::sync::LazyLock::force_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This may consume the hidden initializer and returns a mutable reference into privately initialized storage. Current vocabulary cannot express the initialization transition or a sound old/final relation for that returned reference.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return","missing_lazy_initialization_abstraction"]}]}{"candidates":[{"target":"std::sync::Condvar::wait_timeout","decision":"skip","contract_form":"assum
+e_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"usef
+ul":false,"rationale":"The result depends on notifications, elapsed runtime, mutex poisoning, and
+hidden synchronization state. Vstd has no public abstraction relating the returned guard or timeout
+result to that state.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","mi
+ssing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::Condvar::wait_timeout_ms","decisi
+on":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"fea
+ture_gates":[],"imports":[],"useful":false,"rationale":"Although this delegates to wait_timeout and
+negates timed_out(), the underlying wait result and poison status remain runtime-dependent; no
+useful standalone relation is expressible without modeling that hidden
+call.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","missing_condvar_an
+d_mutex_guard_abstraction"]},{"target":"std::sync::Condvar::wait_timeout_while","decision":"skip","c
+ontract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[
+],"imports":[],"useful":false,"rationale":"The method repeatedly invokes a stateful FnMut predicate
+while combining Instant, timeout, notification, mutex, and poison state. Current vstd vocabulary
+cannot describe this interaction
+soundly.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","unmodeled_callb
+ack_effects","missing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::Condvar::wait_whi
+le","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensur
+es":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Its behavior depends on repeated
+FnMut calls, concurrent changes protected by the mutex, notifications, and poisoning. No existing
+public vstd abstraction captures the returned guard's relation to those
+effects.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","unmodeled_callb
+ack_effects","missing_condvar_and_mutex_guard_abstraction"]},{"target":"std::sync::LazyLock::force",
+"decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":
+[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned reference denotes a
+value created by a hidden once-only initializer, with initialization and poison state stored
+privately. LazyLock has no public vstd state/view abstraction supporting a useful
+relation.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","reference_iden
+tity_vs_view","missing_lazy_initialization_abstraction"]},{"target":"std::sync::LazyLock::force_mut"
+,"decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures"
+:[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This may consume the hidden
+initializer and returns a mutable reference into privately initialized storage. Current vocabulary
+cannot express the initialization transition or a sound old/final relation for that returned
+reference.","risks":["external_or_hidden_runtime_state","concurrency_or_hidden_state","reference_ide
+ntity_vs_view","unsupported_mutable_reference_return","missing_lazy_initialization_abstraction"]}]}
+

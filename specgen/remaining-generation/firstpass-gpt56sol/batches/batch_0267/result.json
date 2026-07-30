@@ -1,0 +1,119 @@
+{
+  "batch": 267,
+  "group": "toolchain_unavailable",
+  "duration_ms": 28182,
+  "targets": [
+    "alloc::boxed::BoxedArrayIntoIter::as_mut_slice",
+    "alloc::boxed::BoxedArrayIntoIter::as_slice",
+    "core::io::Chain::get_mut",
+    "core::io::Chain::get_ref",
+    "core::io::Chain::into_inner",
+    "core::io::Cursor::get_mut"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::boxed::BoxedArrayIntoIter::as_mut_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and its mutable-slice result cannot be related to the iterator without a supported public view/final-state abstraction.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "unsupported_mutable_reference_return",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "alloc::boxed::BoxedArrayIntoIter::as_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and current public vstd vocabulary provides no view of the iterator's unyielded elements to characterize the returned slice.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "missing_view_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::io::Chain::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96; additionally, the pair of mutable references cannot be usefully characterized without exposing private components and supported final-state projections.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "unsupported_mutable_reference_return",
+        "private_state",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::io::Chain::get_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and no public vstd abstraction exposes Chain's two underlying readers for a useful reference-return contract.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "missing_public_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::io::Chain::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and relating the returned tuple to the consumed Chain would require private fields or a missing public structural view.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "missing_public_abstraction",
+        "private_state"
+      ]
+    },
+    {
+      "target": "core::io::Cursor::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and its mutable-reference result cannot be usefully tied to Cursor's private inner value using current public vstd vocabulary.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "unsupported_mutable_reference_return",
+        "private_state",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}

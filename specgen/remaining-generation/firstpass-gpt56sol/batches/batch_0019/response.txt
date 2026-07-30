@@ -1,0 +1,36 @@
+{"candidates":[{"target":"core::sync::atomic::AtomicI64::fetch_update","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result depends on concurrently changing atomic state, and the closure may be retried. vstd exposes no ordinary view or protocol that can relate the observed and updated AtomicI64 values soundly.","risks":["concurrency_or_hidden_state","missing_atomic_state_abstraction","closure_may_be_called_multiple_times"]},{"target":"core::sync::atomic::AtomicI64::from_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Its useful semantics require relating the returned atomic reference to the same mutable storage and value as v. Current vstd lacks both an AtomicI64 state view and a suitable reference-identity relation for this mutable-reference return.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return"]},{"target":"core::sync::atomic::AtomicI64::from_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must preserve storage identity and relate every i64 element to atomic state. Those relations are unavailable in current vstd, and a length-only contract would not capture the API's substantive behavior.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return"]},{"target":"core::sync::atomic::AtomicI64::from_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The unsafe conversion's semantics depend on pointer provenance, validity, alignment, lifetime, storage identity, and hidden atomic state. Current public vstd vocabulary cannot express that combination soundly.","risks":["concurrency_or_hidden_state","raw_pointer_provenance","reference_identity_vs_view","missing_atomic_state_abstraction"]},{"target":"core::sync::atomic::AtomicI64::get_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must connect the returned i64 reference, including its final value, to the exclusively borrowed atomic's hidden state. AtomicI64 has no suitable public view, and the mutable-reference result cannot be modeled adequately.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return"]},{"target":"core::sync::atomic::AtomicI64::get_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The substantive behavior is an identity-preserving mutable reinterpretation whose element values must correspond to hidden atomic states. Current vstd cannot state those per-element and final-state relations; length alone is insufficient.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_reference_return"]}]}{"candidates":[{"target":"core::sync::atomic::AtomicI64::fetch_update","decision":"skip","contract_f
+orm":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"import
+s":[],"useful":false,"rationale":"The result depends on concurrently changing atomic state, and the
+closure may be retried. vstd exposes no ordinary view or protocol that can relate the observed and
+updated AtomicI64 values soundly.","risks":["concurrency_or_hidden_state","missing_atomic_state_abst
+raction","closure_may_be_called_multiple_times"]},{"target":"core::sync::atomic::AtomicI64::from_mut
+","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures
+":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Its useful semantics require
+relating the returned atomic reference to the same mutable storage and value as v. Current vstd
+lacks both an AtomicI64 state view and a suitable reference-identity relation for this
+mutable-reference return.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsu
+pported_mutable_reference_return"]},{"target":"core::sync::atomic::AtomicI64::from_mut_slice","decis
+ion":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"fe
+ature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must preserve storage
+identity and relate every i64 element to atomic state. Those relations are unavailable in current
+vstd, and a length-only contract would not capture the API's substantive
+behavior.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupported_mutable_
+reference_return"]},{"target":"core::sync::atomic::AtomicI64::from_ptr","decision":"skip","contract_
+form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"impor
+ts":[],"useful":false,"rationale":"The unsafe conversion's semantics depend on pointer provenance,
+validity, alignment, lifetime, storage identity, and hidden atomic state. Current public vstd
+vocabulary cannot express that combination soundly.","risks":["concurrency_or_hidden_state","raw_poi
+nter_provenance","reference_identity_vs_view","missing_atomic_state_abstraction"]},{"target":"core::
+sync::atomic::AtomicI64::get_mut","decision":"skip","contract_form":"assume_specification","contract
+_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A
+useful contract must connect the returned i64 reference, including its final value, to the
+exclusively borrowed atomic's hidden state. AtomicI64 has no suitable public view, and the
+mutable-reference result cannot be modeled adequately.","risks":["concurrency_or_hidden_state","refe
+rence_identity_vs_view","unsupported_mutable_reference_return"]},{"target":"core::sync::atomic::Atom
+icI64::get_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","r
+equires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The substantive
+ behavior is an identity-preserving mutable reinterpretation whose element values must correspond to
+ hidden atomic states. Current vstd cannot state those per-element and final-state relations; length
+ alone is insufficient.","risks":["concurrency_or_hidden_state","reference_identity_vs_view","unsupp
+orted_mutable_reference_return"]}]}
+

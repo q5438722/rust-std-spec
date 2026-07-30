@@ -1,0 +1,30 @@
+pub assume_specification[ Ipv6Addr::new ](
+    a: u16,
+    b: u16,
+    c: u16,
+    d: u16,
+    e: u16,
+    f: u16,
+    g: u16,
+    h: u16,
+) -> (result: Ipv6Addr)
+    ensures
+        result@ == seq![
+            (a / 256) as u8,
+            (a % 256) as u8,
+            (b / 256) as u8,
+            (b % 256) as u8,
+            (c / 256) as u8,
+            (c % 256) as u8,
+            (d / 256) as u8,
+            (d % 256) as u8,
+            (e / 256) as u8,
+            (e % 256) as u8,
+            (f / 256) as u8,
+            (f % 256) as u8,
+            (g / 256) as u8,
+            (g % 256) as u8,
+            (h / 256) as u8,
+            (h % 256) as u8,
+        ],
+;

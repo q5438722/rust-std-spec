@@ -1,0 +1,108 @@
+{
+  "batch": 130,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 32629,
+  "targets": [
+    "core::net::SocketAddrV4::port",
+    "core::net::SocketAddrV4::set_ip",
+    "core::net::SocketAddrV4::set_port",
+    "core::net::SocketAddrV6::flowinfo",
+    "core::net::SocketAddrV6::ip",
+    "core::net::SocketAddrV6::new"
+  ],
+  "candidates": [
+    {
+      "target": "core::net::SocketAddrV4::port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads a private field, but current vstd provides no public SocketAddrV4 model with which to relate the returned u16 to self.",
+      "risks": [
+        "missing_socket_address_abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV4::set_ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source replaces the private IP field, but expressing that update and preservation of the other fields requires a missing SocketAddrV4/Ipv4Addr model.",
+      "risks": [
+        "missing_socket_address_abstraction",
+        "unmodellable_mutation"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV4::set_port",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source replaces the private port field, but current vstd has no SocketAddrV4 abstraction for stating the final port or preservation of the IP address.",
+      "risks": [
+        "missing_socket_address_abstraction",
+        "unmodellable_mutation"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::flowinfo",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source reads a private field, and no existing public vstd SocketAddrV6 model can relate that field to the returned u32.",
+      "risks": [
+        "missing_socket_address_abstraction"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::ip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a reference to a private field; current vstd lacks both a SocketAddrV6/Ipv6Addr view relation and a suitable public way to express that reference identity.",
+      "risks": [
+        "missing_socket_address_abstraction",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::net::SocketAddrV6::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source initializes four fields directly, they are private and current vstd has no SocketAddrV6 model through which to characterize the constructed value.",
+      "risks": [
+        "missing_socket_address_abstraction"
+      ]
+    }
+  ]
+}

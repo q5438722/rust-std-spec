@@ -1,0 +1,118 @@
+{
+  "batch": 49,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 23894,
+  "targets": [
+    "core::slice::as_chunks_mut",
+    "core::slice::as_chunks_unchecked_mut",
+    "core::slice::as_flattened_mut",
+    "core::slice::as_mut_array",
+    "core::slice::as_rchunks_mut",
+    "core::slice::assume_init_mut"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::as_chunks_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains two mutable views whose contents and later writeback must correspond to disjoint regions of self. Mutable-reference returns and that alias-preserving view relation are not expressible here.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_mutable_view_writeback_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::as_chunks_unchecked_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the unsafe precondition is source-visible, a useful contract must relate the returned mutable chunk view and its writes to self. The current vocabulary cannot express that mutable-reference view relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_mutable_view_writeback_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::as_flattened_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires a flattening relation that preserves mutable alias identity and maps writes back into the nested slice. That relation is unavailable for mutable-reference returns.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_mutable_flatten_writeback_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::as_mut_array",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Some/None length condition is expressible, but the Some payload is a mutable reference that must remain the same storage as self. Without a mutable view/writeback relation, the resulting contract would not be useful.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_optional_mutable_view_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::as_rchunks_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains disjoint mutable remainder and reverse-chunk views of self. Current vstd vocabulary cannot describe their storage identity, partitioning, and writeback behavior.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_mutable_view_writeback_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::assume_init_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract needs both an initializedness predicate for every MaybeUninit element and a mutable storage-preserving reinterpretation to [T]. Those abstractions are unavailable.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_maybe_uninit_initializedness_abstraction",
+        "missing_mutable_reinterpretation_abstraction"
+      ]
+    }
+  ]
+}

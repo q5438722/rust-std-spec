@@ -1,0 +1,155 @@
+{
+  "id": "std_specs__smart_ptrs.rs__L71__Rc__T__A__into_inner",
+  "api_path": "alloc::rc::Rc::into_inner",
+  "normalized_api_path": "alloc::rc::Rc::into_inner",
+  "raw_target": "Rc::<T, A>::into_inner",
+  "contract_source_file": "std_specs/smart_ptrs.rs",
+  "contract_source_line": 71,
+  "rust_declaration": {
+    "declaration_id": "alloc:3572",
+    "name": "into_inner",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 70, patch: 0 })},\nfeature: \"rc_into_inner\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/rc.rs",
+      "begin": [
+        1105,
+        5
+      ],
+      "end": [
+        1107,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "this",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 181,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3573",
+      "for": {
+        "resolved_path": {
+          "path": "Rc",
+          "id": 302,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:302",
+      "resolved_owner_path": [
+        "alloc",
+        "rc",
+        "Rc"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1085:     /// is in fact equivalent to <code>[Rc::try_unwrap]\\(this).[ok][Result::ok]()</code>.\n  1086:     /// (Note that the same kind of equivalence does **not** hold true for\n  1087:     /// [`Arc`](crate::sync::Arc), due to race conditions that do not apply to `Rc`!)\n  1088:     ///\n  1089:     /// # Examples\n  1090:     ///\n  1091:     /// ```\n  1092:     /// use std::rc::Rc;\n  1093:     ///\n  1094:     /// let x = Rc::new(3);\n  1095:     /// assert_eq!(Rc::into_inner(x), Some(3));\n  1096:     ///\n  1097:     /// let x = Rc::new(4);\n  1098:     /// let y = Rc::clone(&x);\n  1099:     ///\n  1100:     /// assert_eq!(Rc::into_inner(y), None);\n  1101:     /// assert_eq!(Rc::into_inner(x), Some(4));\n  1102:     /// ```\n  1103:     #[inline]\n  1104:     #[stable(feature = \"rc_into_inner\", since = \"1.70.0\")]\n  1105:     pub fn into_inner(this: Self) -> Option<T> {\n  1106:         Rc::try_unwrap(this).ok()\n  1107:     }\n  1108: }\n  1109: \n  1110: impl<T> Rc<[T]> {\n  1111:     /// Constructs a new reference-counted slice with uninitialized contents.\n  1112:     ///\n  1113:     /// # Examples\n  1114:     ///\n  1115:     /// ```\n  1116:     /// use std::rc::Rc;\n  1117:     ///\n  1118:     /// let mut values = Rc::<[u32]>::new_uninit_slice(3);\n  1119:     ///\n  1120:     /// // Deferred initialization:\n  1121:     /// let data = Rc::get_mut(&mut values).unwrap();\n  1122:     /// data[0].write(1);\n  1123:     /// data[1].write(2);\n  1124:     /// data[2].write(3);\n  1125:     ///",
+    "source_text": "pub fn into_inner(this: Self) -> Option<T> {\n        Rc::try_unwrap(this).ok()\n    }",
+    "has_body": true
+  }
+}

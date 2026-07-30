@@ -1,0 +1,572 @@
+{
+  "summary": {
+    "expected_records": 52,
+    "validated_records": 52,
+    "scope_prefixes": [
+      "float.rs",
+      "raw_ptr.rs",
+      "std_specs__bits.rs",
+      "std_specs__clone.rs",
+      "std_specs__cmp.rs",
+      "std_specs__ops.rs",
+      "std_specs__default.rs",
+      "std_specs__manually_drop.rs",
+      "std_specs__nonzero.rs"
+    ],
+    "body_fidelity_totals": {
+      "exact_body": 6,
+      "mechanical_desugaring": 21,
+      "alternate_implementation": 23,
+      "circular_or_target_axiom": 0,
+      "source_unavailable": 2,
+      "ambiguous_mapping": 0
+    },
+    "proof_admissibility_totals": {
+      "ordinary_acyclic": 26,
+      "peer_cycle": 0,
+      "target_equivalent_axiom": 24,
+      "wrong_or_missing_target": 2,
+      "unresolved": 0
+    },
+    "source_kind_totals": {
+      "array_specialization_impl": 1,
+      "compiler_derived_clone_impl": 1,
+      "default_concrete_impl": 3,
+      "non_std_target_absent": 2,
+      "nonzero_concrete_impl": 1,
+      "primitive_clone_macro": 4,
+      "primitive_comparison_macro": 1,
+      "primitive_comparison_macro_builtin": 2,
+      "primitive_operator_macro_builtin": 10,
+      "primitive_partial_order_macro": 2,
+      "raw_pointer_concrete_impl": 2,
+      "reference_comparison_concrete_impl": 3,
+      "reference_concrete_impl": 1,
+      "tuple_default_macro": 3,
+      "unsigned_integer_method_macro": 8,
+      "unsigned_integer_method_macro_intrinsic": 8
+    }
+  },
+  "records": [
+    {
+      "id": "float.rs__L95__f32__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/clone.rs",
+      "resolved_source_lines": "708-733",
+      "source_kind": "primitive_clone_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "impl_clone! is invoked for f32/f64 and expands Clone::clone to `*self`. The source_* body is the same expansion after receiver-to-argument renaming; only specifications/annotations are added, with no axiom or peer dependency."
+    },
+    {
+      "id": "float.rs__L100__f64__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/clone.rs",
+      "resolved_source_lines": "708-733",
+      "source_kind": "primitive_clone_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "impl_clone! is invoked for f32/f64 and expands Clone::clone to `*self`. The source_* body is the same expansion after receiver-to-argument renaming; only specifications/annotations are added, with no axiom or peer dependency."
+    },
+    {
+      "id": "raw_ptr.rs__L198__mut__T__as__PartialEq__mut__T__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ptr/mut_ptr.rs",
+      "resolved_source_lines": "2034-2040",
+      "source_kind": "raw_pointer_concrete_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The concrete *mut T PartialEq::eq body is the builtin expression `*self == *other`. The proof replaces it with `addr() == addr() && metadata() == metadata()`, an equivalent public-method decomposition rather than syntax desugaring. Its assumed metadata specification and axiom equating Metadata PartialEqSpec with mathematical equality supply the essential target semantics."
+    },
+    {
+      "id": "raw_ptr.rs__L221__const__T__as__PartialEq__const__T__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ptr/const_ptr.rs",
+      "resolved_source_lines": "1594-1600",
+      "source_kind": "raw_pointer_concrete_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The concrete *const T PartialEq::eq body is the builtin expression `*self == *other`. The proof replaces it with `addr() == addr() && metadata() == metadata()`, an equivalent public-method decomposition rather than syntax desugaring. Its assumed metadata specification and axiom equating Metadata PartialEqSpec with mathematical equality supply the essential target semantics."
+    },
+    {
+      "id": "std_specs__bits.rs__L48__u8__trailing_zeros",
+      "api_path": "core::u8::trailing_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "177-179; 583-607 (u8 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u8::trailing_zeros to the single compiler intrinsic call `cttz` (`return intrinsics::cttz(self)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_cttz_u8 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u8_trailing_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L54__u8__trailing_ones",
+      "api_path": "core::u8::trailing_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "224-226; 583-607 (u8 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u8::trailing_ones exactly to `(!self).trailing_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L60__u8__leading_zeros",
+      "api_path": "core::u8::leading_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "153-155; 583-607 (u8 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u8::leading_zeros to `return intrinsics::ctlz(self as u8)`, and source_u8_leading_zeros executes that same intrinsic call; proof blocks are non-executable. Admissibility is not ordinary because axiom_compiler_ctlz_u8 directly supplies the equivalence between the compiler intrinsic result and the target vstd leading-zero specification."
+    },
+    {
+      "id": "std_specs__bits.rs__L66__u8__leading_ones",
+      "api_path": "core::u8::leading_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "200-202; 583-607 (u8 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u8::leading_ones exactly to `(!self).leading_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L218__u16__trailing_zeros",
+      "api_path": "core::u16::trailing_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "177-179; 1231-1255 (u16 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u16::trailing_zeros to the single compiler intrinsic call `cttz` (`return intrinsics::cttz(self)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_cttz_u16 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u16_trailing_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L224__u16__trailing_ones",
+      "api_path": "core::u16::trailing_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "224-226; 1231-1255 (u16 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u16::trailing_ones exactly to `(!self).trailing_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L230__u16__leading_zeros",
+      "api_path": "core::u16::leading_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "153-155; 1231-1255 (u16 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u16::leading_zeros to the single compiler intrinsic call `ctlz` (`return intrinsics::ctlz(self as ActualT)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_ctlz_u16 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u16_leading_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L236__u16__leading_ones",
+      "api_path": "core::u16::leading_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "200-202; 1231-1255 (u16 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u16::leading_ones exactly to `(!self).leading_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L394__u32__trailing_zeros",
+      "api_path": "core::u32::trailing_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "177-179; 1287-1311 (u32 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u32::trailing_zeros to the single compiler intrinsic call `cttz` (`return intrinsics::cttz(self)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_cttz_u32 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u32_trailing_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L400__u32__trailing_ones",
+      "api_path": "core::u32::trailing_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "224-226; 1287-1311 (u32 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u32::trailing_ones exactly to `(!self).trailing_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L406__u32__leading_zeros",
+      "api_path": "core::u32::leading_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "153-155; 1287-1311 (u32 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u32::leading_zeros to the single compiler intrinsic call `ctlz` (`return intrinsics::ctlz(self as ActualT)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_ctlz_u32 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u32_leading_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L412__u32__leading_ones",
+      "api_path": "core::u32::leading_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "200-202; 1287-1311 (u32 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u32::leading_ones exactly to `(!self).leading_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L571__u64__trailing_zeros",
+      "api_path": "core::u64::trailing_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "177-179; 1319-1343 (u64 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u64::trailing_zeros to the single compiler intrinsic call `cttz` (`return intrinsics::cttz(self)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_cttz_u64 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u64_trailing_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L577__u64__trailing_ones",
+      "api_path": "core::u64::trailing_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "224-226; 1319-1343 (u64 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u64::trailing_ones exactly to `(!self).trailing_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__bits.rs__L583__u64__leading_zeros",
+      "api_path": "core::u64::leading_zeros",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "153-155; 1319-1343 (u64 invocation)",
+      "source_kind": "unsigned_integer_method_macro_intrinsic",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "uint_impl! expands u64::leading_zeros to the single compiler intrinsic call `ctlz` (`return intrinsics::ctlz(self as ActualT)`). The source_* wrapper instead calls a hand-written source_core_intrinsics_ctlz_u64 scan/recurrence. That is an alternate algorithm, not a mechanical expansion of the intrinsic, and its proof invokes the imported u64_leading_zeros axiom to establish the target result."
+    },
+    {
+      "id": "std_specs__bits.rs__L589__u64__leading_ones",
+      "api_path": "core::u64::leading_ones",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/uint_macros.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/mod.rs",
+      "resolved_source_lines": "200-202; 1319-1343 (u64 invocation)",
+      "source_kind": "unsigned_integer_method_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "uint_impl! expands u64::leading_ones exactly to `(!self).leading_zeros()`. The source_* body has that same executable expression after receiver-to-argument substitution. Its call to the corresponding zero-count method is a one-way ordinary dependency; no local axiom or back-edge is introduced."
+    },
+    {
+      "id": "std_specs__clone.rs__L26__bool__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/clone.rs",
+      "resolved_source_lines": "708-733",
+      "source_kind": "primitive_clone_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "impl_clone! is invoked for this primitive and mechanically expands Clone::clone to `*self`. The source_* body is exactly that expansion after receiver renaming and uses no axiom or peer target."
+    },
+    {
+      "id": "std_specs__clone.rs__L31__char__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/clone.rs",
+      "resolved_source_lines": "708-733",
+      "source_kind": "primitive_clone_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "impl_clone! is invoked for this primitive and mechanically expands Clone::clone to `*self`. The source_* body is exactly that expansion after receiver renaming and uses no axiom or peer target."
+    },
+    {
+      "id": "std_specs__clone.rs__L37__b__T__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/clone.rs",
+      "resolved_source_lines": "780-785",
+      "source_kind": "reference_concrete_impl",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The shared-reference Clone body is `*self`. Returning the double-reference argument directly relies only on Rust deref coercion to the declared `&T` return type, a mechanical syntax coercion; the proof is axiom-free and acyclic."
+    },
+    {
+      "id": "std_specs__clone.rs__L44__T__N__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/array/mod.rs",
+      "resolved_source_lines": "447-488",
+      "source_kind": "array_specialization_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Array Clone calls SpecArrayClone::clone; the default specialization advances a raw pointer inside from_fn, while TrivialClone specializes to ptr::read. The proof always uses index-based array::from_fn and omits specialization, so it is an equivalent alternate implementation rather than the actual body. Its external from_fn contract is an ordinary acyclic dependency, not an axiom for array Clone itself."
+    },
+    {
+      "id": "std_specs__clone.rs__L61__Tracked__T__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": null,
+      "resolved_source_lines": null,
+      "source_kind": "non_std_target_absent",
+      "body_fidelity": "source_unavailable",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "Exhaustive identifier/impl searches under rust/library found no Tracked type or Clone impl; Rust 1.96 core has no such target. The only matching implementation is Verus-specific builtin code outside the mandated Rust tree, so no Rust 1.96 source body can be resolved and the proof targets a non-std/missing Rust API."
+    },
+    {
+      "id": "std_specs__clone.rs__L68__Ghost__T__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": null,
+      "resolved_source_lines": null,
+      "source_kind": "non_std_target_absent",
+      "body_fidelity": "source_unavailable",
+      "proof_admissibility": "wrong_or_missing_target",
+      "reason": "Exhaustive identifier/impl searches under rust/library found no Ghost type or Clone impl; Rust 1.96 core has no such target. The only matching implementation is Verus-specific builtin code outside the mandated Rust tree, so no Rust 1.96 source body can be resolved and the proof targets a non-std/missing Rust API."
+    },
+    {
+      "id": "std_specs__cmp.rs__L250__bool__as__PartialEq__bool__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "1872-1900",
+      "source_kind": "primitive_comparison_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "partial_eq_impl! is invoked for bool and expands eq to `*self == *other`. The source_* body is exactly that macro expansion after receiver renaming, with no target axiom or cyclic call."
+    },
+    {
+      "id": "std_specs__cmp.rs__L279__f32__as__PartialEq__f32__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "1872-1900",
+      "source_kind": "primitive_comparison_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "partial_eq_impl! expands f32::eq to the builtin expression `*self == *other`. The proof computes IEEE equality from to_bits, including NaN and signed-zero cases; this is an alternate algorithm, not syntax desugaring. Its axiom_f32_eq_ensures_ieee directly identifies that algorithm with the target eq_ensures contract."
+    },
+    {
+      "id": "std_specs__cmp.rs__L290__f32__as__PartialOrd__f32__partial_cmp",
+      "api_path": "core::cmp::PartialOrd::partial_cmp",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "1951-1969,1991",
+      "source_kind": "primitive_partial_order_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "partial_ord_impl! expands f32::partial_cmp to a match on `(*self <= *other, *self >= *other)` with the same four results. The proof only hoists those two comparisons into let-bindings, a mechanical transformation. However, the f32_partial_cmp_contract_coherence axiom directly supplies the target partial_cmp_ensures contract."
+    },
+    {
+      "id": "std_specs__cmp.rs__L316__f64__as__PartialEq__f64__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "1872-1900",
+      "source_kind": "primitive_comparison_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "partial_eq_impl! expands f64::eq to the builtin expression `*self == *other`. The proof computes IEEE equality from to_bits, including NaN and signed-zero cases; this is an alternate algorithm, not syntax desugaring. Its axiom_f64_eq_ensures_ieee directly identifies that algorithm with the target eq_ensures contract."
+    },
+    {
+      "id": "std_specs__cmp.rs__L327__f64__as__PartialOrd__f64__partial_cmp",
+      "api_path": "core::cmp::PartialOrd::partial_cmp",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "1951-1969,1991",
+      "source_kind": "primitive_partial_order_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "partial_ord_impl! expands f64::partial_cmp to a match on `(*self <= *other, *self >= *other)` with the same four results. The proof only hoists those two comparisons into let-bindings, a mechanical transformation. However, the f64_partial_cmp_contract_coherence axiom directly supplies the target partial_cmp_ensures contract."
+    },
+    {
+      "id": "std_specs__cmp.rs__L367__a__A__as__PartialEq__B__eq",
+      "api_path": "core::cmp::PartialEq::eq",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "2117-2124",
+      "source_kind": "reference_comparison_concrete_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete reference PartialEq::eq body is `PartialEq::eq(*self, *other)`, exactly the executable source_* body after receiver/argument renaming. It calls only the underlying A::eq implementation and is acyclic."
+    },
+    {
+      "id": "std_specs__cmp.rs__L396__a__A__as__PartialOrd__B__partial_cmp",
+      "api_path": "core::cmp::PartialOrd::partial_cmp",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "2132-2139",
+      "source_kind": "reference_comparison_concrete_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete reference PartialOrd::partial_cmp body is `PartialOrd::partial_cmp(*self, *other)`, exactly the source_* executable body after receiver renaming. The dependency is solely on the underlying A::partial_cmp and is acyclic."
+    },
+    {
+      "id": "std_specs__cmp.rs__L446__a__A__as__Ord__cmp",
+      "api_path": "core::cmp::Ord::cmp",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/cmp.rs",
+      "resolved_source_lines": "2175-2182",
+      "source_kind": "reference_comparison_concrete_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete reference Ord::cmp body is `Ord::cmp(*self, *other)`, exactly the source_* executable body after receiver renaming. It is an ordinary one-way call to the underlying A::cmp."
+    },
+    {
+      "id": "std_specs__default.rs__L46__Option__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/option.rs",
+      "resolved_source_lines": "2300-2314",
+      "source_kind": "default_concrete_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Option<T>::default has the concrete body `None`. The source_* executable body is `None`; its extra proof assertion is proof-only, so fidelity is exact and the proof is acyclic."
+    },
+    {
+      "id": "std_specs__default.rs__L51__a__str__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/str/mod.rs",
+      "resolved_source_lines": "3236-3244",
+      "source_kind": "default_concrete_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "Default for &str has the concrete body `\"\"`, exactly matching the source_* executable body. No axiom or peer target is used."
+    },
+    {
+      "id": "std_specs__default.rs__L56__core__marker__PhantomData__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/marker.rs",
+      "resolved_source_lines": "857-863",
+      "source_kind": "default_concrete_impl",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "PhantomData<T>::default returns `Self`. The proof returns the explicitly spelled `PhantomData::<T>`, which is the mechanical expansion of Self in this impl; it is axiom-free and acyclic."
+    },
+    {
+      "id": "std_specs__default.rs__L63__U__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/tuple.rs",
+      "resolved_source_lines": "12-20,120-130,238",
+      "source_kind": "tuple_default_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "tuple_impls! recursively generates the tuple Default impl with body `($({ let x: T = Default::default(); x },)+)`. The two- or three-element source_* body is exactly that macro expansion, preserving element order and calls, with only proof contracts added and no cycle."
+    },
+    {
+      "id": "std_specs__default.rs__L72__V__U__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/tuple.rs",
+      "resolved_source_lines": "12-20,120-130,238",
+      "source_kind": "tuple_default_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "tuple_impls! recursively generates the tuple Default impl with body `($({ let x: T = Default::default(); x },)+)`. The two- or three-element source_* body is exactly that macro expansion, preserving element order and calls, with only proof contracts added and no cycle."
+    },
+    {
+      "id": "std_specs__default.rs__L76__V__U__T__as__core__default__Default__default",
+      "api_path": "core::default::Default::default",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/tuple.rs",
+      "resolved_source_lines": "12-20,120-130,238",
+      "source_kind": "tuple_default_macro",
+      "body_fidelity": "mechanical_desugaring",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "tuple_impls! recursively generates the tuple Default impl with body `($({ let x: T = Default::default(); x },)+)`. The two- or three-element source_* body is exactly that macro expansion, preserving element order and calls, with only proof contracts added and no cycle."
+    },
+    {
+      "id": "std_specs__manually_drop.rs__L40__ManuallyDrop__T__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/mem/manually_drop.rs; /home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/mem/maybe_dangling.rs",
+      "resolved_source_lines": "155-160; 69-73",
+      "source_kind": "compiler_derived_clone_impl",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "ManuallyDrop and its private MaybeDangling field both derive Clone; the compiler-generated struct expansion clones `self.value` and reconstructs the same private-field shape. The proof instead dereferences to T, calls T::clone, and rebuilds through ManuallyDrop::new. That private-field-to-public-method rewrite is semantically related but not mechanical source desugaring. The call graph is acyclic and uses no target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__nonzero.rs__L164__NonZero__T__as__Clone__clone",
+      "api_path": "core::clone::Clone::clone",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/num/nonzero.rs",
+      "resolved_source_lines": "170-180",
+      "source_kind": "nonzero_concrete_impl",
+      "body_fidelity": "exact_body",
+      "proof_admissibility": "ordinary_acyclic",
+      "reason": "The concrete NonZero<T> Clone impl has body `*self`. The source_* body is exactly `*nz` after receiver renaming; specifications are proof-only and there is no axiom or peer dependency."
+    },
+    {
+      "id": "std_specs__ops.rs__L464__f32__as__core__ops__Neg__neg",
+      "api_path": "core::ops::Neg::neg",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "709-728",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f32 neg impl macro expands to the builtin operator body `-self`. The proof replaces that body with to_bits/from_bits sign-bit XOR, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact neg_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L469__f32__as__core__ops__Add__add",
+      "api_path": "core::ops::Add::add",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "94-113",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f32 add impl macro expands to the builtin operator body `self + other`. The proof replaces that body with mul_add(1, rhs), an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact add_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L474__f32__as__core__ops__Sub__sub",
+      "api_path": "core::ops::Sub::sub",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "206-225",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f32 sub impl macro expands to the builtin operator body `self - other`. The proof replaces that body with sign-bit negation followed by Add::add, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact sub_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L479__f32__as__core__ops__Mul__mul",
+      "api_path": "core::ops::Mul::mul",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "340-359",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f32 mul impl macro expands to the builtin operator body `self * other`. The proof replaces that body with mul_add with a constructed signed zero, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact mul_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L484__f32__as__core__ops__Div__div",
+      "api_path": "core::ops::Div::div",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "507-524",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f32 div impl macro expands to the builtin operator body `self / other`. The proof replaces that body with a one-lane SIMD simd_div call, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact div_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L489__f64__as__core__ops__Neg__neg",
+      "api_path": "core::ops::Neg::neg",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "709-728",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f64 neg impl macro expands to the builtin operator body `-self`. The proof replaces that body with to_bits/from_bits sign-bit XOR, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact neg_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L494__f64__as__core__ops__Add__add",
+      "api_path": "core::ops::Add::add",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "94-113",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f64 add impl macro expands to the builtin operator body `self + other`. The proof replaces that body with mul_add(1, rhs), an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact add_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L499__f64__as__core__ops__Sub__sub",
+      "api_path": "core::ops::Sub::sub",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "206-225",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f64 sub impl macro expands to the builtin operator body `self - other`. The proof replaces that body with sign-bit negation followed by Add::add, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact sub_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L504__f64__as__core__ops__Mul__mul",
+      "api_path": "core::ops::Mul::mul",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "340-359",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f64 mul impl macro expands to the builtin operator body `self * other`. The proof replaces that body with a one-lane SIMD simd_mul call, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact mul_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    },
+    {
+      "id": "std_specs__ops.rs__L509__f64__as__core__ops__Div__div",
+      "api_path": "core::ops::Div::div",
+      "resolved_source_path": "/home/chentianyu/nanvix-rust-std-spec-survey/rust/library/core/src/ops/arith.rs",
+      "resolved_source_lines": "507-524",
+      "source_kind": "primitive_operator_macro_builtin",
+      "body_fidelity": "alternate_implementation",
+      "proof_admissibility": "target_equivalent_axiom",
+      "reason": "The primitive f64 div impl macro expands to the builtin operator body `self / other`. The proof replaces that body with a one-lane SIMD simd_div call, an alternate algorithm/intrinsic route rather than mechanical syntax desugaring. Its operation-specific axiom concludes the exact div_ensures target contract, so admissibility depends on a target-equivalent axiom."
+    }
+  ]
+}

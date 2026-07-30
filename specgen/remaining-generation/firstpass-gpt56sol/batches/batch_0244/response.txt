@@ -1,0 +1,252 @@
+{
+  "candidates": [
+    {
+      "target": "std::sync::RwLock::try_write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The acquisition result, poisoning, and returned guard depend on concurrent hidden lock state; vstd has no public RwLock invariant connecting the guard to protected data.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "unmodeled_guard_provenance"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Blocking acquisition, poisoning, and exclusive guard ownership require an RwLock concurrency model absent from current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "blocking_or_nontermination",
+        "unmodeled_guard_provenance"
+      ]
+    },
+    {
+      "target": "std::sync::RwLockWriteGuard::downgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Atomic lock-mode transition and preservation of protected data require modeled guard provenance, Deref behavior, and hidden lock state, none of which current vstd exposes.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "unmodeled_atomicity",
+        "unmodeled_guard_provenance",
+        "missing_deref_relation"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U>[ Result::<T, E>::and ](\n    result: Result<T, E>,\n    res: Result<U, E>,\n) -> (ret: Result<U, E>)\n    ensures\n        result is Ok ==> ret == res,\n        result is Err ==> ret == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ret == res",
+        "result is Err ==> ret == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "This alias-qualified target resolves to pure Result::and: the source returns res for Ok and preserves the original error for Err without observing lock state.",
+      "risks": [
+        "type_alias_resolves_to_core_result",
+        "discarded_values_may_run_destructors"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::and_then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> Result<U, E>>[\n    Result::<T, E>::and_then\n](\n    result: Result<T, E>,\n    op: F,\n) -> (ret: Result<U, E>)\n    requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok ==> op.ensures((result->Ok_0,), ret),\n        result is Err ==> ret == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> op.ensures((result->Ok_0,), ret)",
+        "result is Err ==> ret == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "This resolves to Result::and_then; existing closure requires/ensures vocabulary precisely models calling op only for Ok and preserving Err otherwise.",
+      "risks": [
+        "type_alias_resolves_to_core_result",
+        "closure_contract_required",
+        "closure_may_unwind"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful Ok-case relation requires specifying generic Deref output identity or value, but current vstd's Deref specification provides no such postcondition.",
+      "risks": [
+        "missing_deref_relation",
+        "reference_identity_vs_view",
+        "type_alias_resolves_to_core_result"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::sync::RwLock::try_write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The acquisition result, poisoning, and returned guard depend on concurrent
+hidden lock state; vstd has no public RwLock invariant connecting the guard to protected data.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "unmodeled_guard_provenance"
+      ]
+    },
+    {
+      "target": "std::sync::RwLock::write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Blocking acquisition, poisoning, and exclusive guard ownership require an RwLock
+ concurrency model absent from current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "blocking_or_nontermination",
+        "unmodeled_guard_provenance"
+      ]
+    },
+    {
+      "target": "std::sync::RwLockWriteGuard::downgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Atomic lock-mode transition and preservation of protected data require modeled
+guard provenance, Deref behavior, and hidden lock state, none of which current vstd exposes.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "unmodeled_atomicity",
+        "unmodeled_guard_provenance",
+        "missing_deref_relation"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U>[ Result::<T, E>::and ](\n    result:
+Result<T, E>,\n    res: Result<U, E>,\n) -> (ret: Result<U, E>)\n    ensures\n        result is Ok
+==> ret == res,\n        result is Err ==> ret == Result::<U, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ret == res",
+        "result is Err ==> ret == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "This alias-qualified target resolves to pure Result::and: the source returns res
+ for Ok and preserves the original error for Err without observing lock state.",
+      "risks": [
+        "type_alias_resolves_to_core_result",
+        "discarded_values_may_run_destructors"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::and_then",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, U, F: FnOnce(T) -> Result<U, E>>[\n
+Result::<T, E>::and_then\n](\n    result: Result<T, E>,\n    op: F,\n) -> (ret: Result<U, E>)\n
+requires\n        result is Ok ==> op.requires((result->Ok_0,)),\n    ensures\n        result is Ok
+==> op.ensures((result->Ok_0,), ret),\n        result is Err ==> ret == Result::<U,
+E>::Err(result->Err_0),\n;",
+      "requires": [
+        "result is Ok ==> op.requires((result->Ok_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> op.ensures((result->Ok_0,), ret)",
+        "result is Err ==> ret == Result::<U, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "This resolves to Result::and_then; existing closure requires/ensures vocabulary
+precisely models calling op only for Ok and preserving Err otherwise.",
+      "risks": [
+        "type_alias_resolves_to_core_result",
+        "closure_contract_required",
+        "closure_may_unwind"
+      ]
+    },
+    {
+      "target": "std::sync::TryLockResult::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful Ok-case relation requires specifying generic Deref output identity or
+value, but current vstd's Deref specification provides no such postcondition.",
+      "risks": [
+        "missing_deref_relation",
+        "reference_identity_vs_view",
+        "type_alias_resolves_to_core_result"
+      ]
+    } ]
+}
+

@@ -1,0 +1,144 @@
+{
+  "id": "core__ptr__is_aligned__9243d6595408",
+  "api_path": "core::ptr::is_aligned",
+  "raw_target": "<*const T>::is_aligned",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 79, patch: 0 })},\nfeature: \"pointer_is_aligned\"}}]"
+      }
+    ],
+    "declaration_id": "core:51635",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 12,
+                    "path": "Sized"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "is_aligned",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51637",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "  1287:     ///     // outside the allocation\n  1288:     /// }\n  1289:     /// # }\n  1290:     /// ```\n  1291:     #[must_use]\n  1292:     #[inline]\n  1293:     #[stable(feature = \"align_offset\", since = \"1.36.0\")]\n  1294:     pub fn align_offset(self, align: usize) -> usize\n  1295:     where\n  1296:         T: Sized,\n  1297:     {\n  1298:         if !align.is_power_of_two() {\n  1299:             panic!(\"align_offset: align is not a power-of-two\");\n  1300:         }\n  1301: \n  1302:         // SAFETY: `align` has been checked to be a power of 2 above\n  1303:         let ret = unsafe { align_offset(self, align) };\n  1304: \n  1305:         // Inform Miri that we want to consider the resulting pointer to be suitably aligned.\n  1306:         #[cfg(miri)]\n  1307:         if ret != usize::MAX {\n  1308:             intrinsics::miri_promise_symbolic_alignment(self.wrapping_add(ret).cast(), align);\n  1309:         }\n  1310: \n  1311:         ret\n  1312:     }\n  1313: \n  1314:     /// Returns whether the pointer is properly aligned for `T`.\n  1315:     ///\n  1316:     /// # Examples\n  1317:     ///\n  1318:     /// ```\n  1319:     /// // On some platforms, the alignment of i32 is less than 4.\n  1320:     /// #[repr(align(4))]\n  1321:     /// struct AlignedI32(i32);\n  1322:     ///\n  1323:     /// let data = AlignedI32(42);\n  1324:     /// let ptr = &data as *const AlignedI32;\n  1325:     ///\n  1326:     /// assert!(ptr.is_aligned());\n  1327:     /// assert!(!ptr.wrapping_byte_add(1).is_aligned());\n  1328:     /// ```\n  1329:     #[must_use]\n  1330:     #[inline]\n  1331:     #[stable(feature = \"pointer_is_aligned\", since = \"1.79.0\")]\n  1332:     pub fn is_aligned(self) -> bool\n  1333:     where\n  1334:         T: Sized,\n  1335:     {\n  1336:         self.is_aligned_to(align_of::<T>())\n  1337:     }\n  1338: \n  1339:     /// Returns whether the pointer is aligned to `align`.\n  1340:     ///\n  1341:     /// For non-`Sized` pointees this operation considers only the data pointer,\n  1342:     /// ignoring the metadata.\n  1343:     ///\n  1344:     /// # Panics\n  1345:     ///\n  1346:     /// The function panics if `align` is not a power-of-two (this includes 0).\n  1347:     ///\n  1348:     /// # Examples\n  1349:     ///\n  1350:     /// ```\n  1351:     /// #![feature(pointer_is_aligned_to)]\n  1352:     ///\n  1353:     /// // On some platforms, the alignment of i32 is less than 4.\n  1354:     /// #[repr(align(4))]\n  1355:     /// struct AlignedI32(i32);\n  1356:     ///\n  1357:     /// let data = AlignedI32(42);\n  1358:     /// let ptr = &data as *const AlignedI32;\n  1359:     ///\n  1360:     /// assert!(ptr.is_aligned_to(1));\n  1361:     /// assert!(ptr.is_aligned_to(2));\n  1362:     /// assert!(ptr.is_aligned_to(4));\n  1363:     ///\n  1364:     /// assert!(ptr.wrapping_byte_add(2).is_aligned_to(2));\n  1365:     /// assert!(!ptr.wrapping_byte_add(2).is_aligned_to(4));\n  1366:     ///\n  1367:     /// assert_ne!(ptr.is_aligned_to(8), ptr.wrapping_add(1).is_aligned_to(8));\n  1368:     /// ```\n  1369:     #[must_use]\n  1370:     #[inline]\n  1371:     #[unstable(feature = \"pointer_is_aligned_to\", issue = \"96284\")]\n  1372:     pub fn is_aligned_to(self, align: usize) -> bool {\n  1373:         if !align.is_power_of_two() {\n  1374:             panic!(\"is_aligned_to: align is not a power-of-two\");\n  1375:         }\n  1376: \n  1377:         self.addr() & (align - 1) == 0",
+    "span": {
+      "begin": [
+        1332,
+        5
+      ],
+      "end": [
+        1337,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn is_aligned(self) -> bool\n    where\n        T: Sized,\n    {\n        self.is_aligned_to(align_of::<T>())\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower-level `<*const T>::is_aligned_to` contract relates its normal result to address divisibility by the requested alignment.",
+    "The vstd contract for `core::mem::align_of::<T>` returns `vstd::layout::align_of::<T>()`."
+  ],
+  "rationale": "The ordinary exec function preserves the implementation's single `is_aligned_to(align_of::<T>())` call and proves the postcondition compositionally.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__is_aligned__9243d6595408"
+}

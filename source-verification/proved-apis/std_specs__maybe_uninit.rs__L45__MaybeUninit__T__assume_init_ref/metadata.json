@@ -1,0 +1,137 @@
+{
+  "id": "std_specs__maybe_uninit.rs__L45__MaybeUninit__T__assume_init_ref",
+  "api_path": "core::mem::MaybeUninit::assume_init_ref",
+  "raw_target": "MaybeUninit::<T>::assume_init_ref",
+  "contract_source_file": "std_specs/maybe_uninit.rs",
+  "contract_source_line": 45,
+  "rust_declaration": {
+    "declaration_id": "core:8677",
+    "name": "assume_init_ref",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 55, patch: 0 })},\nfeature: \"maybe_uninit_ref\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 59, patch: 0 })},\nfeature: \"const_maybe_uninit_assume_init_ref\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/mem/maybe_uninit.rs",
+      "begin": [
+        893,
+        5
+      ],
+      "end": [
+        900,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": true,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:8682",
+      "for": {
+        "resolved_path": {
+          "path": "MaybeUninit",
+          "id": 8278,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:8278",
+      "resolved_owner_path": [
+        "core",
+        "mem",
+        "maybe_uninit",
+        "MaybeUninit"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   873:     /// use std::mem::MaybeUninit;\n   874:     ///\n   875:     /// let x = MaybeUninit::<Vec<u32>>::uninit();\n   876:     /// let x_vec: &Vec<u32> = unsafe { x.assume_init_ref() };\n   877:     /// // We have created a reference to an uninitialized vector! This is undefined behavior. \u26a0\ufe0f\n   878:     /// ```\n   879:     ///\n   880:     /// ```rust,no_run\n   881:     /// use std::{cell::Cell, mem::MaybeUninit};\n   882:     ///\n   883:     /// let b = MaybeUninit::<Cell<bool>>::uninit();\n   884:     /// // Initialize the `MaybeUninit` using `Cell::set`:\n   885:     /// unsafe {\n   886:     ///     b.assume_init_ref().set(true);\n   887:     ///     //^^^^^^^^^^^^^^^ Reference to an uninitialized `Cell<bool>`: UB!\n   888:     /// }\n   889:     /// ```\n   890:     #[stable(feature = \"maybe_uninit_ref\", since = \"1.55.0\")]\n   891:     #[rustc_const_stable(feature = \"const_maybe_uninit_assume_init_ref\", since = \"1.59.0\")]\n   892:     #[inline(always)]\n   893:     pub const unsafe fn assume_init_ref(&self) -> &T {\n   894:         // SAFETY: the caller must guarantee that `self` is initialized.\n   895:         // This also means that `self` must be a `value` variant.\n   896:         unsafe {\n   897:             intrinsics::assert_inhabited::<T>();\n   898:             &*self.as_ptr()\n   899:         }\n   900:     }\n   901: \n   902:     /// Gets a mutable (unique) reference to the contained value.\n   903:     ///\n   904:     /// This can be useful when we want to access a `MaybeUninit` that has been\n   905:     /// initialized but don't have ownership of the `MaybeUninit` (preventing the use\n   906:     /// of `.assume_init()`).\n   907:     ///\n   908:     /// # Safety\n   909:     ///\n   910:     /// Calling this when the content is not yet fully initialized causes undefined\n   911:     /// behavior: it is up to the caller to guarantee that the `MaybeUninit<T>` really\n   912:     /// is in an initialized state. For instance, `.assume_init_mut()` cannot be used to\n   913:     /// initialize a `MaybeUninit`.",
+    "source_text": "pub const unsafe fn assume_init_ref(&self) -> &T {\n        // SAFETY: the caller must guarantee that `self` is initialized.\n        // This also means that `self` must be a `value` variant.\n        unsafe {\n            intrinsics::assert_inhabited::<T>();\n            &*self.as_ptr()\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "core::intrinsics::assert_inhabited::<T> has no runtime result and does not unwind.",
+    "MaybeUninit::<T>::as_ptr returns a certified data pointer without unwinding.",
+    "axiom_maybe_uninit_points_to links that private representation pointer to shared PointsTo<T> contents equal to m.mem_contents().",
+    "vstd::raw_ptr::ptr_ref returns the initialized value represented by its PointsTo permission."
+  ],
+  "rationale": "The source flow is preserved; ptr_ref faithfully desugars Verus's unsupported raw-pointer dereference. The only additional trust is a private-representation bridge plus smaller pointer/intrinsic contracts.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__maybe_uninit.rs__L45__MaybeUninit__T__assume_init_ref"
+}

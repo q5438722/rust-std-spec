@@ -1,0 +1,131 @@
+{
+  "id": "std_specs__layout_value.rs__L197__Layout__repeat_packed",
+  "api_path": "core::alloc::Layout::repeat_packed",
+  "normalized_api_path": "core::alloc::Layout::repeat_packed",
+  "raw_target": "Layout::repeat_packed",
+  "contract_source_file": "std_specs/layout_value.rs",
+  "contract_source_line": 197,
+  "rust_declaration": {
+    "declaration_id": "core:32777",
+    "name": "repeat_packed",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 95, patch: 0 })},\nfeature: \"alloc_layout_extra\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 95, patch: 0 })},\nfeature: \"alloc_layout_extra\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/alloc/layout.rs",
+      "begin": [
+        526,
+        5
+      ],
+      "end": [
+        533,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "n",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "Self"
+                  }
+                },
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "LayoutError",
+                      "id": 10215,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32780",
+      "for": {
+        "resolved_path": {
+          "path": "Layout",
+          "id": 9440,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9440",
+      "resolved_owner_path": [
+        "core",
+        "alloc",
+        "layout",
+        "Layout"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   506:         } else {\n   507:             Err(LayoutError)\n   508:         }\n   509:     }\n   510: \n   511:     /// Creates a layout describing the record for `n` instances of\n   512:     /// `self`, with no padding between each instance.\n   513:     ///\n   514:     /// Note that, unlike `repeat`, `repeat_packed` does not guarantee\n   515:     /// that the repeated instances of `self` will be properly\n   516:     /// aligned, even if a given instance of `self` is properly\n   517:     /// aligned. In other words, if the layout returned by\n   518:     /// `repeat_packed` is used to allocate an array, it is not\n   519:     /// guaranteed that all elements in the array will be properly\n   520:     /// aligned.\n   521:     ///\n   522:     /// On arithmetic overflow, returns `LayoutError`.\n   523:     #[stable(feature = \"alloc_layout_extra\", since = \"1.95.0\")]\n   524:     #[rustc_const_stable(feature = \"alloc_layout_extra\", since = \"1.95.0\")]\n   525:     #[inline]\n   526:     pub const fn repeat_packed(&self, n: usize) -> Result<Self, LayoutError> {\n   527:         if let Some(size) = self.size.checked_mul(n) {\n   528:             // The safe constructor is called here to enforce the isize size limit.\n   529:             Layout::from_size_alignment(size, self.align)\n   530:         } else {\n   531:             Err(LayoutError)\n   532:         }\n   533:     }\n   534: \n   535:     /// Creates a layout describing the record for `self` followed by\n   536:     /// `next` with no additional padding between the two. Since no\n   537:     /// padding is inserted, the alignment of `next` is irrelevant,\n   538:     /// and is not incorporated *at all* into the resulting layout.\n   539:     ///\n   540:     /// On arithmetic overflow, returns `LayoutError`.\n   541:     #[stable(feature = \"alloc_layout_extra\", since = \"1.95.0\")]\n   542:     #[rustc_const_stable(feature = \"alloc_layout_extra\", since = \"1.95.0\")]\n   543:     #[inline]\n   544:     pub const fn extend_packed(&self, next: Self) -> Result<Self, LayoutError> {\n   545:         // SAFETY: each `size` is at most `isize::MAX == usize::MAX/2`, so the\n   546:         // sum is at most `usize::MAX/2*2 == usize::MAX - 1`, and cannot overflow.",
+    "source_text": "pub const fn repeat_packed(&self, n: usize) -> Result<Self, LayoutError> {\n        if let Some(size) = self.size.checked_mul(n) {\n            // The safe constructor is called here to enforce the isize size limit.\n            Layout::from_size_alignment(size, self.align)\n        } else {\n            Err(LayoutError)\n        }\n    }",
+    "has_body": true
+  }
+}

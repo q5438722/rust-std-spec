@@ -1,0 +1,224 @@
+{
+  "candidates": [
+    {
+      "target": "std::os::unix::fs::fchown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its Result and ownership change depend on the file descriptor, filesystem state, permissions, and OS behavior, none of which has a public vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_filesystem_state",
+        "unmodeled_file_descriptor_identity"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::lchown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the ownership change depend on path resolution, filesystem state, privileges, and OS behavior; vstd exposes no filesystem-state or Path-content model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_filesystem_state",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::symlink",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The observable effect is creation of a filesystem object, while the Result depends on external filesystem state; neither paths nor filesystem mutations have a suitable vstd abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_filesystem_state",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::SocketAddr::as_pathname",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference is derived from hidden native sockaddr bytes and platform-specific address classification, with no public SocketAddr or Path view available to characterize it.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "hidden_socket_address_representation",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::SocketAddr::from_pathname",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Construction validates path bytes and native sockaddr limits, but vstd lacks a Path byte view and a model of SocketAddr's hidden platform-specific representation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_socket_address_representation",
+        "platform_dependent_path_validation",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::SocketAddr::is_unnamed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is determined by a hidden, platform-dependent native address kind. It cannot be characterized through as_pathname because abstract addresses also have no pathname.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_socket_address_representation",
+        "platform_dependent_address_kinds",
+        "missing_socket_address_model"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::os::unix::fs::fchown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its Result and ownership change depend on the file descriptor, filesystem state,
+ permissions, and OS behavior, none of which has a public vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_filesystem_state",
+        "unmodeled_file_descriptor_identity"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::lchown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the ownership change depend on path resolution, filesystem state,
+privileges, and OS behavior; vstd exposes no filesystem-state or Path-content model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_filesystem_state",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::symlink",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The observable effect is creation of a filesystem object, while the Result
+depends on external filesystem state; neither paths nor filesystem mutations have a suitable vstd
+abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_filesystem_state",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::SocketAddr::as_pathname",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference is derived from hidden native sockaddr bytes and
+platform-specific address classification, with no public SocketAddr or Path view available to
+characterize it.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "hidden_socket_address_representation",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::SocketAddr::from_pathname",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Construction validates path bytes and native sockaddr limits, but vstd lacks a
+Path byte view and a model of SocketAddr's hidden platform-specific representation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_socket_address_representation",
+        "platform_dependent_path_validation",
+        "missing_path_view"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::SocketAddr::is_unnamed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is determined by a hidden, platform-dependent native address kind. It
+ cannot be characterized through as_pathname because abstract addresses also have no pathname.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_socket_address_representation",
+        "platform_dependent_address_kinds",
+        "missing_socket_address_model"
+      ]
+    } ]
+}
+

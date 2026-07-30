@@ -1,0 +1,245 @@
+{
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::take_while",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorTakeWhile {\n    type ExternalTraitSpecificationFor: Iterator;\n    type Item;\n\n    fn take_while<P>(self, predicate: P) -> (result: TakeWhile<Self, P>)\n        where\n            Self: Sized,\n            P: FnMut(&Self::Item) -> bool,\n        default_ensures\n            self.obeys_prophetic_iter_laws() ==> {\n                &&& result.obeys_prophetic_iter_laws()\n                &&& result.remaining().is_prefix_of(self.remaining())\n                &&& forall |i: int| 0 <= i < result.remaining().len() ==>\n                    predicate.ensures((#[trigger] &self.remaining()[i],), true)\n                &&& result.will_return_none()\n                    && result.remaining().len() < self.remaining().len() ==>\n                    predicate.ensures(\n                        (&self.remaining()[result.remaining().len()],),\n                        false,\n                    )\n                &&& result.will_return_none()\n                    && result.remaining().len() == self.remaining().len() ==>\n                    self.will_return_none()\n            },\n            self.initial_value_relation(&self) ==>\n                result.initial_value_relation(&result),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "When self obeys the prophetic iterator laws, result obeys them and its remaining sequence is a prefix of self.remaining().",
+        "Every yielded prefix element satisfies predicate's positive postcondition.",
+        "If result terminates before exhausting self.remaining(), the next source element satisfies predicate's negative postcondition.",
+        "If result terminates after the entire source sequence, self also terminates.",
+        "A valid initial-value relation is transferred to the newly constructed adapter."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::iter::{Iterator, TakeWhile};",
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a lazy TakeWhile adapter, and existing IteratorSpec sequences plus FnMut postconditions can describe its accepted prefix and first rejected element without exposing private fields.",
+      "risks": [
+        "Current FnMut contracts do not model mutable capture state.",
+        "The behavioral relation depends on the source iterator obeying IteratorSpec laws."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::try_fold",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source repeatedly updates an accumulator and branches through generic R: Try. vstd lacks a generic Try/residual abstraction capable of relating the result, consumed prefix, accumulator states, and final(self).",
+      "risks": [
+        "Generic Try branching is not modeled.",
+        "The closure and iterator state evolve across calls."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::try_for_each",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to try_fold and returns a generic R: Try<Output = ()>. Without a generic Try branch/residual model, neither early termination nor final(self) can be usefully characterized.",
+      "risks": [
+        "Generic Try branching is not modeled.",
+        "Closure effects across the consumed prefix cannot be summarized."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::unzip",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although Seq has unzip, the source constructs arbitrary Default + Extend collections. vstd has no public contract connecting generic Default/Extend implementations to collection contents.",
+      "risks": [
+        "Arbitrary Extend implementations need not expose a sequence view.",
+        "Using FromIteratorSpec would add a bound absent from the signature."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::zip",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source hides other.into_iter() inside Zip. Existing into_iter_remaining records only its sequence, not whether the arbitrary U::IntoIter obeys prophetic iterator laws, so a usable IteratorSpec contract for the result cannot be established.",
+      "risks": [
+        "A custom IntoIterator may return a non-fused iterator.",
+        "Asserting result iterator laws without modeling both inputs would be too strong."
+      ]
+    },
+    {
+      "target": "core::iter::Product::product",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Product semantics are chosen by each trait implementation; the signature imposes no generic multiplication law, and vstd has no ProductSpec hook relating an input sequence to Self.",
+      "risks": [
+        "A numeric fold contract would overconstrain custom implementations.",
+        "The multiplication operation and identity are not available generically."
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::iter::Iterator::take_while",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorTakeWhile {\n
+    type ExternalTraitSpecificationFor: Iterator;\n    type Item;\n\n    fn take_while<P>(self,
+predicate: P) -> (result: TakeWhile<Self, P>)\n        where\n            Self: Sized,\n
+P: FnMut(&Self::Item) -> bool,\n        default_ensures\n
+self.obeys_prophetic_iter_laws() ==> {\n                &&& result.obeys_prophetic_iter_laws()\n
+            &&& result.remaining().is_prefix_of(self.remaining())\n                &&& forall |i:
+int| 0 <= i < result.remaining().len() ==>\n                    predicate.ensures((#[trigger]
+&self.remaining()[i],), true)\n                &&& result.will_return_none()\n                    &&
+ result.remaining().len() < self.remaining().len() ==>\n                    predicate.ensures(\n
+                    (&self.remaining()[result.remaining().len()],),\n
+false,\n                    )\n                &&& result.will_return_none()\n                    &&
+ result.remaining().len() == self.remaining().len() ==>\n
+self.will_return_none()\n            },\n            self.initial_value_relation(&self) ==>\n
+         result.initial_value_relation(&result),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "When self obeys the prophetic iterator laws, result obeys them and its remaining sequence
+is a prefix of self.remaining().",
+        "Every yielded prefix element satisfies predicate's positive postcondition.",
+        "If result terminates before exhausting self.remaining(), the next source element satisfies
+predicate's negative postcondition.",
+        "If result terminates after the entire source sequence, self also terminates.",
+        "A valid initial-value relation is transferred to the newly constructed adapter."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::iter::{Iterator, TakeWhile};",
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a lazy TakeWhile adapter, and existing IteratorSpec
+sequences plus FnMut postconditions can describe its accepted prefix and first rejected element
+without exposing private fields.",
+      "risks": [
+        "Current FnMut contracts do not model mutable capture state.",
+        "The behavioral relation depends on the source iterator obeying IteratorSpec laws."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::try_fold",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source repeatedly updates an accumulator and branches through generic R:
+Try. vstd lacks a generic Try/residual abstraction capable of relating the result, consumed prefix,
+accumulator states, and final(self).",
+      "risks": [
+        "Generic Try branching is not modeled.",
+        "The closure and iterator state evolve across calls."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::try_for_each",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to try_fold and returns a generic R: Try<Output =
+()>. Without a generic Try branch/residual model, neither early termination nor final(self) can be
+usefully characterized.",
+      "risks": [
+        "Generic Try branching is not modeled.",
+        "Closure effects across the consumed prefix cannot be summarized."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::unzip",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although Seq has unzip, the source constructs arbitrary Default + Extend
+collections. vstd has no public contract connecting generic Default/Extend implementations to
+collection contents.",
+      "risks": [
+        "Arbitrary Extend implementations need not expose a sequence view.",
+        "Using FromIteratorSpec would add a bound absent from the signature."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::zip",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source hides other.into_iter() inside Zip. Existing into_iter_remaining
+records only its sequence, not whether the arbitrary U::IntoIter obeys prophetic iterator laws, so a
+ usable IteratorSpec contract for the result cannot be established.",
+      "risks": [
+        "A custom IntoIterator may return a non-fused iterator.",
+        "Asserting result iterator laws without modeling both inputs would be too strong."
+      ]
+    },
+    {
+      "target": "core::iter::Product::product",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Product semantics are chosen by each trait implementation; the signature imposes
+ no generic multiplication law, and vstd has no ProductSpec hook relating an input sequence to
+Self.",
+      "risks": [
+        "A numeric fold contract would overconstrain custom implementations.",
+        "The multiplication operation and identity are not available generically."
+      ]
+    } ]
+}
+

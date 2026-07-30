@@ -1,0 +1,218 @@
+{
+  "candidates": [
+    {
+      "target": "std::path::Path::is_absolute",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on platform-specific path syntax, but vstd has no public Path view or absolute-path predicate with which to describe it.",
+      "risks": [
+        "missing Path abstraction",
+        "platform-dependent semantics"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result queries mutable filesystem metadata and maps every metadata error to false; vstd has no filesystem-state or metadata abstraction.",
+      "risks": [
+        "runtime filesystem state",
+        "errors collapsed to false",
+        "symlink traversal",
+        "TOCTOU behavior"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_empty",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although implemented through as_os_str().is_empty(), current vstd lacks a Path or OsStr contents view needed to express that relation.",
+      "risks": [
+        "missing Path abstraction",
+        "missing OsStr abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_file",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result queries mutable filesystem metadata and maps every metadata error to false; no current vstd vocabulary models the observed filesystem state.",
+      "risks": [
+        "runtime filesystem state",
+        "errors collapsed to false",
+        "symlink traversal",
+        "TOCTOU behavior"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_relative",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source defines this as the negation of is_absolute, but is_absolute has no modeled Path predicate usable in a Verus postcondition.",
+      "risks": [
+        "missing Path abstraction",
+        "depends on unmodeled is_absolute semantics",
+        "platform-dependent semantics"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_symlink",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result observes mutable symlink metadata without following the link and maps access errors to false; vstd has no corresponding filesystem-state model.",
+      "risks": [
+        "runtime filesystem state",
+        "errors collapsed to false",
+        "symlink metadata semantics",
+        "TOCTOU behavior"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::path::Path::is_absolute",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on platform-specific path syntax, but vstd has no public Path
+ view or absolute-path predicate with which to describe it.",
+      "risks": [
+        "missing Path abstraction",
+        "platform-dependent semantics"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result queries mutable filesystem metadata and maps every metadata error to
+false; vstd has no filesystem-state or metadata abstraction.",
+      "risks": [
+        "runtime filesystem state",
+        "errors collapsed to false",
+        "symlink traversal",
+        "TOCTOU behavior"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_empty",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although implemented through as_os_str().is_empty(), current vstd lacks a Path
+or OsStr contents view needed to express that relation.",
+      "risks": [
+        "missing Path abstraction",
+        "missing OsStr abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_file",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result queries mutable filesystem metadata and maps every metadata error to
+false; no current vstd vocabulary models the observed filesystem state.",
+      "risks": [
+        "runtime filesystem state",
+        "errors collapsed to false",
+        "symlink traversal",
+        "TOCTOU behavior"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_relative",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source defines this as the negation of is_absolute, but is_absolute has no
+modeled Path predicate usable in a Verus postcondition.",
+      "risks": [
+        "missing Path abstraction",
+        "depends on unmodeled is_absolute semantics",
+        "platform-dependent semantics"
+      ]
+    },
+    {
+      "target": "std::path::Path::is_symlink",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result observes mutable symlink metadata without following the link and maps
+ access errors to false; vstd has no corresponding filesystem-state model.",
+      "risks": [
+        "runtime filesystem state",
+        "errors collapsed to false",
+        "symlink metadata semantics",
+        "TOCTOU behavior"
+      ]
+    } ]
+}
+

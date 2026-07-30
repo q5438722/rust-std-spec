@@ -1,0 +1,122 @@
+{
+  "batch": 164,
+  "group": "ownership_or_uninitialized_model",
+  "duration_ms": 324834,
+  "targets": [
+    "alloc::rc::Rc::downcast",
+    "alloc::rc::Rc::downgrade",
+    "alloc::rc::Rc::new_cyclic",
+    "alloc::rc::Rc::new_uninit",
+    "alloc::rc::Rc::new_uninit_slice",
+    "alloc::rc::Rc::new_zeroed"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::rc::Rc::downcast",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source branches on Any::is::<T>() and preserves the allocation, but vstd has no dynamic type-identity predicate for Any or Rc allocation-identity model.",
+      "risks": [
+        "A successful result cannot be related soundly to the erased input value.",
+        "Specifying only the Result shape would be uninformative."
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::downgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source increments the hidden weak count and returns a Weak for the same allocation. vstd exposes neither Weak-to-Rc allocation identity nor upgradeability/refcount state.",
+      "risks": [
+        "Weak upgradeability and reference counts are hidden state.",
+        "The allocator clone alone does not characterize the returned Weak."
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::new_cyclic",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The closure receives the particular Weak tied to a fresh, not-yet-initialized allocation. Relating that Weak, the closure contract, and the final Rc requires missing cyclic-allocation and Weak identity abstractions.",
+      "risks": [
+        "The closure precondition must be checked for the actual fresh Weak.",
+        "An arbitrary or existential Weak would not soundly model the invocation."
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::new_uninit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Rc::<T>::new_uninit ]() -> (result: Rc<MaybeUninit<T>>)\n    ensures\n        result.mem_contents().is_uninit(),\n;",
+      "requires": [],
+      "ensures": [
+        "result.mem_contents().is_uninit()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source allocates storage without initializing T, which is directly expressible through vstd's public MaybeUninit mem_contents model.",
+      "risks": [
+        "Rc uniqueness, allocation identity, and reference counts remain unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::new_uninit_slice",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Rc::<[T]>::new_uninit_slice ](\n    len: usize,\n) -> (result: Rc<[MaybeUninit<T>]>)\n    ensures\n        (&*result)@.len() == len,\n        forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit(),\n;",
+      "requires": [],
+      "ensures": [
+        "(&*result)@.len() == len",
+        "forall|i: int| 0 <= i < len ==> (&*result)@[i].mem_contents().is_uninit()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source allocates exactly len slice elements and documents each as uninitialized; slice views and MaybeUninit mem_contents express both properties.",
+      "risks": [
+        "Rc uniqueness, allocation identity, and reference counts remain unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::new_zeroed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source guarantees zero-filled bytes, but vstd has no generic byte-pattern or all-zero-validity predicate for T. MemContents cannot express the API's distinguishing guarantee.",
+      "risks": [
+        "All-zero bytes are not a valid value for every T.",
+        "Modeling the result merely as uninitialized would erase the useful zero-fill behavior."
+      ]
+    }
+  ]
+}

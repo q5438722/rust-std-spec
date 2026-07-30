@@ -1,0 +1,115 @@
+{
+  "id": "std_specs__ffi.rs__L243__CString__into_bytes",
+  "api_path": "alloc::ffi::CString::into_bytes",
+  "raw_target": "CString::into_bytes",
+  "contract_source_file": "std_specs/ffi.rs",
+  "contract_source_line": 243,
+  "rust_declaration": {
+    "declaration_id": "alloc:3300",
+    "name": "into_bytes",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "`self` will be dropped if the result is not used"
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 7, patch: 0 })},\nfeature: \"cstring_into\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/ffi/c_str.rs",
+      "begin": [
+        502,
+        5
+      ],
+      "end": [
+        507,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "primitive": "u8"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3307",
+      "for": {
+        "resolved_path": {
+          "path": "CString",
+          "id": 108,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:108",
+      "resolved_owner_path": [
+        "alloc",
+        "ffi",
+        "c_str",
+        "CString"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   482:         })\n   483:     }\n   484: \n   485:     /// Consumes the `CString` and returns the underlying byte buffer.\n   486:     ///\n   487:     /// The returned buffer does **not** contain the trailing nul\n   488:     /// terminator, and it is guaranteed to not have any interior nul\n   489:     /// bytes.\n   490:     ///\n   491:     /// # Examples\n   492:     ///\n   493:     /// ```\n   494:     /// use std::ffi::CString;\n   495:     ///\n   496:     /// let c_string = CString::from(c\"foo\");\n   497:     /// let bytes = c_string.into_bytes();\n   498:     /// assert_eq!(bytes, vec![b'f', b'o', b'o']);\n   499:     /// ```\n   500:     #[must_use = \"`self` will be dropped if the result is not used\"]\n   501:     #[stable(feature = \"cstring_into\", since = \"1.7.0\")]\n   502:     pub fn into_bytes(self) -> Vec<u8> {\n   503:         let mut vec = self.into_inner().into_vec();\n   504:         let _nul = vec.pop();\n   505:         debug_assert_eq!(_nul, Some(0u8));\n   506:         vec\n   507:     }\n   508: \n   509:     /// Equivalent to [`CString::into_bytes()`] except that the\n   510:     /// returned vector includes the trailing nul terminator.\n   511:     ///\n   512:     /// # Examples\n   513:     ///\n   514:     /// ```\n   515:     /// use std::ffi::CString;\n   516:     ///\n   517:     /// let c_string = CString::from(c\"foo\");\n   518:     /// let bytes = c_string.into_bytes_with_nul();\n   519:     /// assert_eq!(bytes, vec![b'f', b'o', b'o', b'\\0']);\n   520:     /// ```\n   521:     #[must_use = \"`self` will be dropped if the result is not used\"]\n   522:     #[stable(feature = \"cstring_into\", since = \"1.7.0\")]",
+    "source_text": "pub fn into_bytes(self) -> Vec<u8> {\n        let mut vec = self.into_inner().into_vec();\n        let _nul = vec.pop();\n        debug_assert_eq!(_nul, Some(0u8));\n        vec\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for CString::into_bytes_with_nul",
+    "vstd contract for Vec::pop"
+  ],
+  "rationale": "The smaller public sibling exactly implements the private conversion expression. Its trailing-zero guarantee and Vec::pop's contract prove the result view; the debug assertion is ghost-desugared after proving its condition.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__ffi.rs__L243__CString__into_bytes"
+}

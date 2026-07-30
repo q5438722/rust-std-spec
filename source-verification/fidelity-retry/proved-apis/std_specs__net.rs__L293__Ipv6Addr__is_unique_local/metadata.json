@@ -1,0 +1,111 @@
+{
+  "id": "std_specs__net.rs__L293__Ipv6Addr__is_unique_local",
+  "api_path": "core::net::Ipv6Addr::is_unique_local",
+  "raw_target": "Ipv6Addr::is_unique_local",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 293,
+  "rust_declaration": {
+    "declaration_id": "core:27827",
+    "name": "is_unique_local",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"ipv6_is_unique_local\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"ipv6_is_unique_local\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/ip_addr.rs",
+      "begin": [
+        1706,
+        5
+      ],
+      "end": [
+        1708,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27837",
+      "for": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9949",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "ip_addr",
+        "Ipv6Addr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1686:     }\n  1687: \n  1688:     /// Returns [`true`] if this is a unique local address (`fc00::/7`).\n  1689:     ///\n  1690:     /// This property is defined in [IETF RFC 4193].\n  1691:     ///\n  1692:     /// [IETF RFC 4193]: https://tools.ietf.org/html/rfc4193\n  1693:     ///\n  1694:     /// # Examples\n  1695:     ///\n  1696:     /// ```\n  1697:     /// use std::net::Ipv6Addr;\n  1698:     ///\n  1699:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0xc00a, 0x2ff).is_unique_local(), false);\n  1700:     /// assert_eq!(Ipv6Addr::new(0xfc02, 0, 0, 0, 0, 0, 0, 0).is_unique_local(), true);\n  1701:     /// ```\n  1702:     #[must_use]\n  1703:     #[inline]\n  1704:     #[stable(feature = \"ipv6_is_unique_local\", since = \"1.84.0\")]\n  1705:     #[rustc_const_stable(feature = \"ipv6_is_unique_local\", since = \"1.84.0\")]\n  1706:     pub const fn is_unique_local(&self) -> bool {\n  1707:         (self.segments()[0] & 0xfe00) == 0xfc00\n  1708:     }\n  1709: \n  1710:     /// Returns [`true`] if this is a unicast address, as defined by [IETF RFC 4291].\n  1711:     /// Any address that is not a [multicast address] (`ff00::/8`) is unicast.\n  1712:     ///\n  1713:     /// [IETF RFC 4291]: https://tools.ietf.org/html/rfc4291\n  1714:     /// [multicast address]: Ipv6Addr::is_multicast\n  1715:     ///\n  1716:     /// # Examples\n  1717:     ///\n  1718:     /// ```\n  1719:     /// #![feature(ip)]\n  1720:     ///\n  1721:     /// use std::net::Ipv6Addr;\n  1722:     ///\n  1723:     /// // The unspecified and loopback addresses are unicast.\n  1724:     /// assert_eq!(Ipv6Addr::UNSPECIFIED.is_unicast(), true);\n  1725:     /// assert_eq!(Ipv6Addr::LOCALHOST.is_unicast(), true);\n  1726:     ///",
+    "source_text": "pub const fn is_unique_local(&self) -> bool {\n        (self.segments()[0] & 0xfe00) == 0xfc00\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's specification of core::net::Ipv6Addr::segments"
+  ],
+  "rationale": "Preserves the exact segments()[0] indexing, mask, and comparison; the smaller segments contract and proved arithmetic establish the modeled first-octet condition.",
+  "run_target_dir": "source-verification/fidelity-retry/runs/full-gpt56sol/targets/std_specs__net.rs__L293__Ipv6Addr__is_unique_local"
+}

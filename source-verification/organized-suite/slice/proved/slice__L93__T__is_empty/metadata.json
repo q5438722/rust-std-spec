@@ -1,0 +1,118 @@
+{
+  "id": "slice.rs__L93__T__is_empty",
+  "api_path": "core::slice::is_empty",
+  "raw_target": "<[T]>::is_empty",
+  "contract_source_file": "slice.rs",
+  "contract_source_line": 93,
+  "rust_declaration": {
+    "declaration_id": "core:51787",
+    "name": "is_empty",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 39, patch: 0 })},\nfeature: \"const_slice_is_empty\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcNoImplicitAutorefs]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "span": {
+      "filename": "core/src/slice/mod.rs",
+      "begin": [
+        136,
+        5
+      ],
+      "end": [
+        138,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:51877",
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": null,
+      "resolved_owner_path": null
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   116:     pub const fn len(&self) -> usize {\n   117:         ptr::metadata(self)\n   118:     }\n   119: \n   120:     /// Returns `true` if the slice has a length of 0.\n   121:     ///\n   122:     /// # Examples\n   123:     ///\n   124:     /// ```\n   125:     /// let a = [1, 2, 3];\n   126:     /// assert!(!a.is_empty());\n   127:     ///\n   128:     /// let b: &[i32] = &[];\n   129:     /// assert!(b.is_empty());\n   130:     /// ```\n   131:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   132:     #[rustc_const_stable(feature = \"const_slice_is_empty\", since = \"1.39.0\")]\n   133:     #[rustc_no_implicit_autorefs]\n   134:     #[inline]\n   135:     #[must_use]\n   136:     pub const fn is_empty(&self) -> bool {\n   137:         self.len() == 0\n   138:     }\n   139: \n   140:     /// Returns the first element of the slice, or `None` if it is empty.\n   141:     ///\n   142:     /// # Examples\n   143:     ///\n   144:     /// ```\n   145:     /// let v = [10, 40, 30];\n   146:     /// assert_eq!(Some(&10), v.first());\n   147:     ///\n   148:     /// let w: &[i32] = &[];\n   149:     /// assert_eq!(None, w.first());\n   150:     /// ```\n   151:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   152:     #[rustc_const_stable(feature = \"const_slice_first_last_not_mut\", since = \"1.56.0\")]\n   153:     #[inline]\n   154:     #[must_use]\n   155:     pub const fn first(&self) -> Option<&T> {\n   156:         if let [first, ..] = self { Some(first) } else { None }",
+    "source_text": "pub const fn is_empty(&self) -> bool {\n        self.len() == 0\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for <[T]>::len, together with vstd::slice::axiom_spec_len, correctly relates slice.len() to slice@.len()."
+  ],
+  "rationale": "The Rust body is copied exactly and proves the postcondition compositionally from the smaller slice length contract without calling is_empty.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/slice.rs__L93__T__is_empty"
+}

@@ -1,0 +1,105 @@
+{
+  "batch": 123,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 32635,
+  "targets": [
+    "core::net::IpAddr::is_loopback",
+    "core::net::IpAddr::is_multicast",
+    "core::net::IpAddr::is_unspecified",
+    "core::net::IpAddr::to_canonical",
+    "core::net::Ipv4Addr::from_bits",
+    "core::net::Ipv4Addr::from_octets"
+  ],
+  "candidates": [
+    {
+      "target": "core::net::IpAddr::is_loopback",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to variant-specific address semantics, but current vstd has no public model of IpAddr, Ipv4Addr, or Ipv6Addr contents from which loopback membership can be specified.",
+      "risks": [
+        "Any deterministic postcondition would require inventing an IP-address view or relying on unmodeled methods."
+      ]
+    },
+    {
+      "target": "core::net::IpAddr::is_multicast",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Multicast membership depends on the contained IPv4 or IPv6 address, for which current vstd provides no public address-content abstraction.",
+      "risks": [
+        "Encoding multicast ranges requires a missing IP-address view."
+      ]
+    },
+    {
+      "target": "core::net::IpAddr::is_unspecified",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to Ipv4Addr and Ipv6Addr semantics, but no existing vstd view exposes whether the contained address is all zeroes.",
+      "risks": [
+        "A useful result relation requires a new model of IP address components."
+      ]
+    },
+    {
+      "target": "core::net::IpAddr::to_canonical",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Canonicalization preserves IPv4 values and converts IPv4-mapped IPv6 values, but current vstd cannot express either condition because it lacks modeled IP-address contents.",
+      "risks": [
+        "Specifying mapped-address detection or the converted result requires a new IP-address abstraction."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::from_bits",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source defines the result through big-endian octets, but current vstd has no view of Ipv4Addr octets or modeled inverse operation with which to relate the result to bits.",
+      "risks": [
+        "A postcondition requires an Ipv4Addr octet view or corresponding modeled accessor."
+      ]
+    },
+    {
+      "target": "core::net::Ipv4Addr::from_octets",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although construction is deterministic, current vstd has no public view exposing an Ipv4Addr's four octets, so no useful observable result relation can be written.",
+      "risks": [
+        "Constructor semantics require a new Ipv4Addr octet abstraction."
+      ]
+    }
+  ]
+}

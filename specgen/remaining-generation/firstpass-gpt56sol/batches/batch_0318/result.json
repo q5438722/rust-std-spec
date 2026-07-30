@@ -1,0 +1,117 @@
+{
+  "batch": 318,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 134455,
+  "targets": [
+    "alloc::sync::Arc::from_raw",
+    "alloc::sync::Arc::increment_strong_count",
+    "alloc::sync::Arc::into_raw",
+    "alloc::sync::Weak::as_ptr",
+    "alloc::sync::Weak::from_raw",
+    "alloc::sync::Weak::into_raw"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::sync::Arc::from_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Reconstructing the Arc requires tracking the strong-reference ownership transferred by Arc::into_raw; current vstd has no Arc allocation-identity or raw-ownership token.",
+      "risks": [
+        "missing_arc_raw_ownership_abstraction",
+        "pointer_provenance",
+        "allocation_identity"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::increment_strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning operation atomically mutates Arc's hidden strong count, which current vstd does not model.",
+      "risks": [
+        "hidden_reference_count_state",
+        "concurrency",
+        "unobservable_runtime_effect"
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::into_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The meaningful behavior is transferring one strong-reference ownership to a pointer identifying the same allocation. Current vstd cannot express that relation; source-supported non-nullness alone is insufficient.",
+      "risks": [
+        "missing_arc_raw_ownership_abstraction",
+        "raw_pointer_equality",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source permits a dangling, unaligned, or null result when no strong reference exists; relating the pointer to the Weak allocation requires missing identity and liveness abstractions.",
+      "risks": [
+        "missing_weak_allocation_identity",
+        "hidden_liveness_state",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::from_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Recovering the Weak requires consuming the weak-reference ownership preserved by Weak::into_raw, for which current vstd has no token or allocation-identity model.",
+      "risks": [
+        "missing_weak_raw_ownership_abstraction",
+        "allocation_identity",
+        "pointer_provenance"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::into_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves ownership of one weak reference in the returned pointer, but current vstd cannot represent that ownership or connect the pointer to its allocation.",
+      "risks": [
+        "missing_weak_raw_ownership_abstraction",
+        "raw_pointer_equality",
+        "hidden_reference_count_state"
+      ]
+    }
+  ]
+}

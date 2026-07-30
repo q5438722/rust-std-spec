@@ -1,0 +1,149 @@
+{
+  "id": "std_specs__alloc.rs__L26__alloc__intrinsics__write_box_via_move",
+  "api_path": "alloc::intrinsics::write_box_via_move",
+  "raw_target": "alloc::intrinsics::write_box_via_move",
+  "contract_source_file": "std_specs/alloc.rs",
+  "contract_source_line": 26,
+  "rust_declaration": {
+    "declaration_id": "alloc:3543",
+    "name": "write_box_via_move",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = RustcIntrinsic]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/intrinsics.rs",
+      "begin": [
+        15,
+        1
+      ],
+      "end": [
+        15,
+        83
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "b",
+          {
+            "resolved_path": {
+              "path": "crate::boxed::Box",
+              "id": 82,
+              "args": {
+                "angle_bracketed": {
+                  "args": [
+                    {
+                      "type": {
+                        "resolved_path": {
+                          "path": "core::mem::MaybeUninit",
+                          "id": 431,
+                          "args": {
+                            "angle_bracketed": {
+                              "args": [
+                                {
+                                  "type": {
+                                    "generic": "T"
+                                  }
+                                }
+                              ],
+                              "constraints": []
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "constraints": []
+                }
+              }
+            }
+          }
+        ],
+        [
+          "x",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "crate::boxed::Box",
+          "id": 82,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "core::mem::MaybeUninit",
+                      "id": 431,
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "T",
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "     1: //! Intrinsics that cannot be moved to `core` because they depend on `alloc` types.\n     2: #![unstable(feature = \"liballoc_internals\", issue = \"none\")]\n     3: \n     4: use core::mem::MaybeUninit;\n     5: \n     6: use crate::boxed::Box;\n     7: \n     8: /// Writes `x` into `b`.\n     9: ///\n    10: /// This is needed for `vec!`, which can't afford any extra copies of the argument (or else debug\n    11: /// builds regress), has to be written fully as a call chain without `let` (or else this breaks inference\n    12: /// of e.g. unsizing coercions), and can't use an `unsafe` block as that would then also\n    13: /// include the user-provided `$x`.\n    14: #[rustc_intrinsic]\n    15: pub fn write_box_via_move<T>(b: Box<MaybeUninit<T>>, x: T) -> Box<MaybeUninit<T>>;",
+    "source_text": "pub fn write_box_via_move<T>(b: Box<MaybeUninit<T>>, x: T) -> Box<MaybeUninit<T>>;",
+    "has_body": false
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd specification of core::mem::MaybeUninit::<T>::new ensures initialized MemContents containing its argument."
+  ],
+  "rationale": "Rustc 1.96 lowers the intrinsic to an in-place payload write followed by returning the same box. Assigning MaybeUninit::new(x) through the box dereference is its public source-faithful desugaring.",
+  "run_target_dir": "source-verification/bulk-proof/runs/no-body-full/targets/std_specs__alloc.rs__L26__alloc__intrinsics__write_box_via_move"
+}

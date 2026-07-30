@@ -1,0 +1,190 @@
+{
+  "candidates": [
+    {
+      "target": "std::collections::HashSet::intersection",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a lazy Intersection iterator. Current vstd models HashSet::iter but has no public Intersection model relating future outputs to both set views; the source may also yield either equal stored value.",
+      "risks": [
+        "missing_intersection_iterator_model",
+        "arbitrary_iteration_order_unmodeled",
+        "equal_element_reference_origin_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The final set depends on an arbitrarily ordered sequence of calls to a potentially stateful FnMut predicate. Current vstd has no callback-state trace capable of characterizing the retained elements.",
+      "risks": [
+        "unit_return_variant",
+        "stateful_fnmut_sequence_not_modeled",
+        "arbitrary_iteration_order_unmodeled",
+        "callback_dependent_removal"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::symmetric_difference",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source chains two lazy Difference iterators. Neither Difference nor SymmetricDifference has a public vstd iterator model connecting its future yielded references to the operand set views.",
+      "risks": [
+        "missing_symmetric_difference_iterator_model",
+        "missing_difference_iterator_model",
+        "arbitrary_iteration_order_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::union",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a lazy chain of one set's iterator and the other's Difference iterator. Current vstd has no public Union or Difference model relating future outputs to the union of both set views.",
+      "risks": [
+        "missing_union_iterator_model",
+        "missing_difference_iterator_model",
+        "arbitrary_iteration_order_unmodeled"
+      ]
+    },
+    {
+      "target": "std::path::Path::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Iter lazily wraps Components, but current vstd exposes neither a Path/OsStr contents view nor a prophetic model connecting Iter's future outputs to path components.",
+      "risks": [
+        "missing_path_contents_view",
+        "missing_osstr_view",
+        "missing_path_iterator_model",
+        "platform_dependent_component_semantics"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::collections::HashSet::intersection",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a lazy Intersection iterator. Current vstd models HashSet::iter
+but has no public Intersection model relating future outputs to both set views; the source may also
+yield either equal stored value.",
+      "risks": [
+        "missing_intersection_iterator_model",
+        "arbitrary_iteration_order_unmodeled",
+        "equal_element_reference_origin_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The final set depends on an arbitrarily ordered sequence of calls to a
+potentially stateful FnMut predicate. Current vstd has no callback-state trace capable of
+characterizing the retained elements.",
+      "risks": [
+        "unit_return_variant",
+        "stateful_fnmut_sequence_not_modeled",
+        "arbitrary_iteration_order_unmodeled",
+        "callback_dependent_removal"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::symmetric_difference",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source chains two lazy Difference iterators. Neither Difference nor
+SymmetricDifference has a public vstd iterator model connecting its future yielded references to the
+ operand set views.",
+      "risks": [
+        "missing_symmetric_difference_iterator_model",
+        "missing_difference_iterator_model",
+        "arbitrary_iteration_order_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashSet::union",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a lazy chain of one set's iterator and the other's Difference
+ iterator. Current vstd has no public Union or Difference model relating future outputs to the union
+ of both set views.",
+      "risks": [
+        "missing_union_iterator_model",
+        "missing_difference_iterator_model",
+        "arbitrary_iteration_order_unmodeled"
+      ]
+    },
+    {
+      "target": "std::path::Path::iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Iter lazily wraps Components, but current vstd exposes neither a
+Path/OsStr contents view nor a prophetic model connecting Iter's future outputs to path
+components.",
+      "risks": [
+        "missing_path_contents_view",
+        "missing_osstr_view",
+        "missing_path_iterator_model",
+        "platform_dependent_component_semantics"
+      ]
+    } ]
+}
+

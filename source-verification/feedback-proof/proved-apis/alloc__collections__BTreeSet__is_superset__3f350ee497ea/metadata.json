@@ -1,0 +1,220 @@
+{
+  "id": "alloc__collections__BTreeSet__is_superset__3f350ee497ea",
+  "api_path": "alloc::collections::BTreeSet::is_superset",
+  "raw_target": "BTreeSet::<T, A>::is_superset",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "declaration_id": "alloc:2084",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 176,
+                    "path": "Ord"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "is_superset",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 1996,
+          "path": "BTreeSet"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 4,
+                        "path": "Allocator"
+                      }
+                    }
+                  },
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 25,
+                        "path": "Clone"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "A"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:2109",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:1996",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "btree",
+        "set",
+        "BTreeSet"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "other",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "resolved_path": {
+                  "args": {
+                    "angle_bracketed": {
+                      "args": [
+                        {
+                          "type": {
+                            "generic": "T"
+                          }
+                        },
+                        {
+                          "type": {
+                            "generic": "A"
+                          }
+                        }
+                      ],
+                      "constraints": []
+                    }
+                  },
+                  "id": 1996,
+                  "path": "BTreeSet"
+                }
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "   720:             let mut other_iter = other.iter();\n   721:             {\n   722:                 // remove other_min and other_max as they are not in self_iter (see above)\n   723:                 other_iter.next();\n   724:                 other_iter.next_back();\n   725:             }\n   726:             // custom `self_iter.all(|e| other.contains(e))`\n   727:             self_iter.all(|self1| {\n   728:                 while let Some(other1) = other_iter.next() {\n   729:                     match other1.cmp(self1) {\n   730:                         // happens up to `ITER_PERFORMANCE_TIPPING_SIZE_DIFF * self.len() - 1` times\n   731:                         Less => continue, // skip over elements that are smaller\n   732:                         // happens `self.len()` times\n   733:                         Equal => return true, // self1 is in other\n   734:                         // happens only once\n   735:                         Greater => return false, // self1 is not in other\n   736:                     }\n   737:                 }\n   738:                 false\n   739:             })\n   740:         }\n   741:     }\n   742: \n   743:     /// Returns `true` if the set is a superset of another,\n   744:     /// i.e., `self` contains at least all the elements in `other`.\n   745:     ///\n   746:     /// # Examples\n   747:     ///\n   748:     /// ```\n   749:     /// use std::collections::BTreeSet;\n   750:     ///\n   751:     /// let sub = BTreeSet::from([1, 2]);\n   752:     /// let mut set = BTreeSet::new();\n   753:     ///\n   754:     /// assert_eq!(set.is_superset(&sub), false);\n   755:     ///\n   756:     /// set.insert(0);\n   757:     /// set.insert(1);\n   758:     /// assert_eq!(set.is_superset(&sub), false);\n   759:     ///\n   760:     /// set.insert(2);\n   761:     /// assert_eq!(set.is_superset(&sub), true);\n   762:     /// ```\n   763:     #[must_use]\n   764:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   765:     pub fn is_superset(&self, other: &BTreeSet<T, A>) -> bool\n   766:     where\n   767:         T: Ord,\n   768:     {\n   769:         other.is_subset(self)\n   770:     }\n   771: \n   772:     /// Returns a reference to the first element in the set, if any.\n   773:     /// This element is always the minimum of all elements in the set.\n   774:     ///\n   775:     /// # Examples\n   776:     ///\n   777:     /// Basic usage:\n   778:     ///\n   779:     /// ```\n   780:     /// use std::collections::BTreeSet;\n   781:     ///\n   782:     /// let mut set = BTreeSet::new();\n   783:     /// assert_eq!(set.first(), None);\n   784:     /// set.insert(1);\n   785:     /// assert_eq!(set.first(), Some(&1));\n   786:     /// set.insert(2);\n   787:     /// assert_eq!(set.first(), Some(&1));\n   788:     /// ```\n   789:     #[must_use]\n   790:     #[stable(feature = \"map_first_last\", since = \"1.66.0\")]\n   791:     #[rustc_confusables(\"front\")]\n   792:     pub fn first(&self) -> Option<&T>\n   793:     where\n   794:         T: Ord,\n   795:     {\n   796:         self.map.first_key_value().map(|(k, _)| k)\n   797:     }\n   798: \n   799:     /// Returns a reference to the last element in the set, if any.\n   800:     /// This element is always the maximum of all elements in the set.\n   801:     ///\n   802:     /// # Examples\n   803:     ///\n   804:     /// Basic usage:\n   805:     ///\n   806:     /// ```\n   807:     /// use std::collections::BTreeSet;\n   808:     ///\n   809:     /// let mut set = BTreeSet::new();\n   810:     /// assert_eq!(set.last(), None);",
+    "span": {
+      "begin": [
+        765,
+        5
+      ],
+      "end": [
+        770,
+        6
+      ],
+      "filename": "alloc/src/collections/btree/set.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn is_superset(&self, other: &BTreeSet<T, A>) -> bool\n    where\n        T: Ord,\n    {\n        other.is_subset(self)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for BTreeSet::<T, A>::is_subset."
+  ],
+  "rationale": "The copied body proves the target contract compositionally through the smaller is_subset API contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__collections__BTreeSet__is_superset__3f350ee497ea"
+}

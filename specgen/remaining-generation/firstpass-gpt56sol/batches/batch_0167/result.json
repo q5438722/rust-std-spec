@@ -1,0 +1,117 @@
+{
+  "batch": 167,
+  "group": "ownership_or_uninitialized_model",
+  "duration_ms": 353030,
+  "targets": [
+    "alloc::sync::Arc::new_zeroed",
+    "alloc::sync::Arc::new_zeroed_slice",
+    "alloc::sync::Arc::pin",
+    "alloc::sync::Arc::ptr_eq",
+    "alloc::sync::Arc::strong_count",
+    "alloc::sync::Arc::try_unwrap"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::sync::Arc::new_zeroed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API guarantees zero-filled bytes, but current MaybeUninit vocabulary cannot represent that byte pattern or determine whether it is a valid T.",
+      "risks": [
+        "Modeling the result as initialized is unsound for types whose all-zero representation is invalid."
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::new_zeroed_slice",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Arc::<[T]>::new_zeroed_slice ](\n    len: usize,\n) -> (result: Arc<[MaybeUninit<T>]>)\n    ensures\n        result.len() == len,\n;",
+      "requires": [],
+      "ensures": [
+        "result.len() == len"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::sync::Arc",
+        "core::mem::MaybeUninit"
+      ],
+      "useful": true,
+      "rationale": "The source constructs the slice metadata with exactly len, giving a useful shape guarantee without modeling element bytes.",
+      "risks": [
+        "The zero-filled element contents and their validity as T remain unmodeled."
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::pin",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd lacks a public Pin projection and stable-address ownership model needed to relate the result to data and express immovability.",
+      "risks": [
+        "A content-only approximation would omit the defining pinning guarantee."
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::ptr_eq",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source compares allocation addresses while ignoring metadata, but current Arc vocabulary exposes no allocation-identity or address view.",
+      "risks": [
+        "Pointee equality is not equivalent because distinct allocations may contain equal values."
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a relaxed atomic observation of hidden shared reference-count state, for which vstd has no Arc concurrency model.",
+      "risks": [
+        "The count may change concurrently and cannot be related deterministically to public inputs."
+      ]
+    },
+    {
+      "target": "alloc::sync::Arc::try_unwrap",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Arc::<T, A>::try_unwrap ](\n    this: Arc<T, A>,\n) -> (result: Result<T, Arc<T, A>>)\n    ensures\n        match result {\n            Ok(value) => value == *this,\n            Err(returned) => returned == this,\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "match result { Ok(value) => value == *this, Err(returned) => returned == this }"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::sync::Arc",
+        "core::alloc::Allocator"
+      ],
+      "useful": true,
+      "rationale": "The source either reads out the stored T or returns the original Arc unchanged, allowing a useful branch-conditional value-preservation contract without predicting the reference-count race.",
+      "risks": [
+        "The contract intentionally does not characterize which branch succeeds."
+      ]
+    }
+  ]
+}

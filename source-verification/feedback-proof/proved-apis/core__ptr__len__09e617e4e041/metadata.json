@@ -1,0 +1,109 @@
+{
+  "id": "core__ptr__len__09e617e4e041",
+  "api_path": "core::ptr::len",
+  "raw_target": "<*const [T]>::len",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 79, patch: 0 })},\nfeature: \"slice_ptr_len\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 79, patch: 0 })},\nfeature: \"const_slice_ptr_len\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:51643",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "len",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51649",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "usize"
+      }
+    },
+    "source_context": "  1414:     /// #![feature(ptr_cast_slice)]\n  1415:     /// use std::ptr;\n  1416:     /// let danger: *const [u8] = ptr::null::<u8>().cast_slice(0);\n  1417:     /// unsafe {\n  1418:     ///     danger.as_ref().expect(\"references must not be null\");\n  1419:     /// }\n  1420:     /// ```\n  1421:     #[inline]\n  1422:     #[unstable(feature = \"ptr_cast_slice\", issue = \"149103\")]\n  1423:     pub const fn cast_slice(self, len: usize) -> *const [T] {\n  1424:         slice_from_raw_parts(self, len)\n  1425:     }\n  1426: }\n  1427: impl<T> *const MaybeUninit<T> {\n  1428:     /// Casts from a maybe-uninitialized type to its initialized version.\n  1429:     ///\n  1430:     /// This is always safe, since UB can only occur if the pointer is read\n  1431:     /// before being initialized.\n  1432:     #[must_use]\n  1433:     #[inline(always)]\n  1434:     #[unstable(feature = \"cast_maybe_uninit\", issue = \"145036\")]\n  1435:     pub const fn cast_init(self) -> *const T {\n  1436:         self as _\n  1437:     }\n  1438: }\n  1439: \n  1440: impl<T> *const [T] {\n  1441:     /// Returns the length of a raw slice.\n  1442:     ///\n  1443:     /// The returned value is the number of **elements**, not the number of bytes.\n  1444:     ///\n  1445:     /// This function is safe, even when the raw slice cannot be cast to a slice\n  1446:     /// reference because the pointer is null or unaligned.\n  1447:     ///\n  1448:     /// # Examples\n  1449:     ///\n  1450:     /// ```rust\n  1451:     /// use std::ptr;\n  1452:     ///\n  1453:     /// let slice: *const [i8] = ptr::slice_from_raw_parts(ptr::null(), 3);\n  1454:     /// assert_eq!(slice.len(), 3);\n  1455:     /// ```\n  1456:     #[inline]\n  1457:     #[stable(feature = \"slice_ptr_len\", since = \"1.79.0\")]\n  1458:     #[rustc_const_stable(feature = \"const_slice_ptr_len\", since = \"1.79.0\")]\n  1459:     pub const fn len(self) -> usize {\n  1460:         metadata(self)\n  1461:     }\n  1462: \n  1463:     /// Returns `true` if the raw slice has a length of 0.\n  1464:     ///\n  1465:     /// # Examples\n  1466:     ///\n  1467:     /// ```\n  1468:     /// use std::ptr;\n  1469:     ///\n  1470:     /// let slice: *const [i8] = ptr::slice_from_raw_parts(ptr::null(), 3);\n  1471:     /// assert!(!slice.is_empty());\n  1472:     /// ```\n  1473:     #[inline(always)]\n  1474:     #[stable(feature = \"slice_ptr_len\", since = \"1.79.0\")]\n  1475:     #[rustc_const_stable(feature = \"const_slice_ptr_len\", since = \"1.79.0\")]\n  1476:     pub const fn is_empty(self) -> bool {\n  1477:         self.len() == 0\n  1478:     }\n  1479: \n  1480:     /// Returns a raw pointer to the slice's buffer.\n  1481:     ///\n  1482:     /// This is equivalent to casting `self` to `*const T`, but more type-safe.\n  1483:     ///\n  1484:     /// # Examples\n  1485:     ///\n  1486:     /// ```rust\n  1487:     /// #![feature(slice_ptr_get)]\n  1488:     /// use std::ptr;\n  1489:     ///\n  1490:     /// let slice: *const [i8] = ptr::slice_from_raw_parts(ptr::null(), 3);\n  1491:     /// assert_eq!(slice.as_ptr(), ptr::null());\n  1492:     /// ```\n  1493:     #[inline]\n  1494:     #[unstable(feature = \"slice_ptr_get\", issue = \"74265\")]\n  1495:     pub const fn as_ptr(self) -> *const T {\n  1496:         self as *const T\n  1497:     }\n  1498: \n  1499:     /// Gets a raw pointer to the underlying array.\n  1500:     ///\n  1501:     /// If `N` is not exactly equal to the length of `self`, then this method returns `None`.\n  1502:     #[stable(feature = \"core_slice_as_array\", since = \"1.93.0\")]\n  1503:     #[rustc_const_stable(feature = \"core_slice_as_array\", since = \"1.93.0\")]\n  1504:     #[inline]",
+    "span": {
+      "begin": [
+        1459,
+        5
+      ],
+      "end": [
+        1461,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn len(self) -> usize {\n        metadata(self)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for core::ptr::metadata states that its result equals the raw pointer's modeled metadata."
+  ],
+  "rationale": "The body directly preserves the standard-library implementation's metadata call and proves the postcondition compositionally from that smaller API's contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__len__09e617e4e041"
+}

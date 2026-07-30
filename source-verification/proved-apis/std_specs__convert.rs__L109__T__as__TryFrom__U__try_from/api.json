@@ -1,0 +1,110 @@
+{
+  "id": "std_specs__convert.rs__L109__T__as__TryFrom__U__try_from",
+  "api_path": "core::convert::TryFrom::try_from",
+  "normalized_api_path": "core::convert::TryFrom::try_from",
+  "raw_target": "<T as TryFrom<U>>::try_from",
+  "contract_source_file": "std_specs/convert.rs",
+  "contract_source_line": 109,
+  "rust_declaration": {
+    "declaration_id": "core:12272",
+    "name": "try_from",
+    "visibility": "default",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 34, patch: 0 })},\nfeature: \"try_from\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"try_from_fn\")]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/convert/mod.rs",
+      "begin": [
+        702,
+        5
+      ],
+      "end": [
+        702,
+        56
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "value",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "Self"
+                  }
+                },
+                {
+                  "type": {
+                    "qualified_path": {
+                      "name": "Error",
+                      "args": null,
+                      "self_type": {
+                        "generic": "Self"
+                      },
+                      "trait": {
+                        "path": "",
+                        "id": 206,
+                        "args": null
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "trait",
+      "item_id": "core:206",
+      "name": "TryFrom",
+      "path": [
+        "core",
+        "convert",
+        "TryFrom"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   682: /// let try_smaller_number = i32::try_from(big_number);\n   683: /// assert!(try_smaller_number.is_err());\n   684: ///\n   685: /// // Returns `Ok(3)`.\n   686: /// let try_successful_smaller_number = i32::try_from(3);\n   687: /// assert!(try_successful_smaller_number.is_ok());\n   688: /// ```\n   689: ///\n   690: /// [`try_from`]: TryFrom::try_from\n   691: #[rustc_diagnostic_item = \"TryFrom\"]\n   692: #[stable(feature = \"try_from\", since = \"1.34.0\")]\n   693: #[rustc_const_unstable(feature = \"const_convert\", issue = \"143773\")]\n   694: pub const trait TryFrom<T>: Sized {\n   695:     /// The type returned in the event of a conversion error.\n   696:     #[stable(feature = \"try_from\", since = \"1.34.0\")]\n   697:     type Error;\n   698: \n   699:     /// Performs the conversion.\n   700:     #[stable(feature = \"try_from\", since = \"1.34.0\")]\n   701:     #[rustc_diagnostic_item = \"try_from_fn\"]\n   702:     fn try_from(value: T) -> Result<Self, Self::Error>;\n   703: }\n   704: \n   705: ////////////////////////////////////////////////////////////////////////////////\n   706: // GENERIC IMPLS\n   707: ////////////////////////////////////////////////////////////////////////////////\n   708: \n   709: // As lifts over &\n   710: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   711: #[rustc_const_unstable(feature = \"const_convert\", issue = \"143773\")]\n   712: impl<T: PointeeSized, U: PointeeSized> const AsRef<U> for &T\n   713: where\n   714:     T: [const] AsRef<U>,\n   715: {\n   716:     #[inline]\n   717:     fn as_ref(&self) -> &U {\n   718:         <T as AsRef<U>>::as_ref(*self)\n   719:     }\n   720: }\n   721: \n   722: // As lifts over &mut",
+    "source_text": "fn try_from(value: T) -> Result<Self, Self::Error>;",
+    "has_body": false
+  }
+}

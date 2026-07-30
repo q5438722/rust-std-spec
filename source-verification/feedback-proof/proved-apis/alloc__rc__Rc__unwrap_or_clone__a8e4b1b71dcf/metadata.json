@@ -1,0 +1,157 @@
+{
+  "id": "alloc__rc__Rc__unwrap_or_clone__a8e4b1b71dcf",
+  "api_path": "alloc::rc::Rc::unwrap_or_clone",
+  "raw_target": "Rc::<T, A>::unwrap_or_clone",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 76, patch: 0 })},\nfeature: \"arc_unwrap_or_clone\"}}]"
+      }
+    ],
+    "declaration_id": "alloc:3612",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "unwrap_or_clone",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 302,
+          "path": "Rc"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 25,
+                        "path": "Clone"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 4,
+                        "path": "Allocator"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "A"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:3613",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:302",
+      "resolved_owner_path": [
+        "alloc",
+        "rc",
+        "Rc"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "this",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  2104:                 this.inner().dec_weak();\n  2105:                 // Replace `this` with newly constructed Rc that has the moved data.\n  2106:                 ptr::write(this, in_progress.into_rc());\n  2107:             }\n  2108:         }\n  2109:         // This unsafety is ok because we're guaranteed that the pointer\n  2110:         // returned is the *only* pointer that will ever be returned to T. Our\n  2111:         // reference count is guaranteed to be 1 at this point, and we required\n  2112:         // the `Rc<T>` itself to be `mut`, so we're returning the only possible\n  2113:         // reference to the allocation.\n  2114:         unsafe { &mut this.ptr.as_mut().value }\n  2115:     }\n  2116: }\n  2117: \n  2118: impl<T: Clone, A: Allocator> Rc<T, A> {\n  2119:     /// If we have the only reference to `T` then unwrap it. Otherwise, clone `T` and return the\n  2120:     /// clone.\n  2121:     ///\n  2122:     /// Assuming `rc_t` is of type `Rc<T>`, this function is functionally equivalent to\n  2123:     /// `(*rc_t).clone()`, but will avoid cloning the inner value where possible.\n  2124:     ///\n  2125:     /// # Examples\n  2126:     ///\n  2127:     /// ```\n  2128:     /// # use std::{ptr, rc::Rc};\n  2129:     /// let inner = String::from(\"test\");\n  2130:     /// let ptr = inner.as_ptr();\n  2131:     ///\n  2132:     /// let rc = Rc::new(inner);\n  2133:     /// let inner = Rc::unwrap_or_clone(rc);\n  2134:     /// // The inner value was not cloned\n  2135:     /// assert!(ptr::eq(ptr, inner.as_ptr()));\n  2136:     ///\n  2137:     /// let rc = Rc::new(inner);\n  2138:     /// let rc2 = rc.clone();\n  2139:     /// let inner = Rc::unwrap_or_clone(rc);\n  2140:     /// // Because there were 2 references, we had to clone the inner value.\n  2141:     /// assert!(!ptr::eq(ptr, inner.as_ptr()));\n  2142:     /// // `rc2` is the last reference, so when we unwrap it we get back\n  2143:     /// // the original `String`.\n  2144:     /// let inner = Rc::unwrap_or_clone(rc2);\n  2145:     /// assert!(ptr::eq(ptr, inner.as_ptr()));\n  2146:     /// ```\n  2147:     #[inline]\n  2148:     #[stable(feature = \"arc_unwrap_or_clone\", since = \"1.76.0\")]\n  2149:     pub fn unwrap_or_clone(this: Self) -> T {\n  2150:         Rc::try_unwrap(this).unwrap_or_else(|rc| (*rc).clone())\n  2151:     }\n  2152: }\n  2153: \n  2154: impl<A: Allocator> Rc<dyn Any, A> {\n  2155:     /// Attempts to downcast the `Rc<dyn Any>` to a concrete type.\n  2156:     ///\n  2157:     /// # Examples\n  2158:     ///\n  2159:     /// ```\n  2160:     /// use std::any::Any;\n  2161:     /// use std::rc::Rc;\n  2162:     ///\n  2163:     /// fn print_if_string(value: Rc<dyn Any>) {\n  2164:     ///     if let Ok(string) = value.downcast::<String>() {\n  2165:     ///         println!(\"String ({}): {}\", string.len(), string);\n  2166:     ///     }\n  2167:     /// }\n  2168:     ///\n  2169:     /// let my_string = \"Hello World\".to_string();\n  2170:     /// print_if_string(Rc::new(my_string));\n  2171:     /// print_if_string(Rc::new(0i8));\n  2172:     /// ```\n  2173:     #[inline]\n  2174:     #[stable(feature = \"rc_downcast\", since = \"1.29.0\")]\n  2175:     pub fn downcast<T: Any>(self) -> Result<Rc<T, A>, Self> {\n  2176:         if (*self).is::<T>() {\n  2177:             unsafe {\n  2178:                 let (ptr, alloc) = Rc::into_inner_with_allocator(self);\n  2179:                 Ok(Rc::from_inner_in(ptr.cast(), alloc))\n  2180:             }\n  2181:         } else {\n  2182:             Err(self)\n  2183:         }\n  2184:     }\n  2185: \n  2186:     /// Downcasts the `Rc<dyn Any>` to a concrete type.\n  2187:     ///\n  2188:     /// For a safe alternative see [`downcast`].\n  2189:     ///\n  2190:     /// # Examples\n  2191:     ///\n  2192:     /// ```\n  2193:     /// #![feature(downcast_unchecked)]\n  2194:     ///",
+    "span": {
+      "begin": [
+        2149,
+        5
+      ],
+      "end": [
+        2151,
+        6
+      ],
+      "filename": "alloc/src/rc.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn unwrap_or_clone(this: Self) -> T {\n        Rc::try_unwrap(this).unwrap_or_else(|rc| (*rc).clone())\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for Rc::<T, A>::try_unwrap."
+  ],
+  "rationale": "Mechanically desugars Result::unwrap_or_else into its match, preserving the original try_unwrap and conditional clone operations.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__rc__Rc__unwrap_or_clone__a8e4b1b71dcf"
+}

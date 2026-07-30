@@ -1,0 +1,157 @@
+{
+  "id": "std_specs__vecdeque.rs__L111__VecDeque__T__A__reserve_exact",
+  "api_path": "alloc::collections::vec_deque::VecDeque::reserve_exact",
+  "raw_target": "VecDeque::<T, A>::reserve_exact",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 111,
+  "rust_declaration": {
+    "declaration_id": "alloc:3082",
+    "name": "reserve_exact",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        1024,
+        5
+      ],
+      "end": [
+        1034,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "additional",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1004:     /// Note that the allocator may give the collection more space than it requests. Therefore\n  1005:     /// capacity can not be relied upon to be precisely minimal. Prefer [`reserve`] if future\n  1006:     /// insertions are expected.\n  1007:     ///\n  1008:     /// # Panics\n  1009:     ///\n  1010:     /// Panics if the new capacity overflows `usize`.\n  1011:     ///\n  1012:     /// # Examples\n  1013:     ///\n  1014:     /// ```\n  1015:     /// use std::collections::VecDeque;\n  1016:     ///\n  1017:     /// let mut buf: VecDeque<i32> = [1].into();\n  1018:     /// buf.reserve_exact(10);\n  1019:     /// assert!(buf.capacity() >= 11);\n  1020:     /// ```\n  1021:     ///\n  1022:     /// [`reserve`]: VecDeque::reserve\n  1023:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1024:     pub fn reserve_exact(&mut self, additional: usize) {\n  1025:         let new_cap = self.len.checked_add(additional).expect(\"capacity overflow\");\n  1026:         let old_cap = self.capacity();\n  1027: \n  1028:         if new_cap > old_cap {\n  1029:             self.buf.reserve_exact(self.len, additional);\n  1030:             unsafe {\n  1031:                 self.handle_capacity_increase(old_cap);\n  1032:             }\n  1033:         }\n  1034:     }\n  1035: \n  1036:     /// Reserves capacity for at least `additional` more elements to be inserted in the given\n  1037:     /// deque. The collection may reserve more space to speculatively avoid frequent reallocations.\n  1038:     ///\n  1039:     /// # Panics\n  1040:     ///\n  1041:     /// Panics if the new capacity overflows `usize`.\n  1042:     ///\n  1043:     /// # Examples\n  1044:     ///",
+    "source_text": "pub fn reserve_exact(&mut self, additional: usize) {\n        let new_cap = self.len.checked_add(additional).expect(\"capacity overflow\");\n        let old_cap = self.capacity();\n\n        if new_cap > old_cap {\n            self.buf.reserve_exact(self.len, additional);\n            unsafe {\n                self.handle_capacity_increase(old_cap);\n            }\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contracts for VecDeque::len, VecDeque::capacity, and VecDeque::try_reserve_exact",
+    "vstd contract for usize::checked_add",
+    "std::process::abort has its declared non-returning behavior"
+  ],
+  "rationale": "Preserves the checked-add and capacity-guard control flow, desugaring inaccessible raw-buffer growth through the smaller fallible API and its non-returning error path.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vecdeque.rs__L111__VecDeque__T__A__reserve_exact"
+}

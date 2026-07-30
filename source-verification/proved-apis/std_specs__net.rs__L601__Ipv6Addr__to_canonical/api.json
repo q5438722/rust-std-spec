@@ -1,0 +1,110 @@
+{
+  "id": "std_specs__net.rs__L601__Ipv6Addr__to_canonical",
+  "api_path": "core::net::Ipv6Addr::to_canonical",
+  "normalized_api_path": "core::net::Ipv6Addr::to_canonical",
+  "raw_target": "Ipv6Addr::to_canonical",
+  "contract_source_file": "std_specs/net.rs",
+  "contract_source_line": 601,
+  "rust_declaration": {
+    "declaration_id": "core:27833",
+    "name": "to_canonical",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": "this returns the result of the operation, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"ip_to_canonical\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"ip_to_canonical\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/net/ip_addr.rs",
+      "begin": [
+        2063,
+        5
+      ],
+      "end": [
+        2068,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "IpAddr",
+          "id": 9943,
+          "args": null
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:27837",
+      "for": {
+        "resolved_path": {
+          "path": "Ipv6Addr",
+          "id": 9949,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9949",
+      "resolved_owner_path": [
+        "core",
+        "net",
+        "ip_addr",
+        "Ipv6Addr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  2043:             None\n  2044:         }\n  2045:     }\n  2046: \n  2047:     /// Converts this address to an `IpAddr::V4` if it is an IPv4-mapped address,\n  2048:     /// otherwise returns self wrapped in an `IpAddr::V6`.\n  2049:     ///\n  2050:     /// # Examples\n  2051:     ///\n  2052:     /// ```\n  2053:     /// use std::net::Ipv6Addr;\n  2054:     ///\n  2055:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0x7f00, 0x1).is_loopback(), false);\n  2056:     /// assert_eq!(Ipv6Addr::new(0, 0, 0, 0, 0, 0xffff, 0x7f00, 0x1).to_canonical().is_loopback(), true);\n  2057:     /// ```\n  2058:     #[inline]\n  2059:     #[must_use = \"this returns the result of the operation, \\\n  2060:                   without modifying the original\"]\n  2061:     #[stable(feature = \"ip_to_canonical\", since = \"1.75.0\")]\n  2062:     #[rustc_const_stable(feature = \"ip_to_canonical\", since = \"1.75.0\")]\n  2063:     pub const fn to_canonical(&self) -> IpAddr {\n  2064:         if let Some(mapped) = self.to_ipv4_mapped() {\n  2065:             return IpAddr::V4(mapped);\n  2066:         }\n  2067:         IpAddr::V6(*self)\n  2068:     }\n  2069: \n  2070:     /// Returns the sixteen eight-bit integers the IPv6 address consists of.\n  2071:     ///\n  2072:     /// ```\n  2073:     /// use std::net::Ipv6Addr;\n  2074:     ///\n  2075:     /// assert_eq!(Ipv6Addr::new(0xff00, 0, 0, 0, 0, 0, 0, 0).octets(),\n  2076:     ///            [0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);\n  2077:     /// ```\n  2078:     #[rustc_const_stable(feature = \"const_ip_32\", since = \"1.32.0\")]\n  2079:     #[stable(feature = \"ipv6_to_octets\", since = \"1.12.0\")]\n  2080:     #[must_use]\n  2081:     #[inline]\n  2082:     pub const fn octets(&self) -> [u8; 16] {\n  2083:         self.octets",
+    "source_text": "pub const fn to_canonical(&self) -> IpAddr {\n        if let Some(mapped) = self.to_ipv4_mapped() {\n            return IpAddr::V4(mapped);\n        }\n        IpAddr::V6(*self)\n    }",
+    "has_body": true
+  }
+}

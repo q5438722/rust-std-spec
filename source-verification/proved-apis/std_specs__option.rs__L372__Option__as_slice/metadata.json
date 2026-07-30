@@ -1,0 +1,142 @@
+{
+  "id": "std_specs__option.rs__L372__Option__as_slice",
+  "api_path": "core::option::Option::as_slice",
+  "raw_target": "Option::as_slice",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 372,
+  "rust_declaration": {
+    "declaration_id": "core:28021",
+    "name": "as_slice",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"option_as_slice\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 84, patch: 0 })},\nfeature: \"const_option_ext\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        844,
+        5
+      ],
+      "end": [
+        861,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": false,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28056",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   824:     ///\n   825:     /// ```rust\n   826:     /// assert_eq!(\n   827:     ///     [Some(1234).as_slice(), None.as_slice()],\n   828:     ///     [&[1234][..], &[][..]],\n   829:     /// );\n   830:     /// ```\n   831:     ///\n   832:     /// The inverse of this function is (discounting\n   833:     /// borrowing) [`[_]::first`](slice::first):\n   834:     ///\n   835:     /// ```rust\n   836:     /// for i in [Some(1234_u16), None] {\n   837:     ///     assert_eq!(i.as_ref(), i.as_slice().first());\n   838:     /// }\n   839:     /// ```\n   840:     #[inline]\n   841:     #[must_use]\n   842:     #[stable(feature = \"option_as_slice\", since = \"1.75.0\")]\n   843:     #[rustc_const_stable(feature = \"const_option_ext\", since = \"1.84.0\")]\n   844:     pub const fn as_slice(&self) -> &[T] {\n   845:         // SAFETY: When the `Option` is `Some`, we're using the actual pointer\n   846:         // to the payload, with a length of 1, so this is equivalent to\n   847:         // `slice::from_ref`, and thus is safe.\n   848:         // When the `Option` is `None`, the length used is 0, so to be safe it\n   849:         // just needs to be aligned, which it is because `&self` is aligned and\n   850:         // the offset used is a multiple of alignment.\n   851:         //\n   852:         // Here we assume that `offset_of!` always returns an offset to an\n   853:         // in-bounds and correctly aligned position for a `T` (even if in the\n   854:         // `None` case it's just padding).\n   855:         unsafe {\n   856:             slice::from_raw_parts(\n   857:                 (self as *const Self).byte_add(core::mem::offset_of!(Self, Some.0)).cast(),\n   858:                 self.len(),\n   859:             )\n   860:         }\n   861:     }\n   862: \n   863:     /// Returns a mutable slice of the contained value, if any. If this is\n   864:     /// `None`, an empty slice is returned. This can be useful to have a",
+    "source_text": "pub const fn as_slice(&self) -> &[T] {\n        // SAFETY: When the `Option` is `Some`, we're using the actual pointer\n        // to the payload, with a length of 1, so this is equivalent to\n        // `slice::from_ref`, and thus is safe.\n        // When the `Option` is `None`, the length used is 0, so to be safe it\n        // just needs to be aligned, which it is because `&self` is aligned and\n        // the offset used is a multiple of alignment.\n        //\n        // Here we assume that `offset_of!` always returns an offset to an\n        // in-bounds and correctly aligned position for a `T` (even if in the\n        // `None` case it's just padding).\n        unsafe {\n            slice::from_raw_parts(\n                (self as *const Self).byte_add(core::mem::offset_of!(Self, Some.0)).cast(),\n                self.len(),\n            )\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "core::slice::from_ref returns a singleton slice containing the referenced value.",
+    "Rust's Option discriminants make Option::len return 1 for Some and 0 for None.",
+    "offset_of!(Option<T>, Some.0) and the raw-pointer operations identify the aligned payload location as described by the Rust 1.96 safety argument."
+  ],
+  "rationale": "The unsupported raw-parts construction is source-faithfully desugared into its documented Some and None cases; Verus proves the singleton/empty sequence contract without calling Option::as_slice.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__option.rs__L372__Option__as_slice"
+}

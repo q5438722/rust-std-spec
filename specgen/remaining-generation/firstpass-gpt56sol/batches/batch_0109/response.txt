@@ -1,0 +1,31 @@
+{"candidates":[{"target":"alloc::ffi::CString::into_bytes_with_nul","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source moves out CString's nul-terminated buffer, but vstd has no CString content view with which to relate self to the returned Vec.","risks":["missing CString contents abstraction"]},{"target":"alloc::ffi::CString::into_string","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The success and error cases depend on UTF-8 validation of CString's hidden bytes, which cannot be related to String or IntoStringError without CString and error-payload views.","risks":["missing CString contents abstraction","missing IntoStringError payload abstraction"]},{"target":"alloc::ffi::CString::new","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result depends on the bytes produced by generic T::into and, on failure, preserves those bytes and the nul position. Existing vocabulary models neither that conversion nor CString/NulError contents.","risks":["missing generic Into conversion relation","missing CString contents abstraction","missing NulError payload abstraction"]},{"target":"alloc::ffi::FromVecWithNulError::as_bytes","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source borrows the error's private byte buffer, but no public FromVecWithNulError view exists to equate the returned slice view with those bytes.","risks":["missing FromVecWithNulError contents abstraction","reference identity versus view"]},{"target":"alloc::ffi::FromVecWithNulError::into_bytes","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation moves out the error's private byte buffer; without a FromVecWithNulError content view, result@ cannot be related usefully to self.","risks":["missing FromVecWithNulError contents abstraction"]},{"target":"alloc::ffi::IntoStringError::into_cstring","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source moves out the private inner CString, but neither IntoStringError nor CString has a public vstd content abstraction for stating preservation.","risks":["missing IntoStringError payload abstraction","missing CString contents abstraction"]}]}{"candidates":[{"target":"alloc::ffi::CString::into_bytes_with_nul","decision":"skip","contract_form
+":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":
+[],"useful":false,"rationale":"The source moves out CString's nul-terminated buffer, but vstd has no
+ CString content view with which to relate self to the returned Vec.","risks":["missing CString
+contents abstraction"]},{"target":"alloc::ffi::CString::into_string","decision":"skip","contract_for
+m":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports"
+:[],"useful":false,"rationale":"The success and error cases depend on UTF-8 validation of CString's
+hidden bytes, which cannot be related to String or IntoStringError without CString and error-payload
+ views.","risks":["missing CString contents abstraction","missing IntoStringError payload
+abstraction"]},{"target":"alloc::ffi::CString::new","decision":"skip","contract_form":"assume_specif
+ication","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":fals
+e,"rationale":"The result depends on the bytes produced by generic T::into and, on failure,
+preserves those bytes and the nul position. Existing vocabulary models neither that conversion nor
+CString/NulError contents.","risks":["missing generic Into conversion relation","missing CString
+contents abstraction","missing NulError payload abstraction"]},{"target":"alloc::ffi::FromVecWithNul
+Error::as_bytes","decision":"skip","contract_form":"assume_specification","contract_code":"","requir
+es":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source borrows
+the error's private byte buffer, but no public FromVecWithNulError view exists to equate the
+returned slice view with those bytes.","risks":["missing FromVecWithNulError contents
+abstraction","reference identity versus view"]},{"target":"alloc::ffi::FromVecWithNulError::into_byt
+es","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensur
+es":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation moves out the
+error's private byte buffer; without a FromVecWithNulError content view, result@ cannot be related
+usefully to self.","risks":["missing FromVecWithNulError contents
+abstraction"]},{"target":"alloc::ffi::IntoStringError::into_cstring","decision":"skip","contract_for
+m":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports"
+:[],"useful":false,"rationale":"The source moves out the private inner CString, but neither
+IntoStringError nor CString has a public vstd content abstraction for stating
+preservation.","risks":["missing IntoStringError payload abstraction","missing CString contents
+abstraction"]}]}
+

@@ -1,0 +1,127 @@
+{
+  "batch": 284,
+  "group": "trait_contract_integration",
+  "duration_ms": 928723,
+  "targets": [
+    "core::iter::DoubleEndedIterator::rfold",
+    "core::iter::DoubleEndedIterator::try_rfold",
+    "core::iter::ExactSizeIterator::len",
+    "core::iter::Extend::extend",
+    "core::iter::Iterator::by_ref",
+    "core::iter::Iterator::chain"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::DoubleEndedIterator::rfold",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn rfold<B, F>(self, init: B, f: F) -> (ret: B)\n    where\n        Self: Sized,\n        F: FnMut(B, <Self as core::iter::Iterator>::Item) -> B\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            exists |accumulators: Seq<B>| {\n                &&& accumulators.len() == items.len() + 1\n                &&& accumulators[0] == init\n                &&& forall |i: int| 0 <= i < items.len() ==>\n                    #[trigger] f.ensures(\n                        (accumulators[i], items[items.len() - i - 1]),\n                        accumulators[i + 1],\n                    )\n                &&& ret == accumulators[items.len()]\n            }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "self.will_return_none()",
+        "For a modeled iterator, a reverse-order accumulator trace follows f.ensures and ends at ret."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The default body consumes next_back repeatedly; IteratorSpec, Seq, and FnMut ensures express the resulting reverse fold.",
+      "risks": [
+        "Relies on the closure's FnMut specification.",
+        "The result relation is conditional on the prophetic iterator laws.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::DoubleEndedIterator::try_rfold",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd lacks a generic Try output/residual abstraction needed to relate short-circuit results to the consumed suffix and final iterator state.",
+      "risks": [
+        "missing generic Try specification",
+        "short-circuit iterator mutation",
+        "relational FnMut outcomes"
+      ]
+    },
+    {
+      "target": "core::iter::ExactSizeIterator::len",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExExactSizeIterator: core::iter::Iterator {\n    type ExternalTraitSpecificationFor: core::iter::ExactSizeIterator;\n\n    fn len(&self) -> (ret: usize)\n        default_ensures\n            self.obeys_prophetic_iter_laws() ==> ret == self.remaining().len(),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "self.obeys_prophetic_iter_laws() ==> ret == self.remaining().len()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source explicitly checks the ExactSizeIterator invariant; IteratorSpec::remaining provides the corresponding exact logical count.",
+      "risks": [
+        "The relation is conditional on the prophetic iterator laws.",
+        "default_ensures does not constrain overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Extend::extend",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Arbitrary Extend implementations share no current vstd view relating final collection state to the generic input iterator.",
+      "risks": [
+        "missing Extend state abstraction",
+        "generic collection has no shared logical view",
+        "unit return exposes only unmodeled mutation"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::by_ref",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantee is mutable-reference identity with self, which current vstd contracts cannot express as an alias/provenance relation.",
+      "risks": [
+        "unsupported mutable-reference return",
+        "reference identity versus value view",
+        "alias provenance"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::chain",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Chain is a lazy adapter with no current IteratorSpec model; into_iter_remaining alone cannot establish the second iterator's completion laws or a usable model for the result.",
+      "risks": [
+        "missing Chain IteratorSpec abstraction",
+        "lazy private adapter state",
+        "generic IntoIterator completion is unmodeled"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "batch": 76,
+  "group": "higher_order_contract",
+  "duration_ms": 348784,
+  "targets": [
+    "core::ops::ControlFlow::map_break",
+    "core::ops::ControlFlow::map_continue",
+    "core::option::Option::filter",
+    "core::option::Option::inspect",
+    "core::option::Option::is_none_or",
+    "core::option::Option::is_some_and"
+  ],
+  "candidates": [
+    {
+      "target": "core::ops::ControlFlow::map_break",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C, T, F: FnOnce(B) -> T>[ ControlFlow::<B, C>::map_break ](\n    flow: ControlFlow<B, C>,\n    f: F,\n) -> (res: ControlFlow<T, C>)\n    requires\n        flow is Break ==> f.requires((flow->Break_0,)),\n    ensures\n        res is Continue <==> flow is Continue,\n        flow is Continue ==> res->Continue_0 == flow->Continue_0,\n        flow is Break ==> f.ensures((flow->Break_0,), res->Break_0),\n;",
+      "requires": [
+        "flow is Break ==> f.requires((flow->Break_0,))"
+      ],
+      "ensures": [
+        "res is Continue <==> flow is Continue",
+        "flow is Continue ==> res->Continue_0 == flow->Continue_0",
+        "flow is Break ==> f.ensures((flow->Break_0,), res->Break_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source preserves Continue and invokes f exactly on Break; vstd's FnOnce requires/ensures vocabulary captures that conditional call.",
+      "risks": [
+        "Break-payload precision depends on the supplied closure contract"
+      ]
+    },
+    {
+      "target": "core::ops::ControlFlow::map_continue",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C, T, F: FnOnce(C) -> T>[ ControlFlow::<B, C>::map_continue ](\n    flow: ControlFlow<B, C>,\n    f: F,\n) -> (res: ControlFlow<B, T>)\n    requires\n        flow is Continue ==> f.requires((flow->Continue_0,)),\n    ensures\n        res is Continue <==> flow is Continue,\n        flow is Break ==> res->Break_0 == flow->Break_0,\n        flow is Continue ==> f.ensures((flow->Continue_0,), res->Continue_0),\n;",
+      "requires": [
+        "flow is Continue ==> f.requires((flow->Continue_0,))"
+      ],
+      "ensures": [
+        "res is Continue <==> flow is Continue",
+        "flow is Break ==> res->Break_0 == flow->Break_0",
+        "flow is Continue ==> f.ensures((flow->Continue_0,), res->Continue_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source preserves Break and invokes f exactly on Continue; call requires/ensures express both branches directly.",
+      "risks": [
+        "Continue-payload precision depends on the supplied closure contract"
+      ]
+    },
+    {
+      "target": "core::option::Option::filter",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, P: FnOnce(&T) -> bool>[ Option::<T>::filter ](\n    option: Option<T>,\n    predicate: P,\n) -> (res: Option<T>)\n    requires\n        option.is_some() ==> predicate.requires((&option.unwrap(),)),\n    ensures\n        option.is_none() ==> res.is_none(),\n        res.is_some() ==> option.is_some() && res.unwrap() == option.unwrap(),\n        option.is_some() ==> predicate.ensures((&option.unwrap(),), res.is_some()),\n;",
+      "requires": [
+        "option.is_some() ==> predicate.requires((&option.unwrap(),))"
+      ],
+      "ensures": [
+        "option.is_none() ==> res.is_none()",
+        "res.is_some() ==> option.is_some() && res.unwrap() == option.unwrap()",
+        "option.is_some() ==> predicate.ensures((&option.unwrap(),), res.is_some())"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source calls the predicate only for Some, retaining the original payload exactly when that call selects the Some result.",
+      "risks": [
+        "Selection precision depends on the supplied predicate contract"
+      ]
+    },
+    {
+      "target": "core::option::Option::inspect",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, F: FnOnce(&T)>[ Option::<T>::inspect ](\n    option: Option<T>,\n    f: F,\n) -> (res: Option<T>)\n    requires\n        option.is_some() ==> f.requires((&option.unwrap(),)),\n    ensures\n        res == option,\n        option.is_some() ==> f.ensures((&option.unwrap(),), ()),\n;",
+      "requires": [
+        "option.is_some() ==> f.requires((&option.unwrap(),))"
+      ],
+      "ensures": [
+        "res == option",
+        "option.is_some() ==> f.ensures((&option.unwrap(),), ())"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source invokes f only for Some and then returns self unchanged; the unit call postcondition exposes the closure's specified effects.",
+      "risks": [
+        "Effects outside the returned Option are visible only through the supplied closure contract"
+      ]
+    },
+    {
+      "target": "core::option::Option::is_none_or",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Option::<T>::is_none_or ](\n    option: Option<T>,\n    f: impl FnOnce(T) -> bool,\n) -> (res: bool)\n    requires\n        option.is_some() ==> f.requires((option.unwrap(),)),\n    ensures\n        option.is_none() ==> res,\n        option.is_some() ==> f.ensures((option.unwrap(),), res),\n;",
+      "requires": [
+        "option.is_some() ==> f.requires((option.unwrap(),))"
+      ],
+      "ensures": [
+        "option.is_none() ==> res",
+        "option.is_some() ==> f.ensures((option.unwrap(),), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the affirmative result for None and otherwise returns the actual FnOnce result.",
+      "risks": [
+        "Some-case precision depends on the supplied closure contract"
+      ]
+    },
+    {
+      "target": "core::option::Option::is_some_and",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Option::<T>::is_some_and ](\n    option: Option<T>,\n    f: impl FnOnce(T) -> bool,\n) -> (res: bool)\n    requires\n        option.is_some() ==> f.requires((option.unwrap(),)),\n    ensures\n        option.is_none() ==> !res,\n        option.is_some() ==> f.ensures((option.unwrap(),), res),\n;",
+      "requires": [
+        "option.is_some() ==> f.requires((option.unwrap(),))"
+      ],
+      "ensures": [
+        "option.is_none() ==> !res",
+        "option.is_some() ==> f.ensures((option.unwrap(),), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source returns the negative result for None and otherwise returns the actual FnOnce result.",
+      "risks": [
+        "Some-case precision depends on the supplied closure contract"
+      ]
+    }
+  ]
+}

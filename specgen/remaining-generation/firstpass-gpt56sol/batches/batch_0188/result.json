@@ -1,0 +1,116 @@
+{
+  "batch": 188,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 32912,
+  "targets": [
+    "std::fs::File::lock",
+    "std::fs::File::lock_shared",
+    "std::fs::File::metadata",
+    "std::fs::File::open",
+    "std::fs::File::options",
+    "std::fs::File::set_len"
+  ],
+  "candidates": [
+    {
+      "target": "std::fs::File::lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success acquires an exclusive OS file lock, but lock ownership and competing processes are not represented in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "blocking_os_operation",
+        "missing_file_lock_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::File::lock_shared",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success acquires a shared OS file lock, whose ownership and interaction with other processes cannot be expressed using current vstd abstractions.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "blocking_os_operation",
+        "missing_file_lock_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::File::metadata",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reflects mutable filesystem state, and vstd has no public model relating a File handle to Metadata.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_abstraction",
+        "opaque_metadata"
+      ]
+    },
+    {
+      "target": "std::fs::File::open",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and the returned handle depend on filesystem contents, permissions, and OS state, none of which current vstd vocabulary models.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_abstraction",
+        "opaque_file_handle"
+      ]
+    },
+    {
+      "target": "std::fs::File::options",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the implementation returns OpenOptions::new(), OpenOptions has opaque configuration state with no public vstd view by which to state a useful relation.",
+      "risks": [
+        "hidden_configuration_state",
+        "missing_open_options_abstraction"
+      ]
+    },
+    {
+      "target": "std::fs::File::set_len",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates an underlying file through a shared reference; that external state change cannot be observed or related to size in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "shared_reference_external_mutation",
+        "missing_filesystem_abstraction"
+      ]
+    }
+  ]
+}

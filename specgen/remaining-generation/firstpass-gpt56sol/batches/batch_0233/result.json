@@ -1,0 +1,149 @@
+{
+  "batch": 233,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 384802,
+  "targets": [
+    "std::sync::LockResult::as_deref_mut",
+    "std::sync::LockResult::as_mut",
+    "std::sync::LockResult::as_ref",
+    "std::sync::LockResult::cloned",
+    "std::sync::LockResult::copied",
+    "std::sync::LockResult::err"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::LockResult::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Ok branch calls arbitrary DerefMut::deref_mut. Current vstd has no generic relational contract connecting the returned mutable target and the final DerefMut owner state.",
+      "risks": [
+        "missing_generic_DerefMut_state_relation",
+        "mutable_reference_prophecy",
+        "hidden_or_concurrent_deref_target"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::as_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::as_mut ](\n    result: &mut Result<T, E>,\n) -> (res: Result<&mut T, &mut E>)\n    ensures\n        (match *old(result) {\n            Result::Ok(value) => {\n                &&& final(result) is Ok\n                &&& res is Ok\n                &&& *(res->Ok_0) == value\n                &&& *final(res->Ok_0) == final(result)->Ok_0\n            },\n            Result::Err(error) => {\n                &&& final(result) is Err\n                &&& res is Err\n                &&& *(res->Err_0) == error\n                &&& *final(res->Err_0) == final(result)->Err_0\n            },\n        }),\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "match *old(result) { Result::Ok(value) => final(result) is Ok && res is Ok && *(res->Ok_0) == value && *final(res->Ok_0) == final(result)->Ok_0, Result::Err(error) => final(result) is Err && res is Err && *(res->Err_0) == error && *final(res->Err_0) == final(result)->Err_0 }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source only projects the active Result field. old/final relations precisely connect mutation through the returned reference back to the original Result without inspecting poison state.",
+      "risks": [
+        "mutable_reference_prophecy",
+        "reference_identity_not_directly_modeled",
+        "LockResult_alias_resolves_to_Result"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::as_ref",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::as_ref ](\n    result: &Result<T, E>,\n) -> (res: Result<&T, &E>)\n    ensures\n        res is Ok <==> result is Ok,\n        res is Ok ==> *(res->Ok_0) == result->Ok_0,\n        res is Err <==> result is Err,\n        res is Err ==> *(res->Err_0) == result->Err_0,\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "res is Ok <==> result is Ok",
+        "res is Ok ==> *(res->Ok_0) == result->Ok_0",
+        "res is Err <==> result is Err",
+        "res is Err ==> *(res->Err_0) == result->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source preserves the Result variant and returns a reference to its active payload; this is directly expressible without observing lock poisoning internals.",
+      "risks": [
+        "reference_identity_not_directly_modeled",
+        "LockResult_alias_resolves_to_Result"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::cloned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: Clone, E>[ Result::<&'a T, E>::cloned ](\n    result: Result<&'a T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        result is Ok ==> res is Ok && cloned::<T>(*(result->Ok_0), res->Ok_0),\n        result is Err ==> res == Result::<T, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res is Ok && cloned::<T>(*(result->Ok_0), res->Ok_0)",
+        "result is Err ==> res == Result::<T, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::clone::Clone",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source clones only the Ok payload and moves an Err unchanged. vstd's cloned predicate captures arbitrary Clone behavior without assuming value identity.",
+      "risks": [
+        "Clone_behavior_is_relational",
+        "overload_must_select_Result_of_shared_reference",
+        "opaque_error_payload_only_preserved"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::copied",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: Copy, E>[ Result::<&'a T, E>::copied ](\n    result: Result<&'a T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        result is Ok ==> res == Result::<T, E>::Ok(*(result->Ok_0)),\n        result is Err ==> res == Result::<T, E>::Err(result->Err_0),\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res == Result::<T, E>::Ok(*(result->Ok_0))",
+        "result is Err ==> res == Result::<T, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::marker::Copy",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source explicitly copies the referenced Ok value and moves an Err unchanged, yielding a complete structural contract.",
+      "risks": [
+        "overload_must_select_Result_of_shared_reference",
+        "LockResult_alias_resolves_to_Result"
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::err ](\n    result: Result<T, E>,\n) -> (res: Option<E>)\n    ensures\n        result is Ok ==> res is None,\n        result is Err ==> res == Option::Some(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res is None",
+        "result is Err ==> res == Option::Some(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source discards an Ok payload and moves the Err payload into Some; no poison internals or concurrent state need to be modeled.",
+      "risks": [
+        "discarded_Ok_payload_may_run_destruction",
+        "opaque_error_payload_only_moved",
+        "LockResult_alias_resolves_to_Result"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "id": "std_specs__duration.rs__L259__Duration__checked_add",
+  "api_path": "core::time::Duration::checked_add",
+  "normalized_api_path": "core::time::Duration::checked_add",
+  "raw_target": "Duration::checked_add",
+  "contract_source_file": "std_specs/duration.rs",
+  "contract_source_line": 259,
+  "rust_declaration": {
+    "declaration_id": "core:32359",
+    "name": "checked_add",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 16, patch: 0 })},\nfeature: \"duration_checked_ops\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": "this returns the result of the operation, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 58, patch: 0 })},\nfeature: \"duration_consts_2\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/time.rs",
+      "begin": [
+        670,
+        5
+      ],
+      "end": [
+        685,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "rhs",
+          {
+            "resolved_path": {
+              "path": "Duration",
+              "id": 10186,
+              "args": null
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "Duration",
+                      "id": 10186,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32378",
+      "for": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10186",
+      "resolved_owner_path": [
+        "core",
+        "time",
+        "Duration"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   650:     pub const fn abs_diff(self, other: Duration) -> Duration {\n   651:         if let Some(res) = self.checked_sub(other) { res } else { other.checked_sub(self).unwrap() }\n   652:     }\n   653: \n   654:     /// Checked `Duration` addition. Computes `self + other`, returning [`None`]\n   655:     /// if overflow occurred.\n   656:     ///\n   657:     /// # Examples\n   658:     ///\n   659:     /// ```\n   660:     /// use std::time::Duration;\n   661:     ///\n   662:     /// assert_eq!(Duration::new(0, 0).checked_add(Duration::new(0, 1)), Some(Duration::new(0, 1)));\n   663:     /// assert_eq!(Duration::new(1, 0).checked_add(Duration::new(u64::MAX, 0)), None);\n   664:     /// ```\n   665:     #[stable(feature = \"duration_checked_ops\", since = \"1.16.0\")]\n   666:     #[must_use = \"this returns the result of the operation, \\\n   667:                   without modifying the original\"]\n   668:     #[inline]\n   669:     #[rustc_const_stable(feature = \"duration_consts_2\", since = \"1.58.0\")]\n   670:     pub const fn checked_add(self, rhs: Duration) -> Option<Duration> {\n   671:         if let Some(mut secs) = self.secs.checked_add(rhs.secs) {\n   672:             let mut nanos = self.nanos.as_inner() + rhs.nanos.as_inner();\n   673:             if nanos >= NANOS_PER_SEC {\n   674:                 nanos -= NANOS_PER_SEC;\n   675:                 let Some(new_secs) = secs.checked_add(1) else {\n   676:                     return None;\n   677:                 };\n   678:                 secs = new_secs;\n   679:             }\n   680:             debug_assert!(nanos < NANOS_PER_SEC);\n   681:             Some(Duration::new(secs, nanos))\n   682:         } else {\n   683:             None\n   684:         }\n   685:     }\n   686: \n   687:     /// Saturating `Duration` addition. Computes `self + other`, returning [`Duration::MAX`]\n   688:     /// if overflow occurred.\n   689:     ///\n   690:     /// # Examples",
+    "source_text": "pub const fn checked_add(self, rhs: Duration) -> Option<Duration> {\n        if let Some(mut secs) = self.secs.checked_add(rhs.secs) {\n            let mut nanos = self.nanos.as_inner() + rhs.nanos.as_inner();\n            if nanos >= NANOS_PER_SEC {\n                nanos -= NANOS_PER_SEC;\n                let Some(new_secs) = secs.checked_add(1) else {\n                    return None;\n                };\n                secs = new_secs;\n            }\n            debug_assert!(nanos < NANOS_PER_SEC);\n            Some(Duration::new(secs, nanos))\n        } else {\n            None\n        }\n    }",
+    "has_body": true
+  }
+}

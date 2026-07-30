@@ -1,0 +1,29 @@
+{"candidates":[{"target":"std::io::BufReader::capacity","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result exposes hidden buffer allocation state, for which vstd has no public BufReader model; type-level bounds would be tautological.","risks":["external_or_hidden_runtime_state","missing_public_buffer_model"]},{"target":"std::io::BufReader::get_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The method returns a mutable reference to the hidden inner reader; its aliasing and effect on final(self) cannot be expressed without a BufReader state abstraction.","risks":["external_or_hidden_runtime_state","reference_identity_vs_view","unsupported_mutable_reference_return"]},{"target":"std::io::BufReader::get_ref","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Relating the returned reference to the hidden inner field requires reference-identity or BufReader-view vocabulary that vstd does not provide.","risks":["external_or_hidden_runtime_state","reference_identity_vs_view","missing_public_bufreader_model"]},{"target":"std::io::BufReader::into_inner","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source returns the hidden inner field, no public logical view can relate the consumed BufReader to the returned R.","risks":["external_or_hidden_runtime_state","missing_public_bufreader_model"]},{"target":"std::io::BufReader::new","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Stating that the result preserves inner requires modeling BufReader's hidden field, while its default capacity is hidden allocation state and not a stable semantic constant.","risks":["external_or_hidden_runtime_state","missing_public_bufreader_model"]},{"target":"std::io::BufReader::seek_relative","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result and mutation depend on the hidden buffer cursor and potentially on the underlying runtime Seek operation, neither of which has a vstd model.","risks":["external_or_hidden_runtime_state","missing_seek_state_abstraction"]}]}{"candidates":[{"target":"std::io::BufReader::capacity","decision":"skip","contract_form":"assume_sp
+ecification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":
+false,"rationale":"The result exposes hidden buffer allocation state, for which vstd has no public
+BufReader model; type-level bounds would be
+tautological.","risks":["external_or_hidden_runtime_state","missing_public_buffer_model"]},{"target"
+:"std::io::BufReader::get_mut","decision":"skip","contract_form":"assume_specification","contract_co
+de":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The
+method returns a mutable reference to the hidden inner reader; its aliasing and effect on
+final(self) cannot be expressed without a BufReader state abstraction.","risks":["external_or_hidden
+_runtime_state","reference_identity_vs_view","unsupported_mutable_reference_return"]},{"target":"std
+::io::BufReader::get_ref","decision":"skip","contract_form":"assume_specification","contract_code":"
+","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Relating
+the returned reference to the hidden inner field requires reference-identity or BufReader-view
+vocabulary that vstd does not provide.","risks":["external_or_hidden_runtime_state","reference_ident
+ity_vs_view","missing_public_bufreader_model"]},{"target":"std::io::BufReader::into_inner","decision
+":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"featu
+re_gates":[],"imports":[],"useful":false,"rationale":"Although the source returns the hidden inner
+field, no public logical view can relate the consumed BufReader to the returned
+R.","risks":["external_or_hidden_runtime_state","missing_public_bufreader_model"]},{"target":"std::i
+o::BufReader::new","decision":"skip","contract_form":"assume_specification","contract_code":"","requ
+ires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Stating that the
+result preserves inner requires modeling BufReader's hidden field, while its default capacity is
+hidden allocation state and not a stable semantic constant.","risks":["external_or_hidden_runtime_st
+ate","missing_public_bufreader_model"]},{"target":"std::io::BufReader::seek_relative","decision":"sk
+ip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_ga
+tes":[],"imports":[],"useful":false,"rationale":"The result and mutation depend on the hidden buffer
+ cursor and potentially on the underlying runtime Seek operation, neither of which has a vstd
+model.","risks":["external_or_hidden_runtime_state","missing_seek_state_abstraction"]}]}
+

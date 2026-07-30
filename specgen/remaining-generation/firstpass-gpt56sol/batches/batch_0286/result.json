@@ -1,0 +1,129 @@
+{
+  "batch": 286,
+  "group": "trait_contract_integration",
+  "duration_ms": 549676,
+  "targets": [
+    "core::iter::Iterator::eq",
+    "core::iter::Iterator::filter",
+    "core::iter::Iterator::filter_map",
+    "core::iter::Iterator::find_map",
+    "core::iter::Iterator::flat_map",
+    "core::iter::Iterator::flatten"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::eq",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorEq {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn eq<I>(self, other: I) -> (r: bool)\n        where\n            I: core::iter::IntoIterator,\n            Self::Item: PartialEq<I::Item>,\n            Self: Sized,\n        default_ensures\n            self.obeys_prophetic_iter_laws()\n                && self.initial_value_relation(&self)\n                && <Self::Item as PartialEqSpec<I::Item>>::obeys_eq_spec()\n                ==> {\n                    let other_remaining = into_iter_remaining::<I::Item, I>(other);\n                    r <==> (\n                        self.remaining().len() == other_remaining.len()\n                        && forall |i: int| 0 <= i < self.remaining().len() ==>\n                            #[trigger] <Self::Item as PartialEqSpec<I::Item>>::eq_spec(\n                                &self.remaining()[i],\n                                &other_remaining[i],\n                            )\n                    )\n                },\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "When the receiver's prophetic iterator model and item PartialEq specification hold, r is equivalent to equal lengths and pairwise eq_spec over both remaining sequences."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialEqSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The default body compares both iterators elementwise in order. Existing IteratorSpec, into_iter_remaining, and PartialEqSpec vocabulary expresses that result without exposing implementation state.",
+      "risks": [
+        "The relation is conditional on the receiver and element equality obeying their vstd specifications.",
+        "Non-Iterator IntoIterator values remain abstract through into_iter_remaining."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::filter",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This only constructs a lazy Filter. Current vstd lacks a Filter iterator model that prophetically tracks future relational FnMut predicate outcomes; Seq::filter would incorrectly assume a deterministic predicate.",
+      "risks": [
+        "Lazy private adapter state",
+        "Stateful or relational FnMut outcomes",
+        "Missing Filter IteratorSpec abstraction"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::filter_map",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the lazy adapter's future sequence to successive relational FnMut outputs. Current vstd has no FilterMap prophecy or adapter model supporting that relation.",
+      "risks": [
+        "Lazy private adapter state",
+        "Nondeterministic closure postconditions",
+        "Missing FilterMap IteratorSpec abstraction"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::find_map",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExIteratorFindMap {\n    type ExternalTraitSpecificationFor: core::iter::Iterator;\n    type Item;\n\n    fn find_map<B, F>(&mut self, f: F) -> (r: Option<B>)\n        where\n            Self: Sized,\n            F: FnMut(Self::Item) -> Option<B>\n        default_ensures\n            final(self).obeys_prophetic_iter_laws() == old(self).obeys_prophetic_iter_laws(),\n            final(self).obeys_prophetic_iter_laws() ==>\n                final(self).will_return_none() == old(self).will_return_none(),\n            final(self).obeys_prophetic_iter_laws() ==>\n                (old(self).decrease() is Some <==> final(self).decrease() is Some),\n            final(self).obeys_prophetic_iter_laws() ==>\n                final(self).remaining().is_suffix_of(old(self).remaining()),\n            final(self).obeys_prophetic_iter_laws() && r.is_none() ==> {\n                &&& final(self).remaining().len() == 0\n                &&& forall |i: int| 0 <= i < old(self).remaining().len() ==>\n                    f.ensures((#[trigger] old(self).remaining()[i],), None)\n            },\n            final(self).obeys_prophetic_iter_laws() && r.is_some() ==> {\n                let idx = old(self).remaining().len() - final(self).remaining().len() - 1;\n                {\n                    &&& 0 <= final(self).remaining().len() < old(self).remaining().len()\n                    &&& f.ensures((old(self).remaining()[idx],), r)\n                    &&& forall |i: int| 0 <= i < idx ==>\n                        f.ensures((#[trigger] old(self).remaining()[i],), None)\n                }\n            },\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "Preserves the receiver's prophetic-law, completion, and decrease properties.",
+        "The final remaining sequence is a suffix of the old sequence.",
+        "None exhausts the iterator and corresponds to f producing None for every consumed item.",
+        "Some identifies the first consumed item for which f may produce that result, with all preceding outputs None."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source short-circuits at the first Some through try_fold. The existing remaining-sequence and closure-ensures vocabulary supports the same contract pattern as Iterator::find.",
+      "risks": [
+        "Behavioral guarantees are conditional on obeys_prophetic_iter_laws.",
+        "Closure behavior is represented relationally through f.ensures."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::flat_map",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Modeling the lazy result requires prophecies for successive FnMut outputs plus the sequences and completion behavior of every produced IntoIterator. Current vstd has no FlatMap abstraction carrying those relationships.",
+      "risks": [
+        "Nested lazy iterator state",
+        "Stateful or relational FnMut outputs",
+        "Missing nested IntoIterator completion model"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::flatten",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A correct lazy-flatten contract must track each inner IntoIterator's remaining sequence and whether it completes before later outer elements are reached. Current vstd lacks that nested completion and Flatten adapter abstraction.",
+      "risks": [
+        "Nested lazy iterator state",
+        "No completion law for generic IntoIterator values",
+        "Missing Flatten IteratorSpec abstraction"
+      ]
+    }
+  ]
+}

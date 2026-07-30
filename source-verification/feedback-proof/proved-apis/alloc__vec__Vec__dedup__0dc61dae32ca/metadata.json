@@ -1,0 +1,164 @@
+{
+  "id": "alloc__vec__Vec__dedup__0dc61dae32ca",
+  "api_path": "alloc::vec::Vec::dedup",
+  "raw_target": "alloc::vec::Vec::<T, A>::dedup",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "declaration_id": "alloc:4951",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "dedup",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [
+        "self"
+      ],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": true,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 114,
+          "path": "Vec"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 179,
+                        "path": "PartialEq"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 4,
+                        "path": "Allocator"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "A"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "alloc:4952",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": true,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": null
+    },
+    "source_context": "  3618:         self.reserve(n);\n  3619: \n  3620:         unsafe {\n  3621:             let mut ptr = self.as_mut_ptr().add(self.len());\n  3622:             // Use SetLenOnDrop to work around bug where compiler\n  3623:             // might not realize the store through `ptr` through self.set_len()\n  3624:             // don't alias.\n  3625:             let mut local_len = SetLenOnDrop::new(&mut self.len);\n  3626: \n  3627:             // Write all elements except the last one\n  3628:             for _ in 1..n {\n  3629:                 ptr::write(ptr, value.clone());\n  3630:                 ptr = ptr.add(1);\n  3631:                 // Increment the length in every step in case clone() panics\n  3632:                 local_len.increment_len(1);\n  3633:             }\n  3634: \n  3635:             if n > 0 {\n  3636:                 // We can write the last element directly without cloning needlessly\n  3637:                 ptr::write(ptr, value);\n  3638:                 local_len.increment_len(1);\n  3639:             }\n  3640: \n  3641:             // len set by scope guard\n  3642:         }\n  3643:     }\n  3644: }\n  3645: \n  3646: impl<T: PartialEq, A: Allocator> Vec<T, A> {\n  3647:     /// Removes consecutive repeated elements in the vector according to the\n  3648:     /// [`PartialEq`] trait implementation.\n  3649:     ///\n  3650:     /// If the vector is sorted, this removes all duplicates.\n  3651:     ///\n  3652:     /// # Examples\n  3653:     ///\n  3654:     /// ```\n  3655:     /// let mut vec = vec![1, 2, 2, 3, 2];\n  3656:     ///\n  3657:     /// vec.dedup();\n  3658:     ///\n  3659:     /// assert_eq!(vec, [1, 2, 3, 2]);\n  3660:     /// ```\n  3661:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  3662:     #[inline]\n  3663:     pub fn dedup(&mut self) {\n  3664:         self.dedup_by(|a, b| a == b)\n  3665:     }\n  3666: }\n  3667: \n  3668: ////////////////////////////////////////////////////////////////////////////////\n  3669: // Internal methods and functions\n  3670: ////////////////////////////////////////////////////////////////////////////////\n  3671: \n  3672: #[doc(hidden)]\n  3673: #[cfg(not(no_global_oom_handling))]\n  3674: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  3675: #[rustc_diagnostic_item = \"vec_from_elem\"]\n  3676: pub fn from_elem<T: Clone>(elem: T, n: usize) -> Vec<T> {\n  3677:     <T as SpecFromElem>::from_elem(elem, n, Global)\n  3678: }\n  3679: \n  3680: #[doc(hidden)]\n  3681: #[cfg(not(no_global_oom_handling))]\n  3682: #[unstable(feature = \"allocator_api\", issue = \"32838\")]\n  3683: pub fn from_elem_in<T: Clone, A: Allocator>(elem: T, n: usize, alloc: A) -> Vec<T, A> {\n  3684:     <T as SpecFromElem>::from_elem(elem, n, alloc)\n  3685: }\n  3686: \n  3687: #[cfg(not(no_global_oom_handling))]\n  3688: trait ExtendFromWithinSpec {\n  3689:     /// # Safety\n  3690:     ///\n  3691:     /// - `src` needs to be valid index\n  3692:     /// - `self.capacity() - self.len()` must be `>= src.len()`\n  3693:     unsafe fn spec_extend_from_within(&mut self, src: Range<usize>);\n  3694: }\n  3695: \n  3696: #[cfg(not(no_global_oom_handling))]\n  3697: impl<T: Clone, A: Allocator> ExtendFromWithinSpec for Vec<T, A> {\n  3698:     default unsafe fn spec_extend_from_within(&mut self, src: Range<usize>) {\n  3699:         // SAFETY:\n  3700:         // - len is increased only after initializing elements\n  3701:         let (this, spare, len) = unsafe { self.split_at_spare_mut_with_len() };\n  3702: \n  3703:         // SAFETY:\n  3704:         // - caller guarantees that src is a valid index\n  3705:         let to_clone = unsafe { this.get_unchecked(src) };\n  3706: \n  3707:         iter::zip(to_clone, spare)\n  3708:             .map(|(src, dst)| dst.write(src.clone()))",
+    "span": {
+      "begin": [
+        3663,
+        5
+      ],
+      "end": [
+        3665,
+        6
+      ],
+      "filename": "alloc/src/vec/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn dedup(&mut self) {\n        self.dedup_by(|a, b| a == b)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The declared lower-level Vec::<T, A>::dedup_by assume_specification: for a universally callable, non-mutating callback compatible with a fold step, the final Vec view is that fold.",
+    "vstd::std_specs::cmp::PartialEqSpec links T::eq to eq_spec under T::obeys_eq_spec()."
+  ],
+  "rationale": "The source preserves the sole Vec::dedup_by call and mechanically inlines the &mut PartialEq forwarding used by a == b. The equality closure satisfies the lower fold contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/alloc__vec__Vec__dedup__0dc61dae32ca"
+}

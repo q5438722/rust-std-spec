@@ -1,0 +1,111 @@
+{
+  "batch": 114,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 170553,
+  "targets": [
+    "core::alloc::Layout::for_value",
+    "core::alloc::Layout::from_size_align",
+    "core::alloc::Layout::new",
+    "core::alloc::Layout::pad_to_align",
+    "core::alloc::Layout::repeat",
+    "core::alloc::Layout::repeat_packed"
+  ],
+  "candidates": [
+    {
+      "target": "core::alloc::Layout::for_value",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source derives the returned Layout from size_of_val and alignment metadata, but vstd has no public view connecting an opaque Layout value to those quantities.",
+      "risks": [
+        "Requires a Layout size/alignment abstraction",
+        "Unsized-value metadata affects the result"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::from_size_align",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[core::alloc::Layout::from_size_align](size: usize, align: usize) -> (result: core::result::Result<core::alloc::Layout, core::alloc::LayoutError>)\n    ensures\n        result is Ok <==> vstd::layout::valid_layout(size, align),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok <==> vstd::layout::valid_layout(size, align)"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The source returns Ok exactly when the documented alignment and rounded-size conditions hold; vstd::layout::valid_layout already expresses those conditions.",
+      "risks": [
+        "The contained Layout's size and alignment remain opaque"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although vstd models a type's size and alignment, it has no public view relating those values to the returned Layout.",
+      "risks": [
+        "Requires a Layout size/alignment abstraction"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::pad_to_align",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is defined by rounding the input Layout's size to its alignment, but neither quantity is observable in the current vstd model.",
+      "risks": [
+        "Requires input and output Layout views",
+        "Rounding semantics cannot be connected to the opaque result"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::repeat",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying success, the repeated layout, and the returned stride requires access to the input Layout's size, alignment, and padded size, which current vstd does not expose.",
+      "risks": [
+        "Requires a Layout view and padding abstraction",
+        "Arithmetic overflow determines the Result variant"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::repeat_packed",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source multiplies the opaque Layout size by n while preserving its alignment; current vstd cannot express either the overflow condition or the returned Layout relation.",
+      "risks": [
+        "Requires a Layout size/alignment view",
+        "Checked multiplication and the isize layout bound determine failure"
+      ]
+    }
+  ]
+}

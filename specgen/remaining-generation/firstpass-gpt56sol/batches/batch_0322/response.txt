@@ -1,0 +1,228 @@
+{
+  "candidates": [
+    {
+      "target": "core::intrinsics::write_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable behavior is a ranged raw-memory mutation. The signature carries no PointsTo or PointsToRaw permission that a contract could validate and update.",
+      "risks": [
+        "writability, alignment, provenance, and range validity are unmodeled",
+        "the unit result exposes no useful relation without a memory-permission abstraction"
+      ]
+    },
+    {
+      "target": "core::mem::ManuallyDrop::drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The call runs an arbitrary destructor and leaves a zombie value that must never be exposed or dropped again. ManuallyDrop's current view has no consumed-state abstraction.",
+      "risks": [
+        "arbitrary destructor effects are unmodeled",
+        "an unchanged-value postcondition would incorrectly permit reuse of the zombie value"
+      ]
+    },
+    {
+      "target": "core::mem::ManuallyDrop::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the result could be related to the current ManuallyDrop view, the source requires the unchanged slot never to be used again. Current vstd cannot represent that temporal consumption obligation.",
+      "risks": [
+        "modeling the slot as unchanged would permit duplicate extraction or later use",
+        "no public live-or-consumed state exists for ManuallyDrop"
+      ]
+    },
+    {
+      "target": "core::mem::MaybeUninit::as_mut_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ MaybeUninit::<T>::as_mut_ptr ](\n    this: &mut MaybeUninit<T>,\n) -> (result: *mut T)\n    ensures\n        result == this as *mut MaybeUninit<T> as *mut T,\n        final(this).mem_contents() == old(this).mem_contents(),\n;",
+      "requires": [],
+      "ensures": [
+        "result == this as *mut MaybeUninit<T> as *mut T",
+        "final(this).mem_contents() == old(this).mem_contents()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::mem::MaybeUninit",
+        "vstd::std_specs::maybe_uninit::MaybeUninitAdditionalSpecFns"
+      ],
+      "useful": true,
+      "rationale": "The implementation is exactly a transparent pointer cast and does not alter the MaybeUninit contents, so pointer identity and state preservation are source-grounded.",
+      "risks": [
+        "the contract grants no PointsTo permission and does not justify dereferencing or writing through the result"
+      ]
+    },
+    {
+      "target": "core::mem::MaybeUninit::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ MaybeUninit::<T>::as_ptr ](\n    this: &MaybeUninit<T>,\n) -> (result: *const T)\n    ensures\n        result == this as *const MaybeUninit<T> as *const T,\n;",
+      "requires": [],
+      "ensures": [
+        "result == this as *const MaybeUninit<T> as *const T"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::mem::MaybeUninit"
+      ],
+      "useful": true,
+      "rationale": "The supplied body returns exactly the transparent cast of the receiver address, making full spec-level pointer equality source-grounded.",
+      "risks": [
+        "the contract grants no PointsTo permission and does not establish initialization or safe dereference"
+      ]
+    },
+    {
+      "target": "core::mem::MaybeUninit::assume_init_drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Initialization can be stated with mem_contents, but the operation's purpose is running an arbitrary destructor and consuming the initialized place. Current vocabulary cannot model those destructor effects soundly.",
+      "risks": [
+        "arbitrary Drop effects are unmodeled",
+        "an initialization predicate alone is insufficient to specify the operation"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::intrinsics::write_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable behavior is a ranged raw-memory mutation. The signature carries
+no PointsTo or PointsToRaw permission that a contract could validate and update.",
+      "risks": [
+        "writability, alignment, provenance, and range validity are unmodeled",
+        "the unit result exposes no useful relation without a memory-permission abstraction"
+      ]
+    },
+    {
+      "target": "core::mem::ManuallyDrop::drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The call runs an arbitrary destructor and leaves a zombie value that must never
+be exposed or dropped again. ManuallyDrop's current view has no consumed-state abstraction.",
+      "risks": [
+        "arbitrary destructor effects are unmodeled",
+        "an unchanged-value postcondition would incorrectly permit reuse of the zombie value"
+      ]
+    },
+    {
+      "target": "core::mem::ManuallyDrop::take",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the result could be related to the current ManuallyDrop view, the
+source requires the unchanged slot never to be used again. Current vstd cannot represent that
+temporal consumption obligation.",
+      "risks": [
+        "modeling the slot as unchanged would permit duplicate extraction or later use",
+        "no public live-or-consumed state exists for ManuallyDrop"
+      ]
+    },
+    {
+      "target": "core::mem::MaybeUninit::as_mut_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ MaybeUninit::<T>::as_mut_ptr ](\n    this: &mut
+ MaybeUninit<T>,\n) -> (result: *mut T)\n    ensures\n        result == this as *mut MaybeUninit<T>
+as *mut T,\n        final(this).mem_contents() == old(this).mem_contents(),\n;",
+      "requires": [],
+      "ensures": [
+        "result == this as *mut MaybeUninit<T> as *mut T",
+        "final(this).mem_contents() == old(this).mem_contents()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::mem::MaybeUninit",
+        "vstd::std_specs::maybe_uninit::MaybeUninitAdditionalSpecFns"
+      ],
+      "useful": true,
+      "rationale": "The implementation is exactly a transparent pointer cast and does not alter the
+MaybeUninit contents, so pointer identity and state preservation are source-grounded.",
+      "risks": [
+        "the contract grants no PointsTo permission and does not justify dereferencing or writing
+through the result"
+      ]
+    },
+    {
+      "target": "core::mem::MaybeUninit::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ MaybeUninit::<T>::as_ptr ](\n    this:
+&MaybeUninit<T>,\n) -> (result: *const T)\n    ensures\n        result == this as *const
+MaybeUninit<T> as *const T,\n;",
+      "requires": [],
+      "ensures": [
+        "result == this as *const MaybeUninit<T> as *const T"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::mem::MaybeUninit"
+      ],
+      "useful": true,
+      "rationale": "The supplied body returns exactly the transparent cast of the receiver address,
+making full spec-level pointer equality source-grounded.",
+      "risks": [
+        "the contract grants no PointsTo permission and does not establish initialization or safe
+dereference"
+      ]
+    },
+    {
+      "target": "core::mem::MaybeUninit::assume_init_drop",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Initialization can be stated with mem_contents, but the operation's purpose is
+running an arbitrary destructor and consuming the initialized place. Current vocabulary cannot model
+ those destructor effects soundly.",
+      "risks": [
+        "arbitrary Drop effects are unmodeled",
+        "an initialization predicate alone is insufficient to specify the operation"
+      ]
+    } ]
+}
+

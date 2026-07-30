@@ -1,0 +1,363 @@
+target,category,status,rounds,initial_decision,final_decision,contract_form,typecheck_passed,det_status,r0_z3,classification,raw_det_reward,guarded_reward,semantic_guarded_reward,issues,semantic_gate_issues,semantic_review_issues,requires,ensures,contract_code,rationale
+alloc::collections::BinaryHeap::peek_mut,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The exact signature necessarily mentions PeekMut, which current Verus/vstd does not support. Expressing the source-justified empty-result behavior would require an additional trusted external type specification, so no useful ordinary contract is available."
+alloc::collections::LinkedList::contains,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_concrete_eq::<T>(),result <==> list@.contains(*x),"pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::contains ](
+    list: &LinkedList<T, A>,
+    x: &T,
+) -> (result: bool)
+    where
+        T: core::cmp::PartialEq<T>,
+    requires
+        obeys_concrete_eq::<T>(),
+    ensures
+        result <==> list@.contains(*x),
+;","The implementation scans the list with `iter().any(|e| e == x)`. Under `obeys_concrete_eq::<T>()`, Rust `PartialEq` agrees with Verus value equality, making the result exactly sequence-view membership."
+alloc::ffi::CString::new,other,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The exact return type necessarily mentions alloc::ffi::NulError, which current Verus/vstd does not support. A useful ordinary contract therefore requires an additional external type specification not present in existing vstd vocabulary."
+core::net::IpAddr::to_canonical,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result@ == match address@ { vstd::std_specs::net::IpAddrView::V4(bytes) => vstd::std_specs::net::IpAddrView::V4(bytes), vstd::std_specs::net::IpAddrView::V6(bytes) => if bytes.len() == 16 && bytes.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8] { vstd::std_specs::net::IpAddrView::V4(bytes.subrange(12, 16)) } else { vstd::std_specs::net::IpAddrView::V6(bytes) }, }","pub assume_specification[ core::net::IpAddr::to_canonical ](
+    address: &core::net::IpAddr,
+) -> (result: core::net::IpAddr)
+    ensures
+        result@ == match address@ {
+            vstd::std_specs::net::IpAddrView::V4(bytes) => vstd::std_specs::net::IpAddrView::V4(bytes),
+            vstd::std_specs::net::IpAddrView::V6(bytes) => if bytes.len() == 16
+                && bytes.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8]
+            {
+                vstd::std_specs::net::IpAddrView::V4(bytes.subrange(12, 16))
+            } else {
+                vstd::std_specs::net::IpAddrView::V6(bytes)
+            },
+        },
+;","The IPv4 arm returns self. For IPv6, the documented canonicalization converts exactly an IPv4-mapped address—ten zero bytes, two 0xff bytes, then four IPv4 bytes—and otherwise preserves the address."
+core::net::Ipv4Addr::from_bits,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result@ == seq![(bits >> 24) as u8, ((bits >> 16) & 0xff) as u8, ((bits >> 8) & 0xff) as u8, (bits & 0xff) as u8,]","pub assume_specification[ core::net::Ipv4Addr::from_bits ](bits: u32) -> (result: core::net::Ipv4Addr)
+    ensures
+        result@ == seq![
+            (bits >> 24) as u8,
+            ((bits >> 16) & 0xff) as u8,
+            ((bits >> 8) & 0xff) as u8,
+            (bits & 0xff) as u8,
+        ],
+;","The implementation constructs the address from bits.to_be_bytes(), so the Ipv4Addr sequence view equals the four bytes of bits in big-endian order."
+core::net::Ipv4Addr::to_bits,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,result == (((address@[0] as u32) << 24) | ((address@[1] as u32) << 16) | ((address@[2] as u32) << 8) | (address@[3] as u32)),"pub assume_specification[ core::net::Ipv4Addr::to_bits ](
+    address: core::net::Ipv4Addr,
+) -> (result: u32)
+    ensures
+        result == (
+            ((address@[0] as u32) << 24)
+                | ((address@[1] as u32) << 16)
+                | ((address@[2] as u32) << 8)
+                | (address@[3] as u32)
+        ),
+;","The implementation applies u32::from_be_bytes to the address's four ordered octets, so the result is exactly their big-endian bitwise composition. The existing Ipv4Addr view exposes those octets in order."
+core::net::Ipv6Addr::from_bits,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result@ == seq![(((bits >> 120) & 0xffu128) as u8), (((bits >> 112) & 0xffu128) as u8), (((bits >> 104) & 0xffu128) as u8), (((bits >> 96) & 0xffu128) as u8), (((bits >> 88) & 0xffu128) as u8), (((bits >> 80) & 0xffu128) as u8), (((bits >> 72) & 0xffu128) as u8), (((bits >> 64) & 0xffu128) as u8), (((bits >> 56) & 0xffu128) as u8), (((bits >> 48) & 0xffu128) as u8), (((bits >> 40) & 0xffu128) as u8), (((bits >> 32) & 0xffu128) as u8), (((bits >> 24) & 0xffu128) as u8), (((bits >> 16) & 0xffu128) as u8), (((bits >> 8) & 0xffu128) as u8), ((bits & 0xffu128) as u8)]","pub assume_specification[ core::net::Ipv6Addr::from_bits ](
+    bits: u128,
+) -> (result: core::net::Ipv6Addr)
+    ensures
+        result@ == seq![(((bits >> 120) & 0xffu128) as u8), (((bits >> 112) & 0xffu128) as u8), (((bits >> 104) & 0xffu128) as u8), (((bits >> 96) & 0xffu128) as u8), (((bits >> 88) & 0xffu128) as u8), (((bits >> 80) & 0xffu128) as u8), (((bits >> 72) & 0xffu128) as u8), (((bits >> 64) & 0xffu128) as u8), (((bits >> 56) & 0xffu128) as u8), (((bits >> 48) & 0xffu128) as u8), (((bits >> 40) & 0xffu128) as u8), (((bits >> 32) & 0xffu128) as u8), (((bits >> 24) & 0xffu128) as u8), (((bits >> 16) & 0xffu128) as u8), (((bits >> 8) & 0xffu128) as u8), ((bits & 0xffu128) as u8)]
+;","The implementation stores bits.to_be_bytes() directly, so the modeled IPv6 octets are exactly the sixteen bytes from most significant to least significant. The structured ensures clause now matches the contract text exactly."
+core::net::Ipv6Addr::from_segments,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result@ == seq![
+            ((segments@[0] >> 8) & 0xff) as u8,
+            (segments@[0] & 0xff) as u8,
+            ((segments@[1] >> 8) & 0xff) as u8,
+            (segments@[1] & 0xff) as u8,
+            ((segments@[2] >> 8) & 0xff) as u8,
+            (segments@[2] & 0xff) as u8,
+            ((segments@[3] >> 8) & 0xff) as u8,
+            (segments@[3] & 0xff) as u8,
+            ((segments@[4] >> 8) & 0xff) as u8,
+            (segments@[4] & 0xff) as u8,
+            ((segments@[5] >> 8) & 0xff) as u8,
+            (segments@[5] & 0xff) as u8,
+            ((segments@[6] >> 8) & 0xff) as u8,
+            (segments@[6] & 0xff) as u8,
+            ((segments@[7] >> 8) & 0xff) as u8,
+            (segments@[7] & 0xff) as u8,
+        ]","pub assume_specification[ core::net::Ipv6Addr::from_segments ](
+    segments: [u16; 8],
+) -> (result: core::net::Ipv6Addr)
+    ensures
+        result@ == seq![
+            ((segments@[0] >> 8) & 0xff) as u8,
+            (segments@[0] & 0xff) as u8,
+            ((segments@[1] >> 8) & 0xff) as u8,
+            (segments@[1] & 0xff) as u8,
+            ((segments@[2] >> 8) & 0xff) as u8,
+            (segments@[2] & 0xff) as u8,
+            ((segments@[3] >> 8) & 0xff) as u8,
+            (segments@[3] & 0xff) as u8,
+            ((segments@[4] >> 8) & 0xff) as u8,
+            (segments@[4] & 0xff) as u8,
+            ((segments@[5] >> 8) & 0xff) as u8,
+            (segments@[5] & 0xff) as u8,
+            ((segments@[6] >> 8) & 0xff) as u8,
+            (segments@[6] & 0xff) as u8,
+            ((segments@[7] >> 8) & 0xff) as u8,
+            (segments@[7] & 0xff) as u8,
+        ],
+;","The implementation forwards all eight input segments in order to Ipv6Addr::new. The modeled IPv6 output stores each segment in big-endian network-byte order, so each segment contributes its high byte followed by its low byte."
+core::net::Ipv6Addr::new,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,result@.len() == 16; (result@[0] as u16) == a / 256u16; (result@[1] as u16) == a % 256u16; (result@[2] as u16) == b / 256u16; (result@[3] as u16) == b % 256u16; (result@[4] as u16) == c / 256u16; (result@[5] as u16) == c % 256u16; (result@[6] as u16) == d / 256u16; (result@[7] as u16) == d % 256u16; (result@[8] as u16) == e / 256u16; (result@[9] as u16) == e % 256u16; (result@[10] as u16) == f / 256u16; (result@[11] as u16) == f % 256u16; (result@[12] as u16) == g / 256u16; (result@[13] as u16) == g % 256u16; (result@[14] as u16) == h / 256u16; (result@[15] as u16) == h % 256u16,"pub assume_specification[ core::net::Ipv6Addr::new ](
+    a: u16,
+    b: u16,
+    c: u16,
+    d: u16,
+    e: u16,
+    f: u16,
+    g: u16,
+    h: u16,
+) -> (result: core::net::Ipv6Addr)
+    ensures
+        result@.len() == 16,
+        (result@[0] as u16) == a / 256u16,
+        (result@[1] as u16) == a % 256u16,
+        (result@[2] as u16) == b / 256u16,
+        (result@[3] as u16) == b % 256u16,
+        (result@[4] as u16) == c / 256u16,
+        (result@[5] as u16) == c % 256u16,
+        (result@[6] as u16) == d / 256u16,
+        (result@[7] as u16) == d % 256u16,
+        (result@[8] as u16) == e / 256u16,
+        (result@[9] as u16) == e % 256u16,
+        (result@[10] as u16) == f / 256u16,
+        (result@[11] as u16) == f % 256u16,
+        (result@[12] as u16) == g / 256u16,
+        (result@[13] as u16) == g % 256u16,
+        (result@[14] as u16) == h / 256u16,
+        (result@[15] as u16) == h % 256u16,
+;","The implementation converts every segment to big-endian before transmuting the array into 16 octets. Thus each segment contributes its high byte followed by its low byte, independently of native endianness."
+core::net::Ipv6Addr::segments,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,(result@[0] as int) == (address@[0] as int) * 256 + (address@[1] as int); (result@[1] as int) == (address@[2] as int) * 256 + (address@[3] as int); (result@[2] as int) == (address@[4] as int) * 256 + (address@[5] as int); (result@[3] as int) == (address@[6] as int) * 256 + (address@[7] as int); (result@[4] as int) == (address@[8] as int) * 256 + (address@[9] as int); (result@[5] as int) == (address@[10] as int) * 256 + (address@[11] as int); (result@[6] as int) == (address@[12] as int) * 256 + (address@[13] as int); (result@[7] as int) == (address@[14] as int) * 256 + (address@[15] as int),"pub assume_specification[ core::net::Ipv6Addr::segments ](
+    address: &core::net::Ipv6Addr,
+) -> (result: [u16; 8])
+    ensures
+        (result@[0] as int) == (address@[0] as int) * 256 + (address@[1] as int),
+        (result@[1] as int) == (address@[2] as int) * 256 + (address@[3] as int),
+        (result@[2] as int) == (address@[4] as int) * 256 + (address@[5] as int),
+        (result@[3] as int) == (address@[6] as int) * 256 + (address@[7] as int),
+        (result@[4] as int) == (address@[8] as int) * 256 + (address@[9] as int),
+        (result@[5] as int) == (address@[10] as int) * 256 + (address@[11] as int),
+        (result@[6] as int) == (address@[12] as int) * 256 + (address@[13] as int),
+        (result@[7] as int) == (address@[14] as int) * 256 + (address@[15] as int),
+;","The implementation groups each consecutive pair of network-order octets and applies u16::from_be, so each returned segment is exactly high_byte * 256 + low_byte."
+core::net::Ipv6Addr::to_bits,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,result as int == (address@[0] as int) * 0x100_0000_0000_0000_0000_0000_0000_0000 + (address@[1] as int) * 0x1_0000_0000_0000_0000_0000_0000_0000 + (address@[2] as int) * 0x100_0000_0000_0000_0000_0000_0000 + (address@[3] as int) * 0x1_0000_0000_0000_0000_0000_0000 + (address@[4] as int) * 0x100_0000_0000_0000_0000_0000 + (address@[5] as int) * 0x1_0000_0000_0000_0000_0000 + (address@[6] as int) * 0x100_0000_0000_0000_0000 + (address@[7] as int) * 0x1_0000_0000_0000_0000 + (address@[8] as int) * 0x100_0000_0000_0000 + (address@[9] as int) * 0x1_0000_0000_0000 + (address@[10] as int) * 0x100_0000_0000 + (address@[11] as int) * 0x1_0000_0000 + (address@[12] as int) * 0x100_0000 + (address@[13] as int) * 0x1_0000 + (address@[14] as int) * 0x100 + address@[15] as int,"pub assume_specification[core::net::Ipv6Addr::to_bits](
+    address: core::net::Ipv6Addr,
+) -> (result: u128)
+    ensures
+        result as int
+            == (address@[0] as int) * 0x100_0000_0000_0000_0000_0000_0000_0000
+             + (address@[1] as int) * 0x1_0000_0000_0000_0000_0000_0000_0000
+             + (address@[2] as int) * 0x100_0000_0000_0000_0000_0000_0000
+             + (address@[3] as int) * 0x1_0000_0000_0000_0000_0000_0000
+             + (address@[4] as int) * 0x100_0000_0000_0000_0000_0000
+             + (address@[5] as int) * 0x1_0000_0000_0000_0000_0000
+             + (address@[6] as int) * 0x100_0000_0000_0000_0000
+             + (address@[7] as int) * 0x1_0000_0000_0000_0000
+             + (address@[8] as int) * 0x100_0000_0000_0000
+             + (address@[9] as int) * 0x1_0000_0000_0000
+             + (address@[10] as int) * 0x100_0000_0000
+             + (address@[11] as int) * 0x1_0000_0000
+             + (address@[12] as int) * 0x100_0000
+             + (address@[13] as int) * 0x1_0000
+             + (address@[14] as int) * 0x100
+             + address@[15] as int,
+;","The supplied implementation is exactly u128::from_be_bytes(self.octets) in both Rust versions. The postcondition therefore packs the existing 16-byte IPv6 semantic view with big-endian byte significance, matching the documented example without exposing private fields or hidden state."
+core::net::Ipv6Addr::to_canonical,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result@ == if address@.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8] { IpAddrView::V4(address@.subrange(12, 16)) } else { IpAddrView::V6(address@) }","pub assume_specification[ Ipv6Addr::to_canonical ](
+    address: &Ipv6Addr,
+) -> (result: IpAddr)
+    ensures
+        result@ == if address@.subrange(0, 12)
+            == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8]
+        {
+            IpAddrView::V4(address@.subrange(12, 16))
+        } else {
+            IpAddrView::V6(address@)
+        },
+;",The implementation converts the IPv4-mapped prefix of ten zero octets followed by ff:ff into V4 using the final four octets; every other address is returned unchanged as V6.
+core::net::Ipv6Addr::to_ipv4,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"(result is Some) <==> (address@.subrange(0, 12) == Seq::new(12, |i: int| 0u8) || address@.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8]); result is Some ==> (result->Some_0)@ == address@.subrange(12, 16)","pub assume_specification[ Ipv6Addr::to_ipv4 ](
+    address: &Ipv6Addr,
+) -> (result: Option<Ipv4Addr>)
+    ensures
+        (result is Some) <==> (
+            address@.subrange(0, 12) == Seq::new(12, |i: int| 0u8)
+            || address@.subrange(0, 12)
+                == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8]
+        ),
+        result is Some ==> (result->Some_0)@ == address@.subrange(12, 16),
+;","The implementation returns Some exactly for an all-zero 12-byte prefix or a ten-zero-byte prefix followed by 0xffff, and constructs the IPv4 result from the final four bytes in network byte order."
+core::net::Ipv6Addr::to_ipv4_mapped,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"(result is Some) <==> address@.subrange(0, 12) == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8]; result is Some ==> (result->Some_0)@ == address@.subrange(12, 16)","pub assume_specification[ std::net::Ipv6Addr::to_ipv4_mapped ](
+    address: &std::net::Ipv6Addr,
+) -> (result: core::option::Option<std::net::Ipv4Addr>)
+    ensures
+        (result is Some) <==> address@.subrange(0, 12)
+            == Seq::new(10, |i: int| 0u8) + seq![0xffu8, 0xffu8],
+        result is Some ==> (result->Some_0)@
+            == address@.subrange(12, 16),
+;","The result is Some exactly when the first twelve octets are ten zero bytes followed by 0xff, 0xff. In that case, the IPv4 result is uniquely determined by the final four octets."
+core::net::SocketAddr::set_ip,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"final(address)@ == match (old(address)@, new_ip@) {
+            (SocketAddrView::V4(old_v4), IpAddrView::V4(ip)) =>
+                SocketAddrView::V4(SocketAddrV4View { ip, port: old_v4.port }),
+            (SocketAddrView::V4(old_v4), IpAddrView::V6(ip)) =>
+                SocketAddrView::V6(SocketAddrV6View {
+                    ip,
+                    port: old_v4.port,
+                    flowinfo: 0,
+                    scope_id: 0,
+                }),
+            (SocketAddrView::V6(old_v6), IpAddrView::V4(ip)) =>
+                SocketAddrView::V4(SocketAddrV4View { ip, port: old_v6.port }),
+            (SocketAddrView::V6(old_v6), IpAddrView::V6(ip)) =>
+                SocketAddrView::V6(SocketAddrV6View {
+                    ip,
+                    port: old_v6.port,
+                    flowinfo: old_v6.flowinfo,
+                    scope_id: old_v6.scope_id,
+                }),
+        }","pub assume_specification[ SocketAddr::set_ip ](
+    address: &mut SocketAddr,
+    new_ip: IpAddr,
+)
+    ensures
+        final(address)@ == match (old(address)@, new_ip@) {
+            (SocketAddrView::V4(old_v4), IpAddrView::V4(ip)) =>
+                SocketAddrView::V4(SocketAddrV4View { ip, port: old_v4.port }),
+            (SocketAddrView::V4(old_v4), IpAddrView::V6(ip)) =>
+                SocketAddrView::V6(SocketAddrV6View {
+                    ip,
+                    port: old_v4.port,
+                    flowinfo: 0,
+                    scope_id: 0,
+                }),
+            (SocketAddrView::V6(old_v6), IpAddrView::V4(ip)) =>
+                SocketAddrView::V4(SocketAddrV4View { ip, port: old_v6.port }),
+            (SocketAddrView::V6(old_v6), IpAddrView::V6(ip)) =>
+                SocketAddrView::V6(SocketAddrV6View {
+                    ip,
+                    port: old_v6.port,
+                    flowinfo: old_v6.flowinfo,
+                    scope_id: old_v6.scope_id,
+                }),
+        },
+;","The source replaces the IP while preserving the port. Same-family IPv6 updates preserve flowinfo and scope_id, while family-changing updates reconstruct the address and initialize IPv6 metadata to zero. The structured postcondition exactly mirrors the contract expression."
+core::time::Duration::as_secs_f32,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result == vstd::float::ieee_float_cast::<u64, f32>((duration@ / vstd::std_specs::duration::nanos_per_second()) as u64) + vstd::float::ieee_float_cast::<u32, f32>((duration@ % vstd::std_specs::duration::nanos_per_second()) as u32) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32)","pub assume_specification[ core::time::Duration::as_secs_f32 ](
+    duration: &core::time::Duration,
+) -> (result: f32)
+    ensures
+        result == vstd::float::ieee_float_cast::<u64, f32>(
+            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,
+        ) + vstd::float::ieee_float_cast::<u32, f32>(
+            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,
+        ) / vstd::float::ieee_float_cast::<u32, f32>(1_000_000_000u32),
+;","The view quotient and remainder recover the whole-second and nanosecond components used by the implementation. Their casts, division, and addition have finite non-NaN operands, so the deterministic IEEE specification exactly captures the returned f32."
+core::time::Duration::as_secs_f64,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result == vstd::float::ieee_float_cast::<u64, f64>((duration@ / vstd::std_specs::duration::nanos_per_second()) as u64) + vstd::float::ieee_float_cast::<u32, f64>((duration@ % vstd::std_specs::duration::nanos_per_second()) as u32) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32)","pub assume_specification[ core::time::Duration::as_secs_f64 ](
+    duration: &core::time::Duration,
+) -> (result: f64)
+    ensures
+        result == vstd::float::ieee_float_cast::<u64, f64>(
+            (duration@ / vstd::std_specs::duration::nanos_per_second()) as u64,
+        ) + vstd::float::ieee_float_cast::<u32, f64>(
+            (duration@ % vstd::std_specs::duration::nanos_per_second()) as u32,
+        ) / vstd::float::ieee_float_cast::<u32, f64>(1_000_000_000u32),
+;","The Duration view quotient and remainder recover the whole-second and nanosecond fields used by the implementation. All operands and intermediate results are finite, the divisor is nonzero, and no NaN-producing case exists, so deterministic IEEE casts and arithmetic exactly describe the returned f64 without an existential quantifier."
+core::time::Duration::div_duration_f32,other,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The implementation consists of integer-to-f32 casts followed by f32 multiplication, addition, and division. Existing vstd models these operations with potentially nondeterministic relations, so the source-faithful relational pipeline cannot uniquely determine the returned f32. Replacing it with deterministic IEEE operations would assert behavior not available in the existing vstd vocabulary."
+core::time::Duration::div_duration_f64,other,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The implementation consists of integer-to-f64 casts followed by f64 multiplication, addition, and division. Existing vstd deliberately models these operations with potentially nondeterministic relations, so the source-faithful relational pipeline cannot determine the returned f64. Replacing it with deterministic IEEE operations would assert behavior Rust does not guarantee."
+core::time::Duration::div_f32,other,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"Existing vstd vocabulary provides only Duration's nanosecond view, not a semantic model connecting f32 arithmetic and conversion rounding to that view. The supplied Rust versions also use different floating-point pipelines with observably different results, so no useful version-stable result relation is justified."
+core::time::Duration::div_f64,other,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"The implementation composes floating-point conversion, division, and rounded conversion back to Duration. The supplied vstd vocabulary does not relate an f64 value to the resulting nanosecond view, so no useful sound result relation is expressible."
+core::time::Duration::mul_f32,other,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"The public vstd vocabulary does not relate f32 multiplication and conversion rounding to Duration's nanosecond view. Rust 1.96 and Nanvix Rust 1.99 also use observably different floating-point pipelines, so no useful sound result relation is justified."
+core::time::Duration::mul_f64,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,rhs == 0.0f64 || (rhs == 1.0f64 && duration@ % nanos_per_second() == 0 && duration@ / nanos_per_second() <= 9_007_199_254_740_991),result@ == if rhs == 0.0f64 { 0 } else { duration@ },"pub assume_specification[ core::time::Duration::mul_f64 ](
+    duration: core::time::Duration,
+    rhs: f64,
+) -> (result: core::time::Duration)
+    requires
+        rhs == 0.0f64
+            || (rhs == 1.0f64
+                && duration@ % nanos_per_second() == 0
+                && duration@ / nanos_per_second() <= 9_007_199_254_740_991),
+    ensures
+        result@ == if rhs == 0.0f64 { 0 } else { duration@ },
+;",The implementation round-trips the floating-point product through from_secs_f64. Multiplication by exact positive zero yields zero. Multiplication by exact one preserves whole-second durations within f64's exact-integer range; the supplied newer documentation warns that broader identity claims are invalid because rounding can occur.
+core::time::Duration::try_from_secs_f32,other,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"Inlining the arithmetic would fix the reported helper-scope errors, but the signature necessarily contains core::time::TryFromFloatSecsError, which current vstd does not support. A useful ordinary contract therefore requires an additional external type specification unavailable in existing vstd vocabulary."
+core::time::Duration::try_from_secs_f64,other,,2,add_spec,skip,None,False,,,,0,0,0,determinism_unsupported_contract_form,,,,,None,"An assume_specification must reproduce the function's Result<Duration, TryFromFloatSecsError> return type, but TryFromFloatSecsError is unsupported by existing vstd. Modeling it would require a separate external_type_specification, so no useful ordinary contract can typecheck."
+core::time::Duration::from_secs_f32,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,{ let bits = secs.to_bits_abs_spec() as nat; (!secs.is_sign_negative_spec() || bits == 0) && bits / 0x80_0000 < 191 },result@ == { let bits = secs.to_bits_abs_spec() as nat; let exponent = bits / 0x80_0000; let mantissa = bits % 0x80_0000; let significand = if exponent == 0 { mantissa } else { 0x80_0000 + mantissa }; let numerator = if exponent < 150 { 1_000_000_000 * significand } else { 1_000_000_000 * significand * pow2((exponent - 150) as nat) }; let denominator = if exponent < 150 { if exponent == 0 { pow2(149) } else { pow2((150 - exponent) as nat) } } else { 1 }; let quotient = numerator / denominator; let remainder = numerator % denominator; if remainder * 2 < denominator { quotient } else if remainder * 2 > denominator || quotient % 2 == 1 { quotient + 1 } else { quotient } },"pub assume_specification[
+    core::time::Duration::from_secs_f32
+](secs: f32) -> (result: core::time::Duration)
+    requires
+        {
+            let bits = secs.to_bits_abs_spec() as nat;
+            (!secs.is_sign_negative_spec() || bits == 0)
+                && bits / 0x80_0000 < 191
+        },
+    ensures
+        result@ == {
+            let bits = secs.to_bits_abs_spec() as nat;
+            let exponent = bits / 0x80_0000;
+            let mantissa = bits % 0x80_0000;
+            let significand = if exponent == 0 {
+                mantissa
+            } else {
+                0x80_0000 + mantissa
+            };
+            let numerator = if exponent < 150 {
+                1_000_000_000 * significand
+            } else {
+                1_000_000_000 * significand * pow2((exponent - 150) as nat)
+            };
+            let denominator = if exponent < 150 {
+                if exponent == 0 {
+                    pow2(149)
+                } else {
+                    pow2((150 - exponent) as nat)
+                }
+            } else {
+                1
+            };
+            let quotient = numerator / denominator;
+            let remainder = numerator % denominator;
+            if remainder * 2 < denominator {
+                quotient
+            } else if remainder * 2 > denominator || quotient % 2 == 1 {
+                quotient + 1
+            } else {
+                quotient
+            }
+        },
+;","The method returns the checked conversion's value and panics on invalid input. The precondition excludes negative nonzero, non-finite, and overflowing binary32 values; the postcondition decodes the exact f32 value and models nanosecond rounding with ties to even."
+core::time::Duration::from_secs_f64,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,{ let bits = secs.to_bits_abs_spec() as nat; (!secs.is_sign_negative_spec() || bits == 0) && bits / 0x10_0000_0000_0000 < 1087 },result@ == { let bits = secs.to_bits_abs_spec() as nat; let exponent = bits / 0x10_0000_0000_0000; let mantissa = bits % 0x10_0000_0000_0000; let significand = if exponent == 0 { mantissa } else { 0x10_0000_0000_0000 + mantissa }; let numerator = if exponent < 1075 { 1_000_000_000 * significand } else { 1_000_000_000 * significand * pow2((exponent - 1075) as nat) }; let denominator = if exponent < 1075 { if exponent == 0 { pow2(1074) } else { pow2((1075 - exponent) as nat) } } else { 1 }; let quotient = numerator / denominator; let remainder = numerator % denominator; if remainder * 2 < denominator { quotient } else if remainder * 2 > denominator || quotient % 2 == 1 { quotient + 1 } else { quotient } },"pub assume_specification[
+    core::time::Duration::from_secs_f64
+](secs: f64) -> (result: core::time::Duration)
+    requires
+        {
+            let bits = secs.to_bits_abs_spec() as nat;
+            (!secs.is_sign_negative_spec() || bits == 0)
+                && bits / 0x10_0000_0000_0000 < 1087
+        },
+    ensures
+        result@ == {
+            let bits = secs.to_bits_abs_spec() as nat;
+            let exponent = bits / 0x10_0000_0000_0000;
+            let mantissa = bits % 0x10_0000_0000_0000;
+            let significand = if exponent == 0 {
+                mantissa
+            } else {
+                0x10_0000_0000_0000 + mantissa
+            };
+            let numerator = if exponent < 1075 {
+                1_000_000_000 * significand
+            } else {
+                1_000_000_000 * significand * pow2((exponent - 1075) as nat)
+            };
+            let denominator = if exponent < 1075 {
+                if exponent == 0 {
+                    pow2(1074)
+                } else {
+                    pow2((1075 - exponent) as nat)
+                }
+            } else {
+                1
+            };
+            let quotient = numerator / denominator;
+            let remainder = numerator % denominator;
+            if remainder * 2 < denominator {
+                quotient
+            } else if remainder * 2 > denominator || quotient % 2 == 1 {
+                quotient + 1
+            } else {
+                quotient
+            }
+        },
+;","The method returns the checked conversion's value and panics on invalid input. The precondition excludes negative nonzero, non-finite, and overflowing binary64 values; the postcondition decodes the exact f64 value and models nanosecond rounding with ties to even."

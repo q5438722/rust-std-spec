@@ -1,0 +1,116 @@
+{
+  "batch": 303,
+  "group": "trait_contract_integration",
+  "duration_ms": 65341,
+  "targets": [
+    "std::os::unix::fs::DirBuilderExt::mode",
+    "std::os::unix::fs::DirEntryExt::ino",
+    "std::os::unix::fs::FileExt::read_at",
+    "std::os::unix::fs::FileExt::read_exact_at",
+    "std::os::unix::fs::FileExt::write_all_at",
+    "std::os::unix::fs::FileExt::write_at"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::unix::fs::DirBuilderExt::mode",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The mode is hidden builder state, and the mutable-reference return requires an unsupported identity relation. No useful public-vstd postcondition is available.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::DirEntryExt::ino",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The inode number comes from unmodeled filesystem metadata; vstd has no public abstraction relating a DirEntry to that metadata.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_filesystem_metadata_model"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::FileExt::read_at",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and buffer contents depend on unmodeled file contents and I/O errors. The supplied source supports no useful value relation expressible in public vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_contents_model",
+        "unmodeled_io_errors"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::FileExt::read_exact_at",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success describes a complete external read, but the bytes and failure behavior require models of file contents and I/O state that vstd does not provide.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_contents_model",
+        "unmodeled_io_errors"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::FileExt::write_all_at",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful effect is an external file update, with no observable Rust value or public vstd file-state model to characterize.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_state_model",
+        "unmodeled_io_errors"
+      ]
+    },
+    {
+      "target": "std::os::unix::fs::FileExt::write_at",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned count and write effect depend on external file and I/O state; the supplied source provides no standalone useful relation in current public vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_file_state_model",
+        "unmodeled_io_errors"
+      ]
+    }
+  ]
+}

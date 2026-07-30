@@ -1,0 +1,242 @@
+{
+  "candidates": [
+    {
+      "target": "core::ptr::NonNull::copy_from_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source mutates destination memory and requires valid, disjoint source and destination regions. The signature carries no tracked memory permissions through which vstd could express validity, separation, or final contents.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "nonoverlap_unexpressible",
+        "source_destination_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::copy_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source performs an overlapping raw-memory copy, but the unit-returning signature exposes neither memory permissions nor a mutable logical state for specifying memmove-style results.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "overlapping_copy_semantics",
+        "source_destination_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::copy_to_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the delegated nonoverlapping copy requires readable and writable memory-region permissions, disjointness, and final byte contents, none of which are represented by this signature.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "nonoverlap_unexpressible",
+        "source_destination_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::drop_in_place",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source executes destructor glue through the pointer. A useful contract would require an initialized PointsTo permission and a model of its consumption and destructor effects, but neither is present in the signature.",
+      "risks": [
+        "missing_tracked_permission",
+        "destructor_effects_unmodeled",
+        "ownership_consumption_unexpressible",
+        "missing_nonnull_pointer_view"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::new",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n    core::ptr::NonNull::<T>::new\n](ptr: *mut T) -> (result: Option<core::ptr::NonNull<T>>)\n    ensures\n        (result is Some) <==> ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "(result is Some) <==> ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::raw_ptr::*;"
+      ],
+      "useful": true,
+      "rationale": "The source returns Some exactly when the raw pointer is non-null; vstd's raw-pointer view expresses that test as a nonzero data address without inspecting NonNull representation.",
+      "risks": [
+        "Some payload identity is unmodeled",
+        "pointer provenance preservation is unmodeled",
+        "does not establish dereference validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::new_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although vstd can express the source's non-null precondition, it has no public NonNull view relating the returned value to ptr. A precondition-only declaration would leave the constructor result unconstrained.",
+      "risks": [
+        "missing_nonnull_pointer_view",
+        "result_pointer_identity_unmodeled",
+        "pointer_provenance_unmodeled"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::ptr::NonNull::copy_from_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source mutates destination memory and requires valid, disjoint source and
+destination regions. The signature carries no tracked memory permissions through which vstd could
+express validity, separation, or final contents.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "nonoverlap_unexpressible",
+        "source_destination_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::copy_to",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source performs an overlapping raw-memory copy, but the unit-returning
+signature exposes neither memory permissions nor a mutable logical state for specifying
+memmove-style results.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "overlapping_copy_semantics",
+        "source_destination_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::copy_to_nonoverlapping",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying the delegated nonoverlapping copy requires readable and writable
+memory-region permissions, disjointness, and final byte contents, none of which are represented by
+this signature.",
+      "risks": [
+        "unmodeled_memory_effect",
+        "missing_tracked_permission",
+        "nonoverlap_unexpressible",
+        "source_destination_validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::drop_in_place",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source executes destructor glue through the pointer. A useful contract would
+ require an initialized PointsTo permission and a model of its consumption and destructor effects,
+but neither is present in the signature.",
+      "risks": [
+        "missing_tracked_permission",
+        "destructor_effects_unmodeled",
+        "ownership_consumption_unexpressible",
+        "missing_nonnull_pointer_view"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::new",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::marker::PointeeSized>[\n
+core::ptr::NonNull::<T>::new\n](ptr: mut T) -> (result: Option<core::ptr::NonNull<T>>)\n
+ensures\n        (result is Some) <==> ptr@.addr != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "(result is Some) <==> ptr@.addr != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::;",
+        "use vstd::raw_ptr::*;"
+      ],
+      "useful": true,
+      "rationale": "The source returns Some exactly when the raw pointer is non-null; vstd's
+raw-pointer view expresses that test as a nonzero data address without inspecting NonNull
+representation.",
+      "risks": [
+        "Some payload identity is unmodeled",
+        "pointer provenance preservation is unmodeled",
+        "does not establish dereference validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::new_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although vstd can express the source's non-null precondition, it has no public
+NonNull view relating the returned value to ptr. A precondition-only declaration would leave the
+constructor result unconstrained.",
+      "risks": [
+        "missing_nonnull_pointer_view",
+        "result_pointer_identity_unmodeled",
+        "pointer_provenance_unmodeled"
+      ]
+    } ]
+}
+

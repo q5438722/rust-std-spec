@@ -1,0 +1,112 @@
+{
+  "batch": 229,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 23543,
+  "targets": [
+    "std::process::Stdio::null",
+    "std::process::Stdio::piped",
+    "std::process::abort",
+    "std::process::exit",
+    "std::process::id",
+    "std::sync::Barrier::new"
+  ],
+  "candidates": [
+    {
+      "target": "std::process::Stdio::null",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned Stdio's null-stream configuration is opaque and has no public vstd model through which to express it.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_stdio_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::Stdio::piped",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The pipe-request configuration is hidden inside Stdio and cannot be characterized using existing public vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_stdio_abstraction"
+      ]
+    },
+    {
+      "target": "std::process::abort",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This API terminates the process through an unmodeled runtime effect; its never return type alone provides no useful relational contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "process_termination"
+      ]
+    },
+    {
+      "target": "std::process::exit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Process termination and propagation of the OS exit status are runtime effects not represented in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "process_termination"
+      ]
+    },
+    {
+      "target": "std::process::id",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is assigned by the operating system, and the supplied source supports no concrete relation expressible without an OS-process model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_process_identity_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Barrier::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The participant count and synchronization state are private, and current vstd provides no Barrier concurrency abstraction for a useful postcondition.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_barrier_abstraction"
+      ]
+    }
+  ]
+}

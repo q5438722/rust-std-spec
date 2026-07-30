@@ -1,0 +1,145 @@
+{
+  "batch": 287,
+  "group": "trait_contract_integration",
+  "duration_ms": 434218,
+  "targets": [
+    "core::iter::Iterator::fold",
+    "core::iter::Iterator::for_each",
+    "core::iter::Iterator::fuse",
+    "core::iter::Iterator::ge",
+    "core::iter::Iterator::gt",
+    "core::iter::Iterator::inspect"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::fold",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn fold<B, F>(self, init: B, f: F) -> (ret: B)\n    where\n        Self: Sized,\n        F: FnMut(B, Self::Item) -> B,\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            exists |accumulators: Seq<B>| {\n                &&& accumulators.len() == items.len() + 1\n                &&& accumulators[0] == init\n                &&& forall |i: int| 0 <= i < items.len() ==>\n                    #[trigger] f.ensures(\n                        (accumulators[i], items[i]),\n                        accumulators[i + 1],\n                    )\n                &&& ret == accumulators[items.len()]\n            }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "Normal return establishes self.will_return_none().",
+        "For a modeled iterator, an accumulator trace starts at init, follows f.ensures in iteration order, and ends at ret."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "The source repeatedly applies f to the accumulator and each next item; IteratorSpec, Seq, and relational closure postconditions express that fold.",
+      "risks": [
+        "FnMut behavior is represented relationally and mutable capture state is not modeled.",
+        "The value relation is conditional on the prophetic iterator model.",
+        "default_ensures does not constrain fold overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::for_each",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The unit-returning body exists to perform successive FnMut effects. Current vstd cannot expose the evolving closure or captured state, so a per-item unit postcondition would not usefully characterize those effects.",
+      "risks": [
+        "Unit-only result",
+        "Runtime callback effects",
+        "Mutable FnMut capture state is unsupported"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::fuse",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn fuse(self) -> (result: core::iter::Fuse<Self>)\n    where\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> {\n            &&& result.obeys_prophetic_iter_laws()\n            &&& result.initial_value_relation(&result)\n            &&& result.remaining() == self.remaining()\n            &&& result.will_return_none() == self.will_return_none()\n            &&& (result.decrease() is Some <==> self.decrease() is Some)\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "For a modeled source, the fused iterator preserves its remaining sequence, completion behavior, and decrease availability."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "Fuse::new does not advance the source, and a source satisfying IteratorSpec already remains exhausted after reaching None.",
+      "risks": [
+        "The relation is conditional on the source prophetic model.",
+        "default_ensures does not constrain fuse overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::ge",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn ge<I>(self, other: I) -> (ret: bool)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialOrd<I::Item>,\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialOrdSpec<I::Item>>::obeys_partial_cmp_spec() ==> ({\n            let left = self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n            let common_len = if left.len() <= right.len() {\n                left.len()\n            } else {\n                right.len()\n            };\n            ret <==> (\n                (exists |first: int| {\n                    &&& 0 <= first < common_len\n                    &&& forall |i: int| 0 <= i < first ==>\n                        #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                            &left[i],\n                            &right[i],\n                        ) == Some(core::cmp::Ordering::Equal)\n                    &&& <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[first],\n                        &right[first],\n                    ) == Some(core::cmp::Ordering::Greater)\n                })\n                || ((forall |i: int| 0 <= i < common_len ==>\n                    #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[i],\n                        &right[i],\n                    ) == Some(core::cmp::Ordering::Equal))\n                    && right.len() <= left.len())\n            )\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "For modeled sequences and item ordering, ret holds exactly when the first differing pair is Greater or the right sequence is an equal prefix of the left."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialOrdSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The source accepts precisely the Greater and Equal outcomes of lexicographic partial_cmp.",
+      "risks": [
+        "The other IntoIterator sequence remains abstract through into_iter_remaining.",
+        "Precision requires the item PartialOrd specification.",
+        "default_ensures does not constrain ge overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::gt",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn gt<I>(self, other: I) -> (ret: bool)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialOrd<I::Item>,\n        Self: Sized,\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialOrdSpec<I::Item>>::obeys_partial_cmp_spec() ==> ({\n            let left = self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n            let common_len = if left.len() <= right.len() {\n                left.len()\n            } else {\n                right.len()\n            };\n            ret <==> (\n                (exists |first: int| {\n                    &&& 0 <= first < common_len\n                    &&& forall |i: int| 0 <= i < first ==>\n                        #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                            &left[i],\n                            &right[i],\n                        ) == Some(core::cmp::Ordering::Equal)\n                    &&& <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[first],\n                        &right[first],\n                    ) == Some(core::cmp::Ordering::Greater)\n                })\n                || ((forall |i: int| 0 <= i < common_len ==>\n                    #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[i],\n                        &right[i],\n                    ) == Some(core::cmp::Ordering::Equal))\n                    && right.len() < left.len())\n            )\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "For modeled sequences and item ordering, ret holds exactly when the first differing pair is Greater or the right sequence is a proper equal prefix of the left."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::cmp::PartialOrdSpec;",
+        "use vstd::std_specs::iter::{into_iter_remaining, IteratorSpec};"
+      ],
+      "useful": true,
+      "rationale": "The source returns the lexicographic partial_cmp result being Some(Ordering::Greater).",
+      "risks": [
+        "The other IntoIterator sequence remains abstract through into_iter_remaining.",
+        "Precision requires the item PartialOrd specification.",
+        "default_ensures does not constrain gt overrides."
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::inspect",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn inspect<F>(self, f: F) -> (result: core::iter::Inspect<Self, F>)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item),\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> {\n            &&& result.obeys_prophetic_iter_laws()\n            &&& result.initial_value_relation(&result)\n            &&& result.remaining().is_prefix_of(self.remaining())\n            &&& forall |i: int| 0 <= i < result.remaining().len() ==>\n                f.ensures((#[trigger] &self.remaining()[i],), ())\n            &&& (result.will_return_none() ==> {\n                &&& result.remaining() == self.remaining()\n                &&& self.will_return_none()\n            })\n            &&& (result.decrease() is Some <==> self.decrease() is Some)\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "The adapter's future outputs form a prefix of the source sequence, with f.ensures holding for each yielded item.",
+        "If the adapter reaches None, it preserves the complete source sequence and the source also reaches None."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use vstd::prelude::*;",
+        "use vstd::std_specs::iter::IteratorSpec;"
+      ],
+      "useful": true,
+      "rationale": "Inspect calls f before yielding each otherwise unchanged item; a prefix allows for callback divergence without exposing the adapter's private fields.",
+      "risks": [
+        "Mutable FnMut capture state is not modeled.",
+        "Exact sequence preservation is available only when the adapter reaches None.",
+        "default_ensures does not constrain inspect overrides."
+      ]
+    }
+  ]
+}

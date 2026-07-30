@@ -1,0 +1,30 @@
+{"candidates":[{"target":"alloc::vec::Vec::drain","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The Vec's eventual state depends on whether the returned Drain is consumed, dropped, or forgotten. vstd lacks a Drain prophecy connecting yielded items and final(self).","risks":["missing_drain_prophetic_model","drop_or_forget_dependent_state"]},{"target":"alloc::vec::Vec::extract_if","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Extraction and element mutation occur lazily as the adapter advances. No public ExtractIf model captures the FnMut call history, yielded values, and eventual Vec state.","risks":["missing_extract_if_prophetic_model","stateful_fn_mut_history","mutable_element_poststates"]},{"target":"alloc::vec::Vec::retain","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The final sequence depends on ordered, potentially stateful FnMut calls. Pointwise closure postconditions cannot model that history without an unjustified determinism restriction; a length-only contract is not useful.","risks":["unit_return_variant","missing_fn_mut_trace_model"]},{"target":"alloc::vec::Vec::retain_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must jointly model each mutable element poststate, each predicate result, and the ordered FnMut call history. Current vstd has no such trace abstraction.","risks":["unit_return_variant","missing_fn_mut_trace_model","mutable_element_poststates"]},{"target":"alloc::vec::Vec::splice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Splice defers removal and replacement effects to iteration and drop, combining Drain state with the replacement iterator. No public prophecy relates these adapters to final(self).","risks":["missing_splice_prophetic_model","drop_dependent_vec_state","replacement_iterator_state"]},{"target":"core::iter::Peekable::next_if","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The false-predicate case consumes an item and restores it in Peekable's hidden cache. vstd has no public Peekable state model relating that cache to the iterator's remaining sequence.","risks":["missing_peekable_state_model","hidden_cached_item"]}]}{"candidates":[{"target":"alloc::vec::Vec::drain","decision":"skip","contract_form":"assume_specific
+ation","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,
+"rationale":"The Vec's eventual state depends on whether the returned Drain is consumed, dropped, or
+ forgotten. vstd lacks a Drain prophecy connecting yielded items and final(self).","risks":["missing
+_drain_prophetic_model","drop_or_forget_dependent_state"]},{"target":"alloc::vec::Vec::extract_if","
+decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[
+],"feature_gates":[],"imports":[],"useful":false,"rationale":"Extraction and element mutation occur
+lazily as the adapter advances. No public ExtractIf model captures the FnMut call history, yielded
+values, and eventual Vec state.","risks":["missing_extract_if_prophetic_model","stateful_fn_mut_hist
+ory","mutable_element_poststates"]},{"target":"alloc::vec::Vec::retain","decision":"skip","contract_
+form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"impor
+ts":[],"useful":false,"rationale":"The final sequence depends on ordered, potentially stateful FnMut
+ calls. Pointwise closure postconditions cannot model that history without an unjustified
+determinism restriction; a length-only contract is not
+useful.","risks":["unit_return_variant","missing_fn_mut_trace_model"]},{"target":"alloc::vec::Vec::r
+etain_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[]
+,"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must
+jointly model each mutable element poststate, each predicate result, and the ordered FnMut call
+history. Current vstd has no such trace abstraction.","risks":["unit_return_variant","missing_fn_mut
+_trace_model","mutable_element_poststates"]},{"target":"alloc::vec::Vec::splice","decision":"skip","
+contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":
+[],"imports":[],"useful":false,"rationale":"Splice defers removal and replacement effects to
+iteration and drop, combining Drain state with the replacement iterator. No public prophecy relates
+these adapters to final(self).","risks":["missing_splice_prophetic_model","drop_dependent_vec_state"
+,"replacement_iterator_state"]},{"target":"core::iter::Peekable::next_if","decision":"skip","contrac
+t_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imp
+orts":[],"useful":false,"rationale":"The false-predicate case consumes an item and restores it in
+Peekable's hidden cache. vstd has no public Peekable state model relating that cache to the
+iterator's remaining sequence.","risks":["missing_peekable_state_model","hidden_cached_item"]}]}
+

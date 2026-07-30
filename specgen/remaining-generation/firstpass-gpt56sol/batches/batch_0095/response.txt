@@ -1,0 +1,33 @@
+{"candidates":[{"target":"core::str::encode_utf16","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The result is a stateful iterator whose useful behavior is the future sequence of yielded UTF-16 code units. Current vstd has no prophetic iterator model that can express this sequence at construction.","risks":["Any constructor-only postcondition would omit the API's essential encoding semantics."]},{"target":"core::str::escape_debug","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source constructs a map/flatten/chain iterator, and its escaping behavior is observable only through future iteration. Current vstd cannot model that yielded sequence or the required debug-escaping transformation.","risks":["A deterministic contract would require unsupported iterator and formatting abstractions."]},{"target":"core::str::escape_default","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns a flat-map iterator over per-character default escapes. Its useful semantics require a prophetic model of future yields plus a specification of character escaping, neither available in current vstd vocabulary.","risks":["A constructor-only contract would provide no useful semantic relation."]},{"target":"core::str::escape_unicode","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned flat-map iterator represents a future sequence of Unicode escape characters. Current vstd lacks both the necessary prophetic iterator model and a public Unicode-escape sequence specification.","risks":["Encoding the documented textual format would invent a missing formatting abstraction."]},{"target":"core::str::lines","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The implementation wraps split_inclusive and map; its meaningful contract concerns the future sequence of borrowed line slices. That sequence cannot be related to the input without a prophetic iterator model.","risks":["Line-boundary and trailing-terminator behavior cannot be captured by a useful constructor-only postcondition."]},{"target":"core::str::lines_any","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source directly wraps self.lines(), expressing equivalence between the two iterators requires a model of their future yielded sequences, which current vstd does not provide.","risks":["Opaque iterator equality would not establish the documented line semantics."]}]}{"candidates":[{"target":"core::str::encode_utf16","decision":"skip","contract_form":"assume_specifi
+cation","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false
+,"rationale":"The result is a stateful iterator whose useful behavior is the future sequence of
+yielded UTF-16 code units. Current vstd has no prophetic iterator model that can express this
+sequence at construction.","risks":["Any constructor-only postcondition would omit the API's
+essential encoding semantics."]},{"target":"core::str::escape_debug","decision":"skip","contract_for
+m":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports"
+:[],"useful":false,"rationale":"The source constructs a map/flatten/chain iterator, and its escaping
+ behavior is observable only through future iteration. Current vstd cannot model that yielded
+sequence or the required debug-escaping transformation.","risks":["A deterministic contract would
+require unsupported iterator and formatting abstractions."]},{"target":"core::str::escape_default","
+decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[
+],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns a flat-map iterator
+ over per-character default escapes. Its useful semantics require a prophetic model of future yields
+ plus a specification of character escaping, neither available in current vstd
+vocabulary.","risks":["A constructor-only contract would provide no useful semantic
+relation."]},{"target":"core::str::escape_unicode","decision":"skip","contract_form":"assume_specifi
+cation","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false
+,"rationale":"The returned flat-map iterator represents a future sequence of Unicode escape
+characters. Current vstd lacks both the necessary prophetic iterator model and a public
+Unicode-escape sequence specification.","risks":["Encoding the documented textual format would
+invent a missing formatting abstraction."]},{"target":"core::str::lines","decision":"skip","contract
+_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"impo
+rts":[],"useful":false,"rationale":"The implementation wraps split_inclusive and map; its meaningful
+ contract concerns the future sequence of borrowed line slices. That sequence cannot be related to
+the input without a prophetic iterator model.","risks":["Line-boundary and trailing-terminator
+behavior cannot be captured by a useful constructor-only postcondition."]},{"target":"core::str::lin
+es_any","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"e
+nsures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source directly
+wraps self.lines(), expressing equivalence between the two iterators requires a model of their
+future yielded sequences, which current vstd does not provide.","risks":["Opaque iterator equality
+would not establish the documented line semantics."]}]}
+

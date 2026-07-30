@@ -1,0 +1,118 @@
+{
+  "batch": 53,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 38294,
+  "targets": [
+    "core::slice::split_off_last_mut",
+    "core::slice::split_off_mut",
+    "core::slice::write_clone_of_slice",
+    "core::slice::write_copy_of_slice",
+    "core::str::as_bytes_mut",
+    "core::str::from_utf8_mut"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::split_off_last_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success both shortens `self` and returns an exclusive reference to the removed last element. Current modeling cannot express the required mutable-reference identity and disjointness.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::split_off_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable subslice and updated `self` are complementary views selected by an abstract `OneSidedRange`. The required aliasing and range-direction relation is not expressible in current vstd vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_OneSidedRange_model"
+      ]
+    },
+    {
+      "target": "core::slice::write_clone_of_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation initializes `MaybeUninit<T>` storage through `Clone` and returns a mutable initialized view of that same storage. Current vocabulary lacks the necessary initialization and mutable-reference view relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_MaybeUninit_initialization_model",
+        "generic_Clone_semantics"
+      ]
+    },
+    {
+      "target": "core::slice::write_copy_of_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although copying is value-deterministic, the result is a mutable `[T]` view reinterpreting the same `MaybeUninit<T>` storage. That initialization and reference-identity relation is unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_MaybeUninit_initialization_model"
+      ]
+    },
+    {
+      "target": "core::str::as_bytes_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API exposes the exact backing storage of a mutable `str` as mutable bytes, with UTF-8 validity becoming a caller obligation. A sequence-only contract cannot capture this aliasing and obligation soundly.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_UTF8_mutation_invariant"
+      ]
+    },
+    {
+      "target": "core::str::from_utf8_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must characterize UTF-8 validation and make an `Ok` result the same mutable storage reinterpreted as `str`. Current vocabulary lacks both the needed UTF-8/error model and mutable-reference identity relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_UTF8_validation_model",
+        "multiple_rust_declarations_share_path"
+      ]
+    }
+  ]
+}

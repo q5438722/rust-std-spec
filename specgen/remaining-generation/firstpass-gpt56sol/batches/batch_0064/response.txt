@@ -1,0 +1,216 @@
+{
+  "candidates": [
+    {
+      "target": "core::fmt::Result::and_then",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method conditionally invokes an arbitrary FnOnce, but the classified formatting effect and callable effects lack a suitable modeled relation in current vstd.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a reference produced through Deref, whose target identity and formatting-related state are not modeled sufficiently in current vstd.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "missing_deref_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a mutable reference through DerefMut; current vocabulary cannot soundly express its aliasing, final-state relation, and unmodeled formatting state.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_deref_mut_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source selects the matching variant, its mutable-reference result requires unsupported alias and final-state modeling, compounded by unmodeled formatting state.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns references into the original Result, but a useful contract would need reference-identity and formatting-state relations absent from the current model.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::cloned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Ok output depends on arbitrary Clone behavior, while the path has multiple Rust declarations and the classified formatting state is unmodeled.",
+      "risks": [
+        "formatting_effect",
+        "multiple_rust_declarations_share_path",
+        "clone_behavior_not_modeled"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::fmt::Result::and_then",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method conditionally invokes an arbitrary FnOnce, but the classified
+formatting effect and callable effects lack a suitable modeled relation in current vstd.",
+      "risks": [
+        "formatting_effect",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_deref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a reference produced through Deref, whose target identity and
+ formatting-related state are not modeled sufficiently in current vstd.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "missing_deref_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_deref_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns a mutable reference through DerefMut; current vocabulary
+cannot soundly express its aliasing, final-state relation, and unmodeled formatting state.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_deref_mut_abstraction"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source selects the matching variant, its mutable-reference result
+requires unsupported alias and final-state modeling, compounded by unmodeled formatting state.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::as_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns references into the original Result, but a useful contract
+would need reference-identity and formatting-state relations absent from the current model.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "formatting_state_not_modeled"
+      ]
+    },
+    {
+      "target": "core::fmt::Result::cloned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Ok output depends on arbitrary Clone behavior, while the path has multiple
+Rust declarations and the classified formatting state is unmodeled.",
+      "risks": [
+        "formatting_effect",
+        "multiple_rust_declarations_share_path",
+        "clone_behavior_not_modeled"
+      ]
+    } ]
+}
+

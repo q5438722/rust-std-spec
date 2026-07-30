@@ -1,0 +1,117 @@
+{
+  "batch": 211,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 77711,
+  "targets": [
+    "std::net::UdpSocket::peek_from",
+    "std::net::UdpSocket::peer_addr",
+    "std::net::UdpSocket::read_timeout",
+    "std::net::UdpSocket::recv",
+    "std::net::UdpSocket::recv_from",
+    "std::net::UdpSocket::send"
+  ],
+  "candidates": [
+    {
+      "target": "std::net::UdpSocket::peek_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result, buffer contents, source address, and non-consuming queue behavior depend on the OS receive queue, for which vstd has no socket-state or I/O-trace abstraction.",
+      "risks": [
+        "external OS state",
+        "missing UDP queue model",
+        "platform-dependent behavior"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::peer_addr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned address or NotConnected error depends entirely on hidden socket connection state that has no public logical view in vstd.",
+      "risks": [
+        "hidden connection state",
+        "missing socket model",
+        "nondeterministic runtime errors"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::read_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful getter contract must relate the result to the socket's configured timeout, but that OS-managed option is not modeled in current vstd vocabulary.",
+      "risks": [
+        "hidden socket-option state",
+        "missing state relation to set_read_timeout",
+        "platform-dependent representation"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::recv",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and mutated buffer prefix depend on consuming a datagram from the external receive queue; a length bound alone would not usefully model this operation.",
+      "risks": [
+        "external receive queue",
+        "unmodeled buffer payload",
+        "missing I/O trace abstraction"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::recv_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The received payload, byte count, source address, and queue consumption all require an OS-level UDP state model absent from vstd.",
+      "risks": [
+        "external receive queue",
+        "unmodeled source address",
+        "platform-dependent truncation behavior"
+      ]
+    },
+    {
+      "target": "std::net::UdpSocket::send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, errors, byte count, and datagram emission depend on hidden connection and OS networking state; vstd has no I/O-trace model to express the side effect.",
+      "risks": [
+        "external network state",
+        "hidden peer connection",
+        "missing datagram trace abstraction"
+      ]
+    }
+  ]
+}

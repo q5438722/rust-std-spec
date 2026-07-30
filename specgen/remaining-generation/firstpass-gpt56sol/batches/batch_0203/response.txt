@@ -1,0 +1,212 @@
+{
+  "candidates": [
+    {
+      "target": "std::io::Stdout::lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a guard over a hidden static reentrant mutex; vstd has no public abstraction for its lock state or stdout stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_lock_and_stream_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::WriterPanicked::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the private buf field, but WriterPanicked exposes no public vstd-visible view relating the consumed value to that buffer.",
+      "risks": [
+        "private_hidden_state",
+        "missing_public_view_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the byte count and final reader/writer states, but vstd does not model std::io::Read, Write, partial I/O, or OS copy offloading.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_mutable_io_state",
+        "platform_dependent_partial_io"
+      ]
+    },
+    {
+      "target": "std::io::pipe",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function allocates an OS pipe, and vstd has no abstraction expressing endpoint connectivity, buffering, ownership, or failure behavior.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "os_resource_allocation",
+        "missing_pipe_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::read_to_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned String to consumed input requires a model of Read state, EOF, errors, and UTF-8 validation that current vstd vocabulary does not provide.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_read_stream_abstraction",
+        "partial_read_and_utf8_errors"
+      ]
+    },
+    {
+      "target": "std::io::stderr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned handle refers to a hidden static stderr instance, with no public vstd model distinguishing or describing that external stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "global_runtime_resource",
+        "missing_stream_identity_abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::io::Stdout::lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is a guard over a hidden static reentrant mutex; vstd has no public
+abstraction for its lock state or stdout stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_lock_and_stream_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::WriterPanicked::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the private buf field, but WriterPanicked exposes no public
+vstd-visible view relating the consumed value to that buffer.",
+      "risks": [
+        "private_hidden_state",
+        "missing_public_view_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::copy",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must relate the byte count and final reader/writer states, but
+ vstd does not model std::io::Read, Write, partial I/O, or OS copy offloading.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_mutable_io_state",
+        "platform_dependent_partial_io"
+      ]
+    },
+    {
+      "target": "std::io::pipe",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The function allocates an OS pipe, and vstd has no abstraction expressing
+endpoint connectivity, buffering, ownership, or failure behavior.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "os_resource_allocation",
+        "missing_pipe_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::read_to_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned String to consumed input requires a model of Read state,
+EOF, errors, and UTF-8 validation that current vstd vocabulary does not provide.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_read_stream_abstraction",
+        "partial_read_and_utf8_errors"
+      ]
+    },
+    {
+      "target": "std::io::stderr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned handle refers to a hidden static stderr instance, with no public
+vstd model distinguishing or describing that external stream.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "global_runtime_resource",
+        "missing_stream_identity_abstraction"
+      ]
+    } ]
+}
+

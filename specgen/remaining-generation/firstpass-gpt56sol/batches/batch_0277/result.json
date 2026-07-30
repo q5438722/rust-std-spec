@@ -1,0 +1,118 @@
+{
+  "batch": 277,
+  "group": "toolchain_unavailable",
+  "duration_ms": 26348,
+  "targets": [
+    "core::io::Seek::stream_position",
+    "core::io::Take::get_mut",
+    "core::io::Take::get_ref",
+    "core::io::Take::into_inner",
+    "core::io::Take::limit",
+    "core::io::Take::set_limit"
+  ],
+  "candidates": [
+    {
+      "target": "core::io::Seek::stream_position",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method is absent from Verus Rust 1.96, and vstd has no public model relating Seek state to the returned runtime position.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "runtime_io_effect",
+        "missing_seek_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::io::Take::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and its mutable-reference result requires unsupported modeling of reference identity and final borrowed state.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::io::Take::get_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and no public vstd abstraction identifies the returned reference with Take's private inner reader.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "reference_identity_vs_view",
+        "private_inner_state"
+      ]
+    },
+    {
+      "target": "core::io::Take::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and vstd exposes no public model connecting the consumed Take value to its private inner reader.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "private_inner_state",
+        "missing_take_abstraction"
+      ]
+    },
+    {
+      "target": "core::io::Take::limit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and its result cannot be related usefully to Take without inventing a model for the private limit field.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "hidden_state",
+        "missing_take_abstraction"
+      ]
+    },
+    {
+      "target": "core::io::Take::set_limit",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API is absent from Verus Rust 1.96, and expressing its unit-returning mutation requires a public Take state model that vstd does not provide.",
+      "risks": [
+        "not_in_verus_rust_1_96",
+        "unit_return_variant",
+        "hidden_state",
+        "missing_take_abstraction"
+      ]
+    }
+  ]
+}

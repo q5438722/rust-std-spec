@@ -1,0 +1,110 @@
+{
+  "batch": 137,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 94022,
+  "targets": [
+    "core::ptr::NonNull::from_mut",
+    "core::ptr::NonNull::from_ref",
+    "core::ptr::NonNull::is_aligned",
+    "core::ptr::NonNull::is_empty",
+    "core::ptr::NonNull::len",
+    "core::ptr::NonNull::slice_from_raw_parts"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::NonNull::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The useful behavior is preservation of the reference's address and provenance in the returned NonNull. Current vstd has no public logical observer connecting NonNull<T> to a mutable reference or raw pointer.",
+      "risks": [
+        "missing NonNull pointer-identity abstraction",
+        "provenance and ownership semantics"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::from_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source preserves the reference's address and provenance, but current vstd cannot observe those properties through NonNull<T>. Non-nullness alone is inherent in the result type and does not provide a useful relational contract.",
+      "risks": [
+        "missing NonNull pointer-identity abstraction",
+        "pointer provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::is_aligned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation delegates to alignment of the underlying raw pointer. Current vstd has no public NonNull observer relating the value to the raw-pointer address needed to express that condition.",
+      "risks": [
+        "missing NonNull address abstraction",
+        "target-dependent alignment"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::is_empty",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source defines the result as whether the slice-pointer metadata length is zero, but current vstd exposes no logical view of NonNull<[T]> metadata. Referring to len would merely defer the same missing abstraction.",
+      "risks": [
+        "missing NonNull slice-metadata abstraction"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::len",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned value is the slice length stored in pointer metadata. Current vstd has no public logical projection from NonNull<[T]> to that metadata, so no concrete deterministic relation is expressible.",
+      "risks": [
+        "missing NonNull slice-metadata abstraction"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::slice_from_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must state that the result retains data's pointer identity and has metadata length len. Current vstd exposes neither property for NonNull slice pointers.",
+      "risks": [
+        "missing NonNull data-pointer abstraction",
+        "missing NonNull slice-metadata abstraction",
+        "pointer provenance"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "batch": 300,
+  "group": "trait_contract_integration",
+  "duration_ms": 398651,
+  "targets": [
+    "std::io::Read::read_to_string",
+    "std::io::Read::read_vectored",
+    "std::io::Read::take",
+    "std::io::Write::by_ref",
+    "std::io::Write::flush",
+    "std::io::Write::write"
+  ],
+  "candidates": [
+    {
+      "target": "std::io::Read::read_to_string",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExRead {\n    type ExternalTraitSpecificationFor: Read;\n\n    fn read_to_string(&mut self, buf: &mut String) -> (result: std::io::Result<usize>)\n        ensures\n            old(buf)@.is_prefix_of(final(buf)@),\n            result is Ok ==> encode_utf8(final(buf)@).len()\n                == encode_utf8(old(buf)@).len() + (result->Ok_0) as nat,\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)",
+        "result is Ok ==> encode_utf8(final(buf)@).len() == encode_utf8(old(buf)@).len() + (result->Ok_0) as nat"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "std::io::Read",
+        "std::string::String",
+        "vstd::prelude::*",
+        "vstd::utf8::encode_utf8"
+      ],
+      "useful": true,
+      "rationale": "The method appends to the visible String, and on success its result is the appended byte count. String views and encode_utf8 express both properties without modeling the reader.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reader_contents_and_error_details_unmodeled"
+      ]
+    },
+    {
+      "target": "std::io::Read::read_vectored",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful bound requires summing IoSliceMut capacities and describing their changed prefixes, but current vstd has no IoSliceMut view or equivalent public abstraction.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_IoSliceMut_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Read::take",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result stores self and limit in private Take state. Without an existing vstd view or accessor specification for Take, no useful public relation is expressible.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_Take_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Write::by_ref",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the body returns self, the essential property is mutable-reference identity, which cannot be represented soundly by a view relation for this external trait method.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "std::io::Write::flush",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Flushing affects only hidden writer or external sink state; the Result<()> alone supports no nontrivial relation in current vstd.",
+      "risks": [
+        "external_or_hidden_runtime_state"
+      ]
+    },
+    {
+      "target": "std::io::Write::write",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "#[verifier::external_trait_specification]\npub trait ExWrite {\n    type ExternalTraitSpecificationFor: Write;\n\n    fn write(&mut self, buf: &[u8]) -> (result: std::io::Result<usize>)\n        ensures\n            result is Ok ==> ((result->Ok_0) as nat) <= buf@.len(),\n    ;\n}",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ((result->Ok_0) as nat) <= buf@.len()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "std::io::Write",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The documented successful result describes a written prefix, so its byte count is bounded by the input slice length even though writer state remains hidden.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "written_bytes_and_writer_state_unmodeled"
+      ]
+    }
+  ]
+}

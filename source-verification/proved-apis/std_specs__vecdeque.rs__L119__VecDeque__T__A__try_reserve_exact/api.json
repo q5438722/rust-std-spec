@@ -1,0 +1,176 @@
+{
+  "id": "std_specs__vecdeque.rs__L119__VecDeque__T__A__try_reserve_exact",
+  "api_path": "alloc::collections::vec_deque::VecDeque::try_reserve_exact",
+  "normalized_api_path": "alloc::collections::VecDeque::try_reserve_exact",
+  "raw_target": "VecDeque::<T, A>::try_reserve_exact",
+  "contract_source_file": "std_specs/vecdeque.rs",
+  "contract_source_line": 119,
+  "rust_declaration": {
+    "declaration_id": "alloc:3084",
+    "name": "try_reserve_exact",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 57, patch: 0 })},\nfeature: \"try_reserve\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/collections/vec_deque/mod.rs",
+      "begin": [
+        1106,
+        5
+      ],
+      "end": [
+        1118,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "additional",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 46,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "tuple": []
+                  }
+                },
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "TryReserveError",
+                      "id": 1006,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:3127",
+      "for": {
+        "resolved_path": {
+          "path": "VecDeque",
+          "id": 2511,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:2511",
+      "resolved_owner_path": [
+        "alloc",
+        "collections",
+        "vec_deque",
+        "VecDeque"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1086:     /// ```\n  1087:     /// use std::collections::TryReserveError;\n  1088:     /// use std::collections::VecDeque;\n  1089:     ///\n  1090:     /// fn process_data(data: &[u32]) -> Result<VecDeque<u32>, TryReserveError> {\n  1091:     ///     let mut output = VecDeque::new();\n  1092:     ///\n  1093:     ///     // Pre-reserve the memory, exiting if we can't\n  1094:     ///     output.try_reserve_exact(data.len())?;\n  1095:     ///\n  1096:     ///     // Now we know this can't OOM(Out-Of-Memory) in the middle of our complex work\n  1097:     ///     output.extend(data.iter().map(|&val| {\n  1098:     ///         val * 2 + 5 // very complicated\n  1099:     ///     }));\n  1100:     ///\n  1101:     ///     Ok(output)\n  1102:     /// }\n  1103:     /// # process_data(&[1, 2, 3]).expect(\"why is the test harness OOMing on 12 bytes?\");\n  1104:     /// ```\n  1105:     #[stable(feature = \"try_reserve\", since = \"1.57.0\")]\n  1106:     pub fn try_reserve_exact(&mut self, additional: usize) -> Result<(), TryReserveError> {\n  1107:         let new_cap =\n  1108:             self.len.checked_add(additional).ok_or(TryReserveErrorKind::CapacityOverflow)?;\n  1109:         let old_cap = self.capacity();\n  1110: \n  1111:         if new_cap > old_cap {\n  1112:             self.buf.try_reserve_exact(self.len, additional)?;\n  1113:             unsafe {\n  1114:                 self.handle_capacity_increase(old_cap);\n  1115:             }\n  1116:         }\n  1117:         Ok(())\n  1118:     }\n  1119: \n  1120:     /// Tries to reserve capacity for at least `additional` more elements to be inserted\n  1121:     /// in the given deque. The collection may reserve more space to speculatively avoid\n  1122:     /// frequent reallocations. After calling `try_reserve`, capacity will be\n  1123:     /// greater than or equal to `self.len() + additional` if it returns\n  1124:     /// `Ok(())`. Does nothing if capacity is already sufficient. This method\n  1125:     /// preserves the contents even if an error occurs.\n  1126:     ///",
+    "source_text": "pub fn try_reserve_exact(&mut self, additional: usize) -> Result<(), TryReserveError> {\n        let new_cap =\n            self.len.checked_add(additional).ok_or(TryReserveErrorKind::CapacityOverflow)?;\n        let old_cap = self.capacity();\n\n        if new_cap > old_cap {\n            self.buf.try_reserve_exact(self.len, additional)?;\n            unsafe {\n                self.handle_capacity_increase(old_cap);\n            }\n        }\n        Ok(())\n    }",
+    "has_body": true
+  }
+}

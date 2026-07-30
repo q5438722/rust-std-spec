@@ -1,0 +1,161 @@
+{
+  "id": "std_specs__vec.rs__L125__Vec__T__A__reserve",
+  "api_path": "alloc::vec::Vec::reserve",
+  "raw_target": "Vec::<T, A>::reserve",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 125,
+  "rust_declaration": {
+    "declaration_id": "alloc:4883",
+    "name": "reserve",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgTrace([Not(NameValue { name: \"no_global_oom_handling\", value: None, span: alloc/src/vec/mod.rs:1467:15: 1467:37 (#0) }, alloc/src/vec/mod.rs:1467:14: 1467:38 (#0))])]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"vec_reserve\")]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        1470,
+        5
+      ],
+      "end": [
+        1472,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "additional",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4948",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  1450:     /// Reserves capacity for at least `additional` more elements to be inserted\n  1451:     /// in the given `Vec<T>`. The collection may reserve more space to\n  1452:     /// speculatively avoid frequent reallocations. After calling `reserve`,\n  1453:     /// capacity will be greater than or equal to `self.len() + additional`.\n  1454:     /// Does nothing if capacity is already sufficient.\n  1455:     ///\n  1456:     /// # Panics\n  1457:     ///\n  1458:     /// Panics if the new capacity exceeds `isize::MAX` _bytes_.\n  1459:     ///\n  1460:     /// # Examples\n  1461:     ///\n  1462:     /// ```\n  1463:     /// let mut vec = vec![1];\n  1464:     /// vec.reserve(10);\n  1465:     /// assert!(vec.capacity() >= 11);\n  1466:     /// ```\n  1467:     #[cfg(not(no_global_oom_handling))]\n  1468:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1469:     #[rustc_diagnostic_item = \"vec_reserve\"]\n  1470:     pub fn reserve(&mut self, additional: usize) {\n  1471:         self.buf.reserve(self.len, additional);\n  1472:     }\n  1473: \n  1474:     /// Reserves the minimum capacity for at least `additional` more elements to\n  1475:     /// be inserted in the given `Vec<T>`. Unlike [`reserve`], this will not\n  1476:     /// deliberately over-allocate to speculatively avoid frequent allocations.\n  1477:     /// After calling `reserve_exact`, capacity will be greater than or equal to\n  1478:     /// `self.len() + additional`. Does nothing if the capacity is already\n  1479:     /// sufficient.\n  1480:     ///\n  1481:     /// Note that the allocator may give the collection more space than it\n  1482:     /// requests. Therefore, capacity can not be relied upon to be precisely\n  1483:     /// minimal. Prefer [`reserve`] if future insertions are expected.\n  1484:     ///\n  1485:     /// [`reserve`]: Vec::reserve\n  1486:     ///\n  1487:     /// # Panics\n  1488:     ///\n  1489:     /// Panics if the new capacity exceeds `isize::MAX` _bytes_.\n  1490:     ///",
+    "source_text": "pub fn reserve(&mut self, additional: usize) {\n        self.buf.reserve(self.len, additional);\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contract for Vec::<T, A>::try_reserve",
+    "std::process::abort has its declared non-returning (`-> !`) behavior"
+  ],
+  "rationale": "Desugars the private RawVec reservation into the equivalent fallible reserve plus non-returning error handling; the smaller API contract proves that the vector contents are preserved.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L125__Vec__T__A__reserve"
+}

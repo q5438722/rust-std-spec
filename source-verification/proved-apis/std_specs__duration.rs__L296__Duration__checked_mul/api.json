@@ -1,0 +1,124 @@
+{
+  "id": "std_specs__duration.rs__L296__Duration__checked_mul",
+  "api_path": "core::time::Duration::checked_mul",
+  "normalized_api_path": "core::time::Duration::checked_mul",
+  "raw_target": "Duration::checked_mul",
+  "contract_source_file": "std_specs/duration.rs",
+  "contract_source_line": 296,
+  "rust_declaration": {
+    "declaration_id": "core:32363",
+    "name": "checked_mul",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 16, patch: 0 })},\nfeature: \"duration_checked_ops\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": "this returns the result of the operation, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 58, patch: 0 })},\nfeature: \"duration_consts_2\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/time.rs",
+      "begin": [
+        782,
+        5
+      ],
+      "end": [
+        795,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "rhs",
+          {
+            "primitive": "u32"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "Duration",
+                      "id": 10186,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32378",
+      "for": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10186",
+      "resolved_owner_path": [
+        "core",
+        "time",
+        "Duration"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   762:             None => Duration::ZERO,\n   763:         }\n   764:     }\n   765: \n   766:     /// Checked `Duration` multiplication. Computes `self * other`, returning\n   767:     /// [`None`] if overflow occurred.\n   768:     ///\n   769:     /// # Examples\n   770:     ///\n   771:     /// ```\n   772:     /// use std::time::Duration;\n   773:     ///\n   774:     /// assert_eq!(Duration::new(0, 500_000_001).checked_mul(2), Some(Duration::new(1, 2)));\n   775:     /// assert_eq!(Duration::new(u64::MAX - 1, 0).checked_mul(2), None);\n   776:     /// ```\n   777:     #[stable(feature = \"duration_checked_ops\", since = \"1.16.0\")]\n   778:     #[must_use = \"this returns the result of the operation, \\\n   779:                   without modifying the original\"]\n   780:     #[inline]\n   781:     #[rustc_const_stable(feature = \"duration_consts_2\", since = \"1.58.0\")]\n   782:     pub const fn checked_mul(self, rhs: u32) -> Option<Duration> {\n   783:         // Multiply nanoseconds as u64, because it cannot overflow that way.\n   784:         let total_nanos = self.nanos.as_inner() as u64 * rhs as u64;\n   785:         let extra_secs = total_nanos / (NANOS_PER_SEC as u64);\n   786:         let nanos = (total_nanos % (NANOS_PER_SEC as u64)) as u32;\n   787:         // FIXME(const-hack): use `and_then` once that is possible.\n   788:         if let Some(s) = self.secs.checked_mul(rhs as u64) {\n   789:             if let Some(secs) = s.checked_add(extra_secs) {\n   790:                 debug_assert!(nanos < NANOS_PER_SEC);\n   791:                 return Some(Duration::new(secs, nanos));\n   792:             }\n   793:         }\n   794:         None\n   795:     }\n   796: \n   797:     /// Saturating `Duration` multiplication. Computes `self * other`, returning\n   798:     /// [`Duration::MAX`] if overflow occurred.\n   799:     ///\n   800:     /// # Examples\n   801:     ///\n   802:     /// ```",
+    "source_text": "pub const fn checked_mul(self, rhs: u32) -> Option<Duration> {\n        // Multiply nanoseconds as u64, because it cannot overflow that way.\n        let total_nanos = self.nanos.as_inner() as u64 * rhs as u64;\n        let extra_secs = total_nanos / (NANOS_PER_SEC as u64);\n        let nanos = (total_nanos % (NANOS_PER_SEC as u64)) as u32;\n        // FIXME(const-hack): use `and_then` once that is possible.\n        if let Some(s) = self.secs.checked_mul(rhs as u64) {\n            if let Some(secs) = s.checked_add(extra_secs) {\n                debug_assert!(nanos < NANOS_PER_SEC);\n                return Some(Duration::new(secs, nanos));\n            }\n        }\n        None\n    }",
+    "has_body": true
+  }
+}

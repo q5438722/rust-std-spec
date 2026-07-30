@@ -1,0 +1,63 @@
+{
+  "batch": 312,
+  "group": "trait_contract_integration",
+  "duration_ms": 18073,
+  "targets": [
+    "std::os::windows::io::IntoRawHandle::into_raw_handle",
+    "std::os::windows::io::IntoRawSocket::into_raw_socket",
+    "std::process::Termination::report"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::windows::io::IntoRawHandle::into_raw_handle",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source explicitly says ownership transfer is only typical, not guaranteed, and vstd has no public abstraction relating a consumed value to OS handle ownership.",
+      "risks": [
+        "external OS resource state",
+        "missing handle-ownership abstraction",
+        "implementation-defined result"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::IntoRawSocket::into_raw_socket",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source explicitly says ownership transfer is only typical, not guaranteed, and vstd has no public abstraction relating a consumed value to OS socket ownership.",
+      "risks": [
+        "external OS resource state",
+        "missing socket-ownership abstraction",
+        "implementation-defined result"
+      ]
+    },
+    {
+      "target": "std::process::Termination::report",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The trait permits each implementation to choose its ExitCode, while the signature exposes no public relation between Self and that code that can be expressed generically in current vstd.",
+      "risks": [
+        "implementation-defined result",
+        "runtime exit-status semantics",
+        "missing trait-level abstraction"
+      ]
+    }
+  ]
+}

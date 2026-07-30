@@ -1,0 +1,133 @@
+{
+  "id": "core__ptr__wrapping_byte_offset__42cad6f68e34",
+  "api_path": "core::ptr::wrapping_byte_offset",
+  "raw_target": "<*const T>::wrapping_byte_offset",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"pointer_byte_offsets\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 75, patch: 0 })},\nfeature: \"const_pointer_byte_offsets\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:51621",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "wrapping_byte_offset",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51637",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "count",
+          {
+            "primitive": "isize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "Self"
+      }
+    },
+    "source_context": "   440:     ///\n   441:     /// ```\n   442:     /// # use std::fmt::Write;\n   443:     /// // Iterate using a raw pointer in increments of two elements\n   444:     /// let data = [1u8, 2, 3, 4, 5];\n   445:     /// let mut ptr: *const u8 = data.as_ptr();\n   446:     /// let step = 2;\n   447:     /// let end_rounded_up = ptr.wrapping_offset(6);\n   448:     ///\n   449:     /// let mut out = String::new();\n   450:     /// while ptr != end_rounded_up {\n   451:     ///     unsafe {\n   452:     ///         write!(&mut out, \"{}, \", *ptr)?;\n   453:     ///     }\n   454:     ///     ptr = ptr.wrapping_offset(step);\n   455:     /// }\n   456:     /// assert_eq!(out.as_str(), \"1, 3, 5, \");\n   457:     /// # std::fmt::Result::Ok(())\n   458:     /// ```\n   459:     #[stable(feature = \"ptr_wrapping_offset\", since = \"1.16.0\")]\n   460:     #[must_use = \"returns a new pointer rather than modifying its argument\"]\n   461:     #[rustc_const_stable(feature = \"const_ptr_offset\", since = \"1.61.0\")]\n   462:     #[inline(always)]\n   463:     pub const fn wrapping_offset(self, count: isize) -> *const T\n   464:     where\n   465:         T: Sized,\n   466:     {\n   467:         // SAFETY: the `arith_offset` intrinsic has no prerequisites to be called.\n   468:         unsafe { intrinsics::arith_offset(self, count) }\n   469:     }\n   470: \n   471:     /// Adds a signed offset in bytes to a pointer using wrapping arithmetic.\n   472:     ///\n   473:     /// `count` is in units of **bytes**.\n   474:     ///\n   475:     /// This is purely a convenience for casting to a `u8` pointer and\n   476:     /// using [wrapping_offset][pointer::wrapping_offset] on it. See that method\n   477:     /// for documentation.\n   478:     ///\n   479:     /// For non-`Sized` pointees this operation changes only the data pointer,\n   480:     /// leaving the metadata untouched.\n   481:     #[must_use]\n   482:     #[inline(always)]\n   483:     #[stable(feature = \"pointer_byte_offsets\", since = \"1.75.0\")]\n   484:     #[rustc_const_stable(feature = \"const_pointer_byte_offsets\", since = \"1.75.0\")]\n   485:     pub const fn wrapping_byte_offset(self, count: isize) -> Self {\n   486:         self.cast::<u8>().wrapping_offset(count).with_metadata_of(self)\n   487:     }\n   488: \n   489:     /// Masks out bits of the pointer according to a mask.\n   490:     ///\n   491:     /// This is convenience for `ptr.map_addr(|a| a & mask)`.\n   492:     ///\n   493:     /// For non-`Sized` pointees this operation changes only the data pointer,\n   494:     /// leaving the metadata untouched.\n   495:     ///\n   496:     /// ## Examples\n   497:     ///\n   498:     /// ```\n   499:     /// #![feature(ptr_mask)]\n   500:     /// let v = 17_u32;\n   501:     /// let ptr: *const u32 = &v;\n   502:     ///\n   503:     /// // `u32` is 4 bytes aligned,\n   504:     /// // which means that lower 2 bits are always 0.\n   505:     /// let tag_mask = 0b11;\n   506:     /// let ptr_mask = !tag_mask;\n   507:     ///\n   508:     /// // We can store something in these lower bits\n   509:     /// let tagged_ptr = ptr.map_addr(|a| a | 0b10);\n   510:     ///\n   511:     /// // Get the \"tag\" back\n   512:     /// let tag = tagged_ptr.addr() & tag_mask;\n   513:     /// assert_eq!(tag, 0b10);\n   514:     ///\n   515:     /// // Note that `tagged_ptr` is unaligned, it's UB to read from it.\n   516:     /// // To get original pointer `mask` can be used:\n   517:     /// let masked_ptr = tagged_ptr.mask(ptr_mask);\n   518:     /// assert_eq!(unsafe { *masked_ptr }, 17);\n   519:     /// ```\n   520:     #[unstable(feature = \"ptr_mask\", issue = \"98290\")]\n   521:     #[must_use = \"returns a new pointer rather than modifying its argument\"]\n   522:     #[inline(always)]\n   523:     pub fn mask(self, mask: usize) -> *const T {\n   524:         intrinsics::ptr_mask(self.cast::<()>(), mask).with_metadata_of(self)\n   525:     }\n   526: \n   527:     /// Calculates the distance between two pointers within the same allocation. The returned value is in\n   528:     /// units of T: the distance in bytes divided by `size_of::<T>()`.\n   529:     ///\n   530:     /// This is equivalent to `(self as isize - origin as isize) / (size_of::<T>() as isize)`,",
+    "span": {
+      "begin": [
+        485,
+        5
+      ],
+      "end": [
+        487,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn wrapping_byte_offset(self, count: isize) -> Self {\n        self.cast::<u8>().wrapping_offset(count).with_metadata_of(self)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower raw-pointer cast contract equates its result with the corresponding pointer cast.",
+    "The lower wrapping_offset contract preserves provenance and metadata and performs signed address wrapping for one-byte pointees.",
+    "The lower with_metadata_of contract preserves the data pointer's address and provenance while copying metadata.",
+    "vstd guarantees size_of::<u8>() == 1."
+  ],
+  "rationale": "The exact three-operation Rust body proves compositionally from smaller pointer API contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__wrapping_byte_offset__42cad6f68e34"
+}

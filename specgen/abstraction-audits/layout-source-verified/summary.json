@@ -1,0 +1,282 @@
+{
+  "metadata": {
+    "module_file": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd/std_specs/layout_value.rs",
+    "imports": [
+      "core::alloc::*",
+      "vstd::std_specs::layout_value::*",
+      "vstd::layout::*",
+      "vstd::prelude::*"
+    ]
+  },
+  "counts": {
+    "targets": 13,
+    "status": {
+      "ok": 13
+    },
+    "r0_z3": {
+      "unsat": 13
+    },
+    "classification": {
+      "complete": 13
+    }
+  },
+  "results": [
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_layout(size, align) ==> (result matches Ok(layout) && layout@ == (LayoutView {\n            size,\n            align,\n        }))",
+        "!valid_layout(size, align) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 598,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::from_size_align",
+      "source_line": 55
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "valid_layout(size, align)"
+      ],
+      "ensures": [
+        "result@ == (LayoutView { size, align })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 596,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::from_size_align_unchecked",
+      "source_line": 67
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == layout@.size"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 564,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::size",
+      "source_line": 75
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result == layout@.align"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 568,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::align",
+      "source_line": 80
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == (LayoutView { size: size_of_as_usize::<T>(), align: align_of_as_usize::<T>() })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 609,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::new::<T>",
+      "source_line": 85
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == (LayoutView {\n            size: size_of_val_as_usize(value),\n            align: align_of_val_as_usize(value),\n        })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 566,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::for_value::<T>",
+      "source_line": 90
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "valid_layout(0, align) && valid_layout(layout@.size, max_usize(layout@.align, align)) ==> (\n        result matches Ok(new_layout) && new_layout@ == (LayoutView {\n            size: layout@.size,\n            align: max_usize(layout@.align, align),\n        }))",
+        "(!valid_layout(0, align) || !valid_layout(layout@.size, max_usize(layout@.align, align)))\n            ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 569,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::align_to",
+      "source_line": 98
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@.align == layout@.align",
+        "result@.size as nat == round_up_to(layout@.size as nat, layout@.align as nat)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 556,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::pad_to_align",
+      "source_line": 112
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size <= usize::MAX as nat && valid_layout(\n                size as usize,\n                max_usize(layout@.align, next@.align),\n            )\n        }) ==> ({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            result matches Ok(pair) && pair.0@ == (LayoutView {\n                size: size as usize,\n                align: max_usize(layout@.align, next@.align),\n            }) && pair.1 as nat == offset\n        })",
+        "({\n            let offset = round_up_to(layout@.size as nat, next@.align as nat);\n            let size = offset + next@.size as nat;\n            size > usize::MAX as nat || !valid_layout(\n                size as usize,\n                max_usize(layout@.align, next@.align),\n            )\n        }) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 9,
+      "verus_returncode": 0,
+      "verus_ms": 629,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::extend",
+      "source_line": 118
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "({\n            let size = layout@.size as nat + next@.size as nat;\n            size <= usize::MAX as nat && valid_layout(size as usize, layout@.align)\n        }) ==> (result matches Ok(new_layout) && new_layout@ == (LayoutView {\n            size: (layout@.size as nat + next@.size as nat) as usize,\n            align: layout@.align,\n        }))",
+        "({\n            let size = layout@.size as nat + next@.size as nat;\n            size > usize::MAX as nat || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 562,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::extend_packed",
+      "source_line": 148
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * (n as nat - 1) + layout@.size as nat\n            };\n            size <= usize::MAX as nat && valid_layout(size as usize, layout@.align)\n        }) ==> ({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * (n as nat - 1) + layout@.size as nat\n            };\n            result matches Ok(pair) && pair.0@ == (LayoutView {\n                size: size as usize,\n                align: layout@.align,\n            }) && pair.1 as nat == stride\n        })",
+        "({\n            let stride = round_up_to(layout@.size as nat, layout@.align as nat);\n            let size = if n == 0 {\n                0\n            } else {\n                stride * (n as nat - 1) + layout@.size as nat\n            };\n            size > usize::MAX as nat || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 11,
+      "verus_returncode": 0,
+      "verus_ms": 598,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::repeat",
+      "source_line": 166
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "({\n            let size = layout@.size as nat * n as nat;\n            size <= usize::MAX as nat && valid_layout(size as usize, layout@.align)\n        }) ==> (result matches Ok(new_layout) && new_layout@ == (LayoutView {\n            size: (layout@.size as nat * n as nat) as usize,\n            align: layout@.align,\n        }))",
+        "({\n            let size = layout@.size as nat * n as nat;\n            size > usize::MAX as nat || !valid_layout(size as usize, layout@.align)\n        }) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 569,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::repeat_packed",
+      "source_line": 202
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "({\n            let size = size_of_as_usize::<T>() as nat * length as nat;\n            size <= usize::MAX as nat && valid_layout(size as usize, align_of_as_usize::<T>())\n        }) ==> (result matches Ok(layout) && layout@ == (LayoutView {\n            size: (size_of_as_usize::<T>() as nat * length as nat) as usize,\n            align: align_of_as_usize::<T>(),\n        }))",
+        "({\n            let size = size_of_as_usize::<T>() as nat * length as nat;\n            size > usize::MAX as nat || !valid_layout(size as usize, align_of_as_usize::<T>())\n        }) ==> result is Err"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 605,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Layout::array::<T>",
+      "source_line": 220
+    }
+  ]
+}

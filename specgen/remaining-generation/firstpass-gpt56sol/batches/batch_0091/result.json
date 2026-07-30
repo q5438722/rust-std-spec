@@ -1,0 +1,131 @@
+{
+  "batch": 91,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 419707,
+  "targets": [
+    "core::iter::successors",
+    "core::iter::zip",
+    "core::option::Option::iter",
+    "core::option::Option::iter_mut",
+    "core::result::Result::iter",
+    "core::result::Result::iter_mut"
+  ],
+  "candidates": [
+    {
+      "target": "core::iter::successors",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Successive elements require deferred, stateful FnMut calls, and the iterator may be infinite or nonterminating; current vstd cannot express that evolving call trace.",
+      "risks": [
+        "Missing stateful FnMut call-trace model",
+        "Potentially infinite or nonterminating iterator",
+        "Missing Successors-specific prophetic model"
+      ]
+    },
+    {
+      "target": "core::iter::zip",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The generic IntoIterator specification does not expose the converted iterators' prophetic law and termination state, so Zip's truncated pair sequence cannot be established for arbitrary A and B.",
+      "risks": [
+        "Missing Zip-specific IteratorSpec model",
+        "Generic iterators may be infinite, non-fused, or stateful",
+        "Unmodeled effects from deferred iterator advancement"
+      ]
+    },
+    {
+      "target": "core::option::Option::iter",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T>[ Option::<T>::iter ](\n    option: &'a Option<T>,\n) -> (iter: core::option::Iter<'a, T>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&iter),\n        IteratorSpec::remaining(&iter) == (match option {\n            Option::Some(value) => seq![value],\n            Option::None => seq![],\n        }),\n        IteratorSpec::decrease(&iter) is Some,\n        IteratorSpec::initial_value_relation(&iter, &iter),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&iter)",
+        "IteratorSpec::remaining(&iter) == (match option { Option::Some(value) => seq![value], Option::None => seq![] })",
+        "IteratorSpec::decrease(&iter) is Some",
+        "IteratorSpec::initial_value_relation(&iter, &iter)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a finite iterator from self.as_ref(); existing IteratorSpec vocabulary can describe exactly the empty or singleton sequence of borrowed values.",
+      "risks": [
+        "Double-ended and exact-size operations remain unspecified",
+        "Other ways of obtaining or cloning Iter require separate contracts"
+      ]
+    },
+    {
+      "target": "core::option::Option::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect mutation through the yielded &mut T to final(self); current vstd lacks a prophetic IterMut write-back and aliasing model.",
+      "risks": [
+        "Missing mutable-iterator write-back model",
+        "Unsupported modeling of yielded mutable references"
+      ]
+    },
+    {
+      "target": "core::result::Result::iter",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, E>[ Result::<T, E>::iter ](\n    result: &'a Result<T, E>,\n) -> (iter: core::result::Iter<'a, T>)\n    ensures\n        IteratorSpec::obeys_prophetic_iter_laws(&iter),\n        IteratorSpec::remaining(&iter) == (match result {\n            Result::Ok(value) => seq![value],\n            Result::Err(_) => seq![],\n        }),\n        IteratorSpec::decrease(&iter) is Some,\n        IteratorSpec::initial_value_relation(&iter, &iter),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws(&iter)",
+        "IteratorSpec::remaining(&iter) == (match result { Result::Ok(value) => seq![value], Result::Err(_) => seq![] })",
+        "IteratorSpec::decrease(&iter) is Some",
+        "IteratorSpec::initial_value_relation(&iter, &iter)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result",
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source constructs the iterator from self.as_ref().ok(), yielding exactly the borrowed Ok value or no values, which current IteratorSpec vocabulary expresses directly.",
+      "risks": [
+        "Double-ended and exact-size operations remain unspecified",
+        "Other ways of obtaining or cloning Iter require separate contracts"
+      ]
+    },
+    {
+      "target": "core::result::Result::iter_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The yielded mutable Ok reference can later change the Result payload, requiring a prophetic relation to final(self) that current IteratorSpec vocabulary does not provide.",
+      "risks": [
+        "Missing mutable-iterator write-back model",
+        "Unsupported modeling of yielded mutable references"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::string::String::shrink_to_fit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::shrink_to_fit ](\n    s: &mut String,\n)\n    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The implementation changes only backing-vector capacity, so the existing String character-sequence view can state content preservation.",
+      "risks": [
+        "resulting allocator capacity remains unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::try_reserve",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::try_reserve ](\n    s: &mut String,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::TryReserveError;",
+        "use alloc::string::String;",
+        "use core::result::Result;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Reservation preserves the String contents on both success and error, which is expressible through its sequence view.",
+      "risks": [
+        "allocator outcome and successful capacity are unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::try_reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::try_reserve_exact ](\n    s: &mut String,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::TryReserveError;",
+        "use alloc::string::String;",
+        "use core::result::Result;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The delegated reservation operation preserves all characters regardless of its Result branch.",
+      "risks": [
+        "allocator outcome and resulting capacity are unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::with_capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::with_capacity ](\n    capacity: usize,\n) -> (result: String)\n    ensures\n        result@ == Seq::<char>::empty(),\n;",
+      "requires": [],
+      "ensures": [
+        "result@ == Seq::<char>::empty()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a String around an empty Vec, so its public character-sequence view is empty.",
+      "risks": [
+        "requested and allocated capacities remain unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    Vec::<T, A>::capacity\n](vec: &Vec<T, A>) -> (capacity: usize)\n    ensures\n        vec@.len() <= capacity as int,\n        core::mem::size_of::<T>() == 0 ==> capacity == usize::MAX,\n;",
+      "requires": [],
+      "ensures": [
+        "vec@.len() <= capacity as int",
+        "core::mem::size_of::<T>() == 0 ==> capacity == usize::MAX"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::vec::Vec;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Although exact non-ZST allocation is hidden, capacity must accommodate the logical sequence, and the source explicitly specifies usize::MAX for zero-sized elements.",
+      "risks": [
+        "non-ZST allocator capacity remains otherwise unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    Vec::<T, A>::reserve_exact\n](\n    vec: &mut Vec<T, A>,\n    additional: usize,\n)\n    ensures\n        final(vec)@ == old(vec)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(vec)@ == old(vec)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::vec::Vec;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The method changes backing allocation without changing the Vec's logical element sequence.",
+      "risks": [
+        "post-call capacity and allocator behavior remain unmodeled"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::string::String::shrink_to_fit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::shrink_to_fit ](\n    s: &mut String,\n)\n
+    ensures\n        final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The implementation changes only backing-vector capacity, so the existing String
+character-sequence view can state content preservation.",
+      "risks": [
+        "resulting allocator capacity remains unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::try_reserve",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::try_reserve ](\n    s: &mut String,\n
+additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(s)@ ==
+old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::TryReserveError;",
+        "use alloc::string::String;",
+        "use core::result::Result;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "Reservation preserves the String contents on both success and error, which is
+expressible through its sequence view.",
+      "risks": [
+        "allocator outcome and successful capacity are unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::try_reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::try_reserve_exact ](\n    s: &mut
+String,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n
+final(s)@ == old(s)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(s)@ == old(s)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::collections::TryReserveError;",
+        "use alloc::string::String;",
+        "use core::result::Result;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The delegated reservation operation preserves all characters regardless of its
+Result branch.",
+      "risks": [
+        "allocator outcome and resulting capacity are unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::string::String::with_capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ String::with_capacity ](\n    capacity: usize,\n)
+-> (result: String)\n    ensures\n        result@ == Seq::<char>::empty(),\n;",
+      "requires": [],
+      "ensures": [
+        "result@ == Seq::<char>::empty()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::string::String;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The source constructs a String around an empty Vec, so its public
+character-sequence view is empty.",
+      "risks": [
+        "requested and allocated capacities remain unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::capacity",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    Vec::<T,
+A>::capacity\n](vec: &Vec<T, A>) -> (capacity: usize)\n    ensures\n        vec@.len() <= capacity
+as int,\n        core::mem::size_of::<T>() == 0 ==> capacity == usize::MAX,\n;",
+      "requires": [],
+      "ensures": [
+        "vec@.len() <= capacity as int",
+        "core::mem::size_of::<T>() == 0 ==> capacity == usize::MAX"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::vec::Vec;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "Although exact non-ZST allocation is hidden, capacity must accommodate the
+logical sequence, and the source explicitly specifies usize::MAX for zero-sized elements.",
+      "risks": [
+        "non-ZST allocator capacity remains otherwise unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::reserve_exact",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[\n    Vec::<T,
+A>::reserve_exact\n](\n    vec: &mut Vec<T, A>,\n    additional: usize,\n)\n    ensures\n
+final(vec)@ == old(vec)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(vec)@ == old(vec)@"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use alloc::vec::Vec;",
+        "use core::alloc::Allocator;",
+        "use vstd::prelude::;"
+      ],
+      "useful": true,
+      "rationale": "The method changes backing allocation without changing the Vec's logical element
+ sequence.",
+      "risks": [
+        "post-call capacity and allocator behavior remain unmodeled"
+      ]
+    } ]
+}
+

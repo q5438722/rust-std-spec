@@ -1,0 +1,109 @@
+{
+  "id": "std_specs__layout_value.rs__L62__Layout__from_size_align_unchecked",
+  "api_path": "core::alloc::Layout::from_size_align_unchecked",
+  "normalized_api_path": "core::alloc::Layout::from_size_align_unchecked",
+  "raw_target": "Layout::from_size_align_unchecked",
+  "contract_source_file": "std_specs/layout_value.rs",
+  "contract_source_line": 62,
+  "rust_declaration": {
+    "declaration_id": "core:32762",
+    "name": "from_size_align_unchecked",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 28, patch: 0 })},\nfeature: \"alloc_layout\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 36, patch: 0 })},\nfeature: \"const_alloc_layout_unchecked\", promotable: false}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/alloc/layout.rs",
+      "begin": [
+        132,
+        5
+      ],
+      "end": [
+        144,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": true,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "size",
+          {
+            "primitive": "usize"
+          }
+        ],
+        [
+          "align",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "Self"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32780",
+      "for": {
+        "resolved_path": {
+          "path": "Layout",
+          "id": 9440,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9440",
+      "resolved_owner_path": [
+        "core",
+        "alloc",
+        "layout",
+        "Layout"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   112:     ) -> Result<Self, LayoutError> {\n   113:         if Layout::is_size_alignment_valid(size, alignment) {\n   114:             // SAFETY: Layout::size invariants checked above.\n   115:             Ok(Layout { size, align: alignment })\n   116:         } else {\n   117:             Err(LayoutError)\n   118:         }\n   119:     }\n   120: \n   121:     /// Creates a layout, bypassing all checks.\n   122:     ///\n   123:     /// # Safety\n   124:     ///\n   125:     /// This function is unsafe as it does not verify the preconditions from\n   126:     /// [`Layout::from_size_align`].\n   127:     #[stable(feature = \"alloc_layout\", since = \"1.28.0\")]\n   128:     #[rustc_const_stable(feature = \"const_alloc_layout_unchecked\", since = \"1.36.0\")]\n   129:     #[must_use]\n   130:     #[inline]\n   131:     #[track_caller]\n   132:     pub const unsafe fn from_size_align_unchecked(size: usize, align: usize) -> Self {\n   133:         assert_unsafe_precondition!(\n   134:             check_library_ub,\n   135:             \"Layout::from_size_align_unchecked requires that align is a power of 2 \\\n   136:             and the rounded-up allocation size does not exceed isize::MAX\",\n   137:             (\n   138:                 size: usize = size,\n   139:                 align: usize = align,\n   140:             ) => Layout::is_size_align_valid(size, align)\n   141:         );\n   142:         // SAFETY: the caller is required to uphold the preconditions.\n   143:         unsafe { Layout { size, align: mem::transmute(align) } }\n   144:     }\n   145: \n   146:     /// Creates a layout, bypassing all checks.\n   147:     ///\n   148:     /// # Safety\n   149:     ///\n   150:     /// This function is unsafe as it does not verify the preconditions from\n   151:     /// [`Layout::from_size_alignment`].\n   152:     #[unstable(feature = \"ptr_alignment_type\", issue = \"102070\")]",
+    "source_text": "pub const unsafe fn from_size_align_unchecked(size: usize, align: usize) -> Self {\n        assert_unsafe_precondition!(\n            check_library_ub,\n            \"Layout::from_size_align_unchecked requires that align is a power of 2 \\\n            and the rounded-up allocation size does not exceed isize::MAX\",\n            (\n                size: usize = size,\n                align: usize = align,\n            ) => Layout::is_size_align_valid(size, align)\n        );\n        // SAFETY: the caller is required to uphold the preconditions.\n        unsafe { Layout { size, align: mem::transmute(align) } }\n    }",
+    "has_body": true
+  }
+}

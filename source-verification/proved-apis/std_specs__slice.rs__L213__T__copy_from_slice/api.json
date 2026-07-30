@@ -1,0 +1,147 @@
+{
+  "id": "std_specs__slice.rs__L213__T__copy_from_slice",
+  "api_path": "core::slice::copy_from_slice",
+  "normalized_api_path": "core::slice::copy_from_slice",
+  "raw_target": "<[T]>::copy_from_slice",
+  "contract_source_file": "std_specs/slice.rs",
+  "contract_source_line": 213,
+  "rust_declaration": {
+    "declaration_id": "core:51760",
+    "name": "copy_from_slice",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[doc(alias = \"memcpy\")]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 9, patch: 0 })},\nfeature: \"copy_from_slice\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_copy_from_slice\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/slice/mod.rs",
+      "begin": [
+        4320,
+        5
+      ],
+      "end": [
+        4326,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "src",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "slice": {
+                  "generic": "T"
+                }
+              }
+            }
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "T"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "Copy",
+                    "id": 6,
+                    "args": null
+                  },
+                  "generic_params": [],
+                  "modifier": "none"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:51877",
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": null,
+      "resolved_owner_path": null
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  4300:     /// sub-slices from a slice:\n  4301:     ///\n  4302:     /// ```\n  4303:     /// let mut slice = [1, 2, 3, 4, 5];\n  4304:     ///\n  4305:     /// {\n  4306:     ///     let (left, right) = slice.split_at_mut(2);\n  4307:     ///     left.copy_from_slice(&right[1..]);\n  4308:     /// }\n  4309:     ///\n  4310:     /// assert_eq!(slice, [4, 5, 3, 4, 5]);\n  4311:     /// ```\n  4312:     ///\n  4313:     /// [`clone_from_slice`]: slice::clone_from_slice\n  4314:     /// [`split_at_mut`]: slice::split_at_mut\n  4315:     #[doc(alias = \"memcpy\")]\n  4316:     #[inline]\n  4317:     #[stable(feature = \"copy_from_slice\", since = \"1.9.0\")]\n  4318:     #[rustc_const_stable(feature = \"const_copy_from_slice\", since = \"1.87.0\")]\n  4319:     #[track_caller]\n  4320:     pub const fn copy_from_slice(&mut self, src: &[T])\n  4321:     where\n  4322:         T: Copy,\n  4323:     {\n  4324:         // SAFETY: `T` implements `Copy`.\n  4325:         unsafe { copy_from_slice_impl(self, src) }\n  4326:     }\n  4327: \n  4328:     /// Copies elements from one part of the slice to another part of itself,\n  4329:     /// using a memmove.\n  4330:     ///\n  4331:     /// `src` is the range within `self` to copy from. `dest` is the starting\n  4332:     /// index of the range within `self` to copy to, which will have the same\n  4333:     /// length as `src`. The two ranges may overlap. The ends of the two ranges\n  4334:     /// must be less than or equal to `self.len()`.\n  4335:     ///\n  4336:     /// # Panics\n  4337:     ///\n  4338:     /// This function will panic if either range exceeds the end of the slice,\n  4339:     /// or if the end of `src` is before the start.\n  4340:     ///",
+    "source_text": "pub const fn copy_from_slice(&mut self, src: &[T])\n    where\n        T: Copy,\n    {\n        // SAFETY: `T` implements `Copy`.\n        unsafe { copy_from_slice_impl(self, src) }\n    }",
+    "has_body": true
+  }
+}

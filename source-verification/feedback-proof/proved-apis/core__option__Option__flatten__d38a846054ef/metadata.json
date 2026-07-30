@@ -1,0 +1,152 @@
+{
+  "id": "core__option__Option__flatten__d38a846054ef",
+  "api_path": "core::option::Option::flatten",
+  "raw_target": "core::option::Option::<core::option::Option<T>>::flatten",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 40, patch: 0 })},\nfeature: \"option_flattening\"}}]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_precise_live_drops\"])]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"const_option\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28069",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "flatten",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "args": {
+                        "angle_bracketed": {
+                          "args": [
+                            {
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          ],
+                          "constraints": []
+                        }
+                      },
+                      "id": 84,
+                      "path": "Option"
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28070",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      }
+    },
+    "source_context": "  2798: #[diagnostic::do_not_recommend]\n  2799: #[unstable(feature = \"try_trait_v2_yeet\", issue = \"96374\")]\n  2800: #[rustc_const_unstable(feature = \"const_try\", issue = \"74935\")]\n  2801: impl<T> const ops::FromResidual<ops::Yeet<()>> for Option<T> {\n  2802:     #[inline]\n  2803:     fn from_residual(ops::Yeet(()): ops::Yeet<()>) -> Self {\n  2804:         None\n  2805:     }\n  2806: }\n  2807: \n  2808: #[unstable(feature = \"try_trait_v2_residual\", issue = \"91285\")]\n  2809: #[rustc_const_unstable(feature = \"const_try\", issue = \"74935\")]\n  2810: impl<T> const ops::Residual<T> for Option<convert::Infallible> {\n  2811:     type TryType = Option<T>;\n  2812: }\n  2813: \n  2814: impl<T> Option<Option<T>> {\n  2815:     /// Converts from `Option<Option<T>>` to `Option<T>`.\n  2816:     ///\n  2817:     /// # Examples\n  2818:     ///\n  2819:     /// Basic usage:\n  2820:     ///\n  2821:     /// ```\n  2822:     /// let x: Option<Option<u32>> = Some(Some(6));\n  2823:     /// assert_eq!(Some(6), x.flatten());\n  2824:     ///\n  2825:     /// let x: Option<Option<u32>> = Some(None);\n  2826:     /// assert_eq!(None, x.flatten());\n  2827:     ///\n  2828:     /// let x: Option<Option<u32>> = None;\n  2829:     /// assert_eq!(None, x.flatten());\n  2830:     /// ```\n  2831:     ///\n  2832:     /// Flattening only removes one level of nesting at a time:\n  2833:     ///\n  2834:     /// ```\n  2835:     /// let x: Option<Option<Option<u32>>> = Some(Some(Some(6)));\n  2836:     /// assert_eq!(Some(Some(6)), x.flatten());\n  2837:     /// assert_eq!(Some(6), x.flatten().flatten());\n  2838:     /// ```\n  2839:     #[inline]\n  2840:     #[stable(feature = \"option_flattening\", since = \"1.40.0\")]\n  2841:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  2842:     #[rustc_const_stable(feature = \"const_option\", since = \"1.83.0\")]\n  2843:     pub const fn flatten(self) -> Option<T> {\n  2844:         // FIXME(const-hack): could be written with `and_then`\n  2845:         match self {\n  2846:             Some(inner) => inner,\n  2847:             None => None,\n  2848:         }\n  2849:     }\n  2850: }\n  2851: \n  2852: impl<'a, T> Option<&'a Option<T>> {\n  2853:     /// Converts from `Option<&Option<T>>` to `Option<&T>`.\n  2854:     ///\n  2855:     /// # Examples\n  2856:     ///\n  2857:     /// Basic usage:\n  2858:     ///\n  2859:     /// ```\n  2860:     /// #![feature(option_reference_flattening)]\n  2861:     ///\n  2862:     /// let x: Option<&Option<u32>> = Some(&Some(6));\n  2863:     /// assert_eq!(Some(&6), x.flatten_ref());\n  2864:     ///\n  2865:     /// let x: Option<&Option<u32>> = Some(&None);\n  2866:     /// assert_eq!(None, x.flatten_ref());\n  2867:     ///\n  2868:     /// let x: Option<&Option<u32>> = None;\n  2869:     /// assert_eq!(None, x.flatten_ref());\n  2870:     /// ```\n  2871:     #[inline]\n  2872:     #[unstable(feature = \"option_reference_flattening\", issue = \"149221\")]\n  2873:     pub const fn flatten_ref(self) -> Option<&'a T> {\n  2874:         match self {\n  2875:             Some(inner) => inner.as_ref(),\n  2876:             None => None,\n  2877:         }\n  2878:     }\n  2879: }\n  2880: \n  2881: impl<'a, T> Option<&'a mut Option<T>> {\n  2882:     /// Converts from `Option<&mut Option<T>>` to `&Option<T>`.\n  2883:     ///\n  2884:     /// # Examples\n  2885:     ///\n  2886:     /// Basic usage:\n  2887:     ///\n  2888:     /// ```",
+    "span": {
+      "begin": [
+        2843,
+        5
+      ],
+      "end": [
+        2849,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn flatten(self) -> Option<T> {\n        // FIXME(const-hack): could be written with `and_then`\n        match self {\n            Some(inner) => inner,\n            None => None,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact match control flow proves the postcondition directly without lower-level contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__flatten__d38a846054ef"
+}

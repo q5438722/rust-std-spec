@@ -1,0 +1,174 @@
+{
+  "id": "std__sync__LockResult__as_mut__2c353a34fa1c",
+  "api_path": "std::sync::LockResult::as_mut",
+  "raw_target": "Result::<T, E>::as_mut",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 83, patch: 0 })},\nfeature: \"const_result\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29285",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "as_mut",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [
+        "self"
+      ],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": true
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": true,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "is_mutable": true,
+                      "lifetime": null,
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "is_mutable": true,
+                      "lifetime": null,
+                      "type": {
+                        "generic": "E"
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "   753:     /// Produces a new `Result`, containing a reference\n   754:     /// into the original, leaving the original in place.\n   755:     ///\n   756:     /// # Examples\n   757:     ///\n   758:     /// ```\n   759:     /// let x: Result<u32, &str> = Ok(2);\n   760:     /// assert_eq!(x.as_ref(), Ok(&2));\n   761:     ///\n   762:     /// let x: Result<u32, &str> = Err(\"Error\");\n   763:     /// assert_eq!(x.as_ref(), Err(&\"Error\"));\n   764:     /// ```\n   765:     #[inline]\n   766:     #[rustc_const_stable(feature = \"const_result_basics\", since = \"1.48.0\")]\n   767:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   768:     pub const fn as_ref(&self) -> Result<&T, &E> {\n   769:         match *self {\n   770:             Ok(ref x) => Ok(x),\n   771:             Err(ref x) => Err(x),\n   772:         }\n   773:     }\n   774: \n   775:     /// Converts from `&mut Result<T, E>` to `Result<&mut T, &mut E>`.\n   776:     ///\n   777:     /// # Examples\n   778:     ///\n   779:     /// ```\n   780:     /// fn mutate(r: &mut Result<i32, i32>) {\n   781:     ///     match r.as_mut() {\n   782:     ///         Ok(v) => *v = 42,\n   783:     ///         Err(e) => *e = 0,\n   784:     ///     }\n   785:     /// }\n   786:     ///\n   787:     /// let mut x: Result<i32, i32> = Ok(2);\n   788:     /// mutate(&mut x);\n   789:     /// assert_eq!(x.unwrap(), 42);\n   790:     ///\n   791:     /// let mut x: Result<i32, i32> = Err(13);\n   792:     /// mutate(&mut x);\n   793:     /// assert_eq!(x.unwrap_err(), 0);\n   794:     /// ```\n   795:     #[inline]\n   796:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   797:     #[rustc_const_stable(feature = \"const_result\", since = \"1.83.0\")]\n   798:     pub const fn as_mut(&mut self) -> Result<&mut T, &mut E> {\n   799:         match *self {\n   800:             Ok(ref mut x) => Ok(x),\n   801:             Err(ref mut x) => Err(x),\n   802:         }\n   803:     }\n   804: \n   805:     /////////////////////////////////////////////////////////////////////////\n   806:     // Transforming contained values\n   807:     /////////////////////////////////////////////////////////////////////////\n   808: \n   809:     /// Maps a `Result<T, E>` to `Result<U, E>` by applying a function to a\n   810:     /// contained [`Ok`] value, leaving an [`Err`] value untouched.\n   811:     ///\n   812:     /// This function can be used to compose the results of two functions.\n   813:     ///\n   814:     /// # Examples\n   815:     ///\n   816:     /// Print the numbers on each line of a string multiplied by two.\n   817:     ///\n   818:     /// ```\n   819:     /// let line = \"1\\n2\\n3\\n4\\n\";\n   820:     ///\n   821:     /// for num in line.lines() {\n   822:     ///     match num.parse::<i32>().map(|i| i * 2) {\n   823:     ///         Ok(n) => println!(\"{n}\"),\n   824:     ///         Err(..) => {}\n   825:     ///     }\n   826:     /// }\n   827:     /// ```\n   828:     #[inline]\n   829:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   830:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n   831:     pub const fn map<U, F>(self, op: F) -> Result<U, E>\n   832:     where\n   833:         F: [const] FnOnce(T) -> U + [const] Destruct,\n   834:     {\n   835:         match self {\n   836:             Ok(t) => Ok(op(t)),\n   837:             Err(e) => Err(e),\n   838:         }\n   839:     }\n   840: \n   841:     /// Returns the provided default (if [`Err`]), or\n   842:     /// applies a function to the contained value (if [`Ok`]).\n   843:     ///",
+    "span": {
+      "begin": [
+        798,
+        5
+      ],
+      "end": [
+        803,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn as_mut(&mut self) -> Result<&mut T, &mut E> {\n        match *self {\n            Ok(ref mut x) => Ok(x),\n            Err(ref mut x) => Err(x),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact two-arm implementation directly proves the supplied contract without auxiliary assumptions.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/std__sync__LockResult__as_mut__2c353a34fa1c"
+}

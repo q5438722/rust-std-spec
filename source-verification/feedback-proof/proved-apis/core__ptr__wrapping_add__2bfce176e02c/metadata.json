@@ -1,0 +1,152 @@
+{
+  "id": "core__ptr__wrapping_add__2bfce176e02c",
+  "api_path": "core::ptr::wrapping_add",
+  "raw_target": "<*const T>::wrapping_add",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 26, patch: 0 })},\nfeature: \"pointer_methods\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": "returns a new pointer rather than modifying its argument"
+        }
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 61, patch: 0 })},\nfeature: \"const_ptr_offset\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "declaration_id": "core:29440",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "none",
+                  "trait": {
+                    "args": null,
+                    "id": 12,
+                    "path": "Sized"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "wrapping_add",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "raw_pointer": {
+          "is_mutable": false,
+          "type": {
+            "generic": "T"
+          }
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "generic_params": [],
+                      "modifier": "none",
+                      "trait": {
+                        "args": null,
+                        "id": 7872,
+                        "path": "PointeeSized"
+                      }
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51637",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "count",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "Self"
+      }
+    },
+    "source_context": "  1008:     /// be used to read or write other allocations.\n  1009:     ///\n  1010:     /// In other words, `let z = x.wrapping_add((y as usize) - (x as usize))` does *not* make `z`\n  1011:     /// the same as `y` even if we assume `T` has size `1` and there is no overflow: `z` is still\n  1012:     /// attached to the object `x` is attached to, and dereferencing it is Undefined Behavior unless\n  1013:     /// `x` and `y` point into the same allocation.\n  1014:     ///\n  1015:     /// Compared to [`add`], this method basically delays the requirement of staying within the\n  1016:     /// same allocation: [`add`] is immediate Undefined Behavior when crossing object\n  1017:     /// boundaries; `wrapping_add` produces a pointer but still leads to Undefined Behavior if a\n  1018:     /// pointer is dereferenced when it is out-of-bounds of the object it is attached to. [`add`]\n  1019:     /// can be optimized better and is thus preferable in performance-sensitive code.\n  1020:     ///\n  1021:     /// The delayed check only considers the value of the pointer that was dereferenced, not the\n  1022:     /// intermediate values used during the computation of the final result. For example,\n  1023:     /// `x.wrapping_add(o).wrapping_sub(o)` is always the same as `x`. In other words, leaving the\n  1024:     /// allocation and then re-entering it later is permitted.\n  1025:     ///\n  1026:     /// [`add`]: #method.add\n  1027:     /// [allocation]: crate::ptr#allocation\n  1028:     ///\n  1029:     /// # Examples\n  1030:     ///\n  1031:     /// ```\n  1032:     /// # use std::fmt::Write;\n  1033:     /// // Iterate using a raw pointer in increments of two elements\n  1034:     /// let data = [1u8, 2, 3, 4, 5];\n  1035:     /// let mut ptr: *const u8 = data.as_ptr();\n  1036:     /// let step = 2;\n  1037:     /// let end_rounded_up = ptr.wrapping_add(6);\n  1038:     ///\n  1039:     /// let mut out = String::new();\n  1040:     /// while ptr != end_rounded_up {\n  1041:     ///     unsafe {\n  1042:     ///         write!(&mut out, \"{}, \", *ptr)?;\n  1043:     ///     }\n  1044:     ///     ptr = ptr.wrapping_add(step);\n  1045:     /// }\n  1046:     /// assert_eq!(out, \"1, 3, 5, \");\n  1047:     /// # std::fmt::Result::Ok(())\n  1048:     /// ```\n  1049:     #[stable(feature = \"pointer_methods\", since = \"1.26.0\")]\n  1050:     #[must_use = \"returns a new pointer rather than modifying its argument\"]\n  1051:     #[rustc_const_stable(feature = \"const_ptr_offset\", since = \"1.61.0\")]\n  1052:     #[inline(always)]\n  1053:     pub const fn wrapping_add(self, count: usize) -> Self\n  1054:     where\n  1055:         T: Sized,\n  1056:     {\n  1057:         self.wrapping_offset(count as isize)\n  1058:     }\n  1059: \n  1060:     /// Adds an unsigned offset in bytes to a pointer using wrapping arithmetic.\n  1061:     ///\n  1062:     /// `count` is in units of bytes.\n  1063:     ///\n  1064:     /// This is purely a convenience for casting to a `u8` pointer and\n  1065:     /// using [wrapping_add][pointer::wrapping_add] on it. See that method for documentation.\n  1066:     ///\n  1067:     /// For non-`Sized` pointees this operation changes only the data pointer,\n  1068:     /// leaving the metadata untouched.\n  1069:     #[must_use]\n  1070:     #[inline(always)]\n  1071:     #[stable(feature = \"pointer_byte_offsets\", since = \"1.75.0\")]\n  1072:     #[rustc_const_stable(feature = \"const_pointer_byte_offsets\", since = \"1.75.0\")]\n  1073:     pub const fn wrapping_byte_add(self, count: usize) -> Self {\n  1074:         self.cast::<u8>().wrapping_add(count).with_metadata_of(self)\n  1075:     }\n  1076: \n  1077:     /// Subtracts an unsigned offset from a pointer using wrapping arithmetic.\n  1078:     ///\n  1079:     /// `count` is in units of T; e.g., a `count` of 3 represents a pointer\n  1080:     /// offset of `3 * size_of::<T>()` bytes.\n  1081:     ///\n  1082:     /// # Safety\n  1083:     ///\n  1084:     /// This operation itself is always safe, but using the resulting pointer is not.\n  1085:     ///\n  1086:     /// The resulting pointer \"remembers\" the [allocation] that `self` points to; it must not\n  1087:     /// be used to read or write other allocations.\n  1088:     ///\n  1089:     /// In other words, `let z = x.wrapping_sub((x as usize) - (y as usize))` does *not* make `z`\n  1090:     /// the same as `y` even if we assume `T` has size `1` and there is no overflow: `z` is still\n  1091:     /// attached to the object `x` is attached to, and dereferencing it is Undefined Behavior unless\n  1092:     /// `x` and `y` point into the same allocation.\n  1093:     ///\n  1094:     /// Compared to [`sub`], this method basically delays the requirement of staying within the\n  1095:     /// same allocation: [`sub`] is immediate Undefined Behavior when crossing object\n  1096:     /// boundaries; `wrapping_sub` produces a pointer but still leads to Undefined Behavior if a\n  1097:     /// pointer is dereferenced when it is out-of-bounds of the object it is attached to. [`sub`]\n  1098:     /// can be optimized better and is thus preferable in performance-sensitive code.",
+    "span": {
+      "begin": [
+        1053,
+        5
+      ],
+      "end": [
+        1058,
+        6
+      ],
+      "filename": "core/src/ptr/const_ptr.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn wrapping_add(self, count: usize) -> Self\n    where\n        T: Sized,\n    {\n        self.wrapping_offset(count as isize)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller `<*const T>::wrapping_offset` vstd contract for modular address displacement and preservation of provenance and metadata."
+  ],
+  "rationale": "The source-faithful cast-and-wrapping_offset body proves the contract compositionally. Bit-vector proofs establish the usize-to-isize wrapping relation for both 32- and 64-bit architectures without new axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__wrapping_add__2bfce176e02c"
+}

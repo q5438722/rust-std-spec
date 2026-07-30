@@ -1,0 +1,314 @@
+{
+  "candidates": [
+    {
+      "target": "core::iter::Iterator::peekable",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn peekable(self) -> (result: core::iter::Peekable<Self>)\n    where\n        Self: Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> {\n            &&& result.obeys_prophetic_iter_laws()\n            &&& result.initial_value_relation(&result)\n            &&& result.remaining() == self.remaining()\n            &&& result.will_return_none() == self.will_return_none()\n            &&& (result.decrease() is Some <==> self.decrease() is Some)\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "For a modeled source iterator, result preserves its remaining sequence, completion behavior, and decrease availability."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source constructs Peekable directly from self without advancing it, so IteratorSpec can relate the adapter's initial prophetic sequence to the source.",
+      "risks": [
+        "peek and peek_mut require separate contracts",
+        "default_ensures does not constrain overrides"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::position",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn position<P>(&mut self, predicate: P) -> (ret: Option<usize>)\n    where\n        Self: Sized,\n        P: FnMut(Self::Item) -> bool\n    default_ensures\n        final(self).obeys_prophetic_iter_laws() == old(self).obeys_prophetic_iter_laws(),\n        final(self).obeys_prophetic_iter_laws() ==>\n            final(self).will_return_none() == old(self).will_return_none(),\n        final(self).obeys_prophetic_iter_laws() ==>\n            (old(self).decrease() is Some <==> final(self).decrease() is Some),\n        final(self).obeys_prophetic_iter_laws() && ret.is_none() ==> ({\n            let old_remaining = old(self).remaining();\n            &&& final(self).remaining().len() == 0\n            &&& final(self).will_return_none()\n            &&& forall |i: int| 0 <= i < old_remaining.len() ==>\n                predicate.ensures((#[trigger] old_remaining[i],), ret.is_some())\n        }),\n        final(self).obeys_prophetic_iter_laws() && ret.is_some() ==> ({\n            let old_remaining = old(self).remaining();\n            let idx = ret.unwrap() as int;\n            &&& 0 <= idx < old_remaining.len()\n            &&& final(self).remaining() ==\n                old_remaining.subrange(idx + 1, old_remaining.len())\n            &&& predicate.ensures((old_remaining[idx],), ret.is_some())\n            &&& forall |i: int| 0 <= i < idx ==>\n                predicate.ensures((#[trigger] old_remaining[i],), ret.is_none())\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "Some(idx) identifies the first matching item and leaves the suffix after it.",
+        "None records no match and exhausts the iterator.",
+        "IteratorSpec consistency properties are preserved."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source advances from the front until the first successful predicate call; remaining sequences and FnMut postconditions express the returned index and final iterator state.",
+      "risks": [
+        "predicate behavior is represented relationally",
+        "relies on conforming try_fold overrides",
+        "normal return excludes position-counter overflow"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::product",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to P::product, whose semantics are implementation-defined. Current vstd has no ProductSpec hook defining a generic identity and multiplication fold.",
+      "risks": [
+        "missing Product abstraction",
+        "arbitrary Product implementations",
+        "numeric multiplication would overconstrain the signature"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::reduce",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn reduce<F>(self, f: F) -> (ret: Option<Self::Item>)\n    where\n        Self: Sized,\n        F: FnMut(Self::Item, Self::Item) -> Self::Item\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            if items.len() == 0 {\n                ret.is_none()\n            } else {\n                exists |accumulators: Seq<Self::Item>| {\n                    &&& accumulators.len() == items.len()\n                    &&& accumulators[0] == items[0]\n                    &&& forall |i: int| 1 <= i < items.len() ==>\n                        #[trigger] f.ensures(\n                            (accumulators[i - 1], items[i]),\n                            accumulators[i],\n                        )\n                    &&& ret == Some(accumulators[items.len() - 1])\n                }\n            }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "The iterator reaches None on normal return.",
+        "An empty sequence returns None; otherwise an accumulator trace beginning with the first item and following f.ensures ends at the returned item."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source takes the first item and folds every subsequent item into it; Seq and FnMut postconditions express this reduction trace.",
+      "risks": [
+        "reducer behavior is represented relationally",
+        "relies on conforming fold overrides",
+        "default_ensures does not constrain overrides"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::rposition",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn rposition<P>(&mut self, predicate: P) -> (ret: Option<usize>)\n    where\n        P: FnMut(Self::Item) -> bool,\n        Self: Sized + core::iter::ExactSizeIterator + core::iter::DoubleEndedIterator\n    default_ensures\n        final(self).obeys_prophetic_iter_laws() == old(self).obeys_prophetic_iter_laws(),\n        final(self).obeys_prophetic_iter_laws() ==>\n            final(self).will_return_none() == old(self).will_return_none(),\n        final(self).obeys_prophetic_iter_laws() ==>\n            (old(self).decrease() is Some <==> final(self).decrease() is Some),\n        final(self).obeys_prophetic_iter_laws() && ret.is_none() ==> ({\n            let old_remaining = old(self).remaining();\n            &&& final(self).remaining().len() == 0\n            &&& final(self).will_return_none()\n            &&& forall |i: int| 0 <= i < old_remaining.len() ==>\n                predicate.ensures((#[trigger] old_remaining[i],), ret.is_some())\n        }),\n        final(self).obeys_prophetic_iter_laws() && ret.is_some() ==> ({\n            let old_remaining = old(self).remaining();\n            let idx = ret.unwrap() as int;\n            &&& 0 <= idx < old_remaining.len()\n            &&& final(self).remaining() == old_remaining.subrange(0, idx)\n            &&& predicate.ensures((old_remaining[idx],), ret.is_some())\n            &&& forall |i: int| idx < i < old_remaining.len() ==>\n                predicate.ensures((#[trigger] old_remaining[i],), ret.is_none())\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "Some(idx) identifies the last matching item and leaves the prefix before it.",
+        "None records no match and exhausts the iterator.",
+        "IteratorSpec consistency properties are preserved."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source searches with try_rfold from the back; the returned front-relative index, consumed suffix, and predicate outcomes are expressible with IteratorSpec.",
+      "risks": [
+        "predicate behavior is represented relationally",
+        "relies on conforming ExactSizeIterator and try_rfold implementations",
+        "default_ensures does not constrain overrides"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::scan",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Scan lazily mutates hidden state through FnMut and may yield None before later yielding Some again. Current IteratorSpec models terminating, persistently exhausted iterators and exposes no Scan state-machine abstraction.",
+      "risks": [
+        "hidden mutable scan state",
+        "non-fused lazy behavior",
+        "missing Scan IteratorSpec abstraction"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "core::iter::Iterator::peekable",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn peekable(self) -> (result: core::iter::Peekable<Self>)\n    where\n
+  Self: Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self) ==> {\n            &&& result.obeys_prophetic_iter_laws()\n
+      &&& result.initial_value_relation(&result)\n            &&& result.remaining() ==
+self.remaining()\n            &&& result.will_return_none() == self.will_return_none()\n
+&&& (result.decrease() is Some <==> self.decrease() is Some)\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "For a modeled source iterator, result preserves its remaining sequence, completion
+behavior, and decrease availability."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source constructs Peekable directly from self without advancing it, so
+IteratorSpec can relate the adapter's initial prophetic sequence to the source.",
+      "risks": [
+        "peek and peek_mut require separate contracts",
+        "default_ensures does not constrain overrides"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::position",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn position<P>(&mut self, predicate: P) -> (ret: Option<usize>)\n    where\n
+        Self: Sized,\n        P: FnMut(Self::Item) -> bool\n    default_ensures\n
+final(self).obeys_prophetic_iter_laws() == old(self).obeys_prophetic_iter_laws(),\n
+final(self).obeys_prophetic_iter_laws() ==>\n            final(self).will_return_none() ==
+old(self).will_return_none(),\n        final(self).obeys_prophetic_iter_laws() ==>\n
+(old(self).decrease() is Some <==> final(self).decrease() is Some),\n
+final(self).obeys_prophetic_iter_laws() && ret.is_none() ==> ({\n            let old_remaining =
+old(self).remaining();\n            &&& final(self).remaining().len() == 0\n            &&&
+final(self).will_return_none()\n            &&& forall |i: int| 0 <= i < old_remaining.len() ==>\n
+              predicate.ensures((#[trigger] old_remaining[i],), ret.is_some())\n        }),\n
+ final(self).obeys_prophetic_iter_laws() && ret.is_some() ==> ({\n            let old_remaining =
+old(self).remaining();\n            let idx = ret.unwrap() as int;\n            &&& 0 <= idx <
+old_remaining.len()\n            &&& final(self).remaining() ==\n
+old_remaining.subrange(idx + 1, old_remaining.len())\n            &&&
+predicate.ensures((old_remaining[idx],), ret.is_some())\n            &&& forall |i: int| 0 <= i <
+idx ==>\n                predicate.ensures((#[trigger] old_remaining[i],), ret.is_none())\n
+}),\n;",
+      "requires": [],
+      "ensures": [
+        "Some(idx) identifies the first matching item and leaves the suffix after it.",
+        "None records no match and exhausts the iterator.",
+        "IteratorSpec consistency properties are preserved."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source advances from the front until the first successful predicate call;
+remaining sequences and FnMut postconditions express the returned index and final iterator state.",
+      "risks": [
+        "predicate behavior is represented relationally",
+        "relies on conforming try_fold overrides",
+        "normal return excludes position-counter overflow"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::product",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source delegates to P::product, whose semantics are implementation-defined.
+Current vstd has no ProductSpec hook defining a generic identity and multiplication fold.",
+      "risks": [
+        "missing Product abstraction",
+        "arbitrary Product implementations",
+        "numeric multiplication would overconstrain the signature"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::reduce",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn reduce<F>(self, f: F) -> (ret: Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        ]8;;
+Self: Sized,\n        F: FnMut(Self::Item, Self::Item) -> Self::Item\n    default_ensures\n
+self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            if
+ items.len() == 0 {\n                ret.is_none()\n            } else {\n                exists
+|accumulators: Seq]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;| {\n                    &&& accumulators.len() == items.len()\n        ]8;;
+            &&& accumulators[0] == items[0]\n                    &&& forall |i: int| 1 <= i <
+items.len() ==>\n                        #[trigger] f.ensures(\n
+(accumulators[i - 1], items[i]),\n                            accumulators[i],\n
+    )\n                    &&& ret == Some(accumulators[items.len() - 1])\n                }\n
+      }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "The iterator reaches None on normal return.",
+        "An empty sequence returns None; otherwise an accumulator trace beginning with the first
+item and following f.ensures ends at the returned item."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source takes the first item and folds every subsequent item into it; Seq and
+ FnMut postconditions express this reduction trace.",
+      "risks": [
+        "reducer behavior is represented relationally",
+        "relies on conforming fold overrides",
+        "default_ensures does not constrain overrides"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::rposition",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn rposition<P>(&mut self, predicate: P) -> (ret: Option<usize>)\n
+where\n        P: FnMut(Self::Item) -> bool,\n        Self: Sized + core::iter::ExactSizeIterator +
+core::iter::DoubleEndedIterator\n    default_ensures\n
+final(self).obeys_prophetic_iter_laws() == old(self).obeys_prophetic_iter_laws(),\n
+final(self).obeys_prophetic_iter_laws() ==>\n            final(self).will_return_none() ==
+old(self).will_return_none(),\n        final(self).obeys_prophetic_iter_laws() ==>\n
+(old(self).decrease() is Some <==> final(self).decrease() is Some),\n
+final(self).obeys_prophetic_iter_laws() && ret.is_none() ==> ({\n            let old_remaining =
+old(self).remaining();\n            &&& final(self).remaining().len() == 0\n            &&&
+final(self).will_return_none()\n            &&& forall |i: int| 0 <= i < old_remaining.len() ==>\n
+              predicate.ensures((#[trigger] old_remaining[i],), ret.is_some())\n        }),\n
+ final(self).obeys_prophetic_iter_laws() && ret.is_some() ==> ({\n            let old_remaining =
+old(self).remaining();\n            let idx = ret.unwrap() as int;\n            &&& 0 <= idx <
+old_remaining.len()\n            &&& final(self).remaining() == old_remaining.subrange(0, idx)\n
+        &&& predicate.ensures((old_remaining[idx],), ret.is_some())\n            &&& forall |i: int|
+ idx < i < old_remaining.len() ==>\n                predicate.ensures((#[trigger]
+old_remaining[i],), ret.is_none())\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "Some(idx) identifies the last matching item and leaves the prefix before it.",
+        "None records no match and exhausts the iterator.",
+        "IteratorSpec consistency properties are preserved."
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source searches with try_rfold from the back; the returned front-relative
+index, consumed suffix, and predicate outcomes are expressible with IteratorSpec.",
+      "risks": [
+        "predicate behavior is represented relationally",
+        "relies on conforming ExactSizeIterator and try_rfold implementations",
+        "default_ensures does not constrain overrides"
+      ]
+    },
+    {
+      "target": "core::iter::Iterator::scan",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Scan lazily mutates hidden state through FnMut and may yield None before later
+yielding Some again. Current IteratorSpec models terminating, persistently exhausted iterators and
+exposes no Scan state-machine abstraction.",
+      "risks": [
+        "hidden mutable scan state",
+        "non-fused lazy behavior",
+        "missing Scan IteratorSpec abstraction"
+      ]
+    } ]
+}
+

@@ -1,0 +1,90 @@
+{
+  "id": "core__convert__identity__b378b788faa0",
+  "api_path": "core::convert::identity",
+  "raw_target": "core::convert::identity::<T>",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 33, patch: 0 })},\nfeature: \"convert_id\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 33, patch: 0 })},\nfeature: \"const_identity\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"convert_identity\")]"
+      }
+    ],
+    "declaration_id": "core:7827",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "identity",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [
+        [
+          "x",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "    60: /// # Examples\n    61: ///\n    62: /// Using `identity` to do nothing in a sequence of other, interesting,\n    63: /// functions:\n    64: ///\n    65: /// ```rust\n    66: /// use std::convert::identity;\n    67: ///\n    68: /// fn manipulation(x: u32) -> u32 {\n    69: ///     // Let's pretend that adding one is an interesting function.\n    70: ///     x + 1\n    71: /// }\n    72: ///\n    73: /// let _arr = &[identity, manipulation];\n    74: /// ```\n    75: ///\n    76: /// Using `identity` as a \"do nothing\" base case in a conditional:\n    77: ///\n    78: /// ```rust\n    79: /// use std::convert::identity;\n    80: ///\n    81: /// # let condition = true;\n    82: /// #\n    83: /// # fn manipulation(x: u32) -> u32 { x + 1 }\n    84: /// #\n    85: /// let do_stuff = if condition { manipulation } else { identity };\n    86: ///\n    87: /// // Do more interesting stuff...\n    88: ///\n    89: /// let _results = do_stuff(42);\n    90: /// ```\n    91: ///\n    92: /// Using `identity` to keep the `Some` variants of an iterator of `Option<T>`:\n    93: ///\n    94: /// ```rust\n    95: /// use std::convert::identity;\n    96: ///\n    97: /// let iter = [Some(1), None, Some(3)].into_iter();\n    98: /// let filtered = iter.filter_map(identity).collect::<Vec<_>>();\n    99: /// assert_eq!(vec![1, 3], filtered);\n   100: /// ```\n   101: #[stable(feature = \"convert_id\", since = \"1.33.0\")]\n   102: #[rustc_const_stable(feature = \"const_identity\", since = \"1.33.0\")]\n   103: #[inline(always)]\n   104: #[rustc_diagnostic_item = \"convert_identity\"]\n   105: pub const fn identity<T>(x: T) -> T {\n   106:     x\n   107: }\n   108: \n   109: /// Used to do a cheap reference-to-reference conversion.\n   110: ///\n   111: /// This trait is similar to [`AsMut`] which is used for converting between mutable references.\n   112: /// If you need to do a costly conversion it is better to implement [`From`] with type\n   113: /// `&T` or write a custom function.\n   114: ///\n   115: /// # Relation to `Borrow`\n   116: ///\n   117: /// `AsRef` has the same signature as [`Borrow`], but [`Borrow`] is different in a few aspects:\n   118: ///\n   119: /// - Unlike `AsRef`, [`Borrow`] has a blanket impl for any `T`, and can be used to accept either\n   120: ///   a reference or a value. (See also note on `AsRef`'s reflexibility below.)\n   121: /// - [`Borrow`] also requires that [`Hash`], [`Eq`] and [`Ord`] for a borrowed value are\n   122: ///   equivalent to those of the owned value. For this reason, if you want to\n   123: ///   borrow only a single field of a struct you can implement `AsRef`, but not [`Borrow`].\n   124: ///\n   125: /// **Note: This trait must not fail**. If the conversion can fail, use a\n   126: /// dedicated method which returns an [`Option<T>`] or a [`Result<T, E>`].\n   127: ///\n   128: /// # Generic Implementations\n   129: ///\n   130: /// `AsRef` auto-dereferences if the inner type is a reference or a mutable reference\n   131: /// (e.g.: `foo.as_ref()` will work the same if `foo` has type `&mut Foo` or `&&mut Foo`).\n   132: ///\n   133: /// Note that due to historic reasons, the above currently does not hold generally for all\n   134: /// [dereferenceable types], e.g. `foo.as_ref()` will *not* work the same as\n   135: /// `Box::new(foo).as_ref()`. Instead, many smart pointers provide an `as_ref` implementation which\n   136: /// simply returns a reference to the [pointed-to value] (but do not perform a cheap\n   137: /// reference-to-reference conversion for that value). However, [`AsRef::as_ref`] should not be\n   138: /// used for the sole purpose of dereferencing; instead ['`Deref` coercion'] can be used:\n   139: ///\n   140: /// [dereferenceable types]: core::ops::Deref\n   141: /// [pointed-to value]: core::ops::Deref::Target\n   142: /// ['`Deref` coercion']: core::ops::Deref#deref-coercion\n   143: ///\n   144: /// ```\n   145: /// let x = Box::new(5i32);\n   146: /// // Avoid this:\n   147: /// // let y: &i32 = x.as_ref();\n   148: /// // Better just write:\n   149: /// let y: &i32 = &x;\n   150: /// ```",
+    "span": {
+      "begin": [
+        105,
+        1
+      ],
+      "end": [
+        107,
+        2
+      ],
+      "filename": "core/src/convert/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn identity<T>(x: T) -> T {\n    x\n}",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact identity body directly establishes the postcondition without calling the target or relying on external contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__convert__identity__b378b788faa0"
+}

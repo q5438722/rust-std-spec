@@ -1,0 +1,147 @@
+{
+  "batch": 174,
+  "group": "representation_or_allocator",
+  "duration_ms": 171662,
+  "targets": [
+    "std::collections::HashMap::hasher",
+    "std::collections::HashMap::shrink_to",
+    "std::collections::HashMap::shrink_to_fit",
+    "std::collections::HashMap::try_reserve",
+    "std::collections::HashMap::with_capacity_and_hasher",
+    "std::collections::HashMap::with_hasher"
+  ],
+  "candidates": [
+    {
+      "target": "std::collections::HashMap::hasher",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns the stored BuildHasher by reference, but HashMap's public vstd view exposes only key-value contents and has no hasher projection or reference-identity model.",
+      "risks": [
+        "stored_hasher_unmodeled",
+        "reference_identity_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::shrink_to",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<K: Eq + Hash, V, S: BuildHasher, A: Allocator>[\n    HashMap::<K, V, S, A>::shrink_to\n](\n    map: &mut HashMap<K, V, S, A>,\n    min_capacity: usize,\n)\n    ensures\n        final(map)@ == old(map)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(map)@ == old(map)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "core::hash::{BuildHasher, Hash}",
+        "std::collections::HashMap",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Although the documented capacity effect is unmodeled, shrinking preserves all key-value entries, which HashMap's existing Map view expresses directly.",
+      "risks": [
+        "capacity_lower_bound_unmodeled",
+        "allocation_policy_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::shrink_to_fit",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<K: Eq + Hash, V, S: BuildHasher, A: Allocator>[\n    HashMap::<K, V, S, A>::shrink_to_fit\n](\n    map: &mut HashMap<K, V, S, A>,\n)\n    ensures\n        final(map)@ == old(map)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(map)@ == old(map)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "core::hash::{BuildHasher, Hash}",
+        "std::collections::HashMap",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source changes allocation capacity only; the existing HashMap view can usefully specify that logical key-value contents are preserved.",
+      "risks": [
+        "resulting_capacity_unmodeled",
+        "allocation_policy_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::try_reserve",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<K: Eq + Hash, V, S: BuildHasher, A: Allocator>[\n    HashMap::<K, V, S, A>::try_reserve\n](\n    map: &mut HashMap<K, V, S, A>,\n    additional: usize,\n) -> (result: Result<(), TryReserveError>)\n    ensures\n        final(map)@ == old(map)@,\n;",
+      "requires": [],
+      "ensures": [
+        "final(map)@ == old(map)@"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "core::alloc::Allocator",
+        "core::hash::{BuildHasher, Hash}",
+        "std::collections::{HashMap, TryReserveError}",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Success and failure depend on hidden capacity and allocator state, but either returned Result preserves the map's logical key-value contents.",
+      "risks": [
+        "allocator_outcome_unmodeled",
+        "capacity_guarantee_unmodeled"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::with_capacity_and_hasher",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<K, V, S>[\n    HashMap::<K, V, S>::with_capacity_and_hasher\n](\n    capacity: usize,\n    hasher: S,\n) -> (result: HashMap<K, V, S>)\n    ensures\n        result@ == Map::<K, V>::empty(),\n;",
+      "requires": [],
+      "ensures": [
+        "result@ == Map::<K, V>::empty()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "std::collections::HashMap",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source constructs an empty map, which the existing Map view captures even though requested capacity and stored hasher state are not modeled.",
+      "risks": [
+        "capacity_guarantee_unmodeled",
+        "stored_hasher_not_related_to_argument"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::with_hasher",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<K, V, S>[\n    HashMap::<K, V, S>::with_hasher\n](\n    hash_builder: S,\n) -> (result: HashMap<K, V, S>)\n    ensures\n        result@ == Map::<K, V>::empty(),\n;",
+      "requires": [],
+      "ensures": [
+        "result@ == Map::<K, V>::empty()"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "std::collections::HashMap",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source constructs an empty map, and that observable logical state is expressible through HashMap's existing Map view.",
+      "risks": [
+        "stored_hasher_not_related_to_argument"
+      ]
+    }
+  ]
+}

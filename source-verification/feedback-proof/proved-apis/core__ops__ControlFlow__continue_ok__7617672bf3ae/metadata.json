@@ -1,0 +1,158 @@
+{
+  "id": "core__ops__ControlFlow__continue_ok__7617672bf3ae",
+  "api_path": "core::ops::ControlFlow::continue_ok",
+  "raw_target": "ControlFlow::<B, C>::continue_ok",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 96, patch: 0 })},\nfeature: \"control_flow_ok\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 96, patch: 0 })},\nfeature: \"control_flow_ok\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcAllowConstFnUnstable([\"const_precise_live_drops\"])]"
+      }
+    ],
+    "declaration_id": "core:23402",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "continue_ok",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "B"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "C"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 9735,
+          "path": "ControlFlow"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "B"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "C"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:23404",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:9735",
+      "resolved_owner_path": [
+        "core",
+        "ops",
+        "control_flow",
+        "ControlFlow"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "C"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "B"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "   334:     ///             left.traverse_inorder(f)?;\n   335:     ///         }\n   336:     ///         f(&self.value)?;\n   337:     ///         if let Some(right) = &self.right {\n   338:     ///             right.traverse_inorder(f)?;\n   339:     ///         }\n   340:     ///         ControlFlow::Continue(())\n   341:     ///     }\n   342:     ///\n   343:     ///     fn leaf(value: T) -> Option<Box<TreeNode<T>>> {\n   344:     ///         Some(Box::new(Self {\n   345:     ///             value,\n   346:     ///             left: None,\n   347:     ///             right: None,\n   348:     ///         }))\n   349:     ///     }\n   350:     /// }\n   351:     ///\n   352:     /// let node = TreeNode {\n   353:     ///     value: 0,\n   354:     ///     left: TreeNode::leaf(1),\n   355:     ///     right: Some(Box::new(TreeNode {\n   356:     ///         value: -1,\n   357:     ///         left: TreeNode::leaf(5),\n   358:     ///         right: TreeNode::leaf(2),\n   359:     ///     })),\n   360:     /// };\n   361:     ///\n   362:     /// let res = node.validate(&mut |val| {\n   363:     ///     if *val < 0 {\n   364:     ///         return ControlFlow::Break(\"negative value detected\");\n   365:     ///     }\n   366:     ///\n   367:     ///     if *val > 4 {\n   368:     ///         return ControlFlow::Break(\"too big value detected\");\n   369:     ///     }\n   370:     ///\n   371:     ///     ControlFlow::Continue(())\n   372:     /// });\n   373:     /// assert_eq!(res, Err(\"too big value detected\"));\n   374:     /// ```\n   375:     #[inline]\n   376:     #[stable(feature = \"control_flow_ok\", since = \"1.96.0\")]\n   377:     #[rustc_const_stable(feature = \"control_flow_ok\", since = \"1.96.0\")]\n   378:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n   379:     pub const fn continue_ok(self) -> Result<C, B> {\n   380:         match self {\n   381:             ControlFlow::Continue(c) => Ok(c),\n   382:             ControlFlow::Break(b) => Err(b),\n   383:         }\n   384:     }\n   385: \n   386:     /// Maps `ControlFlow<B, C>` to `ControlFlow<B, T>` by applying a function\n   387:     /// to the continue value in case it exists.\n   388:     #[inline]\n   389:     #[stable(feature = \"control_flow_enum\", since = \"1.83.0\")]\n   390:     #[rustc_const_unstable(feature = \"const_control_flow\", issue = \"148739\")]\n   391:     pub const fn map_continue<T, F>(self, f: F) -> ControlFlow<B, T>\n   392:     where\n   393:         F: [const] FnOnce(C) -> T + [const] Destruct,\n   394:     {\n   395:         match self {\n   396:             ControlFlow::Continue(x) => ControlFlow::Continue(f(x)),\n   397:             ControlFlow::Break(x) => ControlFlow::Break(x),\n   398:         }\n   399:     }\n   400: }\n   401: \n   402: impl<T> ControlFlow<T, T> {\n   403:     /// Extracts the value `T` that is wrapped by `ControlFlow<T, T>`.\n   404:     ///\n   405:     /// # Examples\n   406:     ///\n   407:     /// ```\n   408:     /// #![feature(control_flow_into_value)]\n   409:     /// use std::ops::ControlFlow;\n   410:     ///\n   411:     /// assert_eq!(ControlFlow::<i32, i32>::Break(1024).into_value(), 1024);\n   412:     /// assert_eq!(ControlFlow::<i32, i32>::Continue(512).into_value(), 512);\n   413:     /// ```\n   414:     #[unstable(feature = \"control_flow_into_value\", issue = \"137461\")]\n   415:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n   416:     pub const fn into_value(self) -> T {\n   417:         match self {\n   418:             ControlFlow::Continue(x) | ControlFlow::Break(x) => x,\n   419:         }\n   420:     }\n   421: }\n   422: \n   423: // These are used only as part of implementing the iterator adapters.\n   424: // They have mediocre names and non-obvious semantics, so aren't",
+    "span": {
+      "begin": [
+        379,
+        5
+      ],
+      "end": [
+        384,
+        6
+      ],
+      "filename": "core/src/ops/control_flow.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn continue_ok(self) -> Result<C, B> {\n        match self {\n            ControlFlow::Continue(c) => Ok(c),\n            ControlFlow::Break(b) => Err(b),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source-faithful enum match directly proves the postcondition and no-unwind contract without axioms or external specifications.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ops__ControlFlow__continue_ok__7617672bf3ae"
+}

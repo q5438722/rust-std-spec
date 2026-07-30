@@ -1,0 +1,217 @@
+{
+  "candidates": [
+    {
+      "target": "std::collections::HashMap::get_disjoint_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains multiple mutable references whose identity, disjointness, and write-back relation to map entries cannot be expressed in the current public vstd vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "panic_on_duplicate_keys"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::get_disjoint_unchecked_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires expressing the unsafe non-overlap condition and tying each returned mutable reference to a distinct map entry, which current public vstd abstractions cannot do.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "unexpressible_aliasing_precondition"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Usefulness requires specifying that the returned mutable reference aliases the queried entry and that writes through it update the map; this identity/write-back relation is unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::leak",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API consumes its allocation and returns an arbitrarily lived mutable OsStr reference; vstd lacks a public abstraction for the leaked allocation, lifetime, and mutable-reference identity.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_leaked_allocation_abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::as_mut_os_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation exposes a private inner field by mutable reference, but no public vstd projection expresses that writes through the OsStr reference update the Path.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "private_storage_projection"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::as_mut_os_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference directly aliases private PathBuf storage, and current public vstd vocabulary cannot express the required identity and write-back relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "private_storage_projection"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::collections::HashMap::get_disjoint_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains multiple mutable references whose identity, disjointness,
+and write-back relation to map entries cannot be expressed in the current public vstd vocabulary.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "panic_on_duplicate_keys"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::get_disjoint_unchecked_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract requires expressing the unsafe non-overlap condition and tying
+ each returned mutable reference to a distinct map entry, which current public vstd abstractions
+cannot do.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "unexpressible_aliasing_precondition"
+      ]
+    },
+    {
+      "target": "std::collections::HashMap::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Usefulness requires specifying that the returned mutable reference aliases the
+queried entry and that writes through it update the map; this identity/write-back relation is
+unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "std::ffi::OsString::leak",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The API consumes its allocation and returns an arbitrarily lived mutable OsStr
+reference; vstd lacks a public abstraction for the leaked allocation, lifetime, and
+mutable-reference identity.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_leaked_allocation_abstraction"
+      ]
+    },
+    {
+      "target": "std::path::Path::as_mut_os_str",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The implementation exposes a private inner field by mutable reference, but no
+public vstd projection expresses that writes through the OsStr reference update the Path.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "private_storage_projection"
+      ]
+    },
+    {
+      "target": "std::path::PathBuf::as_mut_os_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference directly aliases private PathBuf storage, and current
+public vstd vocabulary cannot express the required identity and write-back relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "private_storage_projection"
+      ]
+    } ]
+}
+

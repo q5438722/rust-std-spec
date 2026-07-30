@@ -1,0 +1,110 @@
+{
+  "id": "std_specs__layout_value.rs__L107__Layout__pad_to_align",
+  "api_path": "core::alloc::Layout::pad_to_align",
+  "normalized_api_path": "core::alloc::Layout::pad_to_align",
+  "raw_target": "Layout::pad_to_align",
+  "contract_source_file": "std_specs/layout_value.rs",
+  "contract_source_line": 107,
+  "rust_declaration": {
+    "declaration_id": "core:32774",
+    "name": "pad_to_align",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 44, patch: 0 })},\nfeature: \"alloc_layout_manipulation\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 85, patch: 0 })},\nfeature: \"const_alloc_layout\", promotable: false}}]"
+      },
+      {
+        "must_use": {
+          "reason": "this returns a new `Layout`, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/alloc/layout.rs",
+      "begin": [
+        381,
+        5
+      ],
+      "end": [
+        390,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Layout",
+          "id": 9440,
+          "args": null
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32780",
+      "for": {
+        "resolved_path": {
+          "path": "Layout",
+          "id": 9440,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:9440",
+      "resolved_owner_path": [
+        "core",
+        "alloc",
+        "layout",
+        "Layout"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   361:         //    less than the original `size`.\n   362:         //\n   363:         // (Size 0 Align MAX is already aligned, so stays the same, but things like\n   364:         // Size 1 Align MAX or Size isize::MAX Align 2 round up to `isize::MAX + 1`.)\n   365:         unsafe {\n   366:             let align_m1 = unchecked_sub(alignment.as_usize(), 1);\n   367:             unchecked_add(self.size, align_m1) & !align_m1\n   368:         }\n   369:     }\n   370: \n   371:     /// Creates a layout by rounding the size of this layout up to a multiple\n   372:     /// of the layout's alignment.\n   373:     ///\n   374:     /// This is equivalent to adding the result of `padding_needed_for`\n   375:     /// to the layout's current size.\n   376:     #[stable(feature = \"alloc_layout_manipulation\", since = \"1.44.0\")]\n   377:     #[rustc_const_stable(feature = \"const_alloc_layout\", since = \"1.85.0\")]\n   378:     #[must_use = \"this returns a new `Layout`, \\\n   379:                   without modifying the original\"]\n   380:     #[inline]\n   381:     pub const fn pad_to_align(&self) -> Layout {\n   382:         // This cannot overflow. Quoting from the invariant of Layout:\n   383:         // > `size`, when rounded up to the nearest multiple of `align`,\n   384:         // > must not overflow isize (i.e., the rounded value must be\n   385:         // > less than or equal to `isize::MAX`)\n   386:         let new_size = self.size_rounded_up_to_custom_alignment(self.align);\n   387: \n   388:         // SAFETY: padded size is guaranteed to not exceed `isize::MAX`.\n   389:         unsafe { Layout::from_size_alignment_unchecked(new_size, self.alignment()) }\n   390:     }\n   391: \n   392:     /// Creates a layout describing the record for `n` instances of\n   393:     /// `self`, with a suitable amount of padding between each to\n   394:     /// ensure that each instance is given its requested size and\n   395:     /// alignment. On success, returns `(k, offs)` where `k` is the\n   396:     /// layout of the array and `offs` is the distance between the start\n   397:     /// of each element in the array.\n   398:     ///\n   399:     /// Does not include padding after the trailing element.\n   400:     ///\n   401:     /// (That distance between elements is sometimes known as \"stride\".)",
+    "source_text": "pub const fn pad_to_align(&self) -> Layout {\n        // This cannot overflow. Quoting from the invariant of Layout:\n        // > `size`, when rounded up to the nearest multiple of `align`,\n        // > must not overflow isize (i.e., the rounded value must be\n        // > less than or equal to `isize::MAX`)\n        let new_size = self.size_rounded_up_to_custom_alignment(self.align);\n\n        // SAFETY: padded size is guaranteed to not exceed `isize::MAX`.\n        unsafe { Layout::from_size_alignment_unchecked(new_size, self.alignment()) }\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,757 @@
+{
+  "metadata": {
+    "module_file": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/vstd/std_specs/duration.rs",
+    "imports": [
+      "core::time::Duration",
+      "core::time::TryFromFloatSecsError",
+      "vstd::std_specs::duration::*",
+      "vstd::arithmetic::power2::pow2",
+      "vstd::float::FloatBitsProperties",
+      "vstd::prelude::*"
+    ]
+  },
+  "counts": {
+    "targets": 36,
+    "status": {
+      "ok": 36
+    },
+    "r0_z3": {
+      "unsat": 34,
+      "unknown": 2
+    },
+    "classification": {
+      "complete": 34,
+      "ok_inconclusive": 2
+    }
+  },
+  "results": [
+    {
+      "status": "ok",
+      "requires": [
+        "secs as nat + nanos as nat / nanos_per_second() <= u64::MAX as nat"
+      ],
+      "ensures": [
+        "result@ == secs as nat * nanos_per_second() + nanos as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 587,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::new",
+      "source_line": 156
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == secs as nat * nanos_per_second()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 564,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_secs",
+      "source_line": 163
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == millis as nat * 1_000_000"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 582,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_millis",
+      "source_line": 168
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == micros as nat * 1_000"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 545,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_micros",
+      "source_line": 173
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == nanos as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 546,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_nanos",
+      "source_line": 178
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "nanos as nat <= duration_max_nanos()"
+      ],
+      "ensures": [
+        "result@ == nanos as nat"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 557,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_nanos_u128",
+      "source_line": 183
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "hours as nat * 3_600 <= u64::MAX as nat"
+      ],
+      "ensures": [
+        "result@ == hours as nat * 3_600 * nanos_per_second()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 545,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_hours",
+      "source_line": 190
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "mins as nat * 60 <= u64::MAX as nat"
+      ],
+      "ensures": [
+        "result@ == mins as nat * 60 * nanos_per_second()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 549,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_mins",
+      "source_line": 197
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result <==> duration@ == 0"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 575,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::is_zero",
+      "source_line": 204
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@ / nanos_per_second()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 577,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::as_secs",
+      "source_line": 209
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()"
+      ],
+      "ensures": [
+        "result == duration_as_secs_f32(duration@)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 554,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::as_secs_f32",
+      "source_line": 214
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()"
+      ],
+      "ensures": [
+        "result == duration_as_secs_f64(duration@)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 553,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::as_secs_f64",
+      "source_line": 221
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@ % nanos_per_second() / 1_000_000"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 540,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::subsec_millis",
+      "source_line": 228
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@ % nanos_per_second() / 1_000"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 558,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::subsec_micros",
+      "source_line": 233
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@ % nanos_per_second()"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 548,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::subsec_nanos",
+      "source_line": 238
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@ / 1_000_000"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 545,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::as_millis",
+      "source_line": 243
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@ / 1_000"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 542,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::as_micros",
+      "source_line": 248
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result as nat == duration@"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 549,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::as_nanos",
+      "source_line": 253
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == if lhs@ >= rhs@ {\n            lhs@ - rhs@\n        } else {\n            rhs@ - lhs@\n        }"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 537,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::abs_diff",
+      "source_line": 258
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "lhs@ + rhs@ <= duration_max_nanos() ==> (result matches Some(value) && value@ == lhs@\n            + rhs@)",
+        "lhs@ + rhs@ > duration_max_nanos() ==> result is None"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 558,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::checked_add",
+      "source_line": 267
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == if lhs@ + rhs@ <= duration_max_nanos() {\n            lhs@ + rhs@\n        } else {\n            duration_max_nanos()\n        }"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 542,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::saturating_add",
+      "source_line": 276
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "lhs@ >= rhs@ ==> (result matches Some(value) && value@ == lhs@ - rhs@)",
+        "lhs@ < rhs@ ==> result is None"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 553,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::checked_sub",
+      "source_line": 286
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == if lhs@ >= rhs@ {\n            lhs@ - rhs@\n        } else {\n            0\n        }"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 540,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::saturating_sub",
+      "source_line": 294
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "lhs@ * rhs as nat <= duration_max_nanos() ==> (result matches Some(value) && value@ == lhs@\n            * rhs as nat)",
+        "lhs@ * rhs as nat > duration_max_nanos() ==> result is None"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 553,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::checked_mul",
+      "source_line": 304
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "result@ == if lhs@ * rhs as nat <= duration_max_nanos() {\n            lhs@ * rhs as nat\n        } else {\n            duration_max_nanos()\n        }"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 3,
+      "verus_returncode": 0,
+      "verus_ms": 543,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::saturating_mul",
+      "source_line": 313
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "rhs != 0 ==> (result matches Some(value) && value@ == lhs@ / rhs as nat)",
+        "rhs == 0 ==> result is None"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 7,
+      "verus_returncode": 0,
+      "verus_ms": 549,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::checked_div",
+      "source_line": 322
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()",
+        "duration_secs_f64_valid(rhs * duration_as_secs_f64(duration@))"
+      ],
+      "ensures": [
+        "result@ == duration_from_secs_f64_nanos(rhs * duration_as_secs_f64(duration@))"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 566,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::mul_f64",
+      "source_line": 330
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()",
+        "duration_secs_f32_valid(rhs * duration_as_secs_f32(duration@))"
+      ],
+      "ensures": [
+        "result@ == duration_from_secs_f32_nanos(rhs * duration_as_secs_f32(duration@))"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 595,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::mul_f32",
+      "source_line": 338
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()",
+        "duration_secs_f64_valid(duration_as_secs_f64(duration@) / rhs)"
+      ],
+      "ensures": [
+        "result@ == duration_from_secs_f64_nanos(duration_as_secs_f64(duration@) / rhs)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 555,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::div_f64",
+      "source_line": 346
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()",
+        "duration_secs_f32_valid(duration_as_secs_f32(duration@) / rhs)"
+      ],
+      "ensures": [
+        "result@ == duration_from_secs_f32_nanos(duration_as_secs_f32(duration@) / rhs)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 560,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::div_f32",
+      "source_line": 354
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_secs_f32_valid(secs)"
+      ],
+      "ensures": [
+        "result@ == duration_from_secs_f32_nanos(secs)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 551,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_secs_f32",
+      "source_line": 362
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_secs_f64_valid(secs)"
+      ],
+      "ensures": [
+        "result@ == duration_from_secs_f64_nanos(secs)"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 0,
+      "verus_ms": 555,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::from_secs_f64",
+      "source_line": 369
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "duration_secs_f32_valid(secs) ==> (result matches Ok(value) && value@\n            == duration_from_secs_f32_nanos(secs))",
+        "!duration_secs_f32_valid(secs) ==> (result matches Err(error) && error@\n            == if duration_secs_f32_is_negative(secs) {\n            TryFromFloatSecsErrorView::Negative\n        } else {\n            TryFromFloatSecsErrorView::OverflowOrNan\n        })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 562,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::try_from_secs_f32",
+      "source_line": 376
+    },
+    {
+      "status": "ok",
+      "requires": [],
+      "ensures": [
+        "duration_secs_f64_valid(secs) ==> (result matches Ok(value) && value@\n            == duration_from_secs_f64_nanos(secs))",
+        "!duration_secs_f64_valid(secs) ==> (result matches Err(error) && error@\n            == if duration_secs_f64_is_negative(secs) {\n            TryFromFloatSecsErrorView::Negative\n        } else {\n            TryFromFloatSecsErrorView::OverflowOrNan\n        })"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 5,
+      "verus_returncode": 0,
+      "verus_ms": 612,
+      "r0_z3": "unsat",
+      "n_rounds": 1,
+      "assumes": [],
+      "permitted": false,
+      "classification": "complete",
+      "target": "Duration::try_from_secs_f64",
+      "source_line": 391
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()"
+      ],
+      "ensures": [
+        "lhs@ == 0 && rhs@ == 0 ==> result.is_nan_spec()",
+        "!(lhs@ == 0 && rhs@ == 0) ==> result == duration_as_nanos_f32(lhs@) / duration_as_nanos_f32(\n            rhs@,\n        )"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 1,
+      "verus_ms": 406,
+      "r0_z3": "unknown",
+      "n_rounds": 2,
+      "assumes": [
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "Duration::div_duration_f32",
+      "source_line": 406
+    },
+    {
+      "status": "ok",
+      "requires": [
+        "duration_float_ieee_semantics()"
+      ],
+      "ensures": [
+        "lhs@ == 0 && rhs@ == 0 ==> result.is_nan_spec()",
+        "!(lhs@ == 0 && rhs@ == 0) ==> result == duration_as_nanos_f64(lhs@) / duration_as_nanos_f64(\n            rhs@,\n        )"
+      ],
+      "det_function": "det___rust_std_candidate",
+      "equal_fn_trivial": false,
+      "n_schemas": 1,
+      "verus_returncode": 1,
+      "verus_ms": 409,
+      "r0_z3": "unknown",
+      "n_rounds": 2,
+      "assumes": [
+        "!det___rust_std_candidate_equal(r1, r2)"
+      ],
+      "permitted": false,
+      "classification": "ok_inconclusive",
+      "target": "Duration::div_duration_f64",
+      "source_line": 417
+    }
+  ]
+}

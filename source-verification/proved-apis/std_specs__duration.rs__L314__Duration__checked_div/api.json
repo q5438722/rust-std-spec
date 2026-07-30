@@ -1,0 +1,124 @@
+{
+  "id": "std_specs__duration.rs__L314__Duration__checked_div",
+  "api_path": "core::time::Duration::checked_div",
+  "normalized_api_path": "core::time::Duration::checked_div",
+  "raw_target": "Duration::checked_div",
+  "contract_source_file": "std_specs/duration.rs",
+  "contract_source_line": 314,
+  "rust_declaration": {
+    "declaration_id": "core:32365",
+    "name": "checked_div",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 16, patch: 0 })},\nfeature: \"duration_checked_ops\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": "this returns the result of the operation, without modifying the original"
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 58, patch: 0 })},\nfeature: \"duration_consts_2\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/time.rs",
+      "begin": [
+        837,
+        5
+      ],
+      "end": [
+        849,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "rhs",
+          {
+            "primitive": "u32"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "Duration",
+                      "id": 10186,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32378",
+      "for": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10186",
+      "resolved_owner_path": [
+        "core",
+        "time",
+        "Duration"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   817:         }\n   818:     }\n   819: \n   820:     /// Checked `Duration` division. Computes `self / other`, returning [`None`]\n   821:     /// if `other == 0`.\n   822:     ///\n   823:     /// # Examples\n   824:     ///\n   825:     /// ```\n   826:     /// use std::time::Duration;\n   827:     ///\n   828:     /// assert_eq!(Duration::new(2, 0).checked_div(2), Some(Duration::new(1, 0)));\n   829:     /// assert_eq!(Duration::new(1, 0).checked_div(2), Some(Duration::new(0, 500_000_000)));\n   830:     /// assert_eq!(Duration::new(2, 0).checked_div(0), None);\n   831:     /// ```\n   832:     #[stable(feature = \"duration_checked_ops\", since = \"1.16.0\")]\n   833:     #[must_use = \"this returns the result of the operation, \\\n   834:                   without modifying the original\"]\n   835:     #[inline]\n   836:     #[rustc_const_stable(feature = \"duration_consts_2\", since = \"1.58.0\")]\n   837:     pub const fn checked_div(self, rhs: u32) -> Option<Duration> {\n   838:         if rhs != 0 {\n   839:             let (secs, extra_secs) = (self.secs / (rhs as u64), self.secs % (rhs as u64));\n   840:             let (mut nanos, extra_nanos) =\n   841:                 (self.nanos.as_inner() / rhs, self.nanos.as_inner() % rhs);\n   842:             nanos +=\n   843:                 ((extra_secs * (NANOS_PER_SEC as u64) + extra_nanos as u64) / (rhs as u64)) as u32;\n   844:             debug_assert!(nanos < NANOS_PER_SEC);\n   845:             Some(Duration::new(secs, nanos))\n   846:         } else {\n   847:             None\n   848:         }\n   849:     }\n   850: \n   851:     /// Returns the number of seconds contained by this `Duration` as `f64`.\n   852:     ///\n   853:     /// The returned value includes the fractional (nanosecond) part of the duration.\n   854:     ///\n   855:     /// # Examples\n   856:     /// ```\n   857:     /// use std::time::Duration;",
+    "source_text": "pub const fn checked_div(self, rhs: u32) -> Option<Duration> {\n        if rhs != 0 {\n            let (secs, extra_secs) = (self.secs / (rhs as u64), self.secs % (rhs as u64));\n            let (mut nanos, extra_nanos) =\n                (self.nanos.as_inner() / rhs, self.nanos.as_inner() % rhs);\n            nanos +=\n                ((extra_secs * (NANOS_PER_SEC as u64) + extra_nanos as u64) / (rhs as u64)) as u32;\n            debug_assert!(nanos < NANOS_PER_SEC);\n            Some(Duration::new(secs, nanos))\n        } else {\n            None\n        }\n    }",
+    "has_body": true
+  }
+}

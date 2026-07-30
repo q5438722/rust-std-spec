@@ -1,0 +1,113 @@
+{
+  "batch": 104,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 32998,
+  "targets": [
+    "alloc::collections::LinkedList::push_front",
+    "alloc::collections::LinkedList::split_off",
+    "alloc::collections::VecDeque::as_slices",
+    "alloc::collections::VecDeque::back",
+    "alloc::collections::VecDeque::binary_search",
+    "alloc::collections::VecDeque::contains"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::LinkedList::push_front",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its observable effect is an ordered mutation of LinkedList contents, but current vstd provides no public LinkedList view or sequence abstraction with which to relate old(self), final(self), and elt.",
+      "risks": [
+        "missing LinkedList content abstraction",
+        "unit result exposes no alternative observable value"
+      ]
+    },
+    {
+      "target": "alloc::collections::LinkedList::split_off",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source partitions the list at at and mutates self, which requires a LinkedList sequence view to specify the prefix and returned suffix; no such current vstd abstraction exists.",
+      "risks": [
+        "missing LinkedList content abstraction",
+        "cannot express partitioning between final(self) and result"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::as_slices",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must state that the two slice views concatenate to the deque's logical contents while leaving the implementation-dependent split unconstrained. Current vstd has no VecDeque content view for that relation.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "returned-reference identity cannot be characterized from slice views alone",
+        "implementation-dependent split point"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::back",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Specifying None for an empty deque and Some referencing its last element requires a VecDeque sequence view and a supported relation between that view and the returned reference; neither is available.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "reference identity versus modeled value"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::binary_search",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result can only be characterized against the deque's ordered logical contents and the runtime Ord comparison. Current vstd lacks the VecDeque view needed to express found indices or insertion positions.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "generic Ord behavior is not automatically a logical ordering",
+        "unsorted inputs have unspecified results"
+      ]
+    },
+    {
+      "target": "alloc::collections::VecDeque::contains",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful result equivalence requires quantifying over the deque's logical contents and modeling runtime PartialEq. Current vstd provides no VecDeque content view supporting that statement.",
+      "risks": [
+        "missing VecDeque content abstraction",
+        "generic PartialEq is not necessarily logical equality"
+      ]
+    }
+  ]
+}

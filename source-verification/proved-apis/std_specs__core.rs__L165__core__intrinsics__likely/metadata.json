@@ -1,0 +1,81 @@
+{
+  "id": "std_specs__core.rs__L165__core__intrinsics__likely",
+  "api_path": "core::intrinsics::likely",
+  "raw_target": "core::intrinsics::likely",
+  "contract_source_file": "std_specs/core.rs",
+  "contract_source_line": 165,
+  "rust_declaration": {
+    "declaration_id": "core:8266",
+    "name": "likely",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Unstable {reason: None},\nfeature: \"core_intrinsics\"}}]"
+      },
+      {
+        "other": "#[attr = RustcNounwind]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/intrinsics/mod.rs",
+      "begin": [
+        433,
+        1
+      ],
+      "end": [
+        440,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "b",
+          {
+            "primitive": "bool"
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "bool"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   413: #[rustc_intrinsic]\n   414: #[rustc_nounwind]\n   415: #[miri::intrinsic_fallback_is_spec]\n   416: #[cold]\n   417: pub const fn cold_path() {}\n   418: \n   419: /// Hints to the compiler that branch condition is likely to be true.\n   420: /// Returns the value passed to it.\n   421: ///\n   422: /// Any use other than with `if` statements will probably not have an effect.\n   423: ///\n   424: /// Note that, unlike most intrinsics, this is safe to call;\n   425: /// it does not require an `unsafe` block.\n   426: /// Therefore, implementations must not require the user to uphold\n   427: /// any safety invariants.\n   428: ///\n   429: /// This intrinsic does not have a stable counterpart.\n   430: #[unstable(feature = \"core_intrinsics\", issue = \"none\")]\n   431: #[rustc_nounwind]\n   432: #[inline(always)]\n   433: pub const fn likely(b: bool) -> bool {\n   434:     if b {\n   435:         true\n   436:     } else {\n   437:         cold_path();\n   438:         false\n   439:     }\n   440: }\n   441: \n   442: /// Hints to the compiler that branch condition is likely to be false.\n   443: /// Returns the value passed to it.\n   444: ///\n   445: /// Any use other than with `if` statements will probably not have an effect.\n   446: ///\n   447: /// Note that, unlike most intrinsics, this is safe to call;\n   448: /// it does not require an `unsafe` block.\n   449: /// Therefore, implementations must not require the user to uphold\n   450: /// any safety invariants.\n   451: ///\n   452: /// This intrinsic does not have a stable counterpart.\n   453: #[unstable(feature = \"core_intrinsics\", issue = \"none\")]",
+    "source_text": "pub const fn likely(b: bool) -> bool {\n    if b {\n        true\n    } else {\n        cold_path();\n        false\n    }\n}",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "Copied the exact control flow and mechanically copied Rust 1.96's empty cold_path fallback body. No axioms or external contracts are used.",
+  "run_target_dir": "source-verification/fidelity-retry/runs/full-gpt56sol/targets/std_specs__core.rs__L165__core__intrinsics__likely",
+  "fidelity_retry": {
+    "accepted": true,
+    "audit_reason": "The surrogate reproduces the exact if/else body and the exact empty cold_path body (419); only Verus contracts/attributes are added. No target axiom or cycle is used.",
+    "source_run": "/home/chentianyu/nanvix-rust-std-spec-survey/source-verification/fidelity-retry/proved-apis/std_specs__core.rs__L165__core__intrinsics__likely"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "batch": 143,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 41816,
+  "targets": [
+    "core::time::Duration::from_micros",
+    "core::time::Duration::from_millis",
+    "core::time::Duration::from_mins",
+    "core::time::Duration::from_nanos",
+    "core::time::Duration::from_nanos_u128",
+    "core::time::Duration::from_secs"
+  ],
+  "candidates": [
+    {
+      "target": "core::time::Duration::from_micros",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source defines the seconds and nanoseconds components, but current vstd has no public Duration view or contracted observers with which to express them.",
+      "risks": [
+        "Any meaningful postcondition requires a new Duration abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::from_millis",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result's component values are source-defined, but Duration is opaque in the current vstd vocabulary and its observers lack usable contracts.",
+      "risks": [
+        "Any meaningful postcondition requires a new Duration abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::from_mins",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the overflow condition is expressible, a precondition alone would not characterize the returned Duration; doing so requires a missing Duration abstraction.",
+      "risks": [
+        "The function panics when mins exceeds u64::MAX / 60.",
+        "No current vstd view can relate the result to mins * 60 seconds."
+      ]
+    },
+    {
+      "target": "core::time::Duration::from_nanos",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The quotient and remainder behavior cannot be exposed without a public vstd model of Duration or contracted component observers.",
+      "risks": [
+        "Any meaningful postcondition requires a new Duration abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::from_nanos_u128",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The overflow bound is expressible, but current vstd cannot relate the opaque result to the nanosecond quotient and remainder, so no useful complete contract is available.",
+      "risks": [
+        "The function panics when the whole-seconds quotient does not fit in u64.",
+        "Modeling the result requires a new Duration abstraction."
+      ]
+    },
+    {
+      "target": "core::time::Duration::from_secs",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Even this direct constructor cannot be related to its input because current vstd provides no Duration view or contracted seconds and nanoseconds observers.",
+      "risks": [
+        "Any meaningful postcondition requires a new Duration abstraction."
+      ]
+    }
+  ]
+}

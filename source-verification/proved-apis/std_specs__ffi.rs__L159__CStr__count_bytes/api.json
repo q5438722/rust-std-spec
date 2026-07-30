@@ -1,0 +1,112 @@
+{
+  "id": "std_specs__ffi.rs__L159__CStr__count_bytes",
+  "api_path": "core::ffi::CStr::count_bytes",
+  "normalized_api_path": "core::ffi::CStr::count_bytes",
+  "raw_target": "CStr::count_bytes",
+  "contract_source_file": "std_specs/ffi.rs",
+  "contract_source_line": 159,
+  "rust_declaration": {
+    "declaration_id": "core:25241",
+    "name": "count_bytes",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[doc(alias = \"len\")]"
+      },
+      {
+        "other": "#[doc(alias = \"strlen\")]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 79, patch: 0 })},\nfeature: \"cstr_count_bytes\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 81, patch: 0 })},\nfeature: \"const_cstr_from_ptr\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/ffi/c_str.rs",
+      "begin": [
+        514,
+        5
+      ],
+      "end": [
+        516,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "usize"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:25249",
+      "for": {
+        "resolved_path": {
+          "path": "CStr",
+          "id": 10771,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10771",
+      "resolved_owner_path": [
+        "core",
+        "ffi",
+        "c_str",
+        "CStr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   494:             .as_non_null_ptr()\n   495:     }\n   496: \n   497:     /// Returns the length of `self`. Like C's `strlen`, this does not include the nul terminator.\n   498:     ///\n   499:     /// > **Note**: This method is currently implemented as a constant-time\n   500:     /// > cast, but it is planned to alter its definition in the future to\n   501:     /// > perform the length calculation whenever this method is called.\n   502:     ///\n   503:     /// # Examples\n   504:     ///\n   505:     /// ```\n   506:     /// assert_eq!(c\"foo\".count_bytes(), 3);\n   507:     /// assert_eq!(c\"\".count_bytes(), 0);\n   508:     /// ```\n   509:     #[inline]\n   510:     #[must_use]\n   511:     #[doc(alias(\"len\", \"strlen\"))]\n   512:     #[stable(feature = \"cstr_count_bytes\", since = \"1.79.0\")]\n   513:     #[rustc_const_stable(feature = \"const_cstr_from_ptr\", since = \"1.81.0\")]\n   514:     pub const fn count_bytes(&self) -> usize {\n   515:         self.inner.len() - 1\n   516:     }\n   517: \n   518:     /// Returns `true` if `self.to_bytes()` has a length of 0.\n   519:     ///\n   520:     /// # Examples\n   521:     ///\n   522:     /// ```\n   523:     /// assert!(!c\"foo\".is_empty());\n   524:     /// assert!(c\"\".is_empty());\n   525:     /// ```\n   526:     #[inline]\n   527:     #[stable(feature = \"cstr_is_empty\", since = \"1.71.0\")]\n   528:     #[rustc_const_stable(feature = \"cstr_is_empty\", since = \"1.71.0\")]\n   529:     pub const fn is_empty(&self) -> bool {\n   530:         // SAFETY: We know there is at least one byte; for empty strings it\n   531:         // is the NUL terminator.\n   532:         // FIXME(const-hack): use get_unchecked\n   533:         unsafe { *self.inner.as_ptr() == 0 }\n   534:     }",
+    "source_text": "pub const fn count_bytes(&self) -> usize {\n        self.inner.len() - 1\n    }",
+    "has_body": true
+  }
+}

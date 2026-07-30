@@ -1,0 +1,35 @@
+{"candidates":[{"target":"alloc::alloc::alloc","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source forwards the layout to the global allocator, but a useful success contract must return writable-range, provenance, and deallocation permissions. The exact raw-pointer result cannot expose those tracked resources.","risks":["missing_allocation_permission_output","allocator_failure_nondeterminism","raw_pointer_provenance"]},{"target":"alloc::alloc::alloc_zeroed","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The zero-initialization guarantee concerns the allocated bytes. The raw-pointer-only result carries neither allocation ownership nor a memory-content permission through which that guarantee can be stated usefully.","risks":["missing_allocation_permission_output","missing_memory_content_relation","raw_pointer_provenance"]},{"target":"alloc::alloc::dealloc","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Safety requires ownership of a live global allocation with the matching layout. The exact pointer-and-layout signature cannot express or consume the required PointsToRaw and Dealloc permissions, and the unit result exposes no post-state.","risks":["missing_deallocation_permission_input","ownership_consumption","pointer_provenance","unit_return_variant"]},{"target":"alloc::alloc::realloc","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Modeling reallocation requires old-allocation ownership, the success-or-null ownership transition, preserved bytes, and a permission for the resulting allocation. None can be carried by the exact raw-pointer signature.","risks":["missing_allocation_permissions","ownership_transfer","failure_preserves_old_allocation","byte_prefix_preservation","raw_pointer_provenance"]},{"target":"alloc::boxed::Box::as_mut_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source returns `&raw mut **b`, current public Box modeling does not expose allocation identity or a PointsTo relation connecting the pointer and write-through effects to the boxed value. Non-nullness alone is insufficient.","risks":["missing_box_allocation_identity","missing_points_to_relation","pointer_provenance","write_through_aliasing"]},{"target":"alloc::boxed::Box::as_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The source returns `&raw const **b`, but current public vocabulary cannot relate that pointer's address and provenance to the Box allocation or its contents. The guaranteed non-nullness alone does not characterize the API usefully.","risks":["missing_box_allocation_identity","missing_points_to_relation","pointer_provenance","raw_pointer_equality"]}]}{"candidates":[{"target":"alloc::alloc::alloc","decision":"skip","contract_form":"assume_specificati
+on","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"ra
+tionale":"The source forwards the layout to the global allocator, but a useful success contract must
+ return writable-range, provenance, and deallocation permissions. The exact raw-pointer result
+cannot expose those tracked resources.","risks":["missing_allocation_permission_output","allocator_f
+ailure_nondeterminism","raw_pointer_provenance"]},{"target":"alloc::alloc::alloc_zeroed","decision":
+"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature
+_gates":[],"imports":[],"useful":false,"rationale":"The zero-initialization guarantee concerns the
+allocated bytes. The raw-pointer-only result carries neither allocation ownership nor a
+memory-content permission through which that guarantee can be stated usefully.","risks":["missing_al
+location_permission_output","missing_memory_content_relation","raw_pointer_provenance"]},{"target":"
+alloc::alloc::dealloc","decision":"skip","contract_form":"assume_specification","contract_code":"","
+requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Safety
+requires ownership of a live global allocation with the matching layout. The exact
+pointer-and-layout signature cannot express or consume the required PointsToRaw and Dealloc
+permissions, and the unit result exposes no post-state.","risks":["missing_deallocation_permission_i
+nput","ownership_consumption","pointer_provenance","unit_return_variant"]},{"target":"alloc::alloc::
+realloc","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"
+ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Modeling reallocation
+requires old-allocation ownership, the success-or-null ownership transition, preserved bytes, and a
+permission for the resulting allocation. None can be carried by the exact raw-pointer
+signature.","risks":["missing_allocation_permissions","ownership_transfer","failure_preserves_old_al
+location","byte_prefix_preservation","raw_pointer_provenance"]},{"target":"alloc::boxed::Box::as_mut
+_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ens
+ures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although the source returns
+&raw mut **b, current public Box modeling does not expose allocation identity or a PointsTo relation
+ connecting the pointer and write-through effects to the boxed value. Non-nullness alone is
+insufficient.","risks":["missing_box_allocation_identity","missing_points_to_relation","pointer_prov
+enance","write_through_aliasing"]},{"target":"alloc::boxed::Box::as_ptr","decision":"skip","contract
+_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"impo
+rts":[],"useful":false,"rationale":"The source returns &raw const **b, but current public vocabulary
+ cannot relate that pointer's address and provenance to the Box allocation or its contents. The
+guaranteed non-nullness alone does not characterize the API usefully.","risks":["missing_box_allocat
+ion_identity","missing_points_to_relation","pointer_provenance","raw_pointer_equality"]}]}
+

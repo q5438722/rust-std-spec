@@ -1,0 +1,109 @@
+{
+  "id": "core__mem__take__df7d8fca8693",
+  "api_path": "core::mem::take",
+  "raw_target": "core::mem::take::<T>",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 40, patch: 0 })},\nfeature: \"mem_take\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143894}, feature: \"const_default\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:9391",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "maybe_const",
+                    "trait": {
+                      "args": null,
+                      "id": 70,
+                      "path": "Default"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "take",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [
+        "dest"
+      ],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [
+        [
+          "dest",
+          {
+            "borrowed_ref": {
+              "is_mutable": true,
+              "lifetime": null,
+              "type": {
+                "generic": "T"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "   803: ///\n   804: /// let old_v = mem::take(&mut v);\n   805: /// assert_eq!(vec![1, 2], old_v);\n   806: /// assert!(v.is_empty());\n   807: /// ```\n   808: ///\n   809: /// `take` allows taking ownership of a struct field by replacing it with an \"empty\" value.\n   810: /// Without `take` you can run into issues like these:\n   811: ///\n   812: /// ```compile_fail,E0507\n   813: /// struct Buffer<T> { buf: Vec<T> }\n   814: ///\n   815: /// impl<T> Buffer<T> {\n   816: ///     fn get_and_reset(&mut self) -> Vec<T> {\n   817: ///         // error: cannot move out of dereference of `&mut`-pointer\n   818: ///         let buf = self.buf;\n   819: ///         self.buf = Vec::new();\n   820: ///         buf\n   821: ///     }\n   822: /// }\n   823: /// ```\n   824: ///\n   825: /// Note that `T` does not necessarily implement [`Clone`], so it can't even clone and reset\n   826: /// `self.buf`. But `take` can be used to disassociate the original value of `self.buf` from\n   827: /// `self`, allowing it to be returned:\n   828: ///\n   829: /// ```\n   830: /// use std::mem;\n   831: ///\n   832: /// # struct Buffer<T> { buf: Vec<T> }\n   833: /// impl<T> Buffer<T> {\n   834: ///     fn get_and_reset(&mut self) -> Vec<T> {\n   835: ///         mem::take(&mut self.buf)\n   836: ///     }\n   837: /// }\n   838: ///\n   839: /// let mut buffer = Buffer { buf: vec![0, 1] };\n   840: /// assert_eq!(buffer.buf.len(), 2);\n   841: ///\n   842: /// assert_eq!(buffer.get_and_reset(), vec![0, 1]);\n   843: /// assert_eq!(buffer.buf.len(), 0);\n   844: /// ```\n   845: #[inline]\n   846: #[stable(feature = \"mem_take\", since = \"1.40.0\")]\n   847: #[rustc_const_unstable(feature = \"const_default\", issue = \"143894\")]\n   848: pub const fn take<T: [const] Default>(dest: &mut T) -> T {\n   849:     replace(dest, T::default())\n   850: }\n   851: \n   852: /// Moves `src` into the referenced `dest`, returning the previous `dest` value.\n   853: ///\n   854: /// Neither value is dropped.\n   855: ///\n   856: /// * If you want to replace the values of two variables, see [`swap`].\n   857: /// * If you want to replace with a default value, see [`take`].\n   858: ///\n   859: /// # Examples\n   860: ///\n   861: /// A simple example:\n   862: ///\n   863: /// ```\n   864: /// use std::mem;\n   865: ///\n   866: /// let mut v: Vec<i32> = vec![1, 2];\n   867: ///\n   868: /// let old_v = mem::replace(&mut v, vec![3, 4, 5]);\n   869: /// assert_eq!(vec![1, 2], old_v);\n   870: /// assert_eq!(vec![3, 4, 5], v);\n   871: /// ```\n   872: ///\n   873: /// `replace` allows consumption of a struct field by replacing it with another value.\n   874: /// Without `replace` you can run into issues like these:\n   875: ///\n   876: /// ```compile_fail,E0507\n   877: /// struct Buffer<T> { buf: Vec<T> }\n   878: ///\n   879: /// impl<T> Buffer<T> {\n   880: ///     fn replace_index(&mut self, i: usize, v: T) -> T {\n   881: ///         // error: cannot move out of dereference of `&mut`-pointer\n   882: ///         let t = self.buf[i];\n   883: ///         self.buf[i] = v;\n   884: ///         t\n   885: ///     }\n   886: /// }\n   887: /// ```\n   888: ///\n   889: /// Note that `T` does not necessarily implement [`Clone`], so we can't even clone `self.buf[i]` to\n   890: /// avoid the move. But `replace` can be used to disassociate the original value at that index from\n   891: /// `self`, allowing it to be returned:\n   892: ///\n   893: /// ```",
+    "span": {
+      "begin": [
+        848,
+        1
+      ],
+      "end": [
+        850,
+        2
+      ],
+      "filename": "core/src/mem/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn take<T: [const] Default>(dest: &mut T) -> T {\n    replace(dest, T::default())\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for core::mem::replace: it returns the old destination value and stores src."
+  ],
+  "rationale": "The exact one-call implementation is copied and its postcondition follows compositionally from Default::default and the smaller replace contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__mem__take__df7d8fca8693"
+}

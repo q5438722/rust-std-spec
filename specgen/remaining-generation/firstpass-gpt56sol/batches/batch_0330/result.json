@@ -1,0 +1,120 @@
+{
+  "batch": 330,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 162834,
+  "targets": [
+    "core::ptr::as_mut_array",
+    "core::ptr::as_ref",
+    "core::ptr::as_ref_unchecked",
+    "core::ptr::byte_add",
+    "core::ptr::byte_offset",
+    "core::ptr::byte_offset_from"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::as_mut_array",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, const N: usize>[ <*mut [T]>::as_mut_array::<N> ](\n    ptr: *mut [T],\n) -> (result: Option<*mut [T; N]>)\n    ensures\n        result == if ptr@.metadata == N {\n            Some(ptr as *mut [T; N])\n        } else {\n            None\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result == if ptr@.metadata == N { Some(ptr as *mut [T; N]) } else { None }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source branches only on slice length and performs a wide-to-thin pointer cast. Vstd exposes slice metadata and models that cast as preserving address and provenance.",
+      "risks": [
+        "raw-pointer spec equality includes provenance",
+        "relies on vstd wide-to-thin cast model"
+      ]
+    },
+    {
+      "target": "core::ptr::as_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A sound useful contract needs validity, initialization, lifetime, and memory contents for every non-null pointer. Vstd represents these with a tracked PointsTo permission absent from this signature, while ordinary shared references erase pointer identity.",
+      "risks": [
+        "unsafe validity precondition is not expressible from the pointer alone",
+        "reference identity is unavailable",
+        "multiple raw-pointer declarations share the path"
+      ]
+    },
+    {
+      "target": "core::ptr::as_ref_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned reference to the pointee requires a tracked PointsTo permission and initialized-memory model not present in the signature; ordinary &T has no address or provenance view.",
+      "risks": [
+        "unsafe validity and initialization requirements are unmodellable",
+        "reference identity is unavailable",
+        "multiple raw-pointer declarations share the path"
+      ]
+    },
+    {
+      "target": "core::ptr::byte_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although vstd can describe the resulting address and preserved metadata, the source delegates to add, whose same-allocation and in-bounds safety obligations cannot be recovered from PtrData without an allocation permission.",
+      "risks": [
+        "missing allocation-bounds abstraction",
+        "unsafe in-bounds obligation",
+        "address overflow and provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::byte_offset",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The address transformation is expressible, but offset requires the entire signed movement to remain within one allocation. PtrData contains no allocation bounds, and the signature carries no permission token.",
+      "risks": [
+        "missing allocation-bounds abstraction",
+        "unsafe signed-offset obligation",
+        "address overflow and provenance"
+      ]
+    },
+    {
+      "target": "core::ptr::byte_offset_from",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source requires both pointers to belong to the same allocation and their byte distance to fit isize. Vstd exposes addresses and abstract provenance but no sound same-allocation predicate derivable from these arguments.",
+      "risks": [
+        "missing same-allocation abstraction",
+        "representability of pointer distance",
+        "provenance equality is not a justified substitute"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,271 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::ffi::CString::from_vec_with_nul_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Vec safety predicate is expressible, but current vstd has no CString contents abstraction relating the consumed bytes to the opaque result.",
+      "risks": [
+        "missing CString contents abstraction",
+        "requires-only contract would not characterize the result"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::into_raw",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ CString::into_raw ](\n    this: CString,\n) -> (result: *mut c_char)\n    ensures\n        result.addr() != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::ffi::CString",
+        "core::ffi::c_char",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The body returns Box::into_raw for CString's boxed buffer, which yields a non-null pointer; address non-nullness is publicly expressible.",
+      "risks": [
+        "allocation ownership and contents remain unmodeled",
+        "deallocation permission is not exposed",
+        "raw pointer provenance"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized, A: Allocator>[ Rc::<T, A>::as_ptr ](\n    this: &Rc<T, A>,\n) -> (result: *const T)\n    ensures\n        result.addr() != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::alloc::Allocator",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The source explicitly marks the result as never null, making its nonzero address expressible without exposing Rc internals.",
+      "risks": [
+        "Rc allocation identity remains unmodeled",
+        "no raw-pointer dereference permission",
+        "raw pointer provenance"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::assume_init",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Rc::<MaybeUninit<T>, A>::assume_init ](\n    this: Rc<MaybeUninit<T>, A>,\n) -> (result: Rc<T, A>)\n    requires\n        (*this).mem_contents().is_init(),\n    ensures\n        *result == (*this).mem_contents().value(),\n;",
+      "requires": [
+        "(*this).mem_contents().is_init()"
+      ],
+      "ensures": [
+        "*result == (*this).mem_contents().value()"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::alloc::Allocator",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "vstd's MaybeUninit model expresses the documented initialization obligation and the value exposed by the resulting Rc; the specialized receiver disambiguates the overload.",
+      "risks": [
+        "multiple Rust declarations share the method path",
+        "Rc allocation identity and reference counts remain unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::decrement_strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method consumes an unrepresented strong-count ownership token and only mutates Rc's hidden reference-count state.",
+      "risks": [
+        "missing strong-count ownership token",
+        "hidden Rc reference-count state",
+        "possible destruction and deallocation",
+        "unit return"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::from_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Reconstructing the Rc requires consuming strong-reference ownership produced by Rc::into_raw, but the signature and current vstd expose no such token or allocation identity.",
+      "risks": [
+        "missing raw Rc ownership token",
+        "Rc allocation identity is unmodeled",
+        "pointer provenance and metadata",
+        "reference-count state is hidden"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::ffi::CString::from_vec_with_nul_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Vec safety predicate is expressible, but current vstd has no CString
+contents abstraction relating the consumed bytes to the opaque result.",
+      "risks": [
+        "missing CString contents abstraction",
+        "requires-only contract would not characterize the result"
+      ]
+    },
+    {
+      "target": "alloc::ffi::CString::into_raw",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[ CString::into_raw ](\n    this: CString,\n) ->
+(result: mut c_char)\n    ensures\n        result.addr() != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "alloc::ffi::CString",
+        "core::ffi::c_char",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The body returns Box::into_raw for CString's boxed buffer, which yields a
+non-null pointer; address non-nullness is publicly expressible.",
+      "risks": [
+        "allocation ownership and contents remain unmodeled",
+        "deallocation permission is not exposed",
+        "raw pointer provenance"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::as_ptr",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: ?Sized, A: Allocator>[ Rc::<T, A>::as_ptr ](\n
+  this: &Rc<T, A>,\n) -> (result: const T)\n    ensures\n        result.addr() != 0,\n;",
+      "requires": [],
+      "ensures": [
+        "result.addr() != 0"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::alloc::Allocator",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "The source explicitly marks the result as never null, making its nonzero address
+ expressible without exposing Rc internals.",
+      "risks": [
+        "Rc allocation identity remains unmodeled",
+        "no raw-pointer dereference permission",
+        "raw pointer provenance"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::assume_init",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, A: Allocator>[ Rc::<MaybeUninit<T>,
+A>::assume_init ](\n    this: Rc<MaybeUninit<T>, A>,\n) -> (result: Rc<T, A>)\n    requires\n
+ (*this).mem_contents().is_init(),\n    ensures\n        *result ==
+(*this).mem_contents().value(),\n;",
+      "requires": [
+        "(*this).mem_contents().is_init()"
+      ],
+      "ensures": [
+        "*result == (this).mem_contents().value()"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::rc::Rc",
+        "core::alloc::Allocator",
+        "core::mem::MaybeUninit",
+        "vstd::prelude::"
+      ],
+      "useful": true,
+      "rationale": "vstd's MaybeUninit model expresses the documented initialization obligation and
+the value exposed by the resulting Rc; the specialized receiver disambiguates the overload.",
+      "risks": [
+        "multiple Rust declarations share the method path",
+        "Rc allocation identity and reference counts remain unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::decrement_strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method consumes an unrepresented strong-count ownership token and only
+mutates Rc's hidden reference-count state.",
+      "risks": [
+        "missing strong-count ownership token",
+        "hidden Rc reference-count state",
+        "possible destruction and deallocation",
+        "unit return"
+      ]
+    },
+    {
+      "target": "alloc::rc::Rc::from_raw",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Reconstructing the Rc requires consuming strong-reference ownership produced by
+Rc::into_raw, but the signature and current vstd expose no such token or allocation identity.",
+      "risks": [
+        "missing raw Rc ownership token",
+        "Rc allocation identity is unmodeled",
+        "pointer provenance and metadata",
+        "reference-count state is hidden"
+      ]
+    } ]
+}
+

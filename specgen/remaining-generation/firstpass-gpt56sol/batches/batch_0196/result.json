@@ -1,0 +1,118 @@
+{
+  "batch": 196,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 19034,
+  "targets": [
+    "std::fs::read_dir",
+    "std::fs::read_link",
+    "std::fs::read_to_string",
+    "std::fs::remove_dir",
+    "std::fs::remove_dir_all",
+    "std::fs::remove_file"
+  ],
+  "candidates": [
+    {
+      "target": "std::fs::read_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result and subsequent iterator items depend on mutable filesystem state, and errors may occur after construction. Current vstd has no filesystem-state abstraction relating the path to directory entries.",
+      "risks": [
+        "external filesystem state",
+        "nondeterministic entry order",
+        "deferred iterator errors"
+      ]
+    },
+    {
+      "target": "std::fs::read_link",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned PathBuf is determined by the current symbolic-link state, which cannot be related to the input path without a filesystem model absent from current vstd vocabulary.",
+      "risks": [
+        "external filesystem state",
+        "filesystem races",
+        "platform-dependent behavior"
+      ]
+    },
+    {
+      "target": "std::fs::read_to_string",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned string or error depends on external file contents and I/O behavior. Without a modeled filesystem, no useful source-justified relation between the path and result can be expressed.",
+      "risks": [
+        "external filesystem state",
+        "concurrent file mutation",
+        "I/O errors"
+      ]
+    },
+    {
+      "target": "std::fs::remove_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful effect is removal of a directory in external filesystem state. The unit result alone provides no useful contract without a modeled filesystem transition.",
+      "risks": [
+        "external filesystem mutation",
+        "filesystem races",
+        "platform-dependent errors"
+      ]
+    },
+    {
+      "target": "std::fs::remove_dir_all",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Recursive removal mutates unmodeled filesystem state and may partially remove contents before returning an error. Current vstd cannot express that state transition or partial progress.",
+      "risks": [
+        "external filesystem mutation",
+        "partial effects on error",
+        "filesystem races",
+        "platform-dependent behavior"
+      ]
+    },
+    {
+      "target": "std::fs::remove_file",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful semantics concern deletion in external filesystem state, for which current vstd provides no state or transition abstraction. No informative postcondition is available over io::Result<()> alone.",
+      "risks": [
+        "external filesystem mutation",
+        "filesystem races",
+        "platform-dependent errors"
+      ]
+    }
+  ]
+}

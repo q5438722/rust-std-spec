@@ -1,0 +1,164 @@
+{
+  "id": "std_specs__option.rs__L219__Option__a__T__cloned",
+  "api_path": "core::option::Option::cloned",
+  "raw_target": "Option::<&'a T>::cloned",
+  "contract_source_file": "std_specs/option.rs",
+  "contract_source_line": 219,
+  "rust_declaration": {
+    "declaration_id": "core:28062",
+    "name": "cloned",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "must_use": {
+          "reason": "`self` will be dropped if the result is not used"
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/option.rs",
+      "begin": [
+        2160,
+        5
+      ],
+      "end": [
+        2165,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "type": {
+              "generic": "T"
+            },
+            "bounds": [
+              {
+                "trait_bound": {
+                  "trait": {
+                    "path": "Clone",
+                    "id": 42,
+                    "args": null
+                  },
+                  "generic_params": [],
+                  "modifier": "none"
+                }
+              }
+            ],
+            "generic_params": []
+          }
+        }
+      ]
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:28063",
+      "for": {
+        "resolved_path": {
+          "path": "Option",
+          "id": 84,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "lifetime": null,
+                      "is_mutable": false,
+                      "type": {
+                        "generic": "T"
+                      }
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  2140:         match self {\n  2141:             Some(&v) => Some(v),\n  2142:             None => None,\n  2143:         }\n  2144:     }\n  2145: \n  2146:     /// Maps an `Option<&T>` to an `Option<T>` by cloning the contents of the\n  2147:     /// option.\n  2148:     ///\n  2149:     /// # Examples\n  2150:     ///\n  2151:     /// ```\n  2152:     /// let x = 12;\n  2153:     /// let opt_x = Some(&x);\n  2154:     /// assert_eq!(opt_x, Some(&12));\n  2155:     /// let cloned = opt_x.cloned();\n  2156:     /// assert_eq!(cloned, Some(12));\n  2157:     /// ```\n  2158:     #[must_use = \"`self` will be dropped if the result is not used\"]\n  2159:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  2160:     pub fn cloned(self) -> Option<T>\n  2161:     where\n  2162:         T: Clone,\n  2163:     {\n  2164:         self.map(T::clone)\n  2165:     }\n  2166: }\n  2167: \n  2168: impl<T> Option<&mut T> {\n  2169:     /// Maps an `Option<&mut T>` to an `Option<T>` by copying the contents of the\n  2170:     /// option.\n  2171:     ///\n  2172:     /// # Examples\n  2173:     ///\n  2174:     /// ```\n  2175:     /// let mut x = 12;\n  2176:     /// let opt_x = Some(&mut x);\n  2177:     /// assert_eq!(opt_x, Some(&mut 12));\n  2178:     /// let copied = opt_x.copied();\n  2179:     /// assert_eq!(copied, Some(12));\n  2180:     /// ```",
+    "source_text": "pub fn cloned(self) -> Option<T>\n    where\n        T: Clone,\n    {\n        self.map(T::clone)\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's Option::map specification correctly models the lower standard-library call.",
+    "vstd's Clone::clone specification correctly relates the cloned value through cloned/call_ensures."
+  ],
+  "rationale": "The source function exactly copies Rust 1.96's map(T::clone) body and proves the target contract compositionally from the lower map and clone specifications.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part2/targets/std_specs__option.rs__L219__Option__a__T__cloned"
+}

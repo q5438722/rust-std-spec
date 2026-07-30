@@ -1,0 +1,224 @@
+{
+  "candidates": [
+    {
+      "target": "std::sync::mpsc::Receiver::recv_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on concurrent channel state, sender liveness, queued messages, and elapsed runtime time. Current vstd has no public channel-state or timing abstraction for a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_and_time_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Receiver::try_iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although iterator construction is deterministic, its useful behavior is defined by messages concurrently available through a private receiver reference. No public vstd channel or iterator-state model can express that behavior.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_iterator_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Receiver::try_recv",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned message or error depends on the channel's hidden queue and connection state at runtime. Current vstd provides no public abstraction relating the receiver to those states.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_state_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Sender::send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, failure, and the enqueue effect depend on hidden receiver-liveness and channel state. Without a vstd channel-state or message-transfer abstraction, no useful transition contract can be stated.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_transition_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::SyncSender::send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method can block and its result and message-transfer effect depend on hidden capacity, receiver-liveness, and concurrent receiver activity. These states have no current public vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "blocking_runtime_behavior",
+        "missing_channel_transition_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::SyncSender::try_send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether sending succeeds or returns Full or Disconnected depends on hidden channel capacity, receiver-liveness, and concurrent activity. Current vstd lacks the channel-state abstraction needed for a useful contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_capacity_model"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::sync::mpsc::Receiver::recv_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on concurrent channel state, sender liveness, queued
+messages, and elapsed runtime time. Current vstd has no public channel-state or timing abstraction
+for a useful relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_and_time_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Receiver::try_iter",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although iterator construction is deterministic, its useful behavior is defined
+by messages concurrently available through a private receiver reference. No public vstd channel or
+iterator-state model can express that behavior.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_iterator_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Receiver::try_recv",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned message or error depends on the channel's hidden queue and
+connection state at runtime. Current vstd provides no public abstraction relating the receiver to
+those states.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_state_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::Sender::send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, failure, and the enqueue effect depend on hidden receiver-liveness and
+channel state. Without a vstd channel-state or message-transfer abstraction, no useful transition
+contract can be stated.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_transition_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::SyncSender::send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method can block and its result and message-transfer effect depend on hidden
+ capacity, receiver-liveness, and concurrent receiver activity. These states have no current public
+vstd model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "blocking_runtime_behavior",
+        "missing_channel_transition_model"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::SyncSender::try_send",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Whether sending succeeds or returns Full or Disconnected depends on hidden
+channel capacity, receiver-liveness, and concurrent activity. Current vstd lacks the channel-state
+abstraction needed for a useful contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "concurrency_or_hidden_state",
+        "missing_channel_capacity_model"
+      ]
+    } ]
+}
+

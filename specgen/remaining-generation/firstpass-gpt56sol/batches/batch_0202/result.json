@@ -1,0 +1,122 @@
+{
+  "batch": 202,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 121198,
+  "targets": [
+    "std::io::PipeReader::try_clone",
+    "std::io::PipeWriter::try_clone",
+    "std::io::Stderr::lock",
+    "std::io::Stdin::lines",
+    "std::io::Stdin::lock",
+    "std::io::Stdin::read_line"
+  ],
+  "candidates": [
+    {
+      "target": "std::io::PipeReader::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success and shared file-description identity depend on opaque OS state for which vstd has no public model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_pipe_identity_abstraction",
+        "os_dependent_failure"
+      ]
+    },
+    {
+      "target": "std::io::PipeWriter::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The documented sharing of an underlying file description cannot be expressed without modeling hidden OS resources.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_pipe_identity_abstraction",
+        "os_dependent_failure"
+      ]
+    },
+    {
+      "target": "std::io::Stderr::lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is an opaque guard for a static reentrant mutex; vstd exposes no suitable stderr lock-state relation.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_global_stream",
+        "missing_lock_guard_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Stdin::lines",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned iterator encapsulates a lock and runtime input stream, neither of which has a public vstd observation suitable for a useful contract.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_iterator_state",
+        "missing_stdin_stream_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Stdin::lock",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The opaque guard represents ownership of a hidden static mutex, with no public vstd lock-state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "hidden_global_stream",
+        "missing_lock_guard_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::Stdin::read_line",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification[std::io::Stdin::read_line](\n    stdin: &std::io::Stdin,\n    buf: &mut std::string::String,\n) -> (result: std::io::Result<usize>)\n    ensures\n        old(buf)@.is_prefix_of(final(buf)@),\n;",
+      "requires": [],
+      "ensures": [
+        "old(buf)@.is_prefix_of(final(buf)@)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The supplied documentation explicitly guarantees that existing buffer content is preserved while input is appended, which String and Seq views can express without modeling stdin.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "input_contents_unmodeled",
+        "result_byte_count_unmodeled",
+        "blocking_and_io_errors_unmodeled"
+      ]
+    }
+  ]
+}

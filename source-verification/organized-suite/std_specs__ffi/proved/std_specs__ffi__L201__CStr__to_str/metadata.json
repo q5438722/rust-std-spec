@@ -1,0 +1,134 @@
+{
+  "id": "std_specs__ffi.rs__L201__CStr__to_str",
+  "api_path": "core::ffi::CStr::to_str",
+  "raw_target": "CStr::to_str",
+  "contract_source_file": "std_specs/ffi.rs",
+  "contract_source_line": 201,
+  "rust_declaration": {
+    "declaration_id": "core:25246",
+    "name": "to_str",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 4, patch: 0 })},\nfeature: \"cstr_to_str\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 72, patch: 0 })},\nfeature: \"const_cstr_methods\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/ffi/c_str.rs",
+      "begin": [
+        620,
+        5
+      ],
+      "end": [
+        626,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Result",
+          "id": 90,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "borrowed_ref": {
+                      "lifetime": null,
+                      "is_mutable": false,
+                      "type": {
+                        "primitive": "str"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": {
+                    "resolved_path": {
+                      "path": "str::Utf8Error",
+                      "id": 10083,
+                      "args": null
+                    }
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:25249",
+      "for": {
+        "resolved_path": {
+          "path": "CStr",
+          "id": 10771,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10771",
+      "resolved_owner_path": [
+        "core",
+        "ffi",
+        "c_str",
+        "CStr"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   600:     #[unstable(feature = \"cstr_bytes\", issue = \"112115\")]\n   601:     pub fn bytes(&self) -> Bytes<'_> {\n   602:         Bytes::new(self)\n   603:     }\n   604: \n   605:     /// Yields a <code>&[str]</code> slice if the `CStr` contains valid UTF-8.\n   606:     ///\n   607:     /// If the contents of the `CStr` are valid UTF-8 data, this\n   608:     /// function will return the corresponding <code>&[str]</code> slice. Otherwise,\n   609:     /// it will return an error with details of where UTF-8 validation failed.\n   610:     ///\n   611:     /// [str]: prim@str \"str\"\n   612:     ///\n   613:     /// # Examples\n   614:     ///\n   615:     /// ```\n   616:     /// assert_eq!(c\"foo\".to_str(), Ok(\"foo\"));\n   617:     /// ```\n   618:     #[stable(feature = \"cstr_to_str\", since = \"1.4.0\")]\n   619:     #[rustc_const_stable(feature = \"const_cstr_methods\", since = \"1.72.0\")]\n   620:     pub const fn to_str(&self) -> Result<&str, str::Utf8Error> {\n   621:         // N.B., when `CStr` is changed to perform the length check in `.to_bytes()`\n   622:         // instead of in `from_ptr()`, it may be worth considering if this should\n   623:         // be rewritten to do the UTF-8 check inline with the length calculation\n   624:         // instead of doing it afterwards.\n   625:         str::from_utf8(self.to_bytes())\n   626:     }\n   627: \n   628:     /// Returns an object that implements [`Display`] for safely printing a [`CStr`] that may\n   629:     /// contain non-Unicode data.\n   630:     ///\n   631:     /// Behaves as if `self` were first lossily converted to a `str`, with invalid UTF-8 presented\n   632:     /// as the Unicode replacement character: \ufffd.\n   633:     ///\n   634:     /// [`Display`]: fmt::Display\n   635:     ///\n   636:     /// # Examples\n   637:     ///\n   638:     /// ```\n   639:     /// #![feature(cstr_display)]\n   640:     ///",
+    "source_text": "pub const fn to_str(&self) -> Result<&str, str::Utf8Error> {\n        // N.B., when `CStr` is changed to perform the length check in `.to_bytes()`\n        // instead of in `from_ptr()`, it may be worth considering if this should\n        // be rewritten to do the UTF-8 check inline with the length calculation\n        // instead of doing it afterwards.\n        str::from_utf8(self.to_bytes())\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The vstd contract for CStr::to_bytes returns a slice whose view equals value@.",
+    "The declared lower-level contract for core::str::from_utf8 correctly characterizes UTF-8 validation and decoding."
+  ],
+  "rationale": "The source function copies Rust 1.96's one-line composition exactly and derives the target contract from the two smaller API contracts.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/std_specs__ffi.rs__L201__CStr__to_str"
+}

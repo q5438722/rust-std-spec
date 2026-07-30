@@ -1,0 +1,123 @@
+{
+  "id": "std_specs__maybe_uninit.rs__L39__MaybeUninit__T__assume_init",
+  "api_path": "core::mem::MaybeUninit::assume_init",
+  "normalized_api_path": "core::mem::MaybeUninit::assume_init",
+  "raw_target": "MaybeUninit::<T>::assume_init",
+  "contract_source_file": "std_specs/maybe_uninit.rs",
+  "contract_source_line": 39,
+  "rust_declaration": {
+    "declaration_id": "core:8668",
+    "name": "assume_init",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 36, patch: 0 })},\nfeature: \"maybe_uninit\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 59, patch: 0 })},\nfeature: \"const_maybe_uninit_assume_init_by_value\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"assume_init\")]"
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/mem/maybe_uninit.rs",
+      "begin": [
+        721,
+        5
+      ],
+      "end": [
+        730,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": true,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "output": {
+        "generic": "T"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:8682",
+      "for": {
+        "resolved_path": {
+          "path": "MaybeUninit",
+          "id": 8278,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:8278",
+      "resolved_owner_path": [
+        "core",
+        "mem",
+        "maybe_uninit",
+        "MaybeUninit"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   701:     /// x.write(true);\n   702:     /// let x_init = unsafe { x.assume_init() };\n   703:     /// assert_eq!(x_init, true);\n   704:     /// ```\n   705:     ///\n   706:     /// *Incorrect* usage of this method:\n   707:     ///\n   708:     /// ```rust,no_run\n   709:     /// # #![allow(invalid_value)]\n   710:     /// use std::mem::MaybeUninit;\n   711:     ///\n   712:     /// let x: i32 = unsafe { MaybeUninit::uninit().assume_init() }; // undefined behavior! \u26a0\ufe0f\n   713:     /// ```\n   714:     ///\n   715:     /// See the [type-level documentation][#examples] for more examples.\n   716:     #[stable(feature = \"maybe_uninit\", since = \"1.36.0\")]\n   717:     #[rustc_const_stable(feature = \"const_maybe_uninit_assume_init_by_value\", since = \"1.59.0\")]\n   718:     #[inline(always)]\n   719:     #[rustc_diagnostic_item = \"assume_init\"]\n   720:     #[track_caller]\n   721:     pub const unsafe fn assume_init(self) -> T {\n   722:         // SAFETY: the caller must guarantee that `self` is initialized.\n   723:         // This also means that `self` must be a `value` variant.\n   724:         unsafe {\n   725:             intrinsics::assert_inhabited::<T>();\n   726:             // We do this via a raw ptr read instead of `ManuallyDrop::into_inner` so that there's\n   727:             // no trace of `ManuallyDrop` in Miri's error messages here.\n   728:             (&raw const self.value).cast::<T>().read()\n   729:         }\n   730:     }\n   731: \n   732:     /// Reads the value from the `MaybeUninit<T>` container. The resulting `T` is subject\n   733:     /// to the usual drop handling.\n   734:     ///\n   735:     /// Whenever possible, it is preferable to use [`assume_init`] instead, which\n   736:     /// prevents duplicating the content of the `MaybeUninit<T>`.\n   737:     ///\n   738:     /// # Safety\n   739:     ///\n   740:     /// It is up to the caller to guarantee that the `MaybeUninit<T>` really is in an initialized\n   741:     /// state. Calling this when the content is not yet fully initialized causes undefined",
+    "source_text": "pub const unsafe fn assume_init(self) -> T {\n        // SAFETY: the caller must guarantee that `self` is initialized.\n        // This also means that `self` must be a `value` variant.\n        unsafe {\n            intrinsics::assert_inhabited::<T>();\n            // We do this via a raw ptr read instead of `ManuallyDrop::into_inner` so that there's\n            // no trace of `ManuallyDrop` in Miri's error messages here.\n            (&raw const self.value).cast::<T>().read()\n        }\n    }",
+    "has_body": true
+  }
+}

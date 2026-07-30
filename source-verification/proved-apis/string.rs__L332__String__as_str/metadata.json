@@ -1,0 +1,120 @@
+{
+  "id": "string.rs__L332__String__as_str",
+  "api_path": "alloc::string::String::as_str",
+  "raw_target": "String::as_str",
+  "contract_source_file": "string.rs",
+  "contract_source_line": 332,
+  "rust_declaration": {
+    "declaration_id": "alloc:4023",
+    "name": "as_str",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 7, patch: 0 })},\nfeature: \"string_as_str\"}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"string_as_str\")]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 87, patch: 0 })},\nfeature: \"const_vec_string_slice\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/string.rs",
+      "begin": [
+        1052,
+        5
+      ],
+      "end": [
+        1056,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": false,
+          "type": {
+            "primitive": "str"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4074",
+      "for": {
+        "resolved_path": {
+          "path": "String",
+          "id": 119,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:119",
+      "resolved_owner_path": [
+        "alloc",
+        "string",
+        "String"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "  1032:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1033:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]\n  1034:     pub const fn into_bytes(self) -> Vec<u8> {\n  1035:         self.vec\n  1036:     }\n  1037: \n  1038:     /// Extracts a string slice containing the entire `String`.\n  1039:     ///\n  1040:     /// # Examples\n  1041:     ///\n  1042:     /// ```\n  1043:     /// let s = String::from(\"foo\");\n  1044:     ///\n  1045:     /// assert_eq!(\"foo\", s.as_str());\n  1046:     /// ```\n  1047:     #[inline]\n  1048:     #[must_use]\n  1049:     #[stable(feature = \"string_as_str\", since = \"1.7.0\")]\n  1050:     #[rustc_diagnostic_item = \"string_as_str\"]\n  1051:     #[rustc_const_stable(feature = \"const_vec_string_slice\", since = \"1.87.0\")]\n  1052:     pub const fn as_str(&self) -> &str {\n  1053:         // SAFETY: String contents are stipulated to be valid UTF-8, invalid contents are an error\n  1054:         // at construction.\n  1055:         unsafe { str::from_utf8_unchecked(self.vec.as_slice()) }\n  1056:     }\n  1057: \n  1058:     /// Converts a `String` into a mutable string slice.\n  1059:     ///\n  1060:     /// # Examples\n  1061:     ///\n  1062:     /// ```\n  1063:     /// let mut s = String::from(\"foobar\");\n  1064:     /// let s_mut_str = s.as_mut_str();\n  1065:     ///\n  1066:     /// s_mut_str.make_ascii_uppercase();\n  1067:     ///\n  1068:     /// assert_eq!(\"FOOBAR\", s_mut_str);\n  1069:     /// ```\n  1070:     #[inline]\n  1071:     #[must_use]\n  1072:     #[stable(feature = \"string_as_str\", since = \"1.7.0\")]",
+    "source_text": "pub const fn as_str(&self) -> &str {\n        // SAFETY: String contents are stipulated to be valid UTF-8, invalid contents are an error\n        // at construction.\n        unsafe { str::from_utf8_unchecked(self.vec.as_slice()) }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The lower String::as_bytes contract returns encode_utf8(s@).",
+    "The vstd str::from_utf8_unchecked contract preserves valid UTF-8 bytes."
+  ],
+  "rationale": "String::as_bytes exactly replaces the inaccessible self.vec.as_slice() subexpression; the original unchecked UTF-8 conversion then proves the character view using vstd UTF-8 lemmas.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/string.rs__L332__String__as_str"
+}

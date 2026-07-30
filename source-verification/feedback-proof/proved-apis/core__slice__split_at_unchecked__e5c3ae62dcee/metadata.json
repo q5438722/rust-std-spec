@@ -1,0 +1,149 @@
+{
+  "id": "core__slice__split_at_unchecked__e5c3ae62dcee",
+  "api_path": "core::slice::split_at_unchecked",
+  "raw_target": "<[T]>::split_at_unchecked",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 79, patch: 0 })},\nfeature: \"slice_split_at_unchecked\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 77, patch: 0 })},\nfeature: \"const_slice_split_at_unchecked\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = TrackCaller]"
+      }
+    ],
+    "declaration_id": "core:51823",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": true
+    },
+    "name": "split_at_unchecked",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "slice": {
+          "generic": "T"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:51877",
+      "kind": "inherent_impl",
+      "resolved_owner_id": null,
+      "resolved_owner_path": null,
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "mid",
+          {
+            "primitive": "usize"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "tuple": [
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "slice": {
+                  "generic": "T"
+                }
+              }
+            }
+          },
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "slice": {
+                  "generic": "T"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "source_context": "  1993:     /// Divides one slice into two at an index, without doing bounds checking.\n  1994:     ///\n  1995:     /// The first will contain all indices from `[0, mid)` (excluding\n  1996:     /// the index `mid` itself) and the second will contain all\n  1997:     /// indices from `[mid, len)` (excluding the index `len` itself).\n  1998:     ///\n  1999:     /// For a safe alternative see [`split_at`].\n  2000:     ///\n  2001:     /// # Safety\n  2002:     ///\n  2003:     /// Calling this method with an out-of-bounds index is *[undefined behavior]*\n  2004:     /// even if the resulting reference is not used. The caller has to ensure that\n  2005:     /// `0 <= mid <= self.len()`.\n  2006:     ///\n  2007:     /// [`split_at`]: slice::split_at\n  2008:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  2009:     ///\n  2010:     /// # Examples\n  2011:     ///\n  2012:     /// ```\n  2013:     /// let v = ['a', 'b', 'c'];\n  2014:     ///\n  2015:     /// unsafe {\n  2016:     ///    let (left, right) = v.split_at_unchecked(0);\n  2017:     ///    assert_eq!(left, []);\n  2018:     ///    assert_eq!(right, ['a', 'b', 'c']);\n  2019:     /// }\n  2020:     ///\n  2021:     /// unsafe {\n  2022:     ///     let (left, right) = v.split_at_unchecked(2);\n  2023:     ///     assert_eq!(left, ['a', 'b']);\n  2024:     ///     assert_eq!(right, ['c']);\n  2025:     /// }\n  2026:     ///\n  2027:     /// unsafe {\n  2028:     ///     let (left, right) = v.split_at_unchecked(3);\n  2029:     ///     assert_eq!(left, ['a', 'b', 'c']);\n  2030:     ///     assert_eq!(right, []);\n  2031:     /// }\n  2032:     /// ```\n  2033:     #[stable(feature = \"slice_split_at_unchecked\", since = \"1.79.0\")]\n  2034:     #[rustc_const_stable(feature = \"const_slice_split_at_unchecked\", since = \"1.77.0\")]\n  2035:     #[inline]\n  2036:     #[must_use]\n  2037:     #[track_caller]\n  2038:     pub const unsafe fn split_at_unchecked(&self, mid: usize) -> (&[T], &[T]) {\n  2039:         // FIXME(const-hack): the const function `from_raw_parts` is used to make this\n  2040:         // function const; previously the implementation used\n  2041:         // `(self.get_unchecked(..mid), self.get_unchecked(mid..))`\n  2042: \n  2043:         let len = self.len();\n  2044:         let ptr = self.as_ptr();\n  2045: \n  2046:         assert_unsafe_precondition!(\n  2047:             check_library_ub,\n  2048:             \"slice::split_at_unchecked requires the index to be within the slice\",\n  2049:             (mid: usize = mid, len: usize = len) => mid <= len,\n  2050:         );\n  2051: \n  2052:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`\n  2053:         unsafe { (from_raw_parts(ptr, mid), from_raw_parts(ptr.add(mid), unchecked_sub(len, mid))) }\n  2054:     }\n  2055: \n  2056:     /// Divides one mutable slice into two at an index, without doing bounds checking.\n  2057:     ///\n  2058:     /// The first will contain all indices from `[0, mid)` (excluding\n  2059:     /// the index `mid` itself) and the second will contain all\n  2060:     /// indices from `[mid, len)` (excluding the index `len` itself).\n  2061:     ///\n  2062:     /// For a safe alternative see [`split_at_mut`].\n  2063:     ///\n  2064:     /// # Safety\n  2065:     ///\n  2066:     /// Calling this method with an out-of-bounds index is *[undefined behavior]*\n  2067:     /// even if the resulting reference is not used. The caller has to ensure that\n  2068:     /// `0 <= mid <= self.len()`.\n  2069:     ///\n  2070:     /// [`split_at_mut`]: slice::split_at_mut\n  2071:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  2072:     ///\n  2073:     /// # Examples\n  2074:     ///\n  2075:     /// ```\n  2076:     /// let mut v = [1, 0, 3, 0, 5, 6];\n  2077:     /// // scoped to restrict the lifetime of the borrows\n  2078:     /// unsafe {\n  2079:     ///     let (left, right) = v.split_at_mut_unchecked(2);\n  2080:     ///     assert_eq!(left, [1, 0]);\n  2081:     ///     assert_eq!(right, [3, 0, 5, 6]);\n  2082:     ///     left[1] = 2;\n  2083:     ///     right[1] = 4;",
+    "span": {
+      "begin": [
+        2038,
+        5
+      ],
+      "end": [
+        2054,
+        6
+      ],
+      "filename": "core/src/slice/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const unsafe fn split_at_unchecked(&self, mid: usize) -> (&[T], &[T]) {\n        // FIXME(const-hack): the const function `from_raw_parts` is used to make this\n        // function const; previously the implementation used\n        // `(self.get_unchecked(..mid), self.get_unchecked(mid..))`\n\n        let len = self.len();\n        let ptr = self.as_ptr();\n\n        assert_unsafe_precondition!(\n            check_library_ub,\n            \"slice::split_at_unchecked requires the index to be within the slice\",\n            (mid: usize = mid, len: usize = len) => mid <= len,\n        );\n\n        // SAFETY: Caller has to check that `0 <= mid <= self.len()`\n        unsafe { (from_raw_parts(ptr, mid), from_raw_parts(ptr.add(mid), unchecked_sub(len, mid))) }\n    }",
+    "has_body": true
+  },
+  "trust_level": "D",
+  "trusted_assumptions": [
+    "The <[T]>::as_ptr representation contract exposes every in-bounds prefix and suffix region.",
+    "Raw-pointer add and core::slice::from_raw_parts preserve the modeled region and sequence view.",
+    "axiom_compiler_unchecked_sub_usize states that in-bounds usize unchecked_sub equals ordinary subtraction."
+  ],
+  "rationale": "The Rust 1.96 operations and order are preserved. Raw-memory contracts and one explicit compiler-intrinsic axiom establish both returned views.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__split_at_unchecked__e5c3ae62dcee"
+}

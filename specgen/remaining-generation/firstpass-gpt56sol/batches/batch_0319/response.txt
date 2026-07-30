@@ -1,0 +1,226 @@
+{
+  "candidates": [
+    {
+      "target": "alloc::vec::Vec::as_mut_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the pointer and its write-through effects to the Vec buffer. Vec's sequence view exposes neither allocation identity nor raw-memory permissions.",
+      "risks": [
+        "missing_vec_buffer_abstraction",
+        "pointer_provenance",
+        "raw_pointer_equality",
+        "write_through_aliasing"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Non-nullness alone does not characterize the result; relating it to the Vec's backing allocation requires unavailable buffer-identity and provenance abstractions.",
+      "risks": [
+        "missing_vec_buffer_abstraction",
+        "pointer_provenance",
+        "raw_pointer_equality"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::from_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety and result require global-allocation ownership, layout compatibility, and initialized elements. These cannot be recovered from the pointer, length, and capacity using current vstd vocabulary.",
+      "risks": [
+        "missing_raw_allocation_ownership_token",
+        "pointer_provenance",
+        "allocator_identity",
+        "initialization_state"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::into_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The meaningful behavior transfers the Vec allocation and its contents to the returned pointer. Vec's view exposes only its sequence, not capacity, allocation identity, provenance, or ownership permissions.",
+      "risks": [
+        "missing_vec_allocation_abstraction",
+        "ownership_transfer",
+        "pointer_provenance",
+        "raw_pointer_equality"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::set_len",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Growing the length requires initialized spare elements and a capacity bound, neither of which Vec's sequence view models. Restricting the contract to shrinking would impose an unjustified stronger precondition.",
+      "risks": [
+        "missing_spare_capacity_abstraction",
+        "unmodeled_initialization_state",
+        "unsafe_ownership_sensitive"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::from_size_align_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "vstd::layout::valid_layout can express the safety condition, but no public Layout view relates the opaque result to the supplied size and alignment, leaving no useful result contract.",
+      "risks": [
+        "missing_layout_value_abstraction",
+        "opaque_result",
+        "precondition_only_contract"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "alloc::vec::Vec::as_mut_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must connect the pointer and its write-through effects to the
+Vec buffer. Vec's sequence view exposes neither allocation identity nor raw-memory permissions.",
+      "risks": [
+        "missing_vec_buffer_abstraction",
+        "pointer_provenance",
+        "raw_pointer_equality",
+        "write_through_aliasing"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Non-nullness alone does not characterize the result; relating it to the Vec's
+backing allocation requires unavailable buffer-identity and provenance abstractions.",
+      "risks": [
+        "missing_vec_buffer_abstraction",
+        "pointer_provenance",
+        "raw_pointer_equality"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::from_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety and result require global-allocation ownership, layout compatibility,
+ and initialized elements. These cannot be recovered from the pointer, length, and capacity using
+current vstd vocabulary.",
+      "risks": [
+        "missing_raw_allocation_ownership_token",
+        "pointer_provenance",
+        "allocator_identity",
+        "initialization_state"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::into_raw_parts",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The meaningful behavior transfers the Vec allocation and its contents to the
+returned pointer. Vec's view exposes only its sequence, not capacity, allocation identity,
+provenance, or ownership permissions.",
+      "risks": [
+        "missing_vec_allocation_abstraction",
+        "ownership_transfer",
+        "pointer_provenance",
+        "raw_pointer_equality"
+      ]
+    },
+    {
+      "target": "alloc::vec::Vec::set_len",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Growing the length requires initialized spare elements and a capacity bound,
+neither of which Vec's sequence view models. Restricting the contract to shrinking would impose an
+unjustified stronger precondition.",
+      "risks": [
+        "missing_spare_capacity_abstraction",
+        "unmodeled_initialization_state",
+        "unsafe_ownership_sensitive"
+      ]
+    },
+    {
+      "target": "core::alloc::Layout::from_size_align_unchecked",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "vstd::layout::valid_layout can express the safety condition, but no public
+Layout view relates the opaque result to the supplied size and alignment, leaving no useful result
+contract.",
+      "risks": [
+        "missing_layout_value_abstraction",
+        "opaque_result",
+        "precondition_only_contract"
+      ]
+    } ]
+}
+

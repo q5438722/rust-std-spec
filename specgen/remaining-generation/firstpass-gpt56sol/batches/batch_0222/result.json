@@ -1,0 +1,111 @@
+{
+  "batch": 222,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 31822,
+  "targets": [
+    "std::os::unix::net::UnixStream::set_read_timeout",
+    "std::os::unix::net::UnixStream::set_write_timeout",
+    "std::os::unix::net::UnixStream::shutdown",
+    "std::os::unix::net::UnixStream::take_error",
+    "std::os::unix::net::UnixStream::try_clone",
+    "std::os::unix::net::UnixStream::write_timeout"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::unix::net::UnixStream::set_read_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates the kernel SO_RCVTIMEO state through &self. vstd has no socket-option state model connecting success to later reads or timeout queries.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::set_write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates hidden SO_SNDTIMEO state and may fail based on OS state. No current vstd abstraction can express its persistent effect.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::shutdown",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Shutdown changes kernel-managed connection state and future local and peer-visible I/O behavior, none of which is modeled by current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_connection_state_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::take_error",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on and clears the socket's hidden pending-error state. vstd cannot express either the prior error state or its consumption.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "destructive_hidden_state_query"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::try_clone",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A successful clone is a distinct handle sharing the same underlying stream and options. Current vstd has no public relation for shared OS-handle identity or state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_shared_handle_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::unix::net::UnixStream::write_timeout",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method queries hidden SO_SNDTIMEO kernel state and can fail at runtime. Its result cannot be related to the stream or prior setters without a socket-state model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_state_abstraction"
+      ]
+    }
+  ]
+}

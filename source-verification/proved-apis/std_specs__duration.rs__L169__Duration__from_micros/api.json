@@ -1,0 +1,103 @@
+{
+  "id": "std_specs__duration.rs__L169__Duration__from_micros",
+  "api_path": "core::time::Duration::from_micros",
+  "normalized_api_path": "core::time::Duration::from_micros",
+  "raw_target": "Duration::from_micros",
+  "contract_source_file": "std_specs/duration.rs",
+  "contract_source_line": 169,
+  "rust_declaration": {
+    "declaration_id": "core:32341",
+    "name": "from_micros",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 27, patch: 0 })},\nfeature: \"duration_from_micros\"}}]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 32, patch: 0 })},\nfeature: \"duration_consts\", promotable: false}}]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/time.rs",
+      "begin": [
+        270,
+        5
+      ],
+      "end": [
+        278,
+        6
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "micros",
+          {
+            "primitive": "u64"
+          }
+        ]
+      ],
+      "output": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "core:32378",
+      "for": {
+        "resolved_path": {
+          "path": "Duration",
+          "id": 10186,
+          "args": null
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "core:10186",
+      "resolved_owner_path": [
+        "core",
+        "time",
+        "Duration"
+      ]
+    },
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   250: \n   251:         Duration { secs, nanos: subsec_nanos }\n   252:     }\n   253: \n   254:     /// Creates a new `Duration` from the specified number of microseconds.\n   255:     ///\n   256:     /// # Examples\n   257:     ///\n   258:     /// ```\n   259:     /// use std::time::Duration;\n   260:     ///\n   261:     /// let duration = Duration::from_micros(1_000_002);\n   262:     ///\n   263:     /// assert_eq!(1, duration.as_secs());\n   264:     /// assert_eq!(2_000, duration.subsec_nanos());\n   265:     /// ```\n   266:     #[stable(feature = \"duration_from_micros\", since = \"1.27.0\")]\n   267:     #[must_use]\n   268:     #[inline]\n   269:     #[rustc_const_stable(feature = \"duration_consts\", since = \"1.32.0\")]\n   270:     pub const fn from_micros(micros: u64) -> Duration {\n   271:         let secs = micros / MICROS_PER_SEC;\n   272:         let subsec_micros = (micros % MICROS_PER_SEC) as u32;\n   273:         // SAFETY: (x % 1_000_000) * 1_000 < 1_000_000_000\n   274:         //         => x % 1_000_000 < 1_000_000\n   275:         let subsec_nanos = unsafe { Nanoseconds::new_unchecked(subsec_micros * NANOS_PER_MICRO) };\n   276: \n   277:         Duration { secs, nanos: subsec_nanos }\n   278:     }\n   279: \n   280:     /// Creates a new `Duration` from the specified number of nanoseconds.\n   281:     ///\n   282:     /// Note: Using this on the return value of `as_nanos()` might cause unexpected behavior:\n   283:     /// `as_nanos()` returns a u128, and can return values that do not fit in u64, e.g. 585 years.\n   284:     /// Instead, consider using the pattern `Duration::new(d.as_secs(), d.subsec_nanos())`\n   285:     /// if you cannot copy/clone the Duration directly.\n   286:     ///\n   287:     /// # Examples\n   288:     ///\n   289:     /// ```\n   290:     /// use std::time::Duration;",
+    "source_text": "pub const fn from_micros(micros: u64) -> Duration {\n        let secs = micros / MICROS_PER_SEC;\n        let subsec_micros = (micros % MICROS_PER_SEC) as u32;\n        // SAFETY: (x % 1_000_000) * 1_000 < 1_000_000_000\n        //         => x % 1_000_000 < 1_000_000\n        let subsec_nanos = unsafe { Nanoseconds::new_unchecked(subsec_micros * NANOS_PER_MICRO) };\n\n        Duration { secs, nanos: subsec_nanos }\n    }",
+    "has_body": true
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "batch": 311,
+  "group": "trait_contract_integration",
+  "duration_ms": 23660,
+  "targets": [
+    "std::os::windows::io::AsHandle::as_handle",
+    "std::os::windows::io::AsRawHandle::as_raw_handle",
+    "std::os::windows::io::AsRawSocket::as_raw_socket",
+    "std::os::windows::io::AsSocket::as_socket",
+    "std::os::windows::io::FromRawHandle::from_raw_handle",
+    "std::os::windows::io::FromRawSocket::from_raw_socket"
+  ],
+  "candidates": [
+    {
+      "target": "std::os::windows::io::AsHandle::as_handle",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The signature enforces the borrow lifetime, but no public vstd abstraction relates BorrowedHandle to the underlying externally managed Windows handle.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_handle_validity_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::AsRawHandle::as_raw_handle",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Implementations expose an externally managed raw handle, which may be null, and the trait provides no modeled state from which its value or validity can be specified.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_handle_identity_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::AsRawSocket::as_raw_socket",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned socket identity and validity depend on unmodeled external state, and the trait exposes no public specification-level relation to that state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_identity_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::AsSocket::as_socket",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The signature enforces the borrow lifetime, but current vstd has no public abstraction relating BorrowedSocket to the underlying externally managed socket.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_validity_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::FromRawHandle::from_raw_handle",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety requirements require an open, owned, CloseHandle-compatible resource, but current vstd has no predicate or ownership model for those Windows handle properties.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_handle_ownership_abstraction"
+      ]
+    },
+    {
+      "target": "std::os::windows::io::FromRawSocket::from_raw_socket",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety requirements require an open, owned, closesocket-compatible resource, but current vstd has no predicate or ownership model for those Windows socket properties.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_socket_ownership_abstraction"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "batch": 50,
+  "group": "determinism_checker_unsupported",
+  "duration_ms": 25116,
+  "targets": [
+    "core::slice::first_chunk_mut",
+    "core::slice::from_mut",
+    "core::slice::from_raw_parts_mut",
+    "core::slice::get_disjoint_mut",
+    "core::slice::get_disjoint_unchecked_mut",
+    "core::slice::get_mut"
+  ],
+  "candidates": [
+    {
+      "target": "core::slice::first_chunk_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned mutable array reference aliases the slice prefix. Current vstd cannot express that identity and its write-back behavior, and mutable-reference returns are unsupported.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::from_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract must state that the one-element mutable slice is the same storage as the input reference and propagates mutations back. Current vstd cannot express this aliasing relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::slice::from_raw_parts_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its safety and result semantics require pointer provenance, allocation validity, exclusivity, alignment, and mutable-slice aliasing abstractions unavailable in current vstd.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_pointer_provenance_and_allocation_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::get_disjoint_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful generic contract requires modeling SliceIndex regions, bounds, disjointness, and multiple mutable outputs as write-through views of the original slice. Those abstractions are unavailable.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_generic_slice_index_region_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::get_disjoint_unchecked_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Expressing its unsafe precondition and result requires generic SliceIndex bounds and pairwise-disjoint regions, plus write-through identities for every returned mutable reference. Current vstd lacks these abstractions.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_generic_slice_index_region_abstraction"
+      ]
+    },
+    {
+      "target": "core::slice::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "For arbitrary SliceIndex implementations, a useful contract must identify the selected element or subslice and relate mutations through the returned reference back to self. Current vstd cannot express that relation.",
+      "risks": [
+        "mutable_reference_return_not_supported",
+        "reference_identity_vs_view",
+        "missing_generic_slice_index_abstraction"
+      ]
+    }
+  ]
+}

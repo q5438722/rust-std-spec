@@ -1,0 +1,142 @@
+{
+  "id": "core__ptr__addr_eq__b36130860a78",
+  "api_path": "core::ptr::addr_eq",
+  "raw_target": "core::ptr::addr_eq::<T, U>",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 76, patch: 0 })},\nfeature: \"ptr_addr_eq\"}}]"
+      },
+      {
+        "other": "#[attr = Inline(Always)]"
+      },
+      {
+        "must_use": {
+          "reason": "pointer comparison produces a value"
+        }
+      }
+    ],
+    "declaration_id": "core:9615",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "none",
+                    "trait": {
+                      "args": null,
+                      "id": 7872,
+                      "path": "PointeeSized"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "generic_params": [],
+                    "modifier": "none",
+                    "trait": {
+                      "args": null,
+                      "id": 7872,
+                      "path": "PointeeSized"
+                    }
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": false,
+      "is_unsafe": false
+    },
+    "name": "addr_eq",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [
+        [
+          "p",
+          {
+            "raw_pointer": {
+              "is_mutable": false,
+              "type": {
+                "generic": "T"
+              }
+            }
+          }
+        ],
+        [
+          "q",
+          {
+            "raw_pointer": {
+              "is_mutable": false,
+              "type": {
+                "generic": "U"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "primitive": "bool"
+      }
+    },
+    "source_context": "  2402: ///\n  2403: /// assert!(five_ref == same_five_ref);\n  2404: /// assert!(ptr::eq(five_ref, same_five_ref));\n  2405: ///\n  2406: /// assert!(five_ref == other_five_ref);\n  2407: /// assert!(!ptr::eq(five_ref, other_five_ref));\n  2408: /// ```\n  2409: ///\n  2410: /// Slices are also compared by their length (fat pointers):\n  2411: ///\n  2412: /// ```\n  2413: /// let a = [1, 2, 3];\n  2414: /// assert!(std::ptr::eq(&a[..3], &a[..3]));\n  2415: /// assert!(!std::ptr::eq(&a[..2], &a[..3]));\n  2416: /// assert!(!std::ptr::eq(&a[0..2], &a[1..3]));\n  2417: /// ```\n  2418: #[stable(feature = \"ptr_eq\", since = \"1.17.0\")]\n  2419: #[inline(always)]\n  2420: #[must_use = \"pointer comparison produces a value\"]\n  2421: #[rustc_diagnostic_item = \"ptr_eq\"]\n  2422: #[allow(ambiguous_wide_pointer_comparisons)] // it's actually clear here\n  2423: pub fn eq<T: PointeeSized>(a: *const T, b: *const T) -> bool {\n  2424:     a == b\n  2425: }\n  2426: \n  2427: /// Compares the *addresses* of the two pointers for equality,\n  2428: /// ignoring any metadata in fat pointers.\n  2429: ///\n  2430: /// If the arguments are thin pointers of the same type,\n  2431: /// then this is the same as [`eq`].\n  2432: ///\n  2433: /// # Examples\n  2434: ///\n  2435: /// ```\n  2436: /// use std::ptr;\n  2437: ///\n  2438: /// let whole: &[i32; 3] = &[1, 2, 3];\n  2439: /// let first: &i32 = &whole[0];\n  2440: ///\n  2441: /// assert!(ptr::addr_eq(whole, first));\n  2442: /// assert!(!ptr::eq::<dyn std::fmt::Debug>(whole, first));\n  2443: /// ```\n  2444: #[stable(feature = \"ptr_addr_eq\", since = \"1.76.0\")]\n  2445: #[inline(always)]\n  2446: #[must_use = \"pointer comparison produces a value\"]\n  2447: pub fn addr_eq<T: PointeeSized, U: PointeeSized>(p: *const T, q: *const U) -> bool {\n  2448:     (p as *const ()) == (q as *const ())\n  2449: }\n  2450: \n  2451: /// Compares the *addresses* of the two function pointers for equality.\n  2452: ///\n  2453: /// This is the same as `f == g`, but using this function makes clear that the potentially\n  2454: /// surprising semantics of function pointer comparison are involved.\n  2455: ///\n  2456: /// There are **very few guarantees** about how functions are compiled and they have no intrinsic\n  2457: /// \u201cidentity\u201d; in particular, this comparison:\n  2458: ///\n  2459: /// * May return `true` unexpectedly, in cases where functions are equivalent.\n  2460: ///\n  2461: ///   For example, the following program is likely (but not guaranteed) to print `(true, true)`\n  2462: ///   when compiled with optimization:\n  2463: ///\n  2464: ///   ```\n  2465: ///   let f: fn(i32) -> i32 = |x| x;\n  2466: ///   let g: fn(i32) -> i32 = |x| x + 0;  // different closure, different body\n  2467: ///   let h: fn(u32) -> u32 = |x| x + 0;  // different signature too\n  2468: ///   dbg!(std::ptr::fn_addr_eq(f, g), std::ptr::fn_addr_eq(f, h)); // not guaranteed to be equal\n  2469: ///   ```\n  2470: ///\n  2471: /// * May return `false` in any case.\n  2472: ///\n  2473: ///   This is particularly likely with generic functions but may happen with any function.\n  2474: ///   (From an implementation perspective, this is possible because functions may sometimes be\n  2475: ///   processed more than once by the compiler, resulting in duplicate machine code.)\n  2476: ///\n  2477: /// Despite these false positives and false negatives, this comparison can still be useful.\n  2478: /// Specifically, if\n  2479: ///\n  2480: /// * `T` is the same type as `U`, `T` is a [subtype] of `U`, or `U` is a [subtype] of `T`, and\n  2481: /// * `ptr::fn_addr_eq(f, g)` returns true,\n  2482: ///\n  2483: /// then calling `f` and calling `g` will be equivalent.\n  2484: ///\n  2485: ///\n  2486: /// # Examples\n  2487: ///\n  2488: /// ```\n  2489: /// use std::ptr;\n  2490: ///\n  2491: /// fn a() { println!(\"a\"); }\n  2492: /// fn b() { println!(\"b\"); }",
+    "span": {
+      "begin": [
+        2447,
+        1
+      ],
+      "end": [
+        2449,
+        2
+      ],
+      "filename": "core/src/ptr/mod.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub fn addr_eq<T: PointeeSized, U: PointeeSized>(p: *const T, q: *const U) -> bool {\n    (p as *const ()) == (q as *const ())\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's raw-pointer cast model preserves the address when casting to *const ().",
+    "vstd's raw-pointer PartialEq specification compares executable pointer addresses and metadata."
+  ],
+  "rationale": "The exact Rust body verifies using existing lower-level vstd pointer-cast and pointer-equality specifications, without calling addr_eq or adding axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__ptr__addr_eq__b36130860a78"
+}

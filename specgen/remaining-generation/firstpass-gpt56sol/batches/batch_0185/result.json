@@ -1,0 +1,117 @@
+{
+  "batch": 185,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 27590,
+  "targets": [
+    "std::env::remove_var",
+    "std::env::set_current_dir",
+    "std::env::set_var",
+    "std::env::split_paths",
+    "std::env::temp_dir",
+    "std::env::var"
+  ],
+  "candidates": [
+    {
+      "target": "std::env::remove_var",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its only effect is mutation of the process environment, which has no current vstd state model, and the unit result exposes no contractable outcome.",
+      "risks": [
+        "hidden process-environment mutation",
+        "platform-dependent failure and panic behavior",
+        "no modeled output"
+      ]
+    },
+    {
+      "target": "std::env::set_current_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result reports an OS operation, while its meaningful effect is hidden mutation of the process working directory; vstd has no filesystem or current-directory state abstraction.",
+      "risks": [
+        "hidden process working-directory state",
+        "OS-dependent success conditions",
+        "missing filesystem abstraction"
+      ]
+    },
+    {
+      "target": "std::env::set_var",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its meaningful behavior is mutation of the process environment, which is not represented in current vstd vocabulary, and its unit return provides no modeled observation.",
+      "risks": [
+        "hidden process-environment mutation",
+        "platform-dependent failure and panic behavior",
+        "no modeled output"
+      ]
+    },
+    {
+      "target": "std::env::split_paths",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "A useful contract would need public specifications for OsStr contents, platform-specific path-list parsing, PathBuf values, and SplitPaths iterator state, which current vstd lacks.",
+      "risks": [
+        "missing OsStr and PathBuf content models",
+        "opaque iterator state",
+        "platform-specific parsing semantics"
+      ]
+    },
+    {
+      "target": "std::env::temp_dir",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned path depends on hidden OS and process environment state, with no current vstd abstraction relating that state to PathBuf.",
+      "risks": [
+        "hidden runtime and environment state",
+        "platform-dependent selection",
+        "missing filesystem-path abstraction"
+      ]
+    },
+    {
+      "target": "std::env::var",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The Result depends on unmodeled process-environment contents and OS-string Unicode conversion; current vstd cannot relate the key to the returned String or VarError.",
+      "risks": [
+        "hidden process-environment state",
+        "unmodeled OsStr-to-String conversion",
+        "platform-dependent lookup behavior"
+      ]
+    }
+  ]
+}

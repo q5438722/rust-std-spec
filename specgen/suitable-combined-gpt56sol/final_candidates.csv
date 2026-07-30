@@ -1,0 +1,1585 @@
+target,category,status,rounds,initial_decision,final_decision,contract_form,typecheck_passed,det_status,r0_z3,classification,raw_det_reward,guarded_reward,semantic_guarded_reward,issues,semantic_gate_issues,semantic_review_issues,requires,ensures,contract_code,rationale
+alloc::collections::BTreeMap::append,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,raw_btree_view_algebra,,obeys_cmp::<Key>(),"final(m)@ == old(m)@.union_prefer_right(old(other)@); final(other)@ == Map::<Key, Value>::empty()","pub assume_specification<Key, Value, A: Allocator + Clone>[ BTreeMap::<Key, Value, A>::append ](
+    m: &mut BTreeMap<Key, Value, A>,
+    other: &mut BTreeMap<Key, Value, A>,
+) where Key: Ord, A: Clone
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        final(m)@ == old(m)@.union_prefer_right(old(other)@),
+        final(other)@ == Map::<Key, Value>::empty(),
+;","The implementation replaces `other` with an empty map and merges its former entries into `self`, selecting `other_val` on conflicts. Thus the resulting view is a right-preferential union and `other` is empty."
+alloc::collections::BTreeSet::append,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,raw_btree_view_algebra,,obeys_cmp::<Key>(),final(m)@ == old(m)@.union(old(other)@); final(other)@ == Set::<Key>::empty(),"pub assume_specification<Key, A: Allocator + Clone>[ BTreeSet::<Key, A>::append ](
+    m: &mut BTreeSet<Key, A>,
+    other: &mut BTreeSet<Key, A>,
+) where
+    Key: Ord,
+    A: Clone,
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        final(m)@ == old(m)@.union(old(other)@),
+        final(other)@ == Set::<Key>::empty(),
+;","The documented operation and implementation move both sets' elements into self and leave other empty. Under obeys_cmp, comparator-based deduplication corresponds to semantic Set union. The repeated A: Clone method bound matches Rust 1.96."
+alloc::string::String::clear,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,final(s)@ == Seq::<char>::empty(),"pub assume_specification[ String::clear ](s: &mut String)
+    ensures
+        final(s)@ == Seq::<char>::empty(),
+;","The implementation delegates to Vec::clear, which removes all contents. The contract soundly exposes the resulting empty semantic character sequence; the unit return needs no result binding."
+core::mem::replace,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res == *old(dest); *final(dest) == src,"pub assume_specification<T>[ core::mem::replace ](dest: &mut T, src: T) -> (res: T)
+    ensures
+        res == *old(dest),
+        *final(dest) == src,
+    opens_invariants none
+    no_unwind;","The implementation reads and returns the original destination value, then moves src into dest; it explicitly performs no drops and cannot panic."
+core::option::Option::replace,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res == *old(option); *final(option) == core::option::Option::Some(value),"pub assume_specification<T>[ core::option::Option::<T>::replace ](
+    option: &mut core::option::Option<T>,
+    value: T,
+) -> (res: core::option::Option<T>)
+    ensures
+        res == *old(option),
+        *final(option) == core::option::Option::Some(value),
+;","The implementation delegates to mem::replace(self, Some(value)), so it returns the previous Option and leaves self as Some(value)."
+core::slice::clone_from_slice,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The source justifies only the relational `cloned` postcondition for arbitrary `T: Clone`. Existing vstd vocabulary provides no law making two such clone results semantically equal, while asserting sequence equality or adding an ad hoc uniqueness precondition would be unjustified."
+core::str::make_ascii_lowercase,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the post-state of the exact `&mut str` receiver. The determinism checker currently materializes that state as by-value `str`, which is unsized and cannot typecheck. No contract-only revision can preserve the source signature and observable semantics while avoiding this limitation."
+core::slice::split_off_last,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The exact nested mutable-reference signature makes the determinism checker materialize the referenced slice as by-value `[T]`, which is unsized. No ordinary contract-only revision can preserve both the API signature and its observable post-state while avoiding this checker limitation."
+alloc::collections::BTreeMap::first_key_value,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<Key>(),"match result {
+            Some((key, value)) => {
+                let min_key = m@.dom().find_unique_minimal(
+                    |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+                );
+                &&& !m@.is_empty()
+                &&& *key == min_key
+                &&& m@.contains_key(*key)
+                &&& *value == m@[*key]
+            },
+            None => m@.is_empty(),
+        }","pub assume_specification<
+    'a,
+    Key: Ord,
+    Value,
+    A: Allocator + Clone,
+>[ BTreeMap::<Key, Value, A>::first_key_value ](
+    m: &'a BTreeMap<Key, Value, A>,
+) -> (result: Option<(&'a Key, &'a Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        match result {
+            Some((key, value)) => {
+                let min_key = m@.dom().find_unique_minimal(
+                    |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+                );
+                &&& !m@.is_empty()
+                &&& *key == min_key
+                &&& m@.contains_key(*key)
+                &&& *value == m@[*key]
+            },
+            None => m@.is_empty(),
+        },
+;","The implementation and documentation identify the returned key as the minimum key. Under obeys_cmp, the finite key domain has a unique minimum; the contract uses vstd's canonical minimum operation and relates both dereferenced outputs to the map view."
+alloc::collections::BTreeSet::first,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<Key>(),"match result { Some(v) => { &&& !m@.is_empty() &&& *v == m@.find_unique_minimal(|x: Key, y: Key| x.cmp_spec(&y) != Ordering::Greater,) &&& m@.contains(*v) &&& forall|x: Key| #[trigger] m@.contains(x) ==> v.cmp_spec(&x) != Ordering::Greater }, None => m@.is_empty(), }","pub assume_specification<'a, Key: Ord, A: Allocator + Clone>[
+    BTreeSet::<Key, A>::first
+](m: &'a BTreeSet<Key, A>) -> (result: Option<&'a Key>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        match result {
+            Some(v) => {
+                &&& !m@.is_empty()
+                &&& *v == m@.find_unique_minimal(
+                    |x: Key, y: Key| x.cmp_spec(&y) != Ordering::Greater,
+                )
+                &&& m@.contains(*v)
+                &&& forall|x: Key| #[trigger] m@.contains(x) ==>
+                    v.cmp_spec(&x) != Ordering::Greater
+            },
+            None => m@.is_empty(),
+        },
+;","The source returns the map's first key and documents it as the set minimum. find_unique_minimal fixes the semantic result, while the remaining clauses expose membership, nonemptiness, and minimum ordering."
+alloc::string::String::as_bytes,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res@ == encode_utf8(s@),"pub assume_specification<'a>[ String::as_bytes ](s: &'a String) -> (res: &'a [u8])
+    ensures
+        res@ == encode_utf8(s@),
+;",The implementation returns the String's underlying byte slice. Relating the returned slice view to the UTF-8 encoding of the existing character view precisely specifies its contents without asserting reference identity.
+core::array::each_ref,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,forall|i: int| i >= 0 && N > i ==> *out[i] == ar[i],"pub assume_specification<T, const N: usize>[ <[T; N]>::each_ref ](
+    ar: &[T; N],
+) -> (out: [&T; N])
+    ensures
+        forall|i: int| i >= 0 && N > i ==> *out[i] == ar[i],
+;",The implementation constructs each output entry from the corresponding input element. Dereferencing each returned shared reference therefore yields that element's semantic value.
+core::ops::RangeInclusive::end,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,value_unspecified_after_exhaustion,,*ret == r@.end,"pub assume_specification<Idx>[ core::ops::RangeInclusive::<Idx>::end ](
+    r: &core::ops::RangeInclusive<Idx>,
+) -> (ret: &Idx)
+    ensures
+        *ret == r@.end,
+;","The implementation returns a shared reference to self.end, so its dereferenced semantic value equals the current end component of the existing RangeInclusive view."
+core::slice::as_array,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,ret.is_some() <==> slice@.len() == N; ret.is_some() ==> ret.unwrap()@ == slice@,"pub assume_specification<T, const N: usize>[ <[T]>::as_array::<N> ](
+    slice: &[T],
+) -> (ret: core::option::Option<&[T; N]>)
+    ensures
+        ret.is_some() <==> slice@.len() == N,
+        ret.is_some() ==> ret.unwrap()@ == slice@,
+;",The implementation returns Some exactly when the slice length equals N and reinterprets the same elements as an array. View equality captures those elements without asserting reference identity.
+core::str::split_at_checked,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res.is_some() <==> is_char_boundary(s.spec_bytes(), mid as int); res.is_some() ==> res.unwrap().0@ == decode_utf8(s.spec_bytes().subrange(0, mid as int)); res.is_some() ==> res.unwrap().1@ == decode_utf8(s.spec_bytes().subrange(mid as int, s.spec_bytes().len() as int))","pub assume_specification[ str::split_at_checked ](
+    s: &str,
+    mid: usize,
+) -> (res: core::option::Option<(&str, &str)>)
+    ensures
+        res.is_some() <==> is_char_boundary(s.spec_bytes(), mid as int),
+        res.is_some() ==> res.unwrap().0@ == decode_utf8(s.spec_bytes().subrange(0, mid as int)),
+        res.is_some() ==> res.unwrap().1@ == decode_utf8(s.spec_bytes().subrange(mid as int, s.spec_bytes().len() as int)),
+;","The implementation returns Some exactly at a UTF-8 character boundary. On success, decoding the byte prefix and suffix directly specifies both observable string views and uniquely determines the semantic result."
+alloc::collections::BTreeSet::is_disjoint,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,raw_btree_view_algebra,,obeys_cmp::<T>(),result == m@.disjoint(other@),"pub assume_specification<T, A: Allocator + Clone>[ BTreeSet::<T, A>::is_disjoint ](
+    m: &BTreeSet<T, A>,
+    other: &BTreeSet<T, A>,
+) -> (result: bool) where T: Ord
+    requires
+        obeys_cmp::<T>(),
+    ensures
+        result == m@.disjoint(other@),
+;","The implementation returns whether the intersection iterator is empty, exactly matching disjointness of the modeled set views when T obeys the vstd ordering laws."
+alloc::string::String::into_bytes,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res@ == vstd::utf8::encode_utf8(s@),"pub assume_specification[ alloc::string::String::into_bytes ](
+    s: alloc::string::String,
+) -> (res: alloc::vec::Vec<u8>)
+    ensures
+        res@ == vstd::utf8::encode_utf8(s@),
+;","The implementation consumes the String and returns its backing Vec directly. Because String contents are valid UTF-8, the result is exactly the UTF-8 encoding of the String's character view."
+alloc::vec::Vec::into_boxed_slice,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,slice@ == vec@,"pub assume_specification<T, A: Allocator>[ Vec::<T, A>::into_boxed_slice ](
+    vec: Vec<T, A>,
+) -> (slice: Box<[T], A>)
+    ensures
+        slice@ == vec@,
+;","The implementation shrinks excess capacity and transfers the same initialized buffer and length into Box<[T], A>, preserving the element sequence."
+core::array::repeat,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,clone_behavior_domain_strengthening,,"N > 1 ==> (forall|x: T| strictly_cloned::<T>(val, x) ==> x == val)",forall|i: int| i >= 0 && N > i ==> result@[i] == val,"pub assume_specification<T: core::clone::Clone, const N: usize>[ core::array::repeat::<T, N> ](val: T) -> (result: [T; N])
+    requires
+        N > 1 ==> (forall|x: T| strictly_cloned::<T>(val, x) ==> x == val),
+    ensures
+        forall|i: int| i >= 0 && N > i ==> result@[i] == val,
+;","For N at most one, no clone result appears. For larger arrays, the source uses the original value once and N - 1 clone results; the precondition requires every permitted clone result of val to equal val, so every returned element equals val."
+core::cmp::max,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,T::obeys_cmp_spec(),"match v2.cmp_spec(&v1) { core::cmp::Ordering::Less => r == v1, core::cmp::Ordering::Equal => r == v2, core::cmp::Ordering::Greater => r == v2, }","pub assume_specification<T: core::cmp::Ord>[ core::cmp::max::<T> ](
+    v1: T,
+    v2: T,
+) -> (r: T)
+    requires
+        T::obeys_cmp_spec(),
+    ensures
+        match v2.cmp_spec(&v1) {
+            core::cmp::Ordering::Less => r == v1,
+            core::cmp::Ordering::Equal => r == v2,
+            core::cmp::Ordering::Greater => r == v2,
+        },
+;","The implementation delegates directly to v1.max(v2). Under OrdSpec, the existing Ord::max contract returns v1 only when v2 compares Less than v1 and otherwise returns v2, including ties."
+core::convert::identity,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,ret == x,"pub assume_specification<T>[ core::convert::identity::<T> ](x: T) -> (ret: T)
+    ensures
+        ret == x,
+    opens_invariants none
+    no_unwind
+;","The supplied Rust 1.96 and Nanvix Rust 1.99 implementations both return x directly, justifying exact logical equality between the result and input without preconditions."
+core::hint::black_box,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,output == dummy,"pub assume_specification<T>[core::hint::black_box](dummy: T) -> (output: T)
+    ensures
+        output == dummy,
+;",The supplied implementation forwards its owned input to the black-box intrinsic and returns the resulting value; its observable value semantics are identity.
+core::mem::discriminant,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"Discriminant<T> is opaque, and public vstd has no generic active-variant model for T. A no_unwind-only contract would not usefully relate the result to v; doing so otherwise requires an unjustified model or private representation access."
+alloc::collections::BTreeMap::last_key_value,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<Key>(),"match result { Some((key, value)) => { let max_key = m@.dom().find_unique_maximal(|left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,); &&& !m@.is_empty() &&& *key == max_key &&& m@.contains_key(*key) &&& *value == m@[*key] }, None => m@.is_empty(), }","pub assume_specification<
+    'a,
+    Key: Ord,
+    Value,
+    A: Allocator + Clone,
+>[ BTreeMap::<Key, Value, A>::last_key_value ](
+    m: &'a BTreeMap<Key, Value, A>,
+) -> (result: Option<(&'a Key, &'a Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        match result {
+            Some((key, value)) => {
+                let max_key = m@.dom().find_unique_maximal(
+                    |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+                );
+                &&& !m@.is_empty()
+                &&& *key == max_key
+                &&& m@.contains_key(*key)
+                &&& *value == m@[*key]
+            },
+            None => m@.is_empty(),
+        },
+;","The implementation and documentation identify the returned pair as the map entry with the maximum key. Under obeys_cmp, the finite key domain has a unique maximum, and the contract determines both returned semantic values."
+alloc::collections::BTreeMap::pop_first,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<Key>(),"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_minimal(
+                |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        }","pub assume_specification<Key: Ord, Value, A: Allocator + Clone>[ BTreeMap::<Key, Value, A>::pop_first ](
+    m: &mut BTreeMap<Key, Value, A>,
+) -> (result: Option<(Key, Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_minimal(
+                |left: Key, right: Key| left.cmp_spec(&right) != Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        },
+;","The source removes the first entry, whose documented key is the map's minimum. For a nonempty old map, the contract names that unique minimum with vstd's canonical finite-set operation, returns its old value, and removes exactly that key; for an empty map it returns None and leaves the map unchanged."
+alloc::collections::BTreeMap::pop_last,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<Key>(),"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_maximal(
+                |left: Key, right: Key| left.cmp_spec(&right) != core::cmp::Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        }","pub assume_specification<
+    Key: core::cmp::Ord,
+    Value,
+    A: alloc::alloc::Allocator + core::clone::Clone,
+>[ alloc::collections::BTreeMap::<Key, Value, A>::pop_last ](
+    m: &mut alloc::collections::BTreeMap<Key, Value, A>,
+) -> (result: core::option::Option<(Key, Value)>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let key = old(m)@.dom().find_unique_maximal(
+                |left: Key, right: Key| left.cmp_spec(&right) != core::cmp::Ordering::Greater,
+            );
+            &&& result == Some((key, old(m)@[key]))
+            &&& final(m)@ == old(m)@.remove(key)
+        },
+;","The source removes the last entry, whose documented key is the map's maximum. For a nonempty old map, the contract names that unique maximum with vstd's canonical finite-set operation, returns its old value, and removes exactly that key; for an empty map it returns None and leaves the map unchanged."
+alloc::collections::BTreeMap::remove_entry,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,borrowed_key_domain_strengthening;borrowed_key_uniqueness_precondition,,"obeys_cmp::<Key>(); forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@.dom(), key, &left)
+                && sets_borrowed_key_to_key(old(m)@.dom(), key, &right)
+                ==> left == right","match result {
+            Some((stored_key, value)) => {
+                &&& contains_borrowed_key(old(m)@, key)
+                &&& sets_borrowed_key_to_key(old(m)@.dom(), key, &stored_key)
+                &&& old(m)@.contains_key(stored_key)
+                &&& old(m)@[stored_key] == value
+                &&& final(m)@ == old(m)@.remove(stored_key)
+            },
+            None => {
+                &&& !contains_borrowed_key(old(m)@, key)
+                &&& final(m)@ == old(m)@
+            },
+        }","pub assume_specification<
+    Key: core::borrow::Borrow<Q> + core::cmp::Ord,
+    Value,
+    A: alloc::alloc::Allocator + core::clone::Clone,
+    Q: core::cmp::Ord + ?Sized,
+>[ alloc::collections::BTreeMap::<Key, Value, A>::remove_entry::<Q> ](
+    m: &mut alloc::collections::BTreeMap<Key, Value, A>,
+    key: &Q,
+) -> (result: core::option::Option<(Key, Value)>)
+    requires
+        obeys_cmp::<Key>(),
+        forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@.dom(), key, &left)
+                && sets_borrowed_key_to_key(old(m)@.dom(), key, &right)
+                ==> left == right,
+    ensures
+        match result {
+            Some((stored_key, value)) => {
+                &&& contains_borrowed_key(old(m)@, key)
+                &&& sets_borrowed_key_to_key(old(m)@.dom(), key, &stored_key)
+                &&& old(m)@.contains_key(stored_key)
+                &&& old(m)@[stored_key] == value
+                &&& final(m)@ == old(m)@.remove(stored_key)
+            },
+            None => {
+                &&& !contains_borrowed_key(old(m)@, key)
+                &&& final(m)@ == old(m)@
+            },
+        },
+;","The stored-key predicate relates the returned key to the borrowed query. Its functionality precondition captures the necessary consequence of the documented ordering-compatibility requirement, after which the returned value and exact map mutation are uniquely determined."
+core::slice::split_off,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful deterministic contract must model both the mutated nested slice reference and how R selects the split direction and index. The checker materializes the slice post-state as unsized by-value `[T]`, while existing vstd vocabulary has no declared semantic model for OneSidedRange::bound. The previous prefix-or-suffix disjunction therefore remains nondeterministic, and no source-justified ordinary contract-only revision avoids both limitations."
+alloc::vec::Vec::dedup,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,dedup_pure_old_sequence_model,,T::obeys_eq_spec(),"final(vec)@ == old(vec)@.fold_left(
+            vstd::seq::Seq::<T>::empty(),
+            |kept: vstd::seq::Seq<T>, element: T| {
+                if kept.len() == 0 {
+                    kept.push(element)
+                } else if element.eq_spec(&kept.last()) {
+                    kept
+                } else {
+                    kept.push(element)
+                }
+            },
+        )","pub assume_specification<T: core::cmp::PartialEq, A: core::alloc::Allocator>[
+    alloc::vec::Vec::<T, A>::dedup
+](vec: &mut alloc::vec::Vec<T, A>)
+    requires
+        T::obeys_eq_spec(),
+    ensures
+        final(vec)@ == old(vec)@.fold_left(
+            vstd::seq::Seq::<T>::empty(),
+            |kept: vstd::seq::Seq<T>, element: T| {
+                if kept.len() == 0 {
+                    kept.push(element)
+                } else if element.eq_spec(&kept.last()) {
+                    kept
+                } else {
+                    kept.push(element)
+                }
+            },
+        ),
+;",The implementation compares each current element with the last retained element. The fold exactly models retaining the first element and then retaining an element precisely when that comparison is false.
+core::slice::split_off_first,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The exact nested mutable-reference signature makes the determinism checker materialize the referenced slice as by-value `[T]`, which is unsized. No ordinary contract-only revision can preserve both the API signature and its observable post-state while avoiding this checker limitation."
+std::collections::HashMap::get_key_value,other,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"For generic Borrow<Q>, vstd's borrowed-key predicates are uninterpreted and provide no functionality law establishing a unique stored key. Thus the observable key-value pair cannot be determined without an ad hoc choice, uniqueness assertion, or unjustified precondition."
+alloc::collections::BTreeMap::get_key_value,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"For generic Borrow<Q>, existing vstd borrowed-key relations are opaque and provide neither a cross-type ordering compatibility law nor a functional map/query-to-stored-key relation. Therefore the observable returned key-value pair cannot be determined without an unjustified precondition or ad hoc choice."
+alloc::collections::BTreeMap::split_off,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The split boundary depends on ordering the borrowed Q key against stored keys. Existing vstd vocabulary models only borrowed-key containment, not Borrow::borrow or cross-type ordering. Consequently, the structural partition clauses admit multiple prefix/suffix splits, especially when the queried key is absent."
+alloc::collections::BTreeSet::is_subset,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<T>(),result == this@.subset_of(other@),"pub assume_specification<T: Ord, A: Allocator + Clone>[ BTreeSet::<T, A>::is_subset ](
+    this: &BTreeSet<T, A>,
+    other: &BTreeSet<T, A>,
+) -> (result: bool)
+    requires
+        obeys_cmp::<T>(),
+    ensures
+        result == this@.subset_of(other@),
+;","The documentation defines the result as whether every element of self occurs in other, exactly matching Set::subset_of. The implementation performs equivalent ordered membership checks without mutation; obeys_cmp::<T>() supplies the ordering law needed by the BTreeSet view."
+alloc::collections::BTreeSet::is_superset,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<T>(),result == other@.subset_of(this@),"pub assume_specification<T: core::cmp::Ord, A: Allocator + core::clone::Clone>[
+    BTreeSet::<T, A>::is_superset
+](
+    this: &BTreeSet<T, A>,
+    other: &BTreeSet<T, A>,
+) -> (result: bool)
+    requires
+        obeys_cmp::<T>(),
+    ensures
+        result == other@.subset_of(this@),
+;","The implementation is exactly other.is_subset(self), and the documentation defines this as self containing every element of other, corresponding to other@.subset_of(this@)."
+alloc::collections::BTreeSet::last,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,vstd::laws_cmp::obeys_cmp::<T>(),"match result { core::option::Option::Some(value) => { &&& !m@.is_empty() &&& *value == m@.find_unique_maximal(|x: T, y: T| x.cmp_spec(&y) != core::cmp::Ordering::Greater,) &&& m@.contains(*value) &&& forall|x: T| #[trigger] m@.contains(x) ==> x.cmp_spec(value) != core::cmp::Ordering::Greater }, core::option::Option::None => m@.is_empty(), }","pub assume_specification<
+    'a,
+    T: core::cmp::Ord,
+    A: alloc::alloc::Allocator + core::clone::Clone,
+>[ alloc::collections::BTreeSet::<T, A>::last ](
+    m: &'a alloc::collections::BTreeSet<T, A>,
+) -> (result: core::option::Option<&'a T>)
+    requires
+        vstd::laws_cmp::obeys_cmp::<T>(),
+    ensures
+        match result {
+            core::option::Option::Some(value) => {
+                &&& !m@.is_empty()
+                &&& *value == m@.find_unique_maximal(
+                    |x: T, y: T| x.cmp_spec(&y) != core::cmp::Ordering::Greater,
+                )
+                &&& m@.contains(*value)
+                &&& forall|x: T| #[trigger] m@.contains(x) ==>
+                    x.cmp_spec(value) != core::cmp::Ordering::Greater
+            },
+            core::option::Option::None => m@.is_empty(),
+        },
+;","The implementation returns the key from last_key_value, and the documentation identifies it as the set maximum. find_unique_maximal determines the returned semantic value while the remaining clauses expose nonemptiness, membership, and maximum ordering."
+alloc::collections::BTreeSet::pop_first,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<T>(),if old(m)@.is_empty() { &&& result is None &&& final(m)@ == old(m)@ } else { let first = choose|candidate: T| { &&& old(m)@.contains(candidate) &&& forall|element: T| old(m)@.contains(element) ==> candidate.cmp_spec(&element) != Ordering::Greater }; &&& result == Some(first) &&& old(m)@.contains(first) &&& forall|element: T| old(m)@.contains(element) ==> first.cmp_spec(&element) != Ordering::Greater &&& final(m)@ == old(m)@.remove(first) },"pub assume_specification<T: Ord, A: Allocator + Clone>[ BTreeSet::<T, A>::pop_first ](
+    m: &mut BTreeSet<T, A>,
+) -> (result: Option<T>)
+    requires
+        obeys_cmp::<T>(),
+    ensures
+        if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let first = choose|candidate: T| {
+                &&& old(m)@.contains(candidate)
+                &&& forall|element: T| old(m)@.contains(element)
+                    ==> candidate.cmp_spec(&element) != Ordering::Greater
+            };
+            &&& result == Some(first)
+            &&& old(m)@.contains(first)
+            &&& forall|element: T| old(m)@.contains(element)
+                ==> first.cmp_spec(&element) != Ordering::Greater
+            &&& final(m)@ == old(m)@.remove(first)
+        },
+;","For a nonempty finite set, obeys_cmp makes the documented minimum unique. A deterministic choice over exactly the minimum candidates therefore identifies the returned element, while the remaining clauses expose membership, minimality, and exact removal. The empty branch returns None and preserves the view."
+alloc::collections::BTreeSet::pop_last,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,vstd::laws_cmp::obeys_cmp::<T>(),"match result {
+            core::option::Option::Some(value) => {
+                &&& !old(m)@.is_empty()
+                &&& value == old(m)@.find_unique_maximal(
+                    |x: T, y: T| x.cmp_spec(&y) != core::cmp::Ordering::Greater,
+                )
+                &&& old(m)@.contains(value)
+                &&& final(m)@ == old(m)@.remove(value)
+                &&& forall|x: T| #[trigger] old(m)@.contains(x) ==>
+                    x.cmp_spec(&value) != core::cmp::Ordering::Greater
+            },
+            core::option::Option::None => {
+                &&& old(m)@.is_empty()
+                &&& final(m)@ == old(m)@
+            },
+        }","pub assume_specification<
+    T,
+    A: alloc::alloc::Allocator + core::clone::Clone,
+>[ alloc::collections::BTreeSet::<T, A>::pop_last ](
+    m: &mut alloc::collections::BTreeSet<T, A>,
+) -> (result: core::option::Option<T>)
+where
+    T: core::cmp::Ord,
+    requires
+        vstd::laws_cmp::obeys_cmp::<T>(),
+    ensures
+        match result {
+            core::option::Option::Some(value) => {
+                &&& !old(m)@.is_empty()
+                &&& value == old(m)@.find_unique_maximal(
+                    |x: T, y: T| x.cmp_spec(&y) != core::cmp::Ordering::Greater,
+                )
+                &&& old(m)@.contains(value)
+                &&& final(m)@ == old(m)@.remove(value)
+                &&& forall|x: T| #[trigger] old(m)@.contains(x) ==>
+                    x.cmp_spec(&value) != core::cmp::Ordering::Greater
+            },
+            core::option::Option::None => {
+                &&& old(m)@.is_empty()
+                &&& final(m)@ == old(m)@
+            },
+        },
+;","The implementation removes the map's last key, and the documentation identifies it as the set maximum. find_unique_maximal determines that returned value while the remaining clauses specify membership, maximum ordering, and the exact resulting set."
+alloc::collections::BTreeSet::replace,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_cmp::<T>(),{ let matching = old(m)@.filter(|existing: T| existing.cmp_spec(&value) == Ordering::Equal); if matching.is_empty() { &&& result is None &&& final(m)@ == old(m)@.insert(value) } else { let replaced = matching.choose(); &&& result == Some(replaced) &&& old(m)@.contains(replaced) &&& replaced.cmp_spec(&value) == Ordering::Equal &&& final(m)@ == old(m)@.remove(replaced).insert(value) } },"pub assume_specification<T: Ord, A: Allocator + Clone>[ BTreeSet::<T, A>::replace ](
+    m: &mut BTreeSet<T, A>,
+    value: T,
+) -> (result: Option<T>)
+    requires
+        obeys_cmp::<T>(),
+    ensures
+        {
+            let matching = old(m)@.filter(|existing: T|
+                existing.cmp_spec(&value) == Ordering::Equal);
+            if matching.is_empty() {
+                &&& result is None
+                &&& final(m)@ == old(m)@.insert(value)
+            } else {
+                let replaced = matching.choose();
+                &&& result == Some(replaced)
+                &&& old(m)@.contains(replaced)
+                &&& replaced.cmp_spec(&value) == Ordering::Equal
+                &&& final(m)@ == old(m)@.remove(replaced).insert(value)
+            }
+        },
+;","The implementation delegates to map replacement. Filtering the old view by ordering equality identifies the stored element; a valid BTreeSet has at most one such element, so deterministic Set::choose preserves representation-distinct keys while fixing both the returned value and final set."
+alloc::collections::BTreeSet::split_off,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The split boundary depends on ordering the borrowed Q value against stored keys. Existing vstd vocabulary models borrowed-key containment, but not Borrow::borrow or cross-type ordering. The proposed structural clauses therefore admit multiple prefix/suffix partitions when the queried value is absent."
+alloc::collections::BTreeSet::take,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,borrowed_key_domain_strengthening;borrowed_key_uniqueness_precondition,,"obeys_cmp::<Key>(); forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@, value, &left)
+                && sets_borrowed_key_to_key(old(m)@, value, &right)
+                ==> left == right","match result {
+            Some(v) => {
+                &&& set_contains_borrowed_key(old(m)@, value)
+                &&& sets_borrowed_key_to_key(old(m)@, value, &v)
+                &&& old(m)@.contains(v)
+                &&& final(m)@ == old(m)@.remove(v)
+            },
+            None => {
+                &&& !set_contains_borrowed_key(old(m)@, value)
+                &&& final(m)@ == old(m)@
+            },
+        }","pub assume_specification<
+    Key: Borrow<Q> + Ord,
+    A: Allocator + Clone,
+    Q: Ord + ?Sized,
+>[ BTreeSet::<Key, A>::take::<Q> ](
+    m: &mut BTreeSet<Key, A>,
+    value: &Q,
+) -> (result: Option<Key>)
+    requires
+        obeys_cmp::<Key>(),
+        forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@, value, &left)
+                && sets_borrowed_key_to_key(old(m)@, value, &right)
+                ==> left == right,
+    ensures
+        match result {
+            Some(v) => {
+                &&& set_contains_borrowed_key(old(m)@, value)
+                &&& sets_borrowed_key_to_key(old(m)@, value, &v)
+                &&& old(m)@.contains(v)
+                &&& final(m)@ == old(m)@.remove(v)
+            },
+            None => {
+                &&& !set_contains_borrowed_key(old(m)@, value)
+                &&& final(m)@ == old(m)@
+            },
+        },
+;","The functionality precondition captures the needed consequence of the documented borrowed-order compatibility requirement. Each result branch then identifies the returned stored element and specifies the exact set mutation, making both observable outputs deterministic."
+alloc::string::String::extend_from_within,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,"slice_range_valid(&src, encode_utf8(old(s)@).len()); is_char_boundary(encode_utf8(old(s)@), slice_range_start(&src)); is_char_boundary(encode_utf8(old(s)@), slice_range_end(&src, encode_utf8(old(s)@).len()))","final(s)@ == old(s)@ + decode_utf8(encode_utf8(old(s)@).subrange(slice_range_start(&src), slice_range_end(&src, encode_utf8(old(s)@).len())))","pub assume_specification<R: core::ops::RangeBounds<usize>>[
+    alloc::string::String::extend_from_within::<R>
+](
+    s: &mut alloc::string::String,
+    src: R,
+)
+    requires
+        slice_range_valid(&src, encode_utf8(old(s)@).len()),
+        is_char_boundary(encode_utf8(old(s)@), slice_range_start(&src)),
+        is_char_boundary(encode_utf8(old(s)@), slice_range_end(&src, encode_utf8(old(s)@).len())),
+    ensures
+        final(s)@ == old(s)@ + decode_utf8(encode_utf8(old(s)@).subrange(slice_range_start(&src), slice_range_end(&src, encode_utf8(old(s)@).len()))),
+;","For every nonpanicking byte range, the implementation appends exactly the selected UTF-8 substring. The structured clauses now textually match the contract clauses."
+alloc::string::String::insert,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,"is_char_boundary(encode_utf8(old(s)@), idx as int)","final(s)@ == decode_utf8(encode_utf8(old(s)@).subrange(0, idx as int)) + seq![ch] + decode_utf8(encode_utf8(old(s)@).subrange(idx as int, encode_utf8(old(s)@).len() as int))","pub assume_specification[ alloc::string::String::insert ](
+    s: &mut alloc::string::String,
+    idx: usize,
+    ch: char,
+)
+    requires
+        is_char_boundary(encode_utf8(old(s)@), idx as int),
+    ensures
+        final(s)@ == decode_utf8(encode_utf8(old(s)@).subrange(0, idx as int)) + seq![ch] + decode_utf8(encode_utf8(old(s)@).subrange(idx as int, encode_utf8(old(s)@).len() as int)),
+;","The implementation requires idx to be a UTF-8 character boundary, shifts the suffix bytes, and writes ch's UTF-8 encoding at idx. The postcondition therefore precisely describes the resulting character sequence."
+alloc::string::String::insert_str,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,"is_char_boundary(encode_utf8(old(s)@), idx as int)","final(s)@ == decode_utf8(encode_utf8(old(s)@).subrange(0, idx as int)) + string@ + decode_utf8(encode_utf8(old(s)@).subrange(idx as int, encode_utf8(old(s)@).len() as int))","pub assume_specification[ alloc::string::String::insert_str ](
+    s: &mut alloc::string::String,
+    idx: usize,
+    string: &str,
+)
+    requires
+        is_char_boundary(encode_utf8(old(s)@), idx as int),
+    ensures
+        final(s)@ == decode_utf8(encode_utf8(old(s)@).subrange(0, idx as int)) + string@ + decode_utf8(encode_utf8(old(s)@).subrange(idx as int, encode_utf8(old(s)@).len() as int)),
+;","The implementation checks that idx is a UTF-8 byte boundary, shifts the old suffix, copies string's bytes into the gap, and updates the length. Expressing the result directly as a character sequence uniquely determines final(s)."
+alloc::string::String::is_empty,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res == (s@.len() == 0),"pub assume_specification[ String::is_empty ](s: &String) -> (res: bool)
+    ensures
+        res == (s@.len() == 0),
+;",The implementation returns whether the byte length is zero. A valid String has zero bytes exactly when its public character-sequence view is empty.
+alloc::string::String::len,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res as nat == vstd::utf8::encode_utf8(s@).len(),"pub assume_specification[ alloc::string::String::len ](
+    s: &alloc::string::String,
+) -> (res: usize)
+    ensures
+        res as nat == vstd::utf8::encode_utf8(s@).len(),
+;","The implementation returns the backing Vec's byte length. Encoding String's Seq<char> view with vstd::utf8::encode_utf8 models those UTF-8 bytes, including multibyte characters."
+alloc::string::String::pop,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"old(s)@.len() == 0 ==> res == core::option::Option::None && final(s)@ == old(s)@; old(s)@.len() > 0 ==> res == core::option::Option::Some(old(s)@[old(s)@.len() - 1]) && final(s)@ == old(s)@.subrange(0, old(s)@.len() - 1)","pub assume_specification[ alloc::string::String::pop ](
+    s: &mut alloc::string::String,
+) -> (res: core::option::Option<char>)
+    ensures
+        old(s)@.len() == 0 ==> res == core::option::Option::None && final(s)@ == old(s)@,
+        old(s)@.len() > 0 ==> res == core::option::Option::Some(old(s)@[old(s)@.len() - 1]) && final(s)@ == old(s)@.subrange(0, old(s)@.len() - 1),
+;","The empty and nonempty domains are exhaustive. On an empty string, pop returns None without changing the character sequence. Otherwise, it returns the old sequence's final character and leaves exactly the preceding character subrange. The explicit result equalities also make the return value deterministic."
+alloc::string::String::push,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,final(s)@ == old(s)@.push(ch),"pub assume_specification[ alloc::string::String::push ](
+    s: &mut alloc::string::String,
+    ch: char,
+)
+    ensures
+        final(s)@ == old(s)@.push(ch),
+;","On normal return, the implementation UTF-8-encodes `ch` at the previous end and extends the string length accordingly, so the semantic character sequence is the old sequence with `ch` appended."
+alloc::string::String::push_str,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,final(s)@ == old(s)@ + string@,"pub assume_specification[ alloc::string::String::push_str ](
+    s: &mut alloc::string::String,
+    string: &str,
+)
+    ensures
+        final(s)@ == old(s)@ + string@,
+;","The implementation appends string.as_bytes() to the existing valid UTF-8 contents, so on normal return the String character view is exactly its old view concatenated with string@. The unit return requires only a receiver-state postcondition."
+alloc::string::String::remove,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,is_ascii_chars(old(s)@); old(s)@.len() > idx,res == old(s)@[idx as int]; final(s)@ == old(s)@.remove(idx as int),"pub assume_specification[ String::remove ](s: &mut String, idx: usize) -> (res: char)
+    requires
+        is_ascii_chars(old(s)@),
+        old(s)@.len() > idx,
+    ensures
+        res == old(s)@[idx as int],
+        final(s)@ == old(s)@.remove(idx as int),
+;","For an ASCII character sequence, each character occupies one byte, so the bounded byte offset equals the corresponding character-view index. The implementation returns that character and removes exactly it from the string."
+alloc::string::String::replace_range,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"The generic RangeBounds implementation may be stateful or nondeterministic; the source only queries it once. No existing law connects those observed bounds to a stable Verus model, so a post-state relation or no-panic precondition would be an unjustified trusted assumption."
+alloc::string::String::split_off,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,"vstd::utf8::is_char_boundary(vstd::utf8::encode_utf8(old(s)@), at as int)","final(s)@ == vstd::utf8::decode_utf8(vstd::utf8::encode_utf8(old(s)@).subrange(0, at as int)); res@ == vstd::utf8::decode_utf8(vstd::utf8::encode_utf8(old(s)@).subrange(at as int, vstd::utf8::encode_utf8(old(s)@).len() as int))","pub assume_specification[ alloc::string::String::split_off ](
+    s: &mut alloc::string::String,
+    at: usize,
+) -> (res: alloc::string::String)
+    requires
+        vstd::utf8::is_char_boundary(vstd::utf8::encode_utf8(old(s)@), at as int),
+    ensures
+        final(s)@ == vstd::utf8::decode_utf8(vstd::utf8::encode_utf8(old(s)@).subrange(0, at as int)),
+        res@ == vstd::utf8::decode_utf8(vstd::utf8::encode_utf8(old(s)@).subrange(at as int, vstd::utf8::encode_utf8(old(s)@).len() as int)),
+;","The boundary requirement exactly describes the non-panicking domain. Decoding the two byte subranges directly fixes both observable String views to unique terms, avoiding reliance on SMT reasoning about injectivity of encode_utf8 while preserving the implementation's byte-splitting semantics."
+alloc::string::String::truncate,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,"new_len as int >= encode_utf8(old(s)@).len() || is_char_boundary(encode_utf8(old(s)@), new_len as int)","final(s)@ == if encode_utf8(old(s)@).len() > new_len as int { decode_utf8(encode_utf8(old(s)@).subrange(0, new_len as int)) } else { old(s)@ }","pub assume_specification[ String::truncate ](
+    s: &mut String,
+    new_len: usize,
+)
+    requires
+        new_len as int >= encode_utf8(old(s)@).len()
+            || is_char_boundary(encode_utf8(old(s)@), new_len as int),
+    ensures
+        final(s)@ == if encode_utf8(old(s)@).len() > new_len as int {
+            decode_utf8(encode_utf8(old(s)@).subrange(0, new_len as int))
+        } else {
+            old(s)@
+        },
+;",The implementation leaves the string unchanged when new_len is at least its byte length; otherwise it truncates at a checked UTF-8 character boundary. The postcondition translates that byte prefix back into the observable character view.
+alloc::vec::Vec::extend_from_within,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"For arbitrary T: Clone, the source justifies only that appended elements satisfy vstd's relational cloned predicate. That predicate does not uniquely determine Vec@, while equating clones with their sources or requiring clone uniqueness would impose an unsupported domain restriction."
+alloc::vec::Vec::into_flattened,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,(usize::MAX as int) >= vec@.len() * (N as int),flattened@ == vec@.map_values(|array: [T; N]| array@).flatten(),"pub assume_specification<T, A: core::alloc::Allocator, const N: usize>[
+    alloc::vec::Vec::<[T; N], A>::into_flattened
+](
+    vec: alloc::vec::Vec<[T; N], A>,
+) -> (flattened: alloc::vec::Vec<T, A>)
+    requires
+        (usize::MAX as int) >= vec@.len() * (N as int),
+    ensures
+        flattened@ == vec@.map_values(|array: [T; N]| array@).flatten(),
+;","The result is precisely the concatenation, in vector order, of every array's sequence view. This matches the contiguous allocation reinterpretation, while the precondition excludes the documented length-multiplication overflow panic."
+core::array::from_ref,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,out@ == seq![*s],"pub assume_specification<T>[ core::array::from_ref::<T> ](s: &T) -> (out: &[T; 1])
+    ensures
+        out@ == seq![*s],
+;",The implementation reinterprets the shared reference as a one-element array reference without copying. Sequence-view equality captures the resulting element value without asserting reference or pointer identity.
+core::cmp::min,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,T::obeys_cmp_spec(),"match v2.cmp_spec(&v1) { core::cmp::Ordering::Less => r == v2, core::cmp::Ordering::Equal => r == v1, core::cmp::Ordering::Greater => r == v1, }","pub assume_specification<T: core::cmp::Ord>[ core::cmp::min::<T> ](
+    v1: T,
+    v2: T,
+) -> (r: T)
+    requires
+        T::obeys_cmp_spec(),
+    ensures
+        match v2.cmp_spec(&v1) {
+            core::cmp::Ordering::Less => r == v2,
+            core::cmp::Ordering::Equal => r == v1,
+            core::cmp::Ordering::Greater => r == v1,
+        },
+;","Rust delegates to v1.min(v2). Under the existing Ord model, it returns v2 only when v2 compares less than v1 and otherwise returns v1, including on equality as documented."
+core::hint::select_unpredictable,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,result == if condition { true_val } else { false_val },"pub assume_specification<T>[ core::hint::select_unpredictable::<T> ](
+    condition: bool,
+    true_val: T,
+    false_val: T,
+) -> (result: T)
+    ensures
+        result == if condition { true_val } else { false_val },
+;","The documented semantics are exactly conditional selection, and the implementation returns the selected input while dropping the other."
+core::mem::min_align_of,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res as nat == align_of::<T>(),"#[allow(deprecated)]
+pub assume_specification<T>[ core::mem::min_align_of::<T> ]() -> (res: usize)
+    ensures
+        res as nat == align_of::<T>(),
+    opens_invariants none
+    no_unwind
+;","The implementation returns T's ABI alignment, so the result is exactly vstd's alignment model. Omitting when_used_as_spec avoids the invalid cross-module spec-function reference while retaining a deterministic, useful ordinary contract."
+core::mem::min_align_of_val,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res as nat == spec_align_of_val::<T>(val),"#[allow(deprecated)]
+pub assume_specification<T: ?Sized>[ core::mem::min_align_of_val::<T> ](
+    val: &T,
+) -> (res: usize)
+    ensures
+        res as nat == spec_align_of_val::<T>(val),
+    opens_invariants none
+    no_unwind
+;","The implementation directly returns the value's intrinsic alignment, exactly modeled by spec_align_of_val. Omitting when_used_as_spec avoids the invalid cross-module alias reference while preserving a deterministic ordinary contract."
+core::mem::needs_drop,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"The implementation delegates entirely to the compiler intrinsic intrinsics::needs_drop::<T>(). No supplied public vstd predicate models whether a type has drop glue, so no useful non-vacuous result relation is expressible."
+core::mem::take,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"The return is the old destination value, but the observable destination post-state is produced by T::default(). Existing vstd vocabulary exposes that value only through the relational T::default.ensures predicate, which does not imply a unique result. Adding a uniqueness precondition would invent an unjustified API domain, while omitting the destination post-state would leave an observable output unconstrained."
+core::ops::Range::is_empty,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,<Idx as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec(),ret == !r.start.is_lt(&r.end),"pub assume_specification<Idx: core::cmp::PartialOrd<Idx>>[
+    core::ops::Range::<Idx>::is_empty
+](
+    r: &core::ops::Range<Idx>,
+) -> (ret: bool)
+where
+    Idx: core::cmp::PartialOrd<Idx>,
+    requires
+        <Idx as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec(),
+    ensures
+        ret == !r.start.is_lt(&r.end),
+;","The implementation returns exactly the negation of start < end. Under the existing PartialOrdSpec law, is_lt models that comparison, including incomparable endpoints."
+core::ops::RangeInclusive::into_inner,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,ret.0 == range@.start; ret.1 == range@.end,"pub assume_specification<Idx>[ core::ops::RangeInclusive::<Idx>::into_inner ](
+    range: core::ops::RangeInclusive<Idx>,
+) -> (ret: (Idx, Idx))
+    ensures
+        ret.0 == range@.start,
+        ret.1 == range@.end,
+;","The implementation consumes the range and directly returns its stored start and end fields, which correspond to the existing public RangeInclusive view."
+core::ops::RangeInclusive::is_empty,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,Idx::obeys_partial_cmp_spec(),ret == (r@.exhausted || !r@.start.is_le(&r@.end)),"pub assume_specification<Idx: core::cmp::PartialOrd<Idx>>[
+    core::ops::RangeInclusive::<Idx>::is_empty
+](
+    r: &core::ops::RangeInclusive<Idx>,
+) -> (ret: bool) where Idx: core::cmp::PartialOrd
+    requires
+        Idx::obeys_partial_cmp_spec(),
+    ensures
+        ret == (r@.exhausted || !r@.start.is_le(&r@.end)),
+;","The implementation returns exactly `exhausted || !(start <= end)`. The existing RangeInclusive view exposes all three modeled fields, while `PartialOrdIs::is_le` models `<=`, including incomparability as false."
+core::ops::RangeInclusive::start,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,value_unspecified_after_exhaustion,,ret == r@.start,"pub assume_specification<Idx>[ core::ops::RangeInclusive::<Idx>::start ](
+    r: &core::ops::RangeInclusive<Idx>,
+) -> (ret: &Idx)
+    ensures
+        ret == r@.start,
+;","The implementation returns a shared reference to `self.start`, which vstd publicly models as `r@.start`. This remains valid after exhaustion without promising the original lower bound."
+core::option::Option::and,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,option.is_none() ==> res.is_none(); option.is_some() ==> res == optb,"pub assume_specification<T, U>[ core::option::Option::<T>::and ](
+    option: core::option::Option<T>,
+    optb: core::option::Option<U>,
+) -> (res: core::option::Option<U>)
+    ensures
+        option.is_none() ==> res.is_none(),
+        option.is_some() ==> res == optb,
+    no_unwind
+;","The implementation directly matches on self: None produces None, while Some(_) returns optb unchanged. It contains no panicking operation."
+core::option::Option::flatten,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res == match option { core::option::Option::Some(inner) => inner, core::option::Option::None => core::option::Option::None, }","pub assume_specification<T>[ core::option::Option::<core::option::Option<T>>::flatten ](
+    option: core::option::Option<core::option::Option<T>>,
+) -> (res: core::option::Option<T>)
+    ensures
+        res == match option {
+            core::option::Option::Some(inner) => inner,
+            core::option::Option::None => core::option::Option::None,
+        },
+    no_unwind
+;","The implementation directly returns the inner option for Some and None otherwise, exactly removing one nesting level without unwinding."
+core::option::Option::or,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,option.is_some() ==> res == option; option.is_none() ==> res == optb,"pub assume_specification<T>[ core::option::Option::<T>::or ](
+    option: core::option::Option<T>,
+    optb: core::option::Option<T>,
+) -> (res: core::option::Option<T>)
+    ensures
+        option.is_some() ==> res == option,
+        option.is_none() ==> res == optb,
+;",The implementation returns self unchanged when it is Some and returns optb when self is None. Rust 1.96 and Nanvix's Rust 1.99 have identical behavior.
+core::option::Option::transpose,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res == match option { core::option::Option::Some(core::result::Result::Ok(x)) => core::result::Result::Ok(core::option::Option::Some(x)), core::option::Option::Some(core::result::Result::Err(e)) => core::result::Result::Err(e), core::option::Option::None => core::result::Result::Ok(core::option::Option::None), }","pub assume_specification<T, E>[
+    core::option::Option::<core::result::Result<T, E>>::transpose
+](
+    option: core::option::Option<core::result::Result<T, E>>,
+) -> (res: core::result::Result<core::option::Option<T>, E>)
+    ensures
+        res == match option {
+            core::option::Option::Some(core::result::Result::Ok(x)) =>
+                core::result::Result::Ok(core::option::Option::Some(x)),
+            core::option::Option::Some(core::result::Result::Err(e)) =>
+                core::result::Result::Err(e),
+            core::option::Option::None =>
+                core::result::Result::Ok(core::option::Option::None),
+        },
+    no_unwind
+;",The postcondition exactly mirrors all three match arms of the supplied implementation and fully determines the observable result without preconditions.
+core::option::Option::unzip,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res == match option { Some((a, b)) => (Some(a), Some(b)), None => (None, None), }","pub assume_specification<T, U>[ Option::<(T, U)>::unzip ](
+    option: Option<(T, U)>,
+) -> (res: (Option<T>, Option<U>))
+    ensures
+        res == match option {
+            Some((a, b)) => (Some(a), Some(b)),
+            None => (None, None),
+        },
+    no_unwind
+;","The postcondition exactly models the implementation's exhaustive case split, and no precondition is needed because neither branch invokes user code or panics."
+core::option::Option::xor,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res == match (option, optb) {
+            (Some(a), None) => Some(a),
+            (None, Some(b)) => Some(b),
+            _ => None,
+        }","pub assume_specification<T>[ Option::<T>::xor ](
+    option: Option<T>,
+    optb: Option<T>,
+) -> (res: Option<T>)
+    ensures
+        res == match (option, optb) {
+            (Some(a), None) => Some(a),
+            (None, Some(b)) => Some(b),
+            _ => None,
+        },
+;",The implementation returns the sole Some operand unchanged and returns None when both operands have the same variant. The postcondition fully determines the observable result and now exactly matches the contract's structured expression.
+core::option::Option::zip,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res == match (option, other) { (Some(a), Some(b)) => Some((a, b)), _ => None, }","pub assume_specification<T, U>[ Option::<T>::zip ](
+    option: Option<T>,
+    other: Option<U>,
+) -> (res: Option<(T, U)>)
+    ensures
+        res == match (option, other) {
+            (Some(a), Some(b)) => Some((a, b)),
+            _ => None,
+        },
+;",The result exactly matches the source implementation: it contains the ordered pair when both inputs are Some and is None otherwise. No ordinary external bounds are required.
+core::result::Result::and,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result is Ok ==> and_result == res; result is Err ==> and_result == Result::<U, E>::Err(result->Err_0)","pub assume_specification<T, E, U>[ Result::<T, E>::and ](
+    result: Result<T, E>,
+    res: Result<U, E>,
+) -> (and_result: Result<U, E>)
+    ensures
+        result is Ok ==> and_result == res,
+        result is Err ==> and_result == Result::<U, E>::Err(result->Err_0),
+    no_unwind
+;","The supplied 1.96 and 1.99 bodies agree exactly: Ok(_) returns res unchanged, while Err(e) returns Err(e). No precondition or feature gate is needed for runtime use."
+core::result::Result::expect_err,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,result is Err,e == result->Err_0,"#[verifier::inline]
+pub open spec fn spec_expect_err<T: core::fmt::Debug, E>(
+    result: Result<T, E>,
+    msg: &str,
+) -> E
+    recommends
+        result is Err,
+{
+    result->Err_0
+}
+
+#[verifier::when_used_as_spec(spec_expect_err)]
+pub assume_specification<T: core::fmt::Debug, E>[ Result::<T, E>::expect_err ](
+    result: Result<T, E>,
+    msg: &str,
+) -> (e: E)
+    requires
+        result is Err,
+    ensures
+        e == result->Err_0,
+;",The implementation returns the contained error exactly on Err(e). Requiring the Err variant excludes the documented Ok panic path.
+core::result::Result::flatten,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,result is Ok ==> flattened == result->Ok_0; result is Err ==> flattened is Err; result is Err ==> flattened->Err_0 == result->Err_0,"pub assume_specification<T, E>[ core::result::Result::<core::result::Result<T, E>, E>::flatten ](
+    result: core::result::Result<core::result::Result<T, E>, E>,
+) -> (flattened: core::result::Result<T, E>)
+    ensures
+        result is Ok ==> flattened == result->Ok_0,
+        result is Err ==> flattened is Err,
+        result is Err ==> flattened->Err_0 == result->Err_0,
+    no_unwind
+;",The supplied implementation returns the inner Result for Ok and reconstructs Err with the unchanged error for Err; matching alone cannot unwind.
+core::result::Result::or,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"result is Ok ==> output == Result::<T, F>::Ok(result->Ok_0); result is Err ==> output == res","pub assume_specification<T, E, F>[ Result::<T, E>::or ](
+    result: Result<T, E>,
+    res: Result<T, F>,
+) -> (output: Result<T, F>)
+    ensures
+        result is Ok ==> output == Result::<T, F>::Ok(result->Ok_0),
+        result is Err ==> output == res,
+    no_unwind
+;","The implementation directly matches self: Ok(v) returns Ok(v), while Err(_) returns res. The contract captures both exhaustive branches without preconditions."
+core::result::Result::transpose,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"transposed == (match result { core::result::Result::Ok(core::option::Option::Some(value)) => { core::option::Option::Some(core::result::Result::Ok(value)) }, core::result::Result::Ok(core::option::Option::None) => { core::option::Option::None }, core::result::Result::Err(error) => { core::option::Option::Some(core::result::Result::Err(error)) }, })","#[verifier::inline]
+pub open spec fn spec_result_transpose<T, E>(
+    result: core::result::Result<core::option::Option<T>, E>,
+) -> core::option::Option<core::result::Result<T, E>> {
+    match result {
+        core::result::Result::Ok(core::option::Option::Some(value)) => {
+            core::option::Option::Some(core::result::Result::Ok(value))
+        },
+        core::result::Result::Ok(core::option::Option::None) => {
+            core::option::Option::None
+        },
+        core::result::Result::Err(error) => {
+            core::option::Option::Some(core::result::Result::Err(error))
+        },
+    }
+}
+
+#[verifier::when_used_as_spec(spec_result_transpose)]
+pub assume_specification<T, E>[
+    core::result::Result::<core::option::Option<T>, E>::transpose
+](
+    result: core::result::Result<core::option::Option<T>, E>,
+) -> (transposed: core::option::Option<core::result::Result<T, E>>)
+    ensures
+        transposed == (match result {
+            core::result::Result::Ok(core::option::Option::Some(value)) => {
+                core::option::Option::Some(core::result::Result::Ok(value))
+            },
+            core::result::Result::Ok(core::option::Option::None) => {
+                core::option::Option::None
+            },
+            core::result::Result::Err(error) => {
+                core::option::Option::Some(core::result::Result::Err(error))
+            },
+        }),
+    no_unwind
+;",The exhaustive postcondition exactly models all three source branches and fully determines the observable result. The structured ensures entry now preserves the braced match-arm expressions from the checked contract.
+core::result::Result::unwrap_or,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"match result { core::result::Result::Ok(value) => t == value, core::result::Result::Err(_) => t == default, }","#[verifier::inline]
+pub open spec fn spec_unwrap_or<T, E>(
+    result: core::result::Result<T, E>,
+    default: T,
+) -> T {
+    match result {
+        core::result::Result::Ok(t) => t,
+        core::result::Result::Err(_) => default,
+    }
+}
+
+#[verifier::when_used_as_spec(spec_unwrap_or)]
+pub assume_specification<T, E>[core::result::Result::<T, E>::unwrap_or](
+    result: core::result::Result<T, E>,
+    default: T,
+) -> (t: T)
+    ensures
+        match result {
+            core::result::Result::Ok(value) => t == value,
+            core::result::Result::Err(_) => t == default,
+        },
+    no_unwind
+;",The exhaustive postcondition exactly models both source branches. The structured ensures entry now faithfully includes the match arm's trailing comma.
+core::result::Result::unwrap_or_default,data_structure,,2,add_spec,skip,None,False,,,,0,0,0,determinism_unsupported_contract_form,,,,,,"The Ok branch is precise, but existing vstd vocabulary can describe the Err branch only through T::default.ensures((), res), which is not guaranteed to be functional. Enforcing uniqueness would either add an unjustified domain restriction or overstate Default's contract. Leaving the Err result unconstrained would not provide a useful deterministic contract."
+core::slice::as_chunks,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,N != 0,"{ let chunks = choose|candidate: Seq<[T; N]>| { &&& candidate.len() == slice@.len() / (N as nat) &&& forall|i: int| 0 <= i < candidate.len() ==> (#[trigger] candidate[i])@ == slice@.subrange(i * (N as int), (i + 1) * (N as int)) }; &&& ret.0@ == chunks &&& ret.0@.len() == slice@.len() / (N as nat) &&& ret.1@.len() == slice@.len() % (N as nat) &&& slice@.len() == ret.0@.len() * (N as nat) + ret.1@.len() &&& forall|i: int| 0 <= i < ret.0@.len() ==> (#[trigger] ret.0@[i])@ == slice@.subrange(i * (N as int), (i + 1) * (N as int)) &&& ret.1@ == slice@.subrange(((slice@.len() / (N as nat)) * (N as nat)) as int, slice@.len() as int) }","pub assume_specification<T, const N: usize>[ <[T]>::as_chunks::<N> ](
+    slice: &[T],
+) -> (ret: (&[[T; N]], &[T]))
+    requires
+        N != 0,
+    ensures
+        {
+            let chunks = choose|candidate: Seq<[T; N]>| {
+                &&& candidate.len() == slice@.len() / (N as nat)
+                &&& forall|i: int| 0 <= i < candidate.len() ==>
+                    (#[trigger] candidate[i])@ == slice@.subrange(
+                        i * (N as int),
+                        (i + 1) * (N as int),
+                    )
+            };
+            &&& ret.0@ == chunks
+            &&& ret.0@.len() == slice@.len() / (N as nat)
+            &&& ret.1@.len() == slice@.len() % (N as nat)
+            &&& slice@.len() == ret.0@.len() * (N as nat) + ret.1@.len()
+            &&& forall|i: int| 0 <= i < ret.0@.len() ==>
+                (#[trigger] ret.0@[i])@ == slice@.subrange(
+                    i * (N as int),
+                    (i + 1) * (N as int),
+                )
+            &&& ret.1@ == slice@.subrange(
+                ((slice@.len() / (N as nat)) * (N as nat)) as int,
+                slice@.len() as int,
+            )
+        },
+;","The sole precondition matches the documented panic. A deterministic choice names the unique quotient-length sequence of arrays whose views are consecutive N-element input subranges, while the explicit witness clauses expose that semantics. The remainder is the exact suffix beginning at len / N * N."
+core::slice::as_flattened,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,core::mem::size_of::<T>() > 0 || usize::MAX >= slice@.len() * N,ret@.len() == slice@.len() * N; ret@ == slice@.flat_map(|a: [T; N]| a@),"pub assume_specification<T, const N: usize>[ <[[T; N]]>::as_flattened ](
+    slice: &[[T; N]],
+) -> (ret: &[T])
+    requires
+        core::mem::size_of::<T>() > 0 || usize::MAX >= slice@.len() * N,
+    ensures
+        ret@.len() == slice@.len() * N,
+        ret@ == slice@.flat_map(|a: [T; N]| a@),
+;",The precondition exactly excludes the documented ZST multiplication overflow. Reversing the comparison preserves its meaning while avoiding the runner's mistaken treatment of `<` as a generic delimiter. The layout-preserving cast yields the concatenation of the input array views in order.
+core::slice::binary_search,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,public_api_allows_any_matching_index,"vstd::laws_cmp::obeys_cmp::<T>(); vstd::relations::sorted_by(slice@, |left: T, right: T| left.cmp_spec(&right) != core::cmp::Ordering::Greater,)","match result { core::result::Result::Ok(index) => { &&& slice@.len() > index &&& slice@[index as int].cmp_spec(x) == core::cmp::Ordering::Equal &&& forall|i: int| #![auto] i > index as int && slice@.len() > i ==> slice@[i].cmp_spec(x) == core::cmp::Ordering::Greater }, core::result::Result::Err(index) => { &&& slice@.len() >= index &&& forall|i: int| #![auto] i >= 0 && index as int > i ==> slice@[i].cmp_spec(x) == core::cmp::Ordering::Less &&& forall|i: int| #![auto] i >= index as int && slice@.len() > i ==> slice@[i].cmp_spec(x) == core::cmp::Ordering::Greater }, }","pub assume_specification<T: core::cmp::Ord>[ <[T]>::binary_search ](
+    slice: &[T],
+    x: &T,
+) -> (result: core::result::Result<usize, usize>)
+    requires
+        vstd::laws_cmp::obeys_cmp::<T>(),
+        vstd::relations::sorted_by(
+            slice@,
+            |left: T, right: T| left.cmp_spec(&right) != core::cmp::Ordering::Greater,
+        ),
+    ensures
+        match result {
+            core::result::Result::Ok(index) => {
+                &&& slice@.len() > index
+                &&& slice@[index as int].cmp_spec(x) == core::cmp::Ordering::Equal
+                &&& forall|i: int| #![auto] i > index as int && slice@.len() > i ==>
+                    slice@[i].cmp_spec(x) == core::cmp::Ordering::Greater
+            },
+            core::result::Result::Err(index) => {
+                &&& slice@.len() >= index
+                &&& forall|i: int| #![auto] i >= 0 && index as int > i ==>
+                    slice@[i].cmp_spec(x) == core::cmp::Ordering::Less
+                &&& forall|i: int| #![auto] i >= index as int && slice@.len() > i ==>
+                    slice@[i].cmp_spec(x) == core::cmp::Ordering::Greater
+            },
+        },
+;","Rust 1.96 binary_search_by continues after Equal and advances its base on every non-Greater comparison, yielding the greatest matching index or the unique insertion partition. Equivalent reversed inequalities avoid the runner's delimiter bug."
+core::slice::contains,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,T::obeys_eq_spec(),ret <==> exists|i: int| i >= 0 && slice@.len() > i && slice@[i].eq_spec(x),"pub assume_specification<T>[ <[T]>::contains ](slice: &[T], x: &T) -> (ret: bool)
+where
+    T: core::cmp::PartialEq,
+    requires
+        T::obeys_eq_spec(),
+    ensures
+        ret <==> exists|i: int|
+            i >= 0 && slice@.len() > i && slice@[i].eq_spec(x),
+;",The implementation returns whether any slice element compares equal to x. T::obeys_eq_spec() is the exact vstd bridge from runtime PartialEq comparisons to eq_spec; the stronger symmetry and transitivity requirements of obeys_eq are unnecessary.
+core::slice::element_offset,data_structure,,2,add_spec,skip,None,False,,,,0,0,0,determinism_unsupported_contract_form,,,,,,"The result depends on pointer addresses, alignment, and provenance rather than element values. Existing vstd slice and reference views cannot express that relationship or distinguish equal-valued elements at different locations. The previous implications therefore leave both None and potentially several Some results admissible, and no source-justified deterministic ordinary contract is available."
+core::slice::ends_with,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,T::obeys_eq_spec(),result == (slice@.len() >= needle@.len() && (forall|i: int| i >= 0 && needle@.len() > i ==> needle@[i].eq_spec(&slice@[slice@.len() - needle@.len() + i]))),"pub assume_specification<T>[ <[T]>::ends_with ](
+    slice: &[T],
+    needle: &[T],
+) -> (result: bool)
+where
+    T: core::cmp::PartialEq,
+    requires
+        T::obeys_eq_spec(),
+    ensures
+        result == (
+            slice@.len() >= needle@.len()
+            && (forall|i: int| i >= 0 && needle@.len() > i ==>
+                needle@[i].eq_spec(&slice@[slice@.len() - needle@.len() + i]))
+        ),
+;",Rust checks that the needle fits and compares each element with the aligned suffix. T::obeys_eq_spec() is the minimal vstd condition connecting those PartialEq calls to eq_spec; the stronger obeys_eq::<T>() laws are unnecessary. Equivalent reversed inequalities avoid the runner's less-than delimiter ambiguity.
+core::slice::eq_ignore_ascii_case,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,result == (slice@.len() == other@.len() && forall|i: int| i >= 0 && slice@.len() > i ==> (if slice@[i] >= 65 && 90 >= slice@[i] { slice@[i] as int + 32 } else { slice@[i] as int }) == (if other@[i] >= 65 && 90 >= other@[i] { other@[i] as int + 32 } else { other@[i] as int })),"pub assume_specification[ <[u8]>::eq_ignore_ascii_case ](
+    slice: &[u8],
+    other: &[u8],
+) -> (result: bool)
+    ensures
+        result == (
+            slice@.len() == other@.len()
+            && forall|i: int| i >= 0 && slice@.len() > i ==>
+                (if slice@[i] >= 65 && 90 >= slice@[i] {
+                    slice@[i] as int + 32
+                } else {
+                    slice@[i] as int
+                }) == (if other@[i] >= 65 && 90 >= other@[i] {
+                    other@[i] as int + 32
+                } else {
+                    other@[i] as int
+                })
+        ),
+;",The implementation rejects unequal lengths and otherwise compares corresponding bytes after ASCII-only lowercase conversion. Inlining that conversion gives an exact result relation without an auxiliary specification that the determinism harness cannot retain.
+core::slice::fill,data_structure,,3,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the post-state of the exact `&mut [T]` receiver. The determinism checker materializes that state as by-value `[T]`, which is unsized and cannot typecheck. No ordinary contract-only revision can preserve the API signature and observable semantics while avoiding this limitation."
+core::slice::first_chunk,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"ret.is_some() <==> slice@.len() >= (N as int); ret.is_some() ==> ret.unwrap()@ == slice@.subrange(0, N as int)","pub assume_specification<T, const N: usize>[ <[T]>::first_chunk::<N> ](
+    slice: &[T],
+) -> (ret: Option<&[T; N]>)
+    ensures
+        ret.is_some() <==> slice@.len() >= (N as int),
+        ret.is_some() ==> ret.unwrap()@ == slice@.subrange(0, N as int),
+;","The implementation returns Some exactly when the slice contains at least N elements, and the returned array's semantic view is the first N elements. This includes N = 0."
+core::slice::from_ref,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,r@ == seq![*s],"pub assume_specification<T>[ core::slice::from_ref::<T> ](s: &T) -> (r: &[T])
+    ensures
+        r@ == seq![*s],
+;",The documented length-one conversion and delegation to array::from_ref justify a singleton semantic slice view containing the referenced value.
+core::slice::is_ascii,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,ret == (forall|i: int| (i >= 0 && slice@.len() > i) ==> 0x7f >= slice@[i]),"pub assume_specification[ <[u8]>::is_ascii ](slice: &[u8]) -> (ret: bool)
+    ensures
+        ret == (forall|i: int| (i >= 0 && slice@.len() > i) ==> 0x7f >= slice@[i]),
+;",The result is true exactly when every byte is at most 127; the universal predicate also yields true for an empty slice.
+core::slice::is_sorted,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,T::obeys_partial_cmp_spec(),ret <==> forall|i: int| i >= 0 && slice@.len() > i + 1 ==> (#[trigger] slice@[i]).is_le(&slice@[i + 1]),"pub assume_specification<T>[ <[T]>::is_sorted ](slice: &[T]) -> (ret: bool)
+    where
+        T: core::cmp::PartialOrd,
+    requires
+        T::obeys_partial_cmp_spec(),
+    ensures
+        ret <==> forall|i: int|
+            i >= 0 && slice@.len() > i + 1 ==> (#[trigger] slice@[i]).is_le(&slice@[i + 1]),
+;","The implementation returns whether every adjacent pair satisfies `PartialOrd::le`; `is_le` models that comparison under `obeys_partial_cmp_spec()`. The explicit sequence-index trigger makes the quantified condition typecheck, and the condition has no applicable index for slices shorter than two."
+core::slice::last_chunk,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"slice.len() < N ==> ret.is_none(); N <= slice.len() ==> ret.is_some() && ret.unwrap()@ == slice@.subrange(slice@.len() as int - N as int, slice@.len() as int)","pub assume_specification<T, const N: usize>[ <[T]>::last_chunk::<N> ](
+    slice: &[T],
+) -> (ret: Option<&[T; N]>)
+    ensures
+        slice.len() < N ==> ret.is_none(),
+        N <= slice.len() ==> ret.is_some()
+            && ret.unwrap()@ == slice@.subrange(
+                slice@.len() as int - N as int,
+                slice@.len() as int
+            ),
+;","Checked subtraction returns None exactly when the slice is shorter than N; otherwise split_at selects the final N elements and the array cast preserves that suffix view, including Some of an empty array when N is zero."
+core::slice::make_ascii_lowercase,data_structure,,3,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must model the final `&mut [u8]` contents. Although reversing the comparison operands avoids the terminator-parser crash, the determinism checker then materializes the mutable slice as unsized by-value `[u8]`, which cannot use vstd's Sized-only extensional equality."
+core::slice::make_ascii_uppercase,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"Numeric u8 constants fix the byte-literal typecheck error, but any useful contract must model the final `&mut [u8]` state. The determinism checker materializes this state as unsized by-value `[u8]`, which cannot be compared by its Sized-only extensional equality."
+core::slice::reverse,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the post-state of the exact `&mut [T]` receiver. The determinism checker materializes that state as by-value `[T]`, which is unsized and cannot typecheck. No ordinary contract-only revision can preserve the API signature and observable reversal semantics while avoiding this limitation."
+core::slice::rotate_left,data_structure,,3,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the post-state of the exact `&mut [T]` receiver. The determinism checker materializes that state as by-value `[T]`, which is unsized and cannot typecheck. No ordinary contract-only revision can preserve the API signature and observable rotation semantics while avoiding this limitation."
+core::slice::rotate_right,data_structure,,3,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the rotated post-state of the exact `&mut [T]` receiver. The determinism checker materializes that state as by-value `[T]`, which is unsized and cannot typecheck. No ordinary contract-only revision can preserve the API signature and observable rotation semantics while avoiding this limitation."
+core::slice::split_at_checked,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"ret.is_some() <==> mid <= slice@.len(); ret.is_some() ==> ret.unwrap().0@ == slice@.subrange(0, mid as int); ret.is_some() ==> ret.unwrap().1@ == slice@.subrange(mid as int, slice@.len() as int)","pub assume_specification<T>[ <[T]>::split_at_checked ](
+    slice: &[T],
+    mid: usize,
+) -> (ret: core::option::Option<(&[T], &[T])>)
+    ensures
+        ret.is_some() <==> mid <= slice@.len(),
+        ret.is_some() ==> ret.unwrap().0@ == slice@.subrange(0, mid as int),
+        ret.is_some() ==> ret.unwrap().1@ == slice@.subrange(mid as int, slice@.len() as int),
+;","The implementation returns Some exactly when mid is within the slice, with semantic prefix and suffix views split at mid; otherwise it returns None."
+core::slice::split_first,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"match ret {
+            None => slice@.len() == 0,
+            Some((first, rest)) => {
+                &&& slice@.len() > 0
+                &&& *first == slice@[0]
+                &&& rest@ == slice@.subrange(1, slice@.len() as int)
+            },
+        }","pub assume_specification<T>[ <[T]>::split_first ](slice: &[T]) -> (ret: core::option::Option<(&T, &[T])>)
+    ensures
+        match ret {
+            None => slice@.len() == 0,
+            Some((first, rest)) => {
+                &&& slice@.len() > 0
+                &&& *first == slice@[0]
+                &&& rest@ == slice@.subrange(1, slice@.len() as int)
+            },
+        },
+;",The implementation returns None exactly for an empty slice; otherwise it returns the first element and the remaining tail. The structured ensures now exactly matches the typechecked contract expression.
+core::slice::split_first_chunk,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"slice.len() < N ==> ret.is_none(); N <= slice.len() ==> ret.is_some() && ret.unwrap().0@ == slice@.subrange(0, N as int) && ret.unwrap().1@ == slice@.subrange(N as int, slice@.len() as int)","pub assume_specification<T, const N: usize>[ <[T]>::split_first_chunk::<N> ](
+    slice: &[T],
+) -> (ret: core::option::Option<(&[T; N], &[T])>)
+    ensures
+        slice.len() < N ==> ret.is_none(),
+        N <= slice.len() ==> ret.is_some()
+            && ret.unwrap().0@ == slice@.subrange(0, N as int)
+            && ret.unwrap().1@ == slice@.subrange(N as int, slice@.len() as int),
+;",The implementation returns None when split_at_checked(N) fails; otherwise it casts the length-N prefix to an array reference and returns the remaining suffix. Sequence views specify those contents without asserting reference identity.
+core::slice::split_last,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"match ret { core::option::Option::None => slice@.len() == 0, core::option::Option::Some((last, init)) => { &&& slice@.len() > 0 &&& *last == slice@[slice@.len() as int - 1] &&& init@ == slice@.subrange(0, slice@.len() as int - 1) }, }","pub assume_specification<T>[ <[T]>::split_last ](slice: &[T]) -> (ret: core::option::Option<(&T, &[T])>)
+    ensures
+        match ret {
+            core::option::Option::None => slice@.len() == 0,
+            core::option::Option::Some((last, init)) => {
+                &&& slice@.len() > 0
+                &&& *last == slice@[slice@.len() as int - 1]
+                &&& init@ == slice@.subrange(0, slice@.len() as int - 1)
+            },
+        },
+;",The implementation returns None exactly for an empty slice; otherwise its pattern binds the final element and preceding prefix. The contract compares the pointee value and slice view rather than reference identity.
+core::slice::split_last_chunk,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"match ret { core::option::Option::Some((init, last)) => { &&& slice@.len() >= N &&& init@ == slice@.subrange(0, slice@.len() as int - N as int) &&& last@ == slice@.subrange(slice@.len() as int - N as int, slice@.len() as int) }, core::option::Option::None => N > slice@.len(), }","pub assume_specification<T, const N: usize>[ <[T]>::split_last_chunk::<N> ](
+    slice: &[T],
+) -> (ret: core::option::Option<(&[T], &[T; N])>)
+    ensures
+        match ret {
+            core::option::Option::Some((init, last)) => {
+                &&& slice@.len() >= N
+                &&& init@ == slice@.subrange(0, slice@.len() as int - N as int)
+                &&& last@ == slice@.subrange(slice@.len() as int - N as int, slice@.len() as int)
+            },
+            core::option::Option::None => N > slice@.len(),
+        },
+;","checked_sub returns None exactly when N exceeds the slice length. Otherwise split_at selects the prefix ending at len-N, and the array reference views the remaining N-element suffix."
+core::slice::starts_with,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,T::obeys_eq_spec(),result == (slice@.len() >= needle@.len() && (forall|i: int| i >= 0 && needle@.len() > i ==> needle@[i].eq_spec(&slice@[i]))),"pub assume_specification<T>[ <[T]>::starts_with ](
+    slice: &[T],
+    needle: &[T],
+) -> (result: bool)
+where
+    T: core::cmp::PartialEq,
+    requires
+        T::obeys_eq_spec(),
+    ensures
+        result == (
+            slice@.len() >= needle@.len()
+            && (forall|i: int| i >= 0 && needle@.len() > i ==>
+                needle@[i].eq_spec(&slice@[i]))
+        ),
+;",Rust checks that the needle fits and then compares each needle element with the corresponding prefix element. T::obeys_eq_spec() is the minimal vstd condition connecting those PartialEq calls to eq_spec; concrete structural equality is unnecessarily restrictive.
+core::slice::strip_circumfix,data_structure,,2,add_spec,skip,None,False,,,,0,0,0,determinism_unsupported_contract_form,,,,,,"Existing vstd vocabulary does not model SlicePattern::as_slice, so the prefix and suffix values or lengths cannot be related to the result. The source-justified contiguous-subslice property leaves both the Option discriminant and selected subrange undetermined, making it insufficient as an ordinary contract."
+core::slice::strip_suffix,data_structure,,2,add_spec,skip,None,False,,,,0,0,0,determinism_unsupported_contract_form,,,,,,"Verus lacks a vstd declaration and semantic model for SlicePattern and as_slice, and its associated Item projection makes the ordinary determinism harness ill-typed. Without that model, only a nondeterministic prefix property is source-justified; determining success or the returned prefix length would require false domain restrictions or an ungrounded model."
+core::slice::subslice_range,data_structure,,2,add_spec,skip,None,False,,,,0,0,0,determinism_unsupported_contract_form,,,,,,"The return type core::range::Range is not modeled by existing vstd, and the result depends on pointer addresses, alignment, and provenance rather than slice views. Adding a new external type specification would not make success or the returned range determinable from existing semantic inputs. No useful deterministic ordinary contract is therefore available."
+core::slice::swap,data_structure,,3,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the post-state of the exact `&mut [T]` receiver. The determinism checker materializes that state as a by-value `[T]`, which is unsized and cannot typecheck. No ordinary contract-only revision can preserve the API signature and observable swap semantics while avoiding this limitation."
+core::slice::swap_with_slice,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe both mutable slice post-states. The determinism checker materializes each as a by-value `[T]`, which is unsized and cannot typecheck. No ordinary contract-only revision can preserve the API signature and observable swap semantics while avoiding this limitation."
+core::slice::trim_ascii,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"exists|start: int, end: int| start >= 0 && end >= start && slice@.len() >= end && (forall|i: int| (i >= 0 && start > i) ==> (slice@[i] == 0x09u8 || slice@[i] == 0x0au8 || slice@[i] == 0x0cu8 || slice@[i] == 0x0du8 || slice@[i] == 0x20u8)) && (start == slice@.len() || !(slice@[start] == 0x09u8 || slice@[start] == 0x0au8 || slice@[start] == 0x0cu8 || slice@[start] == 0x0du8 || slice@[start] == 0x20u8)) && (forall|i: int| (i >= end && slice@.len() > i) ==> (slice@[i] == 0x09u8 || slice@[i] == 0x0au8 || slice@[i] == 0x0cu8 || slice@[i] == 0x0du8 || slice@[i] == 0x20u8)) && (end == start || !(slice@[end - 1] == 0x09u8 || slice@[end - 1] == 0x0au8 || slice@[end - 1] == 0x0cu8 || slice@[end - 1] == 0x0du8 || slice@[end - 1] == 0x20u8)) && ret@ == slice@.subrange(start, end)","pub assume_specification[ <[u8]>::trim_ascii ](slice: &[u8]) -> (ret: &[u8])
+    ensures
+        exists|start: int, end: int|
+            start >= 0
+            && end >= start
+            && slice@.len() >= end
+            && (forall|i: int| (i >= 0 && start > i) ==> (
+                slice@[i] == 0x09u8 || slice@[i] == 0x0au8 || slice@[i] == 0x0cu8
+                    || slice@[i] == 0x0du8 || slice@[i] == 0x20u8
+            ))
+            && (start == slice@.len() || !(
+                slice@[start] == 0x09u8 || slice@[start] == 0x0au8
+                    || slice@[start] == 0x0cu8 || slice@[start] == 0x0du8
+                    || slice@[start] == 0x20u8
+            ))
+            && (forall|i: int| (i >= end && slice@.len() > i) ==> (
+                slice@[i] == 0x09u8 || slice@[i] == 0x0au8 || slice@[i] == 0x0cu8
+                    || slice@[i] == 0x0du8 || slice@[i] == 0x20u8
+            ))
+            && (end == start || !(
+                slice@[end - 1] == 0x09u8 || slice@[end - 1] == 0x0au8
+                    || slice@[end - 1] == 0x0cu8 || slice@[end - 1] == 0x0du8
+                    || slice@[end - 1] == 0x20u8
+            ))
+            && ret@ == slice@.subrange(start, end),
+;",The implementation trims the start and then the end. The contract identifies the first and one-past-last non-whitespace bytes and equates the returned semantic view with that subrange.
+core::slice::trim_ascii_end,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"slice@.len() >= result@.len(); result@ == slice@.subrange(0, result@.len() as int); forall|i: int| i >= (result@.len() as int) && slice@.len() > i ==> (slice@[i] == 9 || slice@[i] == 10 || slice@[i] == 12 || slice@[i] == 13 || slice@[i] == 32); result@.len() > 0 ==> !(slice@[(result@.len() as int) - 1] == 9 || slice@[(result@.len() as int) - 1] == 10 || slice@[(result@.len() as int) - 1] == 12 || slice@[(result@.len() as int) - 1] == 13 || slice@[(result@.len() as int) - 1] == 32)","pub assume_specification[ <[u8]>::trim_ascii_end ](
+    slice: &[u8],
+) -> (result: &[u8])
+    ensures
+        slice@.len() >= result@.len(),
+        result@ == slice@.subrange(0, result@.len() as int),
+        forall|i: int| i >= (result@.len() as int) && slice@.len() > i ==> (
+            slice@[i] == 9 || slice@[i] == 10 || slice@[i] == 12
+                || slice@[i] == 13 || slice@[i] == 32
+        ),
+        result@.len() > 0 ==> !(
+            slice@[(result@.len() as int) - 1] == 9
+                || slice@[(result@.len() as int) - 1] == 10
+                || slice@[(result@.len() as int) - 1] == 12
+                || slice@[(result@.len() as int) - 1] == 13
+                || slice@[(result@.len() as int) - 1] == 32
+        ),
+;","The loop removes exactly the trailing ASCII-whitespace bytes (tab, newline, form feed, carriage return, and space). These clauses characterize the resulting maximal prefix by semantic sequence view rather than reference identity."
+core::slice::trim_ascii_start,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"exists|start: int| start >= 0 && slice@.len() >= start && ret@ == slice@.subrange(start, slice@.len() as int) && (forall|i: int| i >= 0 && start > i ==> slice@[i] == 0x09u8 || slice@[i] == 0x0au8 || slice@[i] == 0x0cu8 || slice@[i] == 0x0du8 || slice@[i] == 0x20u8) && (slice@.len() > start ==> !(slice@[start] == 0x09u8 || slice@[start] == 0x0au8 || slice@[start] == 0x0cu8 || slice@[start] == 0x0du8 || slice@[start] == 0x20u8))","pub assume_specification[ <[u8]>::trim_ascii_start ](slice: &[u8]) -> (ret: &[u8])
+    ensures
+        exists|start: int|
+            start >= 0
+            && slice@.len() >= start
+            && ret@ == slice@.subrange(start, slice@.len() as int)
+            && (forall|i: int| i >= 0 && start > i ==>
+                slice@[i] == 0x09u8
+                || slice@[i] == 0x0au8
+                || slice@[i] == 0x0cu8
+                || slice@[i] == 0x0du8
+                || slice@[i] == 0x20u8)
+            && (slice@.len() > start ==>
+                !(slice@[start] == 0x09u8
+                || slice@[start] == 0x0au8
+                || slice@[start] == 0x0cu8
+                || slice@[start] == 0x0du8
+                || slice@[start] == 0x20u8)),
+;","The implementation repeatedly removes leading bytes exactly while they are ASCII whitespace, so the result is the suffix beginning at the first non-whitespace byte, or the empty suffix when all bytes are whitespace."
+core::str::ceil_char_boundary,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"s.spec_bytes().len() >= res as int; is_char_boundary(s.spec_bytes(), res as int); index as int >= s.spec_bytes().len() ==> res as int == s.spec_bytes().len(); s.spec_bytes().len() >= index as int ==> res as int >= index as int; forall|i: int| i >= index as int && s.spec_bytes().len() >= i && #[trigger] is_char_boundary(s.spec_bytes(), i) ==> i >= res as int; index as int + 3 >= res as int","pub assume_specification[ str::ceil_char_boundary ](s: &str, index: usize) -> (res: usize)
+    ensures
+        s.spec_bytes().len() >= res as int,
+        is_char_boundary(s.spec_bytes(), res as int),
+        index as int >= s.spec_bytes().len() ==> res as int == s.spec_bytes().len(),
+        s.spec_bytes().len() >= index as int ==> res as int >= index as int,
+        forall|i: int| i >= index as int && s.spec_bytes().len() >= i
+            && #[trigger] is_char_boundary(s.spec_bytes(), i) ==> i >= res as int,
+        index as int + 3 >= res as int,
+;","The implementation returns the byte length when index is at or beyond it; otherwise it returns the least UTF-8 boundary at or above index, no more than three bytes ahead. Equivalent greater-than-oriented comparisons avoid the runner's angle-bracket parsing failure."
+core::str::eq_ignore_ascii_case,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,res == (s.spec_bytes().len() == other.spec_bytes().len() && forall|i: int| i >= 0 && s.spec_bytes().len() > i ==> (if s.spec_bytes()[i] >= 65 && 90 >= s.spec_bytes()[i] { s.spec_bytes()[i] as int + 32 } else { s.spec_bytes()[i] as int }) == (if other.spec_bytes()[i] >= 65 && 90 >= other.spec_bytes()[i] { other.spec_bytes()[i] as int + 32 } else { other.spec_bytes()[i] as int })),"pub assume_specification[ str::eq_ignore_ascii_case ](
+    s: &str,
+    other: &str,
+) -> (res: bool)
+    ensures
+        res == (
+            s.spec_bytes().len() == other.spec_bytes().len()
+            && forall|i: int| i >= 0 && s.spec_bytes().len() > i ==>
+                (if s.spec_bytes()[i] >= 65 && 90 >= s.spec_bytes()[i] {
+                    s.spec_bytes()[i] as int + 32
+                } else {
+                    s.spec_bytes()[i] as int
+                }) == (if other.spec_bytes()[i] >= 65 && 90 >= other.spec_bytes()[i] {
+                    other.spec_bytes()[i] as int + 32
+                } else {
+                    other.spec_bytes()[i] as int
+                })
+        ),
+;","The implementation delegates to byte-slice ASCII-insensitive equality, while the documentation characterizes the result as equality after ASCII lowercasing. Inlining that byte normalization gives an exact result relation without unsupported byte-character constants or auxiliary declarations."
+core::str::floor_char_boundary,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"index >= res; s.spec_bytes().len() >= res as int; is_char_boundary(s.spec_bytes(), res as int); index as int >= s.spec_bytes().len() ==> res as int == s.spec_bytes().len(); forall|i: int| index as int >= i && #[trigger] is_char_boundary(s.spec_bytes(), i) ==> res as int >= i","pub assume_specification[ str::floor_char_boundary ](
+    s: &str,
+    index: usize,
+) -> (res: usize)
+    ensures
+        index >= res,
+        s.spec_bytes().len() >= res as int,
+        is_char_boundary(s.spec_bytes(), res as int),
+        index as int >= s.spec_bytes().len() ==> res as int == s.spec_bytes().len(),
+        forall|i: int| index as int >= i
+            && #[trigger] is_char_boundary(s.spec_bytes(), i) ==> res as int >= i,
+;",The implementation clamps an out-of-range index to the byte length; otherwise it scans backward to the greatest UTF-8 character boundary not exceeding the index. The contract states that exact maximal-boundary result.
+core::str::make_ascii_uppercase,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"A useful contract must describe the post-state of the exact `&mut str` receiver. The determinism checker materializes that state as by-value `str`, which is unsized and cannot typecheck. No contract-only revision can preserve the source signature and observable semantics while avoiding this limitation."
+core::str::substr_range,data_structure,,1,skip,skip,assume_specification,False,,,,0,0,0,,,,,,,"The exact return type core::range::Range<usize> is not modeled by current vstd, so the declaration cannot typecheck without a separate external type specification. Moreover, None versus Some depends on pointer location, and the documented empty-string false positives prevent characterizing it from semantic string views."
+core::str::trim_ascii,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"ret@ == (s@.fold_left((Seq::<char>::empty(), Seq::<char>::empty()), |state: (Seq<char>, Seq<char>), c: char| { let code = c as nat; if code == 0x09 || code == 0x0a || code == 0x0c || code == 0x0d || code == 0x20 { if state.0.len() == 0 { state } else { (state.0, state.1.push(c)) } } else { ((state.0 + state.1).push(c), Seq::<char>::empty()) } })).0","pub assume_specification[ str::trim_ascii ](s: &str) -> (ret: &str)
+    ensures
+        ret@ == (s@.fold_left((Seq::<char>::empty(), Seq::<char>::empty()), |state: (Seq<char>, Seq<char>), c: char| { let code = c as nat; if code == 0x09 || code == 0x0a || code == 0x0c || code == 0x0d || code == 0x20 { if state.0.len() == 0 { state } else { (state.0, state.1.push(c)) } } else { ((state.0 + state.1).push(c), Seq::<char>::empty()) } })).0,
+;","The fold exactly models trimming both ends: it drops leading ASCII whitespace, buffers whitespace after content, commits that buffer only when followed by a non-whitespace character, and discards the final buffer. The structured ensures clause is identical to the clause in the declaration."
+core::str::trim_ascii_end,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"s@.len() >= res@.len(); res@ == s@.subrange(0, res@.len() as int); forall|i: int| i >= res@.len() as int && s@.len() > i ==> (s@[i] as nat == 0x09 || s@[i] as nat == 0x0a || s@[i] as nat == 0x0c || s@[i] as nat == 0x0d || s@[i] as nat == 0x20); res@.len() > 0 ==> !(res@.last() as nat == 0x09 || res@.last() as nat == 0x0a || res@.last() as nat == 0x0c || res@.last() as nat == 0x0d || res@.last() as nat == 0x20)","pub assume_specification[ str::trim_ascii_end ](s: &str) -> (res: &str)
+    ensures
+        s@.len() >= res@.len(),
+        res@ == s@.subrange(0, res@.len() as int),
+        forall|i: int| i >= res@.len() as int && s@.len() > i ==> (
+            s@[i] as nat == 0x09 || s@[i] as nat == 0x0a
+                || s@[i] as nat == 0x0c || s@[i] as nat == 0x0d
+                || s@[i] as nat == 0x20
+        ),
+        res@.len() > 0 ==> !(
+            res@.last() as nat == 0x09 || res@.last() as nat == 0x0a
+                || res@.last() as nat == 0x0c || res@.last() as nat == 0x0d
+                || res@.last() as nat == 0x20
+        ),
+;","For valid UTF-8, the trimmed ASCII bytes correspond exactly to trailing characters with code points 0x09, 0x0a, 0x0c, 0x0d, or 0x20. The clauses uniquely characterize the result as the maximal retained character prefix without requiring the missing spec_bytes trait import."
+core::str::trim_ascii_start,data_structure,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"exists|start: int| start >= 0 && s@.len() >= start && res@ == s@.subrange(start, s@.len() as int) && (forall|i: int| i >= 0 && start > i ==> (s@[i] as nat == 0x09 || s@[i] as nat == 0x0a || s@[i] as nat == 0x0c || s@[i] as nat == 0x0d || s@[i] as nat == 0x20)) && (s@.len() > start ==> !(s@[start] as nat == 0x09 || s@[start] as nat == 0x0a || s@[start] as nat == 0x0c || s@[start] as nat == 0x0d || s@[start] as nat == 0x20))","pub assume_specification[ str::trim_ascii_start ](s: &str) -> (res: &str)
+    ensures
+        exists|start: int|
+            start >= 0
+            && s@.len() >= start
+            && res@ == s@.subrange(start, s@.len() as int)
+            && (forall|i: int| i >= 0 && start > i ==> (
+                s@[i] as nat == 0x09 || s@[i] as nat == 0x0a
+                    || s@[i] as nat == 0x0c || s@[i] as nat == 0x0d
+                    || s@[i] as nat == 0x20
+            ))
+            && (s@.len() > start ==> !(
+                s@[start] as nat == 0x09 || s@[start] as nat == 0x0a
+                    || s@[start] as nat == 0x0c || s@[start] as nat == 0x0d
+                    || s@[start] as nat == 0x20
+            )),
+;","The implementation trims the byte view and reconstructs a string slice. The contract characterizes the returned semantic character view as the suffix following the maximal leading ASCII-whitespace prefix, without asserting reference identity."
+core::str::trim_end,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"s@.len() >= res@.len(); res@ == s@.subrange(0, res@.len() as int); forall|i: int| i >= res@.len() as int && s@.len() > i ==> ((s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat) || s@[i] as nat == 0x0020 || s@[i] as nat == 0x0085 || s@[i] as nat == 0x00a0 || s@[i] as nat == 0x1680 || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat) || s@[i] as nat == 0x2028 || s@[i] as nat == 0x2029 || s@[i] as nat == 0x202f || s@[i] as nat == 0x205f || s@[i] as nat == 0x3000); res@.len() > 0 ==> !((res@.last() as nat >= 0x0009 && 0x000d >= res@.last() as nat) || res@.last() as nat == 0x0020 || res@.last() as nat == 0x0085 || res@.last() as nat == 0x00a0 || res@.last() as nat == 0x1680 || (res@.last() as nat >= 0x2000 && 0x200a >= res@.last() as nat) || res@.last() as nat == 0x2028 || res@.last() as nat == 0x2029 || res@.last() as nat == 0x202f || res@.last() as nat == 0x205f || res@.last() as nat == 0x3000)","pub assume_specification[ str::trim_end ](s: &str) -> (res: &str)
+    ensures
+        s@.len() >= res@.len(),
+        res@ == s@.subrange(0, res@.len() as int),
+        forall|i: int| i >= res@.len() as int && s@.len() > i ==> (
+            (s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat)
+                || s@[i] as nat == 0x0020
+                || s@[i] as nat == 0x0085
+                || s@[i] as nat == 0x00a0
+                || s@[i] as nat == 0x1680
+                || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat)
+                || s@[i] as nat == 0x2028
+                || s@[i] as nat == 0x2029
+                || s@[i] as nat == 0x202f
+                || s@[i] as nat == 0x205f
+                || s@[i] as nat == 0x3000
+        ),
+        res@.len() > 0 ==> !(
+            (res@.last() as nat >= 0x0009 && 0x000d >= res@.last() as nat)
+                || res@.last() as nat == 0x0020
+                || res@.last() as nat == 0x0085
+                || res@.last() as nat == 0x00a0
+                || res@.last() as nat == 0x1680
+                || (res@.last() as nat >= 0x2000 && 0x200a >= res@.last() as nat)
+                || res@.last() as nat == 0x2028
+                || res@.last() as nat == 0x2029
+                || res@.last() as nat == 0x202f
+                || res@.last() as nat == 0x205f
+                || res@.last() as nat == 0x3000
+        ),
+;",The implementation removes exactly the maximal trailing run accepted by char::is_whitespace. The postconditions uniquely characterize the returned semantic view as the retained prefix while keeping the Unicode White_Space predicate self-contained.
+core::str::trim_left,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"exists|start: int| start >= 0 && s@.len() >= start && res@ == s@.subrange(start, s@.len() as int) && (forall|i: int| i >= 0 && start > i ==> ((s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat) || s@[i] as nat == 0x0020 || s@[i] as nat == 0x0085 || s@[i] as nat == 0x00a0 || s@[i] as nat == 0x1680 || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat) || s@[i] as nat == 0x2028 || s@[i] as nat == 0x2029 || s@[i] as nat == 0x202f || s@[i] as nat == 0x205f || s@[i] as nat == 0x3000)) && (s@.len() > start ==> !((s@[start] as nat >= 0x0009 && 0x000d >= s@[start] as nat) || s@[start] as nat == 0x0020 || s@[start] as nat == 0x0085 || s@[start] as nat == 0x00a0 || s@[start] as nat == 0x1680 || (s@[start] as nat >= 0x2000 && 0x200a >= s@[start] as nat) || s@[start] as nat == 0x2028 || s@[start] as nat == 0x2029 || s@[start] as nat == 0x202f || s@[start] as nat == 0x205f || s@[start] as nat == 0x3000))","#[allow(deprecated)]
+pub assume_specification[ str::trim_left ](s: &str) -> (res: &str)
+    ensures
+        exists|start: int|
+            start >= 0
+            && s@.len() >= start
+            && res@ == s@.subrange(start, s@.len() as int)
+            && (forall|i: int| i >= 0 && start > i ==> (
+                (s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat)
+                    || s@[i] as nat == 0x0020
+                    || s@[i] as nat == 0x0085
+                    || s@[i] as nat == 0x00a0
+                    || s@[i] as nat == 0x1680
+                    || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat)
+                    || s@[i] as nat == 0x2028
+                    || s@[i] as nat == 0x2029
+                    || s@[i] as nat == 0x202f
+                    || s@[i] as nat == 0x205f
+                    || s@[i] as nat == 0x3000
+            ))
+            && (s@.len() > start ==> !(
+                (s@[start] as nat >= 0x0009 && 0x000d >= s@[start] as nat)
+                    || s@[start] as nat == 0x0020
+                    || s@[start] as nat == 0x0085
+                    || s@[start] as nat == 0x00a0
+                    || s@[start] as nat == 0x1680
+                    || (s@[start] as nat >= 0x2000 && 0x200a >= s@[start] as nat)
+                    || s@[start] as nat == 0x2028
+                    || s@[start] as nat == 0x2029
+                    || s@[start] as nat == 0x202f
+                    || s@[start] as nat == 0x205f
+                    || s@[start] as nat == 0x3000
+            )),
+;",trim_left delegates to trim_start. The self-contained postcondition uniquely characterizes the returned character view as the suffix after the maximal leading Unicode White_Space prefix.
+core::str::trim_right,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"s@.len() >= res@.len(); res@ == s@.subrange(0, res@.len() as int); forall|i: int| i >= res@.len() as int && s@.len() > i ==> ((s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat) || s@[i] as nat == 0x0020 || s@[i] as nat == 0x0085 || s@[i] as nat == 0x00a0 || s@[i] as nat == 0x1680 || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat) || s@[i] as nat == 0x2028 || s@[i] as nat == 0x2029 || s@[i] as nat == 0x202f || s@[i] as nat == 0x205f || s@[i] as nat == 0x3000); res@.len() > 0 ==> !((res@.last() as nat >= 0x0009 && 0x000d >= res@.last() as nat) || res@.last() as nat == 0x0020 || res@.last() as nat == 0x0085 || res@.last() as nat == 0x00a0 || res@.last() as nat == 0x1680 || (res@.last() as nat >= 0x2000 && 0x200a >= res@.last() as nat) || res@.last() as nat == 0x2028 || res@.last() as nat == 0x2029 || res@.last() as nat == 0x202f || res@.last() as nat == 0x205f || res@.last() as nat == 0x3000)","#[allow(deprecated)]
+pub assume_specification[ str::trim_right ](s: &str) -> (res: &str)
+    ensures
+        s@.len() >= res@.len(),
+        res@ == s@.subrange(0, res@.len() as int),
+        forall|i: int| i >= res@.len() as int && s@.len() > i ==> (
+            (s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat)
+                || s@[i] as nat == 0x0020
+                || s@[i] as nat == 0x0085
+                || s@[i] as nat == 0x00a0
+                || s@[i] as nat == 0x1680
+                || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat)
+                || s@[i] as nat == 0x2028
+                || s@[i] as nat == 0x2029
+                || s@[i] as nat == 0x202f
+                || s@[i] as nat == 0x205f
+                || s@[i] as nat == 0x3000
+        ),
+        res@.len() > 0 ==> !(
+            (res@.last() as nat >= 0x0009 && 0x000d >= res@.last() as nat)
+                || res@.last() as nat == 0x0020
+                || res@.last() as nat == 0x0085
+                || res@.last() as nat == 0x00a0
+                || res@.last() as nat == 0x1680
+                || (res@.last() as nat >= 0x2000 && 0x200a >= res@.last() as nat)
+                || res@.last() as nat == 0x2028
+                || res@.last() as nat == 0x2029
+                || res@.last() as nat == 0x202f
+                || res@.last() as nat == 0x205f
+                || res@.last() as nat == 0x3000
+        ),
+;",trim_right delegates to trim_end. These postconditions uniquely characterize the returned semantic view as the prefix remaining after the maximal trailing Unicode White_Space run.
+core::str::trim_start,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"exists|start: int| start >= 0 && s@.len() >= start && res@ == s@.subrange(start, s@.len() as int) && (forall|i: int| i >= 0 && start > i ==> ((s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat) || s@[i] as nat == 0x0020 || s@[i] as nat == 0x0085 || s@[i] as nat == 0x00a0 || s@[i] as nat == 0x1680 || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat) || s@[i] as nat == 0x2028 || s@[i] as nat == 0x2029 || s@[i] as nat == 0x202f || s@[i] as nat == 0x205f || s@[i] as nat == 0x3000)) && (s@.len() > start ==> !((s@[start] as nat >= 0x0009 && 0x000d >= s@[start] as nat) || s@[start] as nat == 0x0020 || s@[start] as nat == 0x0085 || s@[start] as nat == 0x00a0 || s@[start] as nat == 0x1680 || (s@[start] as nat >= 0x2000 && 0x200a >= s@[start] as nat) || s@[start] as nat == 0x2028 || s@[start] as nat == 0x2029 || s@[start] as nat == 0x202f || s@[start] as nat == 0x205f || s@[start] as nat == 0x3000))","pub assume_specification[ str::trim_start ](s: &str) -> (res: &str)
+    ensures
+        exists|start: int|
+            start >= 0
+            && s@.len() >= start
+            && res@ == s@.subrange(start, s@.len() as int)
+            && (forall|i: int| i >= 0 && start > i ==> (
+                (s@[i] as nat >= 0x0009 && 0x000d >= s@[i] as nat)
+                    || s@[i] as nat == 0x0020
+                    || s@[i] as nat == 0x0085
+                    || s@[i] as nat == 0x00a0
+                    || s@[i] as nat == 0x1680
+                    || (s@[i] as nat >= 0x2000 && 0x200a >= s@[i] as nat)
+                    || s@[i] as nat == 0x2028
+                    || s@[i] as nat == 0x2029
+                    || s@[i] as nat == 0x202f
+                    || s@[i] as nat == 0x205f
+                    || s@[i] as nat == 0x3000
+            ))
+            && (s@.len() > start ==> !(
+                (s@[start] as nat >= 0x0009 && 0x000d >= s@[start] as nat)
+                    || s@[start] as nat == 0x0020
+                    || s@[start] as nat == 0x0085
+                    || s@[start] as nat == 0x00a0
+                    || s@[start] as nat == 0x1680
+                    || (s@[start] as nat >= 0x2000 && 0x200a >= s@[start] as nat)
+                    || s@[start] as nat == 0x2028
+                    || s@[start] as nat == 0x2029
+                    || s@[start] as nat == 0x202f
+                    || s@[start] as nat == 0x205f
+                    || s@[start] as nat == 0x3000
+            )),
+;","The postcondition uniquely characterizes the returned character view as the suffix following the maximal leading Unicode White_Space prefix, matching trim_start_matches(char::is_whitespace)."
+std::collections::HashMap::remove_entry,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,borrowed_key_uniqueness_precondition,,"obeys_key_model::<K>(); builds_valid_hashers::<S>(); forall|left: K, right: K|
+            sets_borrowed_key_to_key(old(m)@.dom(), k, &left)
+                && sets_borrowed_key_to_key(old(m)@.dom(), k, &right)
+                ==> left == right","match result {
+            Some((key, value)) => {
+                &&& contains_borrowed_key(old(m)@, k)
+                &&& sets_borrowed_key_to_key(old(m)@.dom(), k, &key)
+                &&& old(m)@.contains_key(key)
+                &&& old(m)@[key] == value
+                &&& final(m)@ == old(m)@.remove(key)
+            },
+            None => {
+                &&& !contains_borrowed_key(old(m)@, k)
+                &&& final(m)@ == old(m)@
+            },
+        }","pub assume_specification<
+    K: core::borrow::Borrow<Q> + core::hash::Hash + core::cmp::Eq,
+    V,
+    S: core::hash::BuildHasher,
+    A: core::alloc::Allocator,
+    Q: core::hash::Hash + core::cmp::Eq + ?Sized,
+>[ std::collections::HashMap::<K, V, S, A>::remove_entry::<Q> ](
+    m: &mut std::collections::HashMap<K, V, S, A>,
+    k: &Q,
+) -> (result: core::option::Option<(K, V)>)
+    requires
+        obeys_key_model::<K>(),
+        builds_valid_hashers::<S>(),
+        forall|left: K, right: K|
+            sets_borrowed_key_to_key(old(m)@.dom(), k, &left)
+                && sets_borrowed_key_to_key(old(m)@.dom(), k, &right)
+                ==> left == right,
+    ensures
+        match result {
+            Some((key, value)) => {
+                &&& contains_borrowed_key(old(m)@, k)
+                &&& sets_borrowed_key_to_key(old(m)@.dom(), k, &key)
+                &&& old(m)@.contains_key(key)
+                &&& old(m)@[key] == value
+                &&& final(m)@ == old(m)@.remove(key)
+            },
+            None => {
+                &&& !contains_borrowed_key(old(m)@, k)
+                &&& final(m)@ == old(m)@
+            },
+        },
+;","The source delegates to remove_entry, whose documented successful result is the removed stored pair. The stored-key predicate relates that owned key to the borrowed query; its functionality condition captures the documented Hash/Eq compatibility obligation, while map lookup and removal uniquely determine the value and final state."
+std::collections::HashSet::is_disjoint,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,vstd::std_specs::hash::obeys_key_model::<T>(); vstd::std_specs::hash::builds_valid_hashers::<S>(),result == m@.disjoint(other@),"pub assume_specification<
+    T: core::cmp::Eq + core::hash::Hash,
+    S: core::hash::BuildHasher,
+    A: core::alloc::Allocator,
+>[ std::collections::HashSet::<T, S, A>::is_disjoint ](
+    m: &std::collections::HashSet<T, S, A>,
+    other: &std::collections::HashSet<T, S, A>,
+) -> (result: bool)
+    requires
+        vstd::std_specs::hash::obeys_key_model::<T>(),
+        vstd::std_specs::hash::builds_valid_hashers::<S>(),
+    ensures
+        result == m@.disjoint(other@),
+;","The implementation iterates the smaller set and checks that every element is absent from the other, exactly matching semantic Set disjointness. The Rust 1.99 body is unchanged."
+std::collections::HashSet::is_subset,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,vstd::std_specs::hash::obeys_key_model::<T>(); vstd::std_specs::hash::builds_valid_hashers::<S>(),result == m@.subset_of(other@),"pub assume_specification<
+    T: core::cmp::Eq + core::hash::Hash,
+    S: core::hash::BuildHasher,
+    A: core::alloc::Allocator,
+>[ std::collections::HashSet::<T, S, A>::is_subset ](
+    m: &std::collections::HashSet<T, S, A>,
+    other: &std::collections::HashSet<T, S, A>,
+) -> (result: bool)
+    requires
+        vstd::std_specs::hash::obeys_key_model::<T>(),
+        vstd::std_specs::hash::builds_valid_hashers::<S>(),
+    ensures
+        result == m@.subset_of(other@),
+;",The documented subset relation and supplied implementation both characterize the result by whether every element of self occurs in other. The required key and hasher laws connect those runtime membership checks to the HashSet views.
+std::collections::HashSet::is_superset,other,,1,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),result == other@.subset_of(m@),"pub assume_specification<
+    Key: core::cmp::Eq + core::hash::Hash,
+    S: core::hash::BuildHasher,
+    A: core::alloc::Allocator,
+>[ std::collections::HashSet::<Key, S, A>::is_superset ](
+    m: &std::collections::HashSet<Key, S, A>,
+    other: &std::collections::HashSet<Key, S, A>,
+) -> (result: bool)
+    requires
+        obeys_key_model::<Key>(),
+        builds_valid_hashers::<S>(),
+    ensures
+        result == other@.subset_of(m@),
+;","The implementation delegates to other.is_subset(self), and the documentation defines this as self containing every value in other. Under vstd's key and hasher laws, this is exactly other@.subset_of(m@). Rust 1.96 and Nanvix's Rust 1.99 use the same implementation."
+std::collections::HashSet::replace,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,hash_equivalence_class_view_requires_review,vstd::std_specs::hash::obeys_key_model::<Key>(); vstd::std_specs::hash::builds_valid_hashers::<S>(),"final(m)@ == old(m)@.insert(value); match result { core::option::Option::Some(replaced) => old(m)@.contains(replaced) && replaced == value, core::option::Option::None => !old(m)@.contains(value), }","pub assume_specification<
+    Key: core::cmp::Eq + core::hash::Hash,
+    S: core::hash::BuildHasher,
+    A: core::alloc::Allocator,
+>[ std::collections::HashSet::<Key, S, A>::replace ](
+    m: &mut std::collections::HashSet<Key, S, A>,
+    value: Key,
+) -> (result: core::option::Option<Key>)
+    requires
+        vstd::std_specs::hash::obeys_key_model::<Key>(),
+        vstd::std_specs::hash::builds_valid_hashers::<S>(),
+    ensures
+        final(m)@ == old(m)@.insert(value),
+        match result {
+            core::option::Option::Some(replaced) => old(m)@.contains(replaced) && replaced == value,
+            core::option::Option::None => !old(m)@.contains(value),
+        },
+;","Under the existing HashSet key and hasher model, executable equality coincides with Verus equality. Thus replacement inserts the supplied value and returns that equal old value exactly when it was present."
+std::collections::HashSet::take,other,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,0,,borrowed_key_uniqueness_precondition,,"obeys_key_model::<Key>(); builds_valid_hashers::<S>(); forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@, value, &left)
+                && sets_borrowed_key_to_key(old(m)@, value, &right)
+                ==> left == right","sets_differ_by_borrowed_key(old(m)@, final(m)@, value); match result {
+            Some(v) => {
+                &&& set_contains_borrowed_key(old(m)@, value)
+                &&& sets_borrowed_key_to_key(old(m)@, value, &v)
+                &&& old(m)@.contains(v)
+                &&& final(m)@ == old(m)@.remove(v)
+            },
+            None => {
+                &&& !set_contains_borrowed_key(old(m)@, value)
+                &&& final(m)@ == old(m)@
+            },
+        }","pub assume_specification<
+    Key: core::borrow::Borrow<Q> + core::hash::Hash + core::cmp::Eq,
+    S: core::hash::BuildHasher,
+    A: core::alloc::Allocator,
+    Q: core::hash::Hash + core::cmp::Eq + ?Sized,
+>[ std::collections::HashSet::<Key, S, A>::take::<Q> ](
+    m: &mut std::collections::HashSet<Key, S, A>,
+    value: &Q,
+) -> (result: core::option::Option<Key>)
+    requires
+        obeys_key_model::<Key>(),
+        builds_valid_hashers::<S>(),
+        forall|left: Key, right: Key|
+            sets_borrowed_key_to_key(old(m)@, value, &left)
+                && sets_borrowed_key_to_key(old(m)@, value, &right)
+                ==> left == right,
+    ensures
+        sets_differ_by_borrowed_key(old(m)@, final(m)@, value),
+        match result {
+            Some(v) => {
+                &&& set_contains_borrowed_key(old(m)@, value)
+                &&& sets_borrowed_key_to_key(old(m)@, value, &v)
+                &&& old(m)@.contains(v)
+                &&& final(m)@ == old(m)@.remove(v)
+            },
+            None => {
+                &&& !set_contains_borrowed_key(old(m)@, value)
+                &&& final(m)@ == old(m)@
+            },
+        },
+;","The implementation delegates to the underlying set take operation, while the documentation states that a matching stored value is removed and returned. Existing borrowed-key predicates model the lookup and mutation; the result branches identify the returned member and exact abstract-set change."
+core::slice::strip_prefix,data_structure,,2,add_spec,skip,assume_specification,False,,,,0,0,0,,,,,,,"vstd has no public semantic model for SlicePattern::as_slice. The source only justifies that a Some result is some suffix of slice, leaving both the Option discriminant and removed-prefix length undetermined; this is insufficient as a useful ordinary contract."
+core::slice::as_rchunks,data_structure,,3,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,N != 0,"ret.0@ == slice@.subrange(
+            0,
+            (slice@.len() % (N as nat)) as int,
+        ); ret.1@ == Seq::new(
+            slice@.len() / (N as nat),
+            |i: int| choose|chunk: [T; N]|
+                chunk@ == slice@.subrange(
+                    (slice@.len() % (N as nat)) as int + i * (N as int),
+                    (slice@.len() % (N as nat)) as int + (i + 1) * (N as int),
+                ),
+        ); forall|i: int| i >= 0 && ret.1@.len() > i ==>
+            (#[trigger] ret.1@[i])@ == slice@.subrange(
+                (slice@.len() % (N as nat)) as int + i * (N as int),
+                (slice@.len() % (N as nat)) as int + (i + 1) * (N as int),
+            )","pub assume_specification<T, const N: usize>[ <[T]>::as_rchunks::<N> ](
+    slice: &[T],
+) -> (ret: (&[T], &[[T; N]]))
+    requires
+        N != 0,
+    ensures
+        ret.0@ == slice@.subrange(
+            0,
+            (slice@.len() % (N as nat)) as int,
+        ),
+        ret.1@ == Seq::new(
+            slice@.len() / (N as nat),
+            |i: int| choose|chunk: [T; N]|
+                chunk@ == slice@.subrange(
+                    (slice@.len() % (N as nat)) as int + i * (N as int),
+                    (slice@.len() % (N as nat)) as int + (i + 1) * (N as int),
+                ),
+        ),
+        forall|i: int| i >= 0 && ret.1@.len() > i ==>
+            (#[trigger] ret.1@[i])@ == slice@.subrange(
+                (slice@.len() % (N as nat)) as int + i * (N as int),
+                (slice@.len() % (N as nat)) as int + (i + 1) * (N as int),
+            ),
+;","The precondition exactly excludes the documented N = 0 panic. The remainder is the length-mod-N prefix. The chunk view is fixed to a canonical sequence of arrays, while the quantified clause witnesses that every chosen array is exactly the corresponding ordered N-element subrange."
+core::str::trim,data_structure,,2,add_spec,add_spec,assume_specification,True,ok,unsat,complete,1,1,1,,,,,"res@ == (s@.fold_left((Seq::<char>::empty(), Seq::<char>::empty()), |state: (Seq<char>, Seq<char>), c: char| { let code = c as nat; if (code >= 0x0009 && 0x000d >= code) || code == 0x0020 || code == 0x0085 || code == 0x00a0 || code == 0x1680 || (code >= 0x2000 && 0x200a >= code) || code == 0x2028 || code == 0x2029 || code == 0x202f || code == 0x205f || code == 0x3000 { if state.0.len() == 0 { state } else { (state.0, state.1.push(c)) } } else { ((state.0 + state.1).push(c), Seq::<char>::empty()) } })).0","pub assume_specification[ str::trim ](s: &str) -> (res: &str)
+    ensures
+        res@ == (s@.fold_left((Seq::<char>::empty(), Seq::<char>::empty()), |state: (Seq<char>, Seq<char>), c: char| { let code = c as nat; if (code >= 0x0009 && 0x000d >= code) || code == 0x0020 || code == 0x0085 || code == 0x00a0 || code == 0x1680 || (code >= 0x2000 && 0x200a >= code) || code == 0x2028 || code == 0x2029 || code == 0x202f || code == 0x205f || code == 0x3000 { if state.0.len() == 0 { state } else { (state.0, state.1.push(c)) } } else { ((state.0 + state.1).push(c), Seq::<char>::empty()) } })).0,
+;","The implementation delegates to trim_matches(char::is_whitespace). The fold exactly computes the observable trimmed character view by dropping leading Unicode whitespace, buffering possible trailing whitespace, committing that buffer only before later non-whitespace, and discarding the final buffer."

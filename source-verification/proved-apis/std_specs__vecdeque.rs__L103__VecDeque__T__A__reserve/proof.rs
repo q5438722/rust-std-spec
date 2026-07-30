@@ -1,0 +1,41 @@
+#![feature(allocator_api)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
+extern crate alloc;
+
+use alloc::collections::VecDeque;
+use core::alloc::Allocator;
+use vstd::prelude::*;
+use vstd::std_specs::capacity::*;
+use vstd::std_specs::vecdeque::*;
+
+verus! {
+
+pub assume_specification[std::process::abort]() -> !;
+
+fn source_vecdeque_reserve<T, A: Allocator>(
+    v: &mut VecDeque<T, A>,
+    additional: usize,
+)
+    ensures
+        final(v)@ == old(v)@,
+{
+    let len = v.len();
+    let new_cap = match len.checked_add(additional) {
+        Some(new_cap) => new_cap,
+        None => std::process::abort(),
+    };
+    let old_cap = v.capacity();
+
+    if new_cap > old_cap {
+        match v.try_reserve(additional) {
+            Ok(()) => {}
+            Err(_) => std::process::abort(),
+        }
+    }
+}
+
+} // verus!
+
+fn main() {}

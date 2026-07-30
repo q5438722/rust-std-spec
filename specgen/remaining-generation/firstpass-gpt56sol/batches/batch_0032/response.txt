@@ -1,0 +1,35 @@
+{"candidates":[{"target":"core::sync::atomic::AtomicU64::compare_and_swap","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned prior value and conditional write depend on concurrently mutable atomic state, for which current vstd exposes no suitable view or permission abstraction.","risks":["hidden atomic state","concurrent interference","unmodeled memory ordering"]},{"target":"core::sync::atomic::AtomicU64::fetch_update","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A useful contract must model atomic state and potentially repeated FnMut invocations caused by contention; current vstd provides neither abstraction here.","risks":["hidden atomic state","closure may run multiple times","concurrent interference","unmodeled memory ordering"]},{"target":"core::sync::atomic::AtomicU64::from_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"This reinterprets mutable storage as an atomic reference, but AtomicU64 has no public spec view relating it to the input value, and the mutable-reference result cannot be usefully related in current vocabulary.","risks":["unsupported mutable-reference result","reference identity","hidden atomic state","storage reinterpretation"]},{"target":"core::sync::atomic::AtomicU64::from_mut_slice","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"The returned slice aliases and reinterprets the input storage elementwise; current vstd lacks an atomic-state view and a suitable mutable-reference conversion abstraction.","risks":["unsupported mutable-reference result","slice aliasing","reference identity","hidden atomic state","storage reinterpretation"]},{"target":"core::sync::atomic::AtomicU64::from_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A sound contract needs pointer validity, alignment, lifetime, aliasing, and atomic-access permissions while relating the reference to the same storage; these are not represented by the supplied signature or an applicable current-vstd abstraction.","risks":["raw-pointer validity","alignment","reference lifetime","aliasing","hidden atomic state"]},{"target":"core::sync::atomic::AtomicU64::get_mut","decision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Although exclusive access permits non-atomic access operationally, current vstd has no AtomicU64 view from which to specify the returned u64 or its write-back through the mutable reference.","risks":["unsupported mutable-reference result","hidden atomic state","write-back relation unavailable","reference identity"]}]}{"candidates":[{"target":"core::sync::atomic::AtomicU64::compare_and_swap","decision":"skip","contra
+ct_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"im
+ports":[],"useful":false,"rationale":"The returned prior value and conditional write depend on
+concurrently mutable atomic state, for which current vstd exposes no suitable view or permission
+abstraction.","risks":["hidden atomic state","concurrent interference","unmodeled memory
+ordering"]},{"target":"core::sync::atomic::AtomicU64::fetch_update","decision":"skip","contract_form
+":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":
+[],"useful":false,"rationale":"A useful contract must model atomic state and potentially repeated
+FnMut invocations caused by contention; current vstd provides neither abstraction
+here.","risks":["hidden atomic state","closure may run multiple times","concurrent
+interference","unmodeled memory ordering"]},{"target":"core::sync::atomic::AtomicU64::from_mut","dec
+ision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"
+feature_gates":[],"imports":[],"useful":false,"rationale":"This reinterprets mutable storage as an
+atomic reference, but AtomicU64 has no public spec view relating it to the input value, and the
+mutable-reference result cannot be usefully related in current vocabulary.","risks":["unsupported
+mutable-reference result","reference identity","hidden atomic state","storage
+reinterpretation"]},{"target":"core::sync::atomic::AtomicU64::from_mut_slice","decision":"skip","con
+tract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],
+"imports":[],"useful":false,"rationale":"The returned slice aliases and reinterprets the input
+storage elementwise; current vstd lacks an atomic-state view and a suitable mutable-reference
+conversion abstraction.","risks":["unsupported mutable-reference result","slice aliasing","reference
+ identity","hidden atomic state","storage reinterpretation"]},{"target":"core::sync::atomic::AtomicU
+64::from_ptr","decision":"skip","contract_form":"assume_specification","contract_code":"","requires"
+:[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"A sound contract needs
+pointer validity, alignment, lifetime, aliasing, and atomic-access permissions while relating the
+reference to the same storage; these are not represented by the supplied signature or an applicable
+current-vstd abstraction.","risks":["raw-pointer validity","alignment","reference
+lifetime","aliasing","hidden atomic state"]},{"target":"core::sync::atomic::AtomicU64::get_mut","dec
+ision":"skip","contract_form":"assume_specification","contract_code":"","requires":[],"ensures":[],"
+feature_gates":[],"imports":[],"useful":false,"rationale":"Although exclusive access permits
+non-atomic access operationally, current vstd has no AtomicU64 view from which to specify the
+returned u64 or its write-back through the mutable reference.","risks":["unsupported
+mutable-reference result","hidden atomic state","write-back relation unavailable","reference
+identity"]}]}
+

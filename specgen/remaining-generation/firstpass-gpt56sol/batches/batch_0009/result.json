@@ -1,0 +1,116 @@
+{
+  "batch": 9,
+  "group": "concurrency_or_hidden_state",
+  "duration_ms": 26133,
+  "targets": [
+    "core::sync::atomic::Atomic::fetch_byte_add",
+    "core::sync::atomic::Atomic::fetch_byte_sub",
+    "core::sync::atomic::Atomic::fetch_max",
+    "core::sync::atomic::Atomic::fetch_min",
+    "core::sync::atomic::Atomic::fetch_nand",
+    "core::sync::atomic::Atomic::fetch_not"
+  ],
+  "candidates": [
+    {
+      "target": "core::sync::atomic::Atomic::fetch_byte_add",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation returns the previous pointer and mutates hidden atomic state through a shared reference. Current public vstd vocabulary exposes neither that state nor a suitable atomic pointer transition relation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "pointer_address_and_provenance"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_byte_sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation returns the previous pointer and mutates hidden atomic state through a shared reference. Current public vstd vocabulary cannot express the atomic byte-offset transition while preserving pointer provenance.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "pointer_address_and_provenance"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_max",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the prior u8 value and the stored value becomes its maximum with the argument, but the prior and final atomic states are not exposed by an ordinary public view in current vstd.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_min",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result is the prior u8 value and the stored value becomes its minimum with the argument, but the prior and final atomic states are not exposed by an ordinary public view in current vstd.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_nand",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the prior i8 value and atomically stores a NAND result, but current public vstd vocabulary provides no view through which to relate the hidden pre-state and post-state.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "multiple_rust_declarations_share_path",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::Atomic::fetch_not",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the source implements this as fetch_xor(true), its useful contract must relate the returned old boolean to the atomically inverted hidden state, which current public vstd vocabulary cannot observe.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}

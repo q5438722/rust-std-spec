@@ -1,0 +1,225 @@
+{
+  "candidates": [
+    {
+      "target": "std::io::BufReader::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor only establishes private buffer and inner-reader state. vstd has no public BufReader model relating the result to the moved reader or requested allocation capacity.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_bufreader_abstraction",
+        "allocator_selected_capacity"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::buffer",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the returned slice has a sequence view, no public vstd model connects that view to BufWriter's private buffer. Reference identity alone would not describe its contents usefully.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_bufwriter_buffer_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result exposes allocator-selected capacity of a private buffer. Without a modeled BufWriter buffer, no useful source-supported relation can be expressed in current vstd vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "allocator_selected_capacity",
+        "missing_bufwriter_buffer_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This returns a mutable alias to the private underlying writer. Current vocabulary cannot express that alias and its future mutation relationship to BufWriter without a dedicated model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_bufwriter_inner_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::get_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference aliases the private underlying writer, but generic W has no required view or identity abstraction through which that relationship can be specified.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_bufwriter_inner_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method flushes buffered bytes through an arbitrary Write implementation and may return an error containing runtime-modified state. vstd lacks the writer-effect and buffer models needed to characterize either branch.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_io_effects",
+        "missing_writer_state_abstraction",
+        "partial_flush_behavior"
+      ]
+    }
+  ]
+}{ "candidates": [
+    {
+      "target": "std::io::BufReader::with_capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The constructor only establishes private buffer and inner-reader state. vstd has
+ no public BufReader model relating the result to the moved reader or requested allocation
+capacity.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "missing_bufreader_abstraction",
+        "allocator_selected_capacity"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::buffer",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although the returned slice has a sequence view, no public vstd model connects
+that view to BufWriter's private buffer. Reference identity alone would not describe its contents
+usefully.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_bufwriter_buffer_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::capacity",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result exposes allocator-selected capacity of a private buffer. Without a
+modeled BufWriter buffer, no useful source-supported relation can be expressed in current vstd
+vocabulary.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "allocator_selected_capacity",
+        "missing_bufwriter_buffer_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "This returns a mutable alias to the private underlying writer. Current
+vocabulary cannot express that alias and its future mutation relationship to BufWriter without a
+dedicated model.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "unsupported_mutable_reference_return",
+        "missing_bufwriter_inner_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::get_ref",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned reference aliases the private underlying writer, but generic W has
+no required view or identity abstraction through which that relationship can be specified.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view",
+        "missing_bufwriter_inner_abstraction"
+      ]
+    },
+    {
+      "target": "std::io::BufWriter::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method flushes buffered bytes through an arbitrary Write implementation and
+may return an error containing runtime-modified state. vstd lacks the writer-effect and buffer
+models needed to characterize either branch.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "unmodeled_io_effects",
+        "missing_writer_state_abstraction",
+        "partial_flush_behavior"
+      ]
+    } ]
+}
+

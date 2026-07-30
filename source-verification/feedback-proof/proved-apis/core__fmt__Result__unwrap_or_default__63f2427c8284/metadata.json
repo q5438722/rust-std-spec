@@ -1,0 +1,167 @@
+{
+  "id": "core__fmt__Result__unwrap_or_default__63f2427c8284",
+  "api_path": "core::fmt::Result::unwrap_or_default",
+  "raw_target": "Result::<T, E>::unwrap_or_default",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 16, patch: 0 })},\nfeature: \"result_unwrap_or_default\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29299",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": null,
+                    "id": 70,
+                    "path": "Default"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "E"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "unwrap_or_default",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  1220:     /// ```should_panic\n  1221:     /// let x: Result<u32, &str> = Err(\"emergency failure\");\n  1222:     /// x.unwrap(); // panics with `emergency failure`\n  1223:     /// ```\n  1224:     #[inline(always)]\n  1225:     #[track_caller]\n  1226:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1227:     pub fn unwrap(self) -> T\n  1228:     where\n  1229:         E: fmt::Debug,\n  1230:     {\n  1231:         match self {\n  1232:             Ok(t) => t,\n  1233:             Err(e) => unwrap_failed(\"called `Result::unwrap()` on an `Err` value\", &e),\n  1234:         }\n  1235:     }\n  1236: \n  1237:     /// Returns the contained [`Ok`] value or a default\n  1238:     ///\n  1239:     /// Consumes the `self` argument then, if [`Ok`], returns the contained\n  1240:     /// value, otherwise if [`Err`], returns the default value for that\n  1241:     /// type.\n  1242:     ///\n  1243:     /// # Examples\n  1244:     ///\n  1245:     /// Converts a string to an integer, turning poorly-formed strings\n  1246:     /// into 0 (the default value for integers). [`parse`] converts\n  1247:     /// a string to any other type that implements [`FromStr`], returning an\n  1248:     /// [`Err`] on error.\n  1249:     ///\n  1250:     /// ```\n  1251:     /// let good_year_from_input = \"1909\";\n  1252:     /// let bad_year_from_input = \"190blarg\";\n  1253:     /// let good_year = good_year_from_input.parse().unwrap_or_default();\n  1254:     /// let bad_year = bad_year_from_input.parse().unwrap_or_default();\n  1255:     ///\n  1256:     /// assert_eq!(1909, good_year);\n  1257:     /// assert_eq!(0, bad_year);\n  1258:     /// ```\n  1259:     ///\n  1260:     /// [`parse`]: str::parse\n  1261:     /// [`FromStr`]: crate::str::FromStr\n  1262:     #[inline]\n  1263:     #[stable(feature = \"result_unwrap_or_default\", since = \"1.16.0\")]\n  1264:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1265:     pub const fn unwrap_or_default(self) -> T\n  1266:     where\n  1267:         T: [const] Default + [const] Destruct,\n  1268:         E: [const] Destruct,\n  1269:     {\n  1270:         match self {\n  1271:             Ok(x) => x,\n  1272:             Err(_) => Default::default(),\n  1273:         }\n  1274:     }\n  1275: \n  1276:     /// Returns the contained [`Err`] value, consuming the `self` value.\n  1277:     ///\n  1278:     /// # Panics\n  1279:     ///\n  1280:     /// Panics if the value is an [`Ok`], with a panic message including the\n  1281:     /// passed message, and the content of the [`Ok`].\n  1282:     ///\n  1283:     ///\n  1284:     /// # Examples\n  1285:     ///\n  1286:     /// ```should_panic\n  1287:     /// let x: Result<u32, &str> = Ok(10);\n  1288:     /// x.expect_err(\"Testing expect_err\"); // panics with `Testing expect_err: 10`\n  1289:     /// ```\n  1290:     #[inline]\n  1291:     #[track_caller]\n  1292:     #[stable(feature = \"result_expect_err\", since = \"1.17.0\")]\n  1293:     pub fn expect_err(self, msg: &str) -> E\n  1294:     where\n  1295:         T: fmt::Debug,\n  1296:     {\n  1297:         match self {\n  1298:             Ok(t) => unwrap_failed(msg, &t),\n  1299:             Err(e) => e,\n  1300:         }\n  1301:     }\n  1302: \n  1303:     /// Returns the contained [`Err`] value, consuming the `self` value.\n  1304:     ///\n  1305:     /// # Panics\n  1306:     ///\n  1307:     /// Panics if the value is an [`Ok`], with a custom panic message provided\n  1308:     /// by the [`Ok`]'s value.\n  1309:     ///\n  1310:     /// # Examples",
+    "span": {
+      "begin": [
+        1265,
+        5
+      ],
+      "end": [
+        1274,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn unwrap_or_default(self) -> T\n    where\n        T: [const] Default + [const] Destruct,\n        E: [const] Destruct,\n    {\n        match self {\n            Ok(x) => x,\n            Err(_) => Default::default(),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The existing callable vstd contract for T::default."
+  ],
+  "rationale": "The exact two-arm match verifies compositionally using only the generic Default contract.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__fmt__Result__unwrap_or_default__63f2427c8284"
+}

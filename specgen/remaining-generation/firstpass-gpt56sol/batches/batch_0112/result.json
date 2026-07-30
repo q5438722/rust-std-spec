@@ -1,0 +1,113 @@
+{
+  "batch": 112,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 32654,
+  "targets": [
+    "alloc::sync::Weak::new",
+    "alloc::sync::Weak::ptr_eq",
+    "alloc::sync::Weak::strong_count",
+    "alloc::sync::Weak::upgrade",
+    "alloc::sync::Weak::weak_count",
+    "alloc::vec::Drain::as_slice"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::sync::Weak::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its documented emptiness is observable only through Weak operations such as upgrade or counts, but vstd has no Weak state abstraction.",
+      "risks": [
+        "missing_weak_state_abstraction",
+        "hidden_allocation_state"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::ptr_eq",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result compares private allocation addresses; current public vstd vocabulary does not model Weak allocation identity.",
+      "risks": [
+        "missing_allocation_identity_abstraction",
+        "private_pointer_state"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::strong_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned atomic snapshot depends on a hidden reference count that concurrent Arc operations may change.",
+      "risks": [
+        "hidden_reference_count_state",
+        "concurrency"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::upgrade",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success depends on concurrently changing hidden strong-reference state, and vstd lacks a corresponding Weak/Arc ownership abstraction.",
+      "risks": [
+        "missing_arc_weak_abstraction",
+        "hidden_reference_count_state",
+        "concurrency"
+      ]
+    },
+    {
+      "target": "alloc::sync::Weak::weak_count",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source explicitly exposes only an approximate concurrent snapshot of hidden weak-reference state.",
+      "risks": [
+        "hidden_reference_count_state",
+        "approximate_result",
+        "concurrency"
+      ]
+    },
+    {
+      "target": "alloc::vec::Drain::as_slice",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned slice to the iterator's remaining elements requires a Drain-state view absent from current vstd vocabulary.",
+      "risks": [
+        "missing_drain_view_abstraction",
+        "reference_identity_vs_view"
+      ]
+    }
+  ]
+}

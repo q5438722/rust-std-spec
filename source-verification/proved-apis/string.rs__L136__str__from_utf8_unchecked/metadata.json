@@ -1,0 +1,101 @@
+{
+  "id": "string.rs__L136__str__from_utf8_unchecked",
+  "api_path": "core::str::from_utf8_unchecked",
+  "raw_target": "str::from_utf8_unchecked",
+  "contract_source_file": "string.rs",
+  "contract_source_line": 136,
+  "rust_declaration": {
+    "declaration_id": "core:31685",
+    "name": "from_utf8_unchecked",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 55, patch: 0 })},\nfeature: \"const_str_from_utf8_unchecked\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"str_from_utf8_unchecked\")]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/str/converts.rs",
+      "begin": [
+        178,
+        1
+      ],
+      "end": [
+        182,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": true,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "v",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "slice": {
+                  "primitive": "u8"
+                }
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "borrowed_ref": {
+          "lifetime": null,
+          "is_mutable": false,
+          "type": {
+            "primitive": "str"
+          }
+        }
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": true,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   158: ///\n   159: /// Basic usage:\n   160: ///\n   161: /// ```\n   162: /// use std::str;\n   163: ///\n   164: /// // some bytes, in a vector\n   165: /// let sparkle_heart = vec![240, 159, 146, 150];\n   166: ///\n   167: /// let sparkle_heart = unsafe {\n   168: ///     str::from_utf8_unchecked(&sparkle_heart)\n   169: /// };\n   170: ///\n   171: /// assert_eq!(\"\ud83d\udc96\", sparkle_heart);\n   172: /// ```\n   173: #[inline]\n   174: #[must_use]\n   175: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   176: #[rustc_const_stable(feature = \"const_str_from_utf8_unchecked\", since = \"1.55.0\")]\n   177: #[rustc_diagnostic_item = \"str_from_utf8_unchecked\"]\n   178: pub const unsafe fn from_utf8_unchecked(v: &[u8]) -> &str {\n   179:     // SAFETY: the caller must guarantee that the bytes `v` are valid UTF-8.\n   180:     // Also relies on `&str` and `&[u8]` having the same layout.\n   181:     unsafe { mem::transmute(v) }\n   182: }\n   183: \n   184: /// Converts a slice of bytes to a string slice without checking\n   185: /// that the string contains valid UTF-8; mutable version.\n   186: ///\n   187: /// This is an alias to [`str::from_utf8_unchecked_mut`].\n   188: ///\n   189: /// See the immutable version, [`from_utf8_unchecked()`] for documentation and safety requirements.\n   190: ///\n   191: /// # Examples\n   192: ///\n   193: /// Basic usage:\n   194: ///\n   195: /// ```\n   196: /// use std::str;\n   197: ///\n   198: /// let mut heart = vec![240, 159, 146, 150];",
+    "source_text": "pub const unsafe fn from_utf8_unchecked(v: &[u8]) -> &str {\n    // SAFETY: the caller must guarantee that the bytes `v` are valid UTF-8.\n    // Also relies on `&str` and `&[u8]` having the same layout.\n    unsafe { mem::transmute(v) }\n}",
+    "has_body": true
+  },
+  "trust_level": "C",
+  "trusted_assumptions": [
+    "The lower specification of core::mem::transmute records its source/destination representation relation.",
+    "axiom_byte_slice_to_str_representation captures the compiler representation fact that transmuting valid UTF-8 bytes to str yields their decoded character view."
+  ],
+  "rationale": "The source function preserves the Rust 1.96 transmute body; the representation axiom and vstd UTF-8 round-trip lemma establish the postcondition.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/string.rs__L136__str__from_utf8_unchecked"
+}

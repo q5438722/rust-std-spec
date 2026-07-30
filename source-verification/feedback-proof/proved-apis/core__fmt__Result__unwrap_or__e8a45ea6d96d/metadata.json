@@ -1,0 +1,159 @@
+{
+  "id": "core__fmt__Result__unwrap_or__e8a45ea6d96d",
+  "api_path": "core::fmt::Result::unwrap_or",
+  "raw_target": "Result::<T, E>::unwrap_or",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29297",
+    "deprecation": null,
+    "generics": {
+      "params": [],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "E"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "unwrap_or",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "default",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  1545:     /// # Examples\n  1546:     ///\n  1547:     /// ```\n  1548:     /// fn sq(x: u32) -> Result<u32, u32> { Ok(x * x) }\n  1549:     /// fn err(x: u32) -> Result<u32, u32> { Err(x) }\n  1550:     ///\n  1551:     /// assert_eq!(Ok(2).or_else(sq).or_else(sq), Ok(2));\n  1552:     /// assert_eq!(Ok(2).or_else(err).or_else(sq), Ok(2));\n  1553:     /// assert_eq!(Err(3).or_else(sq).or_else(err), Ok(9));\n  1554:     /// assert_eq!(Err(3).or_else(err).or_else(err), Err(3));\n  1555:     /// ```\n  1556:     #[inline]\n  1557:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1558:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1559:     pub const fn or_else<F, O>(self, op: O) -> Result<T, F>\n  1560:     where\n  1561:         O: [const] FnOnce(E) -> Result<T, F> + [const] Destruct,\n  1562:     {\n  1563:         match self {\n  1564:             Ok(t) => Ok(t),\n  1565:             Err(e) => op(e),\n  1566:         }\n  1567:     }\n  1568: \n  1569:     /// Returns the contained [`Ok`] value or a provided default.\n  1570:     ///\n  1571:     /// Arguments passed to `unwrap_or` are eagerly evaluated; if you are passing\n  1572:     /// the result of a function call, it is recommended to use [`unwrap_or_else`],\n  1573:     /// which is lazily evaluated.\n  1574:     ///\n  1575:     /// [`unwrap_or_else`]: Result::unwrap_or_else\n  1576:     ///\n  1577:     /// # Examples\n  1578:     ///\n  1579:     /// ```\n  1580:     /// let default = 2;\n  1581:     /// let x: Result<u32, &str> = Ok(9);\n  1582:     /// assert_eq!(x.unwrap_or(default), 9);\n  1583:     ///\n  1584:     /// let x: Result<u32, &str> = Err(\"error\");\n  1585:     /// assert_eq!(x.unwrap_or(default), default);\n  1586:     /// ```\n  1587:     #[inline]\n  1588:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1589:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1590:     pub const fn unwrap_or(self, default: T) -> T\n  1591:     where\n  1592:         T: [const] Destruct,\n  1593:         E: [const] Destruct,\n  1594:     {\n  1595:         match self {\n  1596:             Ok(t) => t,\n  1597:             Err(_) => default,\n  1598:         }\n  1599:     }\n  1600: \n  1601:     /// Returns the contained [`Ok`] value or computes it from a closure.\n  1602:     ///\n  1603:     ///\n  1604:     /// # Examples\n  1605:     ///\n  1606:     /// ```\n  1607:     /// fn count(x: &str) -> usize { x.len() }\n  1608:     ///\n  1609:     /// assert_eq!(Ok(2).unwrap_or_else(count), 2);\n  1610:     /// assert_eq!(Err(\"foo\").unwrap_or_else(count), 3);\n  1611:     /// ```\n  1612:     #[inline]\n  1613:     #[track_caller]\n  1614:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1615:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1616:     pub const fn unwrap_or_else<F>(self, op: F) -> T\n  1617:     where\n  1618:         F: [const] FnOnce(E) -> T + [const] Destruct,\n  1619:     {\n  1620:         match self {\n  1621:             Ok(t) => t,\n  1622:             Err(e) => op(e),\n  1623:         }\n  1624:     }\n  1625: \n  1626:     /// Returns the contained [`Ok`] value, consuming the `self` value,\n  1627:     /// without checking that the value is not an [`Err`].\n  1628:     ///\n  1629:     /// # Safety\n  1630:     ///\n  1631:     /// Calling this method on an [`Err`] is *[undefined behavior]*.\n  1632:     ///\n  1633:     /// [undefined behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html\n  1634:     ///\n  1635:     /// # Examples",
+    "span": {
+      "begin": [
+        1590,
+        5
+      ],
+      "end": [
+        1599,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn unwrap_or(self, default: T) -> T\n    where\n        T: [const] Destruct,\n        E: [const] Destruct,\n    {\n        match self {\n            Ok(t) => t,\n            Err(_) => default,\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The exact enum match proves both postconditions directly without lower-level contracts or axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__fmt__Result__unwrap_or__e8a45ea6d96d"
+}

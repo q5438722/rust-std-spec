@@ -1,0 +1,115 @@
+{
+  "batch": 252,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 25952,
+  "targets": [
+    "std::sync::mpsc::channel",
+    "std::sync::mpsc::sync_channel",
+    "std::thread::Builder::name",
+    "std::thread::Builder::new",
+    "std::thread::Builder::spawn",
+    "std::thread::Builder::spawn_scoped"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::mpsc::channel",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result's useful semantics are freshness, endpoint connectivity, and concurrent queue behavior, none of which has a public model in the current vstd vocabulary.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "missing_channel_abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::mpsc::sync_channel",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating bound to the private buffer and rendezvous behavior requires a channel-state and blocking-semantics abstraction unavailable in current vstd.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "blocking_runtime_behavior",
+        "missing_channel_abstraction"
+      ]
+    },
+    {
+      "target": "std::thread::Builder::name",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method only updates Builder's private name field; current public vstd vocabulary provides no Builder view through which to express that update.",
+      "risks": [
+        "hidden_private_state",
+        "missing_builder_abstraction"
+      ]
+    },
+    {
+      "target": "std::thread::Builder::new",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source initializes private Builder configuration fields, but no public vstd model exposes those defaults for a useful postcondition.",
+      "risks": [
+        "hidden_private_state",
+        "missing_builder_abstraction"
+      ]
+    },
+    {
+      "target": "std::thread::Builder::spawn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Thread creation, possible I/O failure, asynchronous closure execution, and JoinHandle behavior require runtime and concurrency abstractions absent from current vstd.",
+      "risks": [
+        "external_runtime_state",
+        "concurrent_closure_execution",
+        "missing_thread_and_join_handle_abstractions"
+      ]
+    },
+    {
+      "target": "std::thread::Builder::spawn_scoped",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its useful guarantees depend on scoped-thread lifetime management, asynchronous closure execution, runtime failure, and hidden Scope state not modeled by current vstd.",
+      "risks": [
+        "external_runtime_state",
+        "concurrent_closure_execution",
+        "hidden_scope_state",
+        "missing_scoped_thread_abstraction"
+      ]
+    }
+  ]
+}

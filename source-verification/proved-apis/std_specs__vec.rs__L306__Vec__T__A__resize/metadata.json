@@ -1,0 +1,176 @@
+{
+  "id": "std_specs__vec.rs__L306__Vec__T__A__resize",
+  "api_path": "alloc::vec::Vec::resize",
+  "raw_target": "Vec::<T, A>::resize",
+  "contract_source_file": "std_specs/vec.rs",
+  "contract_source_line": 306,
+  "rust_declaration": {
+    "declaration_id": "alloc:4917",
+    "name": "resize",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = CfgTrace([Not(NameValue { name: \"no_global_oom_handling\", value: None, span: alloc/src/vec/mod.rs:3489:15: 3489:37 (#0) }, alloc/src/vec/mod.rs:3489:14: 3489:38 (#0))])]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 5, patch: 0 })},\nfeature: \"vec_resize\"}}]"
+      }
+    ],
+    "span": {
+      "filename": "alloc/src/vec/mod.rs",
+      "begin": [
+        3491,
+        5
+      ],
+      "end": [
+        3499,
+        6
+      ]
+    },
+    "header": {
+      "is_const": false,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": true,
+              "type": {
+                "generic": "Self"
+              }
+            }
+          }
+        ],
+        [
+          "new_len",
+          {
+            "primitive": "usize"
+          }
+        ],
+        [
+          "value",
+          {
+            "generic": "T"
+          }
+        ]
+      ],
+      "output": null,
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [],
+      "where_predicates": []
+    },
+    "owner": {
+      "kind": "inherent_impl",
+      "impl_id": "alloc:4949",
+      "for": {
+        "resolved_path": {
+          "path": "Vec",
+          "id": 114,
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "A"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          }
+        }
+      },
+      "trait": null,
+      "generics": {
+        "params": [
+          {
+            "name": "T",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Clone",
+                        "id": 25,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          },
+          {
+            "name": "A",
+            "kind": {
+              "type": {
+                "bounds": [
+                  {
+                    "trait_bound": {
+                      "trait": {
+                        "path": "Allocator",
+                        "id": 4,
+                        "args": null
+                      },
+                      "generic_params": [],
+                      "modifier": "none"
+                    }
+                  }
+                ],
+                "default": null,
+                "is_synthetic": false
+              }
+            }
+          }
+        ],
+        "where_predicates": []
+      },
+      "resolved_owner_id": "alloc:114",
+      "resolved_owner_path": [
+        "alloc",
+        "vec",
+        "Vec"
+      ]
+    },
+    "observability": {
+      "return_is_unit": true,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [
+        "self"
+      ],
+      "has_modeled_output": true
+    },
+    "source_context": "  3471:     /// [`Clone`]), use [`Vec::resize_with`].\n  3472:     /// If you only need to resize to a smaller size, use [`Vec::truncate`].\n  3473:     ///\n  3474:     /// # Panics\n  3475:     ///\n  3476:     /// Panics if the new capacity exceeds `isize::MAX` _bytes_.\n  3477:     ///\n  3478:     /// # Examples\n  3479:     ///\n  3480:     /// ```\n  3481:     /// let mut vec = vec![\"hello\"];\n  3482:     /// vec.resize(3, \"world\");\n  3483:     /// assert_eq!(vec, [\"hello\", \"world\", \"world\"]);\n  3484:     ///\n  3485:     /// let mut vec = vec!['a', 'b', 'c', 'd'];\n  3486:     /// vec.resize(2, '_');\n  3487:     /// assert_eq!(vec, ['a', 'b']);\n  3488:     /// ```\n  3489:     #[cfg(not(no_global_oom_handling))]\n  3490:     #[stable(feature = \"vec_resize\", since = \"1.5.0\")]\n  3491:     pub fn resize(&mut self, new_len: usize, value: T) {\n  3492:         let len = self.len();\n  3493: \n  3494:         if new_len > len {\n  3495:             self.extend_with(new_len - len, value)\n  3496:         } else {\n  3497:             self.truncate(new_len);\n  3498:         }\n  3499:     }\n  3500: \n  3501:     /// Clones and appends all elements in a slice to the `Vec`.\n  3502:     ///\n  3503:     /// Iterates over the slice `other`, clones each element, and then appends\n  3504:     /// it to this `Vec`. The `other` slice is traversed in-order.\n  3505:     ///\n  3506:     /// Note that this function is the same as [`extend`],\n  3507:     /// except that it also works with slice elements that are Clone but not Copy.\n  3508:     /// If Rust gets specialization this function may be deprecated.\n  3509:     ///\n  3510:     /// # Panics\n  3511:     ///",
+    "source_text": "pub fn resize(&mut self, new_len: usize, value: T) {\n        let len = self.len();\n\n        if new_len > len {\n            self.extend_with(new_len - len, value)\n        } else {\n            self.truncate(new_len);\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd contracts for Vec::len, Vec::reserve, Vec::push, and Vec::truncate",
+    "vstd cloned/call_ensures model for T::clone"
+  ],
+  "rationale": "The resize branch structure is copied, and private extend_with is source-faithfully desugared into reserve, n-1 clones, and a final move.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol-part3/targets/std_specs__vec.rs__L306__Vec__T__A__resize"
+}

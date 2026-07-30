@@ -1,0 +1,116 @@
+{
+  "id": "layout.rs__L93__core__mem__size_of_val__V",
+  "api_path": "core::mem::size_of_val",
+  "raw_target": "core::mem::size_of_val::<V>",
+  "contract_source_file": "layout.rs",
+  "contract_source_line": 93,
+  "rust_declaration": {
+    "declaration_id": "core:40",
+    "name": "size_of_val",
+    "visibility": "public",
+    "stability": null,
+    "deprecation": null,
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 85, patch: 0 })},\nfeature: \"const_size_of_val\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"mem_size_of_val\")]"
+      }
+    ],
+    "span": {
+      "filename": "core/src/mem/mod.rs",
+      "begin": [
+        400,
+        1
+      ],
+      "end": [
+        403,
+        2
+      ]
+    },
+    "header": {
+      "is_const": true,
+      "is_unsafe": false,
+      "is_async": false,
+      "abi": "Rust"
+    },
+    "signature": {
+      "inputs": [
+        [
+          "val",
+          {
+            "borrowed_ref": {
+              "lifetime": null,
+              "is_mutable": false,
+              "type": {
+                "generic": "T"
+              }
+            }
+          }
+        ]
+      ],
+      "output": {
+        "primitive": "usize"
+      },
+      "is_c_variadic": false
+    },
+    "generics": {
+      "params": [
+        {
+          "name": "T",
+          "kind": {
+            "type": {
+              "bounds": [
+                {
+                  "trait_bound": {
+                    "trait": {
+                      "path": "Sized",
+                      "id": 12,
+                      "args": null
+                    },
+                    "generic_params": [],
+                    "modifier": "maybe"
+                  }
+                }
+              ],
+              "default": null,
+              "is_synthetic": false
+            }
+          }
+        }
+      ],
+      "where_predicates": []
+    },
+    "owner": null,
+    "observability": {
+      "return_is_unit": false,
+      "return_is_reference": false,
+      "return_reference_is_mutable": false,
+      "return_is_raw_pointer": false,
+      "mutable_inputs": [],
+      "has_modeled_output": true
+    },
+    "source_context": "   380: /// then `size_of_val` can be used to get the dynamically-known size.\n   381: ///\n   382: /// [trait object]: ../../book/ch17-02-trait-objects.html\n   383: ///\n   384: /// # Examples\n   385: ///\n   386: /// ```\n   387: /// assert_eq!(4, size_of_val(&5i32));\n   388: ///\n   389: /// let x: [u8; 13] = [0; 13];\n   390: /// let y: &[u8] = &x;\n   391: /// assert_eq!(13, size_of_val(y));\n   392: /// ```\n   393: ///\n   394: /// [`size_of::<T>()`]: size_of\n   395: #[inline]\n   396: #[must_use]\n   397: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   398: #[rustc_const_stable(feature = \"const_size_of_val\", since = \"1.85.0\")]\n   399: #[rustc_diagnostic_item = \"mem_size_of_val\"]\n   400: pub const fn size_of_val<T: ?Sized>(val: &T) -> usize {\n   401:     // SAFETY: `val` is a reference, so it's a valid raw pointer\n   402:     unsafe { intrinsics::size_of_val(val) }\n   403: }\n   404: \n   405: /// Returns the size of the pointed-to value in bytes.\n   406: ///\n   407: /// This is usually the same as [`size_of::<T>()`]. However, when `T` *has* no\n   408: /// statically-known size, e.g., a slice [`[T]`][slice] or a [trait object],\n   409: /// then `size_of_val_raw` can be used to get the dynamically-known size.\n   410: ///\n   411: /// # Safety\n   412: ///\n   413: /// This function is only safe to call if the following conditions hold:\n   414: ///\n   415: /// - If `T` is `Sized`, this function is always safe to call.\n   416: /// - If the unsized tail of `T` is:\n   417: ///     - a [slice], then the length of the slice tail must be an initialized\n   418: ///       integer, and the size of the *entire value*\n   419: ///       (dynamic tail length + statically sized prefix) must fit in `isize`.\n   420: ///       For the special case where the dynamic tail length is 0, this function",
+    "source_text": "pub const fn size_of_val<T: ?Sized>(val: &T) -> usize {\n    // SAFETY: `val` is a reference, so it's a valid raw pointer\n    unsafe { intrinsics::size_of_val(val) }\n}",
+    "has_body": true
+  },
+  "trust_level": "D",
+  "trusted_assumptions": [
+    "core::ptr::from_ref returns the modeled raw pointer for its reference.",
+    "The compiler size_of_val intrinsic computes the dynamic layout size encoded by a reference-derived pointer."
+  ],
+  "rationale": "Aliases the lower compiler intrinsic so the source-faithful reference-to-pointer desugaring cannot be mistaken for a circular target call.",
+  "run_target_dir": "source-verification/bulk-proof/runs/full-gpt56sol/targets/layout.rs__L93__core__mem__size_of_val__V"
+}

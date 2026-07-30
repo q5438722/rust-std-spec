@@ -1,0 +1,195 @@
+{
+  "id": "core__cmp__min_by_key__781d7f0aba0a",
+  "api_path": "core::cmp::min_by_key",
+  "raw_target": "core::cmp::min_by_key",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 53, patch: 0 })},\nfeature: \"cmp_min_max_by\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143800}, feature: \"const_cmp\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:11631",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "K"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "borrowed_ref": {
+                              "is_mutable": false,
+                              "lifetime": null,
+                              "type": {
+                                "generic": "T"
+                              }
+                            }
+                          }
+                        ],
+                        "output": {
+                          "generic": "K"
+                        }
+                      }
+                    },
+                    "id": 22,
+                    "path": "FnMut"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": null,
+                    "id": 50,
+                    "path": "Ord"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "K"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "min_by_key",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [
+        [
+          "v1",
+          {
+            "generic": "T"
+          }
+        ],
+        [
+          "v2",
+          {
+            "generic": "T"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "T"
+      }
+    },
+    "source_context": "  1589: /// let abs_cmp = |x: &i32, y: &i32| x.abs().cmp(&y.abs());\n  1590: ///\n  1591: /// let result = cmp::min_by(2, -1, abs_cmp);\n  1592: /// assert_eq!(result, -1);\n  1593: ///\n  1594: /// let result = cmp::min_by(2, -3, abs_cmp);\n  1595: /// assert_eq!(result, 2);\n  1596: ///\n  1597: /// let result = cmp::min_by(1, -1, abs_cmp);\n  1598: /// assert_eq!(result, 1);\n  1599: /// ```\n  1600: #[inline]\n  1601: #[must_use]\n  1602: #[stable(feature = \"cmp_min_max_by\", since = \"1.53.0\")]\n  1603: #[rustc_const_unstable(feature = \"const_cmp\", issue = \"143800\")]\n  1604: pub const fn min_by<T: [const] Destruct, F: [const] FnOnce(&T, &T) -> Ordering>(\n  1605:     v1: T,\n  1606:     v2: T,\n  1607:     compare: F,\n  1608: ) -> T {\n  1609:     if compare(&v1, &v2).is_le() { v1 } else { v2 }\n  1610: }\n  1611: \n  1612: /// Returns the element that gives the minimum value from the specified function.\n  1613: ///\n  1614: /// Returns the first argument if the comparison determines them to be equal.\n  1615: ///\n  1616: /// # Examples\n  1617: ///\n  1618: /// ```\n  1619: /// use std::cmp;\n  1620: ///\n  1621: /// let result = cmp::min_by_key(2, -1, |x: &i32| x.abs());\n  1622: /// assert_eq!(result, -1);\n  1623: ///\n  1624: /// let result = cmp::min_by_key(2, -3, |x: &i32| x.abs());\n  1625: /// assert_eq!(result, 2);\n  1626: ///\n  1627: /// let result = cmp::min_by_key(1, -1, |x: &i32| x.abs());\n  1628: /// assert_eq!(result, 1);\n  1629: /// ```\n  1630: #[inline]\n  1631: #[must_use]\n  1632: #[stable(feature = \"cmp_min_max_by\", since = \"1.53.0\")]\n  1633: #[rustc_const_unstable(feature = \"const_cmp\", issue = \"143800\")]\n  1634: pub const fn min_by_key<T, F, K>(v1: T, v2: T, mut f: F) -> T\n  1635: where\n  1636:     T: [const] Destruct,\n  1637:     F: [const] FnMut(&T) -> K + [const] Destruct,\n  1638:     K: [const] Ord + [const] Destruct,\n  1639: {\n  1640:     if f(&v2) < f(&v1) { v2 } else { v1 }\n  1641: }\n  1642: \n  1643: /// Compares and returns the maximum of two values.\n  1644: ///\n  1645: /// Returns the second argument if the comparison determines them to be equal.\n  1646: ///\n  1647: /// Internally uses an alias to [`Ord::max`].\n  1648: ///\n  1649: /// # Examples\n  1650: ///\n  1651: /// ```\n  1652: /// use std::cmp;\n  1653: ///\n  1654: /// assert_eq!(cmp::max(1, 2), 2);\n  1655: /// assert_eq!(cmp::max(2, 2), 2);\n  1656: /// ```\n  1657: /// ```\n  1658: /// use std::cmp::{self, Ordering};\n  1659: ///\n  1660: /// #[derive(Eq)]\n  1661: /// struct Equal(&'static str);\n  1662: ///\n  1663: /// impl PartialEq for Equal {\n  1664: ///     fn eq(&self, other: &Self) -> bool { true }\n  1665: /// }\n  1666: /// impl PartialOrd for Equal {\n  1667: ///     fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(Ordering::Equal) }\n  1668: /// }\n  1669: /// impl Ord for Equal {\n  1670: ///     fn cmp(&self, other: &Self) -> Ordering { Ordering::Equal }\n  1671: /// }\n  1672: ///\n  1673: /// assert_eq!(cmp::max(Equal(\"v1\"), Equal(\"v2\")).0, \"v2\");\n  1674: /// ```\n  1675: #[inline]\n  1676: #[must_use]\n  1677: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1678: #[rustc_diagnostic_item = \"cmp_max\"]\n  1679: #[rustc_const_unstable(feature = \"const_cmp\", issue = \"143800\")]",
+    "span": {
+      "begin": [
+        1634,
+        1
+      ],
+      "end": [
+        1641,
+        2
+      ],
+      "filename": "core/src/cmp.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn min_by_key<T, F, K>(v1: T, v2: T, mut f: F) -> T\nwhere\n    T: [const] Destruct,\n    F: [const] FnMut(&T) -> K + [const] Destruct,\n    K: [const] Ord + [const] Destruct,\n{\n    if f(&v2) < f(&v1) { v2 } else { v1 }\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "vstd's call specifications for FnMut invocation and core::cmp::PartialOrd::lt"
+  ],
+  "rationale": "The exact executable expression and evaluation order are copied; the closure results witness the postcondition, and the lt specification bridges the comparison to partial_cmp_spec.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__cmp__min_by_key__781d7f0aba0a"
+}

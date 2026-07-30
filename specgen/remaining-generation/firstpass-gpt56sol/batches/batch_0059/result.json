@@ -1,0 +1,120 @@
+{
+  "batch": 59,
+  "group": "formatting_effect",
+  "duration_ms": 20602,
+  "targets": [
+    "core::fmt::DebugSet::entries",
+    "core::fmt::DebugSet::entry",
+    "core::fmt::DebugSet::finish",
+    "core::fmt::DebugSet::finish_non_exhaustive",
+    "core::fmt::DebugStruct::field",
+    "core::fmt::DebugStruct::finish"
+  ],
+  "candidates": [
+    {
+      "target": "core::fmt::DebugSet::entries",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method mutates unmodeled formatter state while iterating and formatting every entry; its returned mutable self-reference also cannot be usefully characterized in current vstd vocabulary.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "missing_formatting_state_abstraction",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugSet::entry",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The observable behavior is a Debug::fmt call that mutates hidden formatting state, and the returned mutable self-reference provides no independently useful modeled relation.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "missing_formatting_state_abstraction",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugSet::finish",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on prior hidden builder state and whether writing the closing delimiter to the formatter succeeds, neither of which is modeled by current vstd vocabulary.",
+      "risks": [
+        "formatting_effect",
+        "missing_formatting_state_abstraction",
+        "unmodeled_write_failure"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugSet::finish_non_exhaustive",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its output and fmt::Result depend on hidden field/pretty-printing state and formatter write outcomes, so no concrete public-vocabulary relation is available.",
+      "risks": [
+        "formatting_effect",
+        "missing_formatting_state_abstraction",
+        "unmodeled_write_failure"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugStruct::field",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method formats the supplied value and mutates hidden builder and formatter state; the returned mutable self-reference cannot express those effects in current vstd vocabulary.",
+      "risks": [
+        "formatting_effect",
+        "reference_identity_vs_view",
+        "missing_formatting_state_abstraction",
+        "unsupported_mutable_reference_return"
+      ]
+    },
+    {
+      "target": "core::fmt::DebugStruct::finish",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned fmt::Result depends on hidden field state, formatting mode, accumulated errors, and formatter writes, none of which has an existing public vstd model.",
+      "risks": [
+        "formatting_effect",
+        "missing_formatting_state_abstraction",
+        "unmodeled_write_failure"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "id": "core__option__Option__map_or_default__20373207e8c2",
+  "api_path": "core::option::Option::map_or_default",
+  "raw_target": "Option::<T>::map_or_default",
+  "contract_source_file": "specgen/with_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Unstable {reason: None,\nissue: 138099}, feature: \"result_option_map_or_default\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 143956}, feature: \"const_option_ops\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:28032",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        },
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "F"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": null,
+                    "id": 70,
+                    "path": "Default"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "U"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [
+              {
+                "trait_bound": {
+                  "generic_params": [],
+                  "modifier": "maybe_const",
+                  "trait": {
+                    "args": {
+                      "parenthesized": {
+                        "inputs": [
+                          {
+                            "generic": "T"
+                          }
+                        ],
+                        "output": {
+                          "generic": "U"
+                        }
+                      }
+                    },
+                    "id": 24,
+                    "path": "FnOnce"
+                  }
+                }
+              }
+            ],
+            "generic_params": [],
+            "type": {
+              "generic": "F"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "map_or_default",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 84,
+          "path": "Option"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:28056",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:84",
+      "resolved_owner_path": [
+        "core",
+        "option",
+        "Option"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "f",
+          {
+            "generic": "F"
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "generic": "U"
+      }
+    },
+    "source_context": "  1257:     /// the file is fallible, so it must be wrapped with `Ok`.\n  1258:     ///\n  1259:     /// ```no_run\n  1260:     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {\n  1261:     /// let v: u64 = std::env::args()\n  1262:     ///    .nth(1)\n  1263:     ///    .map_or_else(|| std::fs::read_to_string(\"/etc/someconfig.conf\"), Ok)?\n  1264:     ///    .parse()?;\n  1265:     /// #   Ok(())\n  1266:     /// # }\n  1267:     /// ```\n  1268:     #[inline]\n  1269:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1270:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1271:     pub const fn map_or_else<U, D, F>(self, default: D, f: F) -> U\n  1272:     where\n  1273:         D: [const] FnOnce() -> U + [const] Destruct,\n  1274:         F: [const] FnOnce(T) -> U + [const] Destruct,\n  1275:     {\n  1276:         match self {\n  1277:             Some(t) => f(t),\n  1278:             None => default(),\n  1279:         }\n  1280:     }\n  1281: \n  1282:     /// Maps an `Option<T>` to a `U` by applying function `f` to the contained\n  1283:     /// value if the option is [`Some`], otherwise if [`None`], returns the\n  1284:     /// [default value] for the type `U`.\n  1285:     ///\n  1286:     /// # Examples\n  1287:     ///\n  1288:     /// ```\n  1289:     /// #![feature(result_option_map_or_default)]\n  1290:     ///\n  1291:     /// let x: Option<&str> = Some(\"hi\");\n  1292:     /// let y: Option<&str> = None;\n  1293:     ///\n  1294:     /// assert_eq!(x.map_or_default(|x| x.len()), 2);\n  1295:     /// assert_eq!(y.map_or_default(|y| y.len()), 0);\n  1296:     /// ```\n  1297:     ///\n  1298:     /// [default value]: Default::default\n  1299:     #[inline]\n  1300:     #[unstable(feature = \"result_option_map_or_default\", issue = \"138099\")]\n  1301:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1302:     pub const fn map_or_default<U, F>(self, f: F) -> U\n  1303:     where\n  1304:         U: [const] Default,\n  1305:         F: [const] FnOnce(T) -> U + [const] Destruct,\n  1306:     {\n  1307:         match self {\n  1308:             Some(t) => f(t),\n  1309:             None => U::default(),\n  1310:         }\n  1311:     }\n  1312: \n  1313:     /// Transforms the `Option<T>` into a [`Result<T, E>`], mapping [`Some(v)`] to\n  1314:     /// [`Ok(v)`] and [`None`] to [`Err(err)`].\n  1315:     ///\n  1316:     /// Arguments passed to `ok_or` are eagerly evaluated; if you are passing the\n  1317:     /// result of a function call, it is recommended to use [`ok_or_else`], which is\n  1318:     /// lazily evaluated.\n  1319:     ///\n  1320:     /// [`Ok(v)`]: Ok\n  1321:     /// [`Err(err)`]: Err\n  1322:     /// [`Some(v)`]: Some\n  1323:     /// [`ok_or_else`]: Option::ok_or_else\n  1324:     ///\n  1325:     /// # Examples\n  1326:     ///\n  1327:     /// ```\n  1328:     /// let x = Some(\"foo\");\n  1329:     /// assert_eq!(x.ok_or(0), Ok(\"foo\"));\n  1330:     ///\n  1331:     /// let x: Option<&str> = None;\n  1332:     /// assert_eq!(x.ok_or(0), Err(0));\n  1333:     /// ```\n  1334:     #[inline]\n  1335:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1336:     #[rustc_const_unstable(feature = \"const_option_ops\", issue = \"143956\")]\n  1337:     pub const fn ok_or<E: [const] Destruct>(self, err: E) -> Result<T, E> {\n  1338:         match self {\n  1339:             Some(v) => Ok(v),\n  1340:             None => Err(err),\n  1341:         }\n  1342:     }\n  1343: \n  1344:     /// Transforms the `Option<T>` into a [`Result<T, E>`], mapping [`Some(v)`] to\n  1345:     /// [`Ok(v)`] and [`None`] to [`Err(err())`].\n  1346:     ///\n  1347:     /// [`Ok(v)`]: Ok",
+    "span": {
+      "begin": [
+        1302,
+        5
+      ],
+      "end": [
+        1311,
+        6
+      ],
+      "filename": "core/src/option.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn map_or_default<U, F>(self, f: F) -> U\n    where\n        U: [const] Default,\n        F: [const] FnOnce(T) -> U + [const] Destruct,\n    {\n        match self {\n            Some(t) => f(t),\n            None => U::default(),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The existing callable vstd contract for U::default."
+  ],
+  "rationale": "The exact two-arm match verifies compositionally using the generic Default contract, without new axioms.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__option__Option__map_or_default__20373207e8c2"
+}

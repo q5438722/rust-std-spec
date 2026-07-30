@@ -1,0 +1,219 @@
+{
+  "id": "core__result__Result__and__e2333edc2bc8",
+  "api_path": "core::result::Result::and",
+  "raw_target": "Result::<T, E>::and",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Inline(Hint)]"
+      },
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 0, patch: 0 })},\nfeature: \"rust1\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Unstable {reason: None,\nissue: 144211}, feature: \"const_result_trait_fn\", promotable: false}}]"
+      }
+    ],
+    "declaration_id": "core:29305",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "U"
+        }
+      ],
+      "where_predicates": [
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "T"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "E"
+            }
+          }
+        },
+        {
+          "bound_predicate": {
+            "bounds": [],
+            "generic_params": [],
+            "type": {
+              "generic": "U"
+            }
+          }
+        }
+      ]
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "and",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": false,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": {
+      "for": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "T"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      },
+      "generics": {
+        "params": [
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "T"
+          },
+          {
+            "kind": {
+              "type": {
+                "bounds": [],
+                "default": null,
+                "is_synthetic": false
+              }
+            },
+            "name": "E"
+          }
+        ],
+        "where_predicates": []
+      },
+      "impl_id": "core:29310",
+      "kind": "inherent_impl",
+      "resolved_owner_id": "core:90",
+      "resolved_owner_path": [
+        "core",
+        "result",
+        "Result"
+      ],
+      "trait": null
+    },
+    "signature": {
+      "inputs": [
+        [
+          "self",
+          {
+            "generic": "Self"
+          }
+        ],
+        [
+          "res",
+          {
+            "resolved_path": {
+              "args": {
+                "angle_bracketed": {
+                  "args": [
+                    {
+                      "type": {
+                        "generic": "U"
+                      }
+                    },
+                    {
+                      "type": {
+                        "generic": "E"
+                      }
+                    }
+                  ],
+                  "constraints": []
+                }
+              },
+              "id": 90,
+              "path": "Result"
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "resolved_path": {
+          "args": {
+            "angle_bracketed": {
+              "args": [
+                {
+                  "type": {
+                    "generic": "U"
+                  }
+                },
+                {
+                  "type": {
+                    "generic": "E"
+                  }
+                }
+              ],
+              "constraints": []
+            }
+          },
+          "id": 90,
+          "path": "Result"
+        }
+      }
+    },
+    "source_context": "  1397:     #[rustc_const_unstable(feature = \"const_convert\", issue = \"143773\")]\n  1398:     pub const fn into_err(self) -> E\n  1399:     where\n  1400:         T: [const] Into<!>,\n  1401:     {\n  1402:         match self {\n  1403:             Ok(x) => x.into(),\n  1404:             Err(e) => e,\n  1405:         }\n  1406:     }\n  1407: \n  1408:     ////////////////////////////////////////////////////////////////////////\n  1409:     // Boolean operations on the values, eager and lazy\n  1410:     /////////////////////////////////////////////////////////////////////////\n  1411: \n  1412:     /// Returns `res` if the result is [`Ok`], otherwise returns the [`Err`] value of `self`.\n  1413:     ///\n  1414:     /// Arguments passed to `and` are eagerly evaluated; if you are passing the\n  1415:     /// result of a function call, it is recommended to use [`and_then`], which is\n  1416:     /// lazily evaluated.\n  1417:     ///\n  1418:     /// [`and_then`]: Result::and_then\n  1419:     ///\n  1420:     /// # Examples\n  1421:     ///\n  1422:     /// ```\n  1423:     /// let x: Result<u32, &str> = Ok(2);\n  1424:     /// let y: Result<&str, &str> = Err(\"late error\");\n  1425:     /// assert_eq!(x.and(y), Err(\"late error\"));\n  1426:     ///\n  1427:     /// let x: Result<u32, &str> = Err(\"early error\");\n  1428:     /// let y: Result<&str, &str> = Ok(\"foo\");\n  1429:     /// assert_eq!(x.and(y), Err(\"early error\"));\n  1430:     ///\n  1431:     /// let x: Result<u32, &str> = Err(\"not a 2\");\n  1432:     /// let y: Result<&str, &str> = Err(\"late error\");\n  1433:     /// assert_eq!(x.and(y), Err(\"not a 2\"));\n  1434:     ///\n  1435:     /// let x: Result<u32, &str> = Ok(2);\n  1436:     /// let y: Result<&str, &str> = Ok(\"different result type\");\n  1437:     /// assert_eq!(x.and(y), Ok(\"different result type\"));\n  1438:     /// ```\n  1439:     #[inline]\n  1440:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1441:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1442:     pub const fn and<U>(self, res: Result<U, E>) -> Result<U, E>\n  1443:     where\n  1444:         T: [const] Destruct,\n  1445:         E: [const] Destruct,\n  1446:         U: [const] Destruct,\n  1447:     {\n  1448:         match self {\n  1449:             Ok(_) => res,\n  1450:             Err(e) => Err(e),\n  1451:         }\n  1452:     }\n  1453: \n  1454:     /// Calls `op` if the result is [`Ok`], otherwise returns the [`Err`] value of `self`.\n  1455:     ///\n  1456:     ///\n  1457:     /// This function can be used for control flow based on `Result` values.\n  1458:     ///\n  1459:     /// # Examples\n  1460:     ///\n  1461:     /// ```\n  1462:     /// fn sq_then_to_string(x: u32) -> Result<String, &'static str> {\n  1463:     ///     x.checked_mul(x).map(|sq| sq.to_string()).ok_or(\"overflowed\")\n  1464:     /// }\n  1465:     ///\n  1466:     /// assert_eq!(Ok(2).and_then(sq_then_to_string), Ok(4.to_string()));\n  1467:     /// assert_eq!(Ok(1_000_000).and_then(sq_then_to_string), Err(\"overflowed\"));\n  1468:     /// assert_eq!(Err(\"not a number\").and_then(sq_then_to_string), Err(\"not a number\"));\n  1469:     /// ```\n  1470:     ///\n  1471:     /// Often used to chain fallible operations that may return [`Err`].\n  1472:     ///\n  1473:     /// ```\n  1474:     /// use std::{io::ErrorKind, path::Path};\n  1475:     ///\n  1476:     /// // Note: on Windows \"/\" maps to \"C:\\\"\n  1477:     /// let root_modified_time = Path::new(\"/\").metadata().and_then(|md| md.modified());\n  1478:     /// assert!(root_modified_time.is_ok());\n  1479:     ///\n  1480:     /// let should_fail = Path::new(\"/bad/path\").metadata().and_then(|md| md.modified());\n  1481:     /// assert!(should_fail.is_err());\n  1482:     /// assert_eq!(should_fail.unwrap_err().kind(), ErrorKind::NotFound);\n  1483:     /// ```\n  1484:     #[inline]\n  1485:     #[stable(feature = \"rust1\", since = \"1.0.0\")]\n  1486:     #[rustc_const_unstable(feature = \"const_result_trait_fn\", issue = \"144211\")]\n  1487:     #[rustc_confusables(\"flat_map\", \"flatmap\")]",
+    "span": {
+      "begin": [
+        1442,
+        5
+      ],
+      "end": [
+        1452,
+        6
+      ],
+      "filename": "core/src/result.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn and<U>(self, res: Result<U, E>) -> Result<U, E>\n    where\n        T: [const] Destruct,\n        E: [const] Destruct,\n        U: [const] Destruct,\n    {\n        match self {\n            Ok(_) => res,\n            Err(e) => Err(e),\n        }\n    }",
+    "has_body": true
+  },
+  "trust_level": "A",
+  "trusted_assumptions": [],
+  "rationale": "The source-faithful enum match directly proves both postconditions without calling the target or relying on external contracts.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__result__Result__and__e2333edc2bc8"
+}

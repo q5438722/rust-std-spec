@@ -1,0 +1,148 @@
+{
+  "batch": 256,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 337542,
+  "targets": [
+    "std::thread::Result::as_mut",
+    "std::thread::Result::as_ref",
+    "std::thread::Result::cloned",
+    "std::thread::Result::copied",
+    "std::thread::Result::err",
+    "std::thread::Result::expect"
+  ],
+  "candidates": [
+    {
+      "target": "std::thread::Result::as_mut",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::as_mut ](\n    result: &mut Result<T, E>,\n) -> (res: Result<&mut T, &mut E>)\n    ensures\n        (match *old(result) {\n            Result::Ok(v) => {\n                &&& res is Ok\n                &&& *res->Ok_0 == v\n                &&& *final(result) == Result::<T, E>::Ok(*final(res->Ok_0))\n            },\n            Result::Err(e) => {\n                &&& res is Err\n                &&& *res->Err_0 == e\n                &&& *final(result) == Result::<T, E>::Err(*final(res->Err_0))\n            },\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "match *old(result) { Result::Ok(v) => res is Ok && *res->Ok_0 == v && *final(result) == Result::<T, E>::Ok(*final(res->Ok_0)), Result::Err(e) => res is Err && *res->Err_0 == e && *final(result) == Result::<T, E>::Err(*final(res->Err_0)) }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The canonical Result method only reborrows the active enum payload. Existing old/final vocabulary captures both its initial value and mutation through the returned reference; the thread path is only an alias and adds no runtime access.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "std::thread::Result::as_ref",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::as_ref ](\n    result: &Result<T, E>,\n) -> (res: Result<&T, &E>)\n    ensures\n        res is Ok <==> result is Ok,\n        res is Ok ==> result->Ok_0 == res->Ok_0,\n        res is Err <==> result is Err,\n        res is Err ==> result->Err_0 == res->Err_0,\n    no_unwind\n;",
+      "requires": [],
+      "ensures": [
+        "res is Ok <==> result is Ok",
+        "res is Ok ==> result->Ok_0 == res->Ok_0",
+        "res is Err <==> result is Err",
+        "res is Err ==> result->Err_0 == res->Err_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source performs a structural shared reborrow, which can be related directly to the original Result payload without modeling thread runtime state.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "std::thread::Result::cloned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: Clone, E>[ Result::<&'a T, E>::cloned ](\n    result: Result<&'a T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        result is Ok ==> res is Ok && cloned::<T>(*result->Ok_0, res->Ok_0),\n        result is Err ==> res == Result::<T, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res is Ok && cloned::<T>(*result->Ok_0, res->Ok_0)",
+        "result is Err ==> res == Result::<T, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::clone::Clone",
+        "core::result::Result",
+        "vstd::prelude::cloned"
+      ],
+      "useful": true,
+      "rationale": "The public cloned predicate models arbitrary Clone implementations, while the specialized Result<&T, E> receiver disambiguates this declaration and the Err payload is moved unchanged.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "multiple_rust_declarations_share_path",
+        "Clone may unwind, so no no_unwind guarantee is made"
+      ]
+    },
+    {
+      "target": "std::thread::Result::copied",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: Copy, E>[ Result::<&'a T, E>::copied ](\n    result: Result<&'a T, E>,\n) -> (res: Result<T, E>)\n    ensures\n        result is Ok ==> res == Result::<T, E>::Ok(*result->Ok_0),\n        result is Err ==> res == Result::<T, E>::Err(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res == Result::<T, E>::Ok(*result->Ok_0)",
+        "result is Err ==> res == Result::<T, E>::Err(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::marker::Copy",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source exactly copies the referenced Ok value or moves the Err value; the Result<&T, E> receiver uniquely selects the supplied overload.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "multiple_rust_declarations_share_path"
+      ]
+    },
+    {
+      "target": "std::thread::Result::err",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::err ](\n    result: Result<T, E>,\n) -> (opt: Option<E>)\n    ensures\n        result is Ok ==> opt is None,\n        result is Err ==> opt == Option::<E>::Some(result->Err_0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> opt is None",
+        "result is Err ==> opt == Option::<E>::Some(result->Err_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::option::Option",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The method structurally discards Ok and returns the Err payload, so its returned Option is fully expressible without exposing any panic payload internals.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "discarding an Ok value may run its destructor, so no no_unwind guarantee is made"
+      ]
+    },
+    {
+      "target": "std::thread::Result::expect",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E: core::fmt::Debug>[ Result::<T, E>::expect ](\n    result: Result<T, E>,\n    msg: &str,\n) -> (value: T)\n    requires\n        result is Ok,\n    ensures\n        value == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "value == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "Requiring the source Result to be Ok excludes the documented panic and formatting path; on that path the body returns the contained value exactly.",
+      "risks": [
+        "external_or_hidden_runtime_state",
+        "the Err panic message and Debug formatting are intentionally unmodeled"
+      ]
+    }
+  ]
+}

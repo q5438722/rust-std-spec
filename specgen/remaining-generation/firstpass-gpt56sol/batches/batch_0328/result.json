@@ -1,0 +1,123 @@
+{
+  "batch": 328,
+  "group": "unsafe_or_representation_sensitive",
+  "duration_ms": 121847,
+  "targets": [
+    "core::ptr::NonNull::replace",
+    "core::ptr::NonNull::sub",
+    "core::ptr::NonNull::swap",
+    "core::ptr::NonNull::write",
+    "core::ptr::NonNull::write_bytes",
+    "core::ptr::NonNull::write_unaligned"
+  ],
+  "candidates": [
+    {
+      "target": "core::ptr::NonNull::replace",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns the old pointee and stores src, but the signature carries no PointsTo permission through which vstd could express initialized memory or its state transition.",
+      "risks": [
+        "missing memory permission input",
+        "pointee contents unobservable",
+        "ownership transfer",
+        "missing NonNull pointer view"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::sub",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Characterizing the subtraction requires a NonNull pointer view plus allocation bounds and provenance. The ZST identity branch alone would not usefully characterize the general operation.",
+      "risks": [
+        "missing NonNull pointer view",
+        "missing allocation-range witness",
+        "pointer provenance",
+        "offset arithmetic"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source swaps two possibly overlapping memory locations, but neither location has a tracked memory permission in the exact unit-returning signature.",
+      "risks": [
+        "unmodeled memory effects",
+        "missing memory permissions",
+        "overlapping swap semantics",
+        "ownership transfer"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::write",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source stores val without reading or dropping the old value. Current vstd can model this only through a mutable PointsTo permission, which this signature does not carry.",
+      "risks": [
+        "unmodeled memory effect",
+        "missing PointsTo permission",
+        "overwritten value may be leaked",
+        "missing NonNull pointer view"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::write_bytes",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The byte-range memset effect cannot be represented by the exact unit-returning signature; it supplies no raw-memory permission, and repeated bytes need not form valid T values.",
+      "risks": [
+        "missing byte-range memory abstraction",
+        "missing memory permission",
+        "possibly invalid typed representation",
+        "size multiplication and range validity"
+      ]
+    },
+    {
+      "target": "core::ptr::NonNull::write_unaligned",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source performs an unaligned write, while vstd's typed PointsTo model requires alignment and the signature carries no alternative byte-level memory permission.",
+      "risks": [
+        "unaligned memory is not modeled",
+        "missing memory permission input",
+        "unmodeled memory effect",
+        "ownership transfer"
+      ]
+    }
+  ]
+}

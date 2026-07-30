@@ -1,0 +1,131 @@
+{
+  "batch": 261,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 231913,
+  "targets": [
+    "std::thread::Result::unwrap_or_else",
+    "std::thread::Result::unwrap_unchecked",
+    "std::thread::Scope::spawn",
+    "std::thread::ScopedJoinHandle::is_finished",
+    "std::thread::ScopedJoinHandle::join",
+    "std::thread::ScopedJoinHandle::thread"
+  ],
+  "candidates": [
+    {
+      "target": "std::thread::Result::unwrap_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(E) -> T>[Result::<T, E>::unwrap_or_else](\n    result: Result<T, E>,\n    op: F,\n) -> (res: T)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == result->Ok_0,\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == result->Ok_0",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The resolved core Result implementation is a structural match: it returns the Ok payload or invokes the closure on the Err payload, both expressible with Result projections and FnOnce contracts.",
+      "risks": [
+        "closure effects are abstracted by its FnOnce contract",
+        "the canonical Result specification also applies beyond the thread alias"
+      ]
+    },
+    {
+      "target": "std::thread::Result::unwrap_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[Result::<T, E>::unwrap_unchecked](\n    result: Result<T, E>,\n) -> (res: T)\n    requires\n        result is Ok,\n    ensures\n        res == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "res == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "core::result::Result"
+      ],
+      "useful": true,
+      "rationale": "The source returns the Ok payload and declares Err input undefined behavior, exactly captured by the variant precondition and payload postcondition.",
+      "risks": [
+        "violating the precondition is undefined behavior",
+        "the canonical Result specification also applies beyond the thread alias"
+      ]
+    },
+    {
+      "target": "std::thread::Scope::spawn",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned handle represents asynchronously executing closure state, and the call can panic on OS thread-creation failure. No public vstd abstraction connects that hidden state to the closure contract.",
+      "risks": [
+        "concurrent execution",
+        "OS thread-creation failure",
+        "missing scoped-thread handle model"
+      ]
+    },
+    {
+      "target": "std::thread::ScopedJoinHandle::is_finished",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result directly observes timing-dependent thread runtime state and can change independently of the explicit input; current vstd has no scheduler or thread-state vocabulary.",
+      "risks": [
+        "hidden runtime state",
+        "scheduler-dependent result",
+        "time-varying observation"
+      ]
+    },
+    {
+      "target": "std::thread::ScopedJoinHandle::join",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result depends on hidden spawned-thread completion and panic state, while the operation also blocks and establishes a happens-before relation unsupported by current public vstd vocabulary.",
+      "risks": [
+        "blocking synchronization",
+        "hidden thread result",
+        "runtime panic payload",
+        "missing happens-before model"
+      ]
+    },
+    {
+      "target": "std::thread::ScopedJoinHandle::thread",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source returns a reference into the handle's private underlying thread object; vstd exposes neither that association nor a suitable identity/view model.",
+      "risks": [
+        "hidden handle association",
+        "reference identity versus view",
+        "missing Thread model"
+      ]
+    }
+  ]
+}

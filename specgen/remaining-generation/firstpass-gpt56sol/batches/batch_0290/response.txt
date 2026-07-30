@@ -1,0 +1,125 @@
+{"candidates":[{"target":"core::iter::Iterator::min_by","decision":"add_spec","contract_form":"external_trait_specification","contract_code":"fn min_by<F>(self, compare: F) -> (ret: Option<Self::Item>)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item, &Self::Item) -> core::cmp::Ordering\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> ({\n            let items = self.remaining();\n            if items.len() == 0 {\n                ret.is_none()\n            } else {\n                exists |accumulators: Seq<Self::Item>, orderings: Seq<core::cmp::Ordering>| {\n                    &&& accumulators.len() == items.len()\n                    &&& orderings.len() + 1 == items.len()\n                    &&& accumulators[0] == items[0]\n                    &&& forall |i: int| 1 <= i < items.len() ==> {\n                        &&& #[trigger] compare.ensures(\n                            (&accumulators[i - 1], &items[i]),\n                            orderings[i - 1],\n                        )\n                        &&& accumulators[i] == if orderings[i - 1] == core::cmp::Ordering::Greater {\n                            items[i]\n                        } else {\n                            accumulators[i - 1]\n                        }\n                    }\n                    &&& ret == Some(accumulators[items.len() - 1])\n                }\n            }\n        }),\n;","requires":[],"ensures":["self.will_return_none()","For a modeled nonempty iterator, an accumulator trace following compare.ensures ends at ret; an empty iterator returns None."],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::iter::IteratorSpec"],"useful":true,"rationale":"The source reduces the remaining sequence, retaining the accumulator unless the comparator returns Greater; the trace also preserves first-on-tie behavior.","risks":["relies on the comparator's FnMut specification","usable only when the iterator's prophetic laws and initial-value relation hold","default_ensures does not constrain overriding implementations"]},{"target":"core::iter::Iterator::min_by_key","decision":"add_spec","contract_form":"external_trait_specification","contract_code":"fn min_by_key<B: core::cmp::Ord, F>(self, f: F) -> (ret: Option<Self::Item>)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item) -> B\n    default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <B as OrdSpec>::obeys_cmp_spec() ==> ({\n            let items = self.remaining();\n            if items.len() == 0 {\n                ret.is_none()\n            } else {\n                exists |keys: Seq<B>, accumulators: Seq<Self::Item>, accumulator_keys: Seq<B>| {\n                    &&& keys.len() == items.len()\n                    &&& accumulators.len() == items.len()\n                    &&& accumulator_keys.len() == items.len()\n                    &&& forall |i: int| 0 <= i < items.len() ==>\n                        #[trigger] f.ensures((&items[i],), keys[i])\n                    &&& accumulators[0] == items[0]\n                    &&& accumulator_keys[0] == keys[0]\n                    &&& forall |i: int| 1 <= i < items.len() ==> {\n                        let replace = <B as OrdSpec>::cmp_spec(\n                            &accumulator_keys[i - 1],\n                            &keys[i],\n                        ) == core::cmp::Ordering::Greater;\n                        &&& accumulators[i] == if replace {\n                            items[i]\n                        } else {\n                            accumulators[i - 1]\n                        }\n                        &&& accumulator_keys[i] == if replace {\n                            keys[i]\n                        } else {\n                            accumulator_keys[i - 1]\n                        }\n                    }\n                    &&& ret == Some(accumulators[items.len() - 1])\n                }\n            }\n        }),\n;","requires":[],"ensures":["self.will_return_none()","For a modeled iterator and modeled Ord keys, f.ensures supplies one key per item and the first minimum-key accumulator becomes ret."],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::cmp::OrdSpec","vstd::std_specs::iter::IteratorSpec"],"useful":true,"rationale":"The source evaluates one key per item and replaces the accumulator only when its stored key compares Greater, retaining the first item on ties.","risks":["relies on the key function's FnMut specification","precision requires B::obeys_cmp_spec()","default_ensures does not constrain overriding implementations"]},{"target":"core::iter::Iterator::ne","decision":"add_spec","contract_form":"external_trait_specification","contract_code":"fn ne<I>(self, other: I) -> (ret: bool)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialEq<I::Item>,\n        Self: Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialEqSpec<I::Item>>::obeys_eq_spec() ==> ({\n            let left = self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n            ret <==> (\n                left.len() != right.len()\n                || exists |i: int| {\n                    &&& 0 <= i < left.len()\n                    &&& i < right.len()\n                    &&& !<Self::Item as PartialEqSpec<I::Item>>::eq_spec(\n                        &left[i],\n                        &right[i],\n                    )\n                }\n            )\n        }),\n;","requires":[],"ensures":["For modeled equality and iterator sequences, ret holds exactly when lengths differ or some corresponding elements are unequal."],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::cmp::PartialEqSpec","vstd::std_specs::iter::{into_iter_remaining, IteratorSpec}"],"useful":true,"rationale":"The source negates lexicographic iterator equality; PartialEqSpec and into_iter_remaining express the corresponding sequence relation.","risks":["the other IntoIterator sequence is represented abstractly by into_iter_remaining","usable only when element equality obeys its vstd specification","default_ensures does not constrain overriding implementations"]},{"target":"core::iter::Iterator::nth","decision":"add_spec","contract_form":"external_trait_specification","contract_code":"fn nth(&mut self, n: usize) -> (ret: Option<Self::Item>)\n    default_ensures\n        final(self).obeys_prophetic_iter_laws() == old(self).obeys_prophetic_iter_laws(),\n        final(self).obeys_prophetic_iter_laws() ==>\n            final(self).will_return_none() == old(self).will_return_none(),\n        final(self).obeys_prophetic_iter_laws() ==>\n            (old(self).decrease() is Some <==> final(self).decrease() is Some),\n        final(self).obeys_prophetic_iter_laws() ==> ({\n            let old_remaining = old(self).remaining();\n            let final_remaining = final(self).remaining();\n            if (n as int) < old_remaining.len() {\n                &&& ret == Some(old_remaining[n as int])\n                &&& final_remaining == old_remaining.subrange(\n                    n as int + 1,\n                    old_remaining.len(),\n                )\n            } else {\n                &&& ret.is_none()\n                &&& final_remaining.len() == 0\n                &&& final(self).will_return_none()\n            }\n        }),\n;","requires":[],"ensures":["IteratorSpec consistency properties are preserved.","An in-range n returns that item and leaves the suffix after it; an out-of-range n returns None and exhausts the iterator."],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::iter::IteratorSpec"],"useful":true,"rationale":"The supplied body advances by n and then calls next, which is exactly a sequence-index result plus removal of the first n+1 items.","risks":["usable only under obeys_prophetic_iter_laws","default_ensures does not constrain nth overrides"]},{"target":"core::iter::Iterator::partial_cmp","decision":"add_spec","contract_form":"external_trait_specification","contract_code":"fn partial_cmp<I>(self, other: I) -> (ret: Option<core::cmp::Ordering>)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialOrd<I::Item>,\n        Self: Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            && <Self::Item as PartialOrdSpec<I::Item>>::obeys_partial_cmp_spec() ==> ({\n            let left = self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n            let common_len = if left.len() <= right.len() {\n                left.len()\n            } else {\n                right.len()\n            };\n            (exists |i: int| {\n                &&& 0 <= i < common_len\n                &&& forall |j: int| 0 <= j < i ==>\n                    #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[j],\n                        &right[j],\n                    ) == Some(core::cmp::Ordering::Equal)\n                &&& <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                    &left[i],\n                    &right[i],\n                ) != Some(core::cmp::Ordering::Equal)\n                &&& ret == <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                    &left[i],\n                    &right[i],\n                )\n            }) || ({\n                &&& forall |i: int| 0 <= i < common_len ==>\n                    #[trigger] <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[i],\n                        &right[i],\n                    ) == Some(core::cmp::Ordering::Equal)\n                &&& ret == if left.len() < right.len() {\n                    Some(core::cmp::Ordering::Less)\n                } else if left.len() > right.len() {\n                    Some(core::cmp::Ordering::Greater)\n                } else {\n                    Some(core::cmp::Ordering::Equal)\n                }\n            })\n        }),\n;","requires":[],"ensures":["For modeled item ordering, ret is the first non-Equal element comparison, including None, or the length comparison after an Equal common prefix."],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::cmp::PartialOrdSpec","vstd::std_specs::iter::{into_iter_remaining, IteratorSpec}"],"useful":true,"rationale":"The source performs lexicographic comparison and stops at the first non-Equal PartialOrd result; equal prefixes are ordered by sequence length.","risks":["the other IntoIterator sequence is represented abstractly by into_iter_remaining","precision requires the item PartialOrd implementation to obey its vstd specification","default_ensures does not constrain overriding implementations"]},{"target":"core::iter::Iterator::partition","decision":"skip","contract_form":"external_trait_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"imports":[],"useful":false,"rationale":"Current vstd has no Extend abstraction or generic logical view for B, so the two collection results cannot be related to the predicate-filtered input sequence.","risks":["missing Extend state/content specification","generic output collections have no shared logical view","predicate call effects cannot compensate for the missing collection abstraction"]}]}{"candidates":[{"target":"core::iter::Iterator::min_by","decision":"add_spec","contract_form":"exter
+nal_trait_specification","contract_code":"fn min_by<F>(self, compare: F) -> (ret:
+Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item, &Self::Item) -> ]8;;
+core::cmp::Ordering\n    default_ensures\n        self.will_return_none(),\n
+self.obeys_prophetic_iter_laws() && self.initial_value_relation(&self) ==> ({\n            let items
+ = self.remaining();\n            if items.len() == 0 {\n                ret.is_none()\n
+} else {\n                exists |accumulators: Seq]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;, orderings: Seq]8;;]8;id=md-wt984m;core::cmp::Orderingcore::cmp::Ordering]8;;]8;;| ]8;;
+{\n                    &&& accumulators.len() == items.len()\n                    &&&
+orderings.len() + 1 == items.len()\n                    &&& accumulators[0] == items[0]\n
+         &&& forall |i: int| 1 <= i < items.len() ==> {\n                        &&& #[trigger]
+compare.ensures(\n                            (&accumulators[i - 1], &items[i]),\n
+          orderings[i - 1],\n                        )\n                        &&& accumulators[i]
+== if orderings[i - 1] == core::cmp::Ordering::Greater {\n                            items[i]\n
+                    } else {\n                            accumulators[i - 1]\n
+   }\n                    }\n                    &&& ret == Some(accumulators[items.len() - 1])\n
+             }\n            }\n
+}),\n;","requires":[],"ensures":["self.will_return_none()","For a modeled nonempty iterator, an
+accumulator trace following compare.ensures ends at ret; an empty iterator returns
+None."],"feature_gates":[],"imports":["vstd::prelude::","vstd::std_specs::iter::IteratorSpec"],"usef
+ul":true,"rationale":"The source reduces the remaining sequence, retaining the accumulator unless
+the comparator returns Greater; the trace also preserves first-on-tie behavior.","risks":["relies on
+ the comparator's FnMut specification","usable only when the iterator's prophetic laws and
+initial-value relation hold","default_ensures does not constrain overriding
+implementations"]},{"target":"core::iter::Iterator::min_by_key","decision":"add_spec","contract_form
+":"external_trait_specification","contract_code":"fn min_by_key<B: core::cmp::Ord, F>(self, f: F) ->
+ (ret: Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item) -> B\n    ]8;;
+default_ensures\n        self.will_return_none(),\n        self.obeys_prophetic_iter_laws()\n
+     && self.initial_value_relation(&self)\n            && <B as OrdSpec>::obeys_cmp_spec() ==> ({\n
+            let items = self.remaining();\n            if items.len() == 0 {\n
+ret.is_none()\n            } else {\n                exists |keys: Seq<B>, accumulators:
+Seq]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;, accumulator_keys: Seq<B>| {\n                    &&& keys.len() == items.len()\n     ]8;;
+               &&& accumulators.len() == items.len()\n                    &&& accumulator_keys.len()
+ == items.len()\n                    &&& forall |i: int| 0 <= i < items.len() ==>\n
+       #[trigger] f.ensures((&items[i],), keys[i])\n                    &&& accumulators[0] ==
+items[0]\n                    &&& accumulator_keys[0] == keys[0]\n                    &&& forall |i:
+ int| 1 <= i < items.len() ==> {\n                        let replace = <B as OrdSpec>::cmp_spec(\n
+                           &accumulator_keys[i - 1],\n                            &keys[i],\n
+                 ) == core::cmp::Ordering::Greater;\n                        &&& accumulators[i] ==
+if replace {\n                            items[i]\n                        } else {\n
+              accumulators[i - 1]\n                        }\n                        &&&
+accumulator_keys[i] == if replace {\n                            keys[i]\n                        }
+else {\n                            accumulator_keys[i - 1]\n                        }\n
+        }\n                    &&& ret == Some(accumulators[items.len() - 1])\n                }\n
+          }\n        }),\n;","requires":[],"ensures":["self.will_return_none()","For a modeled
+iterator and modeled Ord keys, f.ensures supplies one key per item and the first minimum-key
+accumulator becomes ret."],"feature_gates":[],"imports":["vstd::prelude::","vstd::std_specs::cmp::Or
+dSpec","vstd::std_specs::iter::IteratorSpec"],"useful":true,"rationale":"The source evaluates one
+key per item and replaces the accumulator only when its stored key compares Greater, retaining the
+first item on ties.","risks":["relies on the key function's FnMut specification","precision requires
+ B::obeys_cmp_spec()","default_ensures does not constrain overriding
+implementations"]},{"target":"core::iter::Iterator::ne","decision":"add_spec","contract_form":"exter
+nal_trait_specification","contract_code":"fn ne<I>(self, other: I) -> (ret: bool)\n    where\n
+  I: core::iter::IntoIterator,\n        Self::Item: core::cmp::PartialEq<I::Item>,\n        Self:
+Sized\n    default_ensures\n        self.obeys_prophetic_iter_laws()\n            &&
+self.initial_value_relation(&self)\n            && <Self::Item as
+PartialEqSpec<I::Item>>::obeys_eq_spec() ==> ({\n            let left = self.remaining();\n
+   let right = into_iter_remaining::<I::Item, I>(other);\n            ret <==> (\n
+left.len() != right.len()\n                || exists |i: int| {\n                    &&& 0 <= i <
+left.len()\n                    &&& i < right.len()\n                    &&& !<Self::Item as
+PartialEqSpec<I::Item>>::eq_spec(\n                        &left[i],\n
+&right[i],\n                    )\n                }\n            )\n
+}),\n;","requires":[],"ensures":["For modeled equality and iterator sequences, ret holds exactly
+when lengths differ or some corresponding elements are unequal."],"feature_gates":[],"imports":["vst
+d::prelude::","vstd::std_specs::cmp::PartialEqSpec","vstd::std_specs::iter::{into_iter_remaining,
+IteratorSpec}"],"useful":true,"rationale":"The source negates lexicographic iterator equality;
+PartialEqSpec and into_iter_remaining express the corresponding sequence relation.","risks":["the
+other IntoIterator sequence is represented abstractly by into_iter_remaining","usable only when
+element equality obeys its vstd specification","default_ensures does not constrain overriding
+implementations"]},{"target":"core::iter::Iterator::nth","decision":"add_spec","contract_form":"exte
+rnal_trait_specification","contract_code":"fn nth(&mut self, n: usize) -> (ret: Option]8;id=md-azl5kg;Self::ItemSelf::Item]8;;]8;;)\n ]8;;
+   default_ensures\n        final(self).obeys_prophetic_iter_laws() ==
+old(self).obeys_prophetic_iter_laws(),\n        final(self).obeys_prophetic_iter_laws() ==>\n
+     final(self).will_return_none() == old(self).will_return_none(),\n
+final(self).obeys_prophetic_iter_laws() ==>\n            (old(self).decrease() is Some <==>
+final(self).decrease() is Some),\n        final(self).obeys_prophetic_iter_laws() ==> ({\n
+  let old_remaining = old(self).remaining();\n            let final_remaining =
+final(self).remaining();\n            if (n as int) < old_remaining.len() {\n                &&& ret
+ == Some(old_remaining[n as int])\n                &&& final_remaining == old_remaining.subrange(\n
+                   n as int + 1,\n                    old_remaining.len(),\n                )\n
+       } else {\n                &&& ret.is_none()\n                &&& final_remaining.len() == 0\n
+                &&& final(self).will_return_none()\n            }\n
+}),\n;","requires":[],"ensures":["IteratorSpec consistency properties are preserved.","An in-range n
+ returns that item and leaves the suffix after it; an out-of-range n returns None and exhausts the
+iterator."],"feature_gates":[],"imports":["vstd::prelude::","vstd::std_specs::iter::IteratorSpec"],"
+useful":true,"rationale":"The supplied body advances by n and then calls next, which is exactly a
+sequence-index result plus removal of the first n+1 items.","risks":["usable only under
+obeys_prophetic_iter_laws","default_ensures does not constrain nth
+overrides"]},{"target":"core::iter::Iterator::partial_cmp","decision":"add_spec","contract_form":"ex
+ternal_trait_specification","contract_code":"fn partial_cmp<I>(self, other: I) -> (ret:
+Option]8;id=md-wt984m;core::cmp::Orderingcore::cmp::Ordering]8;;]8;;)\n    where\n        I: core::iter::IntoIterator,\n        Self::Item: ]8;;
+core::cmp::PartialOrd<I::Item>,\n        Self: Sized\n    default_ensures\n
+self.obeys_prophetic_iter_laws()\n            && self.initial_value_relation(&self)\n            &&
+<Self::Item as PartialOrdSpec<I::Item>>::obeys_partial_cmp_spec() ==> ({\n            let left =
+self.remaining();\n            let right = into_iter_remaining::<I::Item, I>(other);\n
+let common_len = if left.len() <= right.len() {\n                left.len()\n            } else {\n
+               right.len()\n            };\n            (exists |i: int| {\n                &&& 0 <=
+ i < common_len\n                &&& forall |j: int| 0 <= j < i ==>\n                    #[trigger]
+<Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[j],\n
+                   &right[j],\n                    ) == Some(core::cmp::Ordering::Equal)\n
+      &&& <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n
+&left[i],\n                    &right[i],\n                ) != Some(core::cmp::Ordering::Equal)\n
+              &&& ret == <Self::Item as PartialOrdSpec<I::Item>>::partial_cmp_spec(\n
+     &left[i],\n                    &right[i],\n                )\n            }) || ({\n
+     &&& forall |i: int| 0 <= i < common_len ==>\n                    #[trigger] <Self::Item as
+PartialOrdSpec<I::Item>>::partial_cmp_spec(\n                        &left[i],\n
+    &right[i],\n                    ) == Some(core::cmp::Ordering::Equal)\n                &&& ret
+== if left.len() < right.len() {\n                    Some(core::cmp::Ordering::Less)\n
+   } else if left.len() > right.len() {\n                    Some(core::cmp::Ordering::Greater)\n
+             } else {\n                    Some(core::cmp::Ordering::Equal)\n                }\n
+        })\n        }),\n;","requires":[],"ensures":["For modeled item ordering, ret is the first
+non-Equal element comparison, including None, or the length comparison after an Equal common
+prefix."],"feature_gates":[],"imports":["vstd::prelude::*","vstd::std_specs::cmp::PartialOrdSpec","v
+std::std_specs::iter::{into_iter_remaining, IteratorSpec}"],"useful":true,"rationale":"The source
+performs lexicographic comparison and stops at the first non-Equal PartialOrd result; equal prefixes
+ are ordered by sequence length.","risks":["the other IntoIterator sequence is represented
+abstractly by into_iter_remaining","precision requires the item PartialOrd implementation to obey
+its vstd specification","default_ensures does not constrain overriding
+implementations"]},{"target":"core::iter::Iterator::partition","decision":"skip","contract_form":"ex
+ternal_trait_specification","contract_code":"","requires":[],"ensures":[],"feature_gates":[],"import
+s":[],"useful":false,"rationale":"Current vstd has no Extend abstraction or generic logical view for
+ B, so the two collection results cannot be related to the predicate-filtered input
+sequence.","risks":["missing Extend state/content specification","generic output collections have no
+ shared logical view","predicate call effects cannot compensate for the missing collection
+abstraction"]}]}
+

@@ -1,0 +1,118 @@
+{
+  "batch": 84,
+  "group": "iterator_or_adapter_result",
+  "duration_ms": 152143,
+  "targets": [
+    "alloc::collections::BTreeMap::range_mut",
+    "alloc::collections::BTreeMap::retain",
+    "alloc::collections::BTreeMap::values_mut",
+    "alloc::collections::BTreeSet::difference",
+    "alloc::collections::BTreeSet::extract_if",
+    "alloc::collections::BTreeSet::intersection"
+  ],
+  "candidates": [
+    {
+      "target": "alloc::collections::BTreeMap::range_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "RangeMut lazily yields mutable values and determines the map's final state through later, possibly partial consumption. Current vstd has no prophetic RangeMut model connecting yielded references, generic bounds, and final map contents.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "unsupported_yielded_mutable_references",
+        "partial_consumption",
+        "unmodeled_generic_range_bounds"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::retain",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source exhausts extract_if while repeatedly invoking a stateful FnMut with mutable values. Describing the resulting map requires an ordered callback-state and value-writeback trace absent from current vstd.",
+      "risks": [
+        "unit_return_variant",
+        "stateful_FnMut_sequence_not_modeled",
+        "mutable_value_writeback_not_modeled",
+        "callback_dependent_removal"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeMap::values_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ValuesMut wraps iter_mut and lazily exposes mutable references whose later writes determine the map's final values. No public prophetic ValuesMut iterator model relates those writes to the receiver.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "unsupported_yielded_mutable_references",
+        "partial_consumption"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::difference",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although set difference is expressible, current vstd has no public Difference iterator view relating the returned iterator's ordered future outputs to the two set views.",
+      "risks": [
+        "missing_difference_iterator_model",
+        "ordered_output_unmodeled"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::extract_if",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "ExtractIf performs predicate calls and removals lazily, so yielded elements and the set's final state depend on consumption and early drop. Current vstd lacks the required prophetic iterator, callback-trace, and range model.",
+      "risks": [
+        "missing_prophetic_iterator_model",
+        "closure_side_effects",
+        "partial_consumption",
+        "unmodeled_generic_range_bounds"
+      ]
+    },
+    {
+      "target": "alloc::collections::BTreeSet::intersection",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Although set intersection is expressible, current vstd has no public Intersection iterator view connecting the returned iterator's ascending future outputs to the operand set views.",
+      "risks": [
+        "missing_intersection_iterator_model",
+        "ordered_output_unmodeled"
+      ]
+    }
+  ]
+}

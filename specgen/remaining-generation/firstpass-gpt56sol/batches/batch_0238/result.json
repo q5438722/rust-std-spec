@@ -1,0 +1,133 @@
+{
+  "batch": 238,
+  "group": "runtime_or_hidden_state",
+  "duration_ms": 137781,
+  "targets": [
+    "std::sync::LockResult::unwrap_or_default",
+    "std::sync::LockResult::unwrap_or_else",
+    "std::sync::LockResult::unwrap_unchecked",
+    "std::sync::Mutex::clear_poison",
+    "std::sync::Mutex::get_mut",
+    "std::sync::Mutex::into_inner"
+  ],
+  "candidates": [
+    {
+      "target": "std::sync::LockResult::unwrap_or_default",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T: core::default::Default, E>[ Result::<T, E>::unwrap_or_default ](\n    result: Result<T, E>,\n) -> (res: T)\n    ensures\n        result is Ok ==> res == result->Ok_0,\n        result is Err ==> T::default.ensures((), res),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> res == result->Ok_0",
+        "result is Err ==> T::default.ensures((), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::result::Result;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "Despite the LockResult path, metadata resolves this to Result<T, E>; the source only matches public Ok/Err variants, and vstd can relate the Err branch to Default's call contract.",
+      "risks": [
+        "The specification applies to all Result<T, E> instances.",
+        "The Err case is only as informative as T::default's registered contract."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::unwrap_or_else",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E, F: FnOnce(E) -> T>[ Result::<T, E>::unwrap_or_else ](\n    result: Result<T, E>,\n    op: F,\n) -> (res: T)\n    requires\n        result is Err ==> op.requires((result->Err_0,)),\n    ensures\n        result is Ok ==> res == result->Ok_0,\n        result is Err ==> op.ensures((result->Err_0,), res),\n;",
+      "requires": [
+        "result is Err ==> op.requires((result->Err_0,))"
+      ],
+      "ensures": [
+        "result is Ok ==> res == result->Ok_0",
+        "result is Err ==> op.ensures((result->Err_0,), res)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::result::Result;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The resolved Result implementation branches solely on public variants; existing FnOnce requires/ensures vocabulary precisely models invoking op only for Err.",
+      "risks": [
+        "The specification applies to all Result<T, E> instances.",
+        "The Err result is only as precise as the supplied closure contract."
+      ]
+    },
+    {
+      "target": "std::sync::LockResult::unwrap_unchecked",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T, E>[ Result::<T, E>::unwrap_unchecked ](\n    result: Result<T, E>,\n) -> (res: T)\n    requires\n        result is Ok,\n    ensures\n        res == result->Ok_0,\n;",
+      "requires": [
+        "result is Ok"
+      ],
+      "ensures": [
+        "res == result->Ok_0"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "use core::result::Result;",
+        "use vstd::prelude::*;"
+      ],
+      "useful": true,
+      "rationale": "The source's safety condition is exactly that the public Result value is Ok, after which the returned value is its Ok payload.",
+      "risks": [
+        "Violating the precondition corresponds to undefined behavior.",
+        "The specification applies to all Result<T, E> instances."
+      ]
+    },
+    {
+      "target": "std::sync::Mutex::clear_poison",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source mutates a private poison flag through shared access; vstd has no public Mutex poison-state model, and the unit result exposes no useful relation.",
+      "risks": [
+        "hidden concurrency state",
+        "missing poison-state abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Mutex::get_mut",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Relating the returned mutable reference to the mutex requires models for both private contents and poison state; neither is available in current vstd vocabulary.",
+      "risks": [
+        "unsupported mutable-reference result",
+        "hidden poison state",
+        "missing Mutex contents abstraction"
+      ]
+    },
+    {
+      "target": "std::sync::Mutex::into_inner",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The result contains private mutex data and its Ok/Err variant depends on hidden poison state; vstd lacks a pre-consumption Mutex contents or poison view.",
+      "risks": [
+        "hidden poison state",
+        "missing Mutex contents abstraction"
+      ]
+    }
+  ]
+}

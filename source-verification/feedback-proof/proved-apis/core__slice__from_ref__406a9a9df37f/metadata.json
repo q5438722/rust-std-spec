@@ -1,0 +1,108 @@
+{
+  "id": "core__slice__from_ref__406a9a9df37f",
+  "api_path": "core::slice::from_ref",
+  "raw_target": "core::slice::from_ref::<T>",
+  "contract_source_file": "specgen/no_feedback",
+  "contract_source_line": 0,
+  "rust_declaration": {
+    "attrs": [
+      {
+        "other": "#[attr = Stability {stability: Stability {level: Stable {since: Version(RustcVersion { major: 1, minor: 28, patch: 0 })},\nfeature: \"from_ref\"}}]"
+      },
+      {
+        "other": "#[attr = RustcConstStability {stability: PartialConstStability {level: Stable {since: Version(RustcVersion { major: 1, minor: 63, patch: 0 })},\nfeature: \"const_slice_from_ref_shared\", promotable: false}}]"
+      },
+      {
+        "other": "#[attr = RustcDiagnosticItem(\"slice_from_ref\")]"
+      },
+      {
+        "must_use": {
+          "reason": null
+        }
+      }
+    ],
+    "declaration_id": "core:31613",
+    "deprecation": null,
+    "generics": {
+      "params": [
+        {
+          "kind": {
+            "type": {
+              "bounds": [],
+              "default": null,
+              "is_synthetic": false
+            }
+          },
+          "name": "T"
+        }
+      ],
+      "where_predicates": []
+    },
+    "header": {
+      "abi": "Rust",
+      "is_async": false,
+      "is_const": true,
+      "is_unsafe": false
+    },
+    "name": "from_ref",
+    "observability": {
+      "has_modeled_output": true,
+      "mutable_inputs": [],
+      "return_is_raw_pointer": false,
+      "return_is_reference": true,
+      "return_is_unit": false,
+      "return_reference_is_mutable": false
+    },
+    "owner": null,
+    "signature": {
+      "inputs": [
+        [
+          "s",
+          {
+            "borrowed_ref": {
+              "is_mutable": false,
+              "lifetime": null,
+              "type": {
+                "generic": "T"
+              }
+            }
+          }
+        ]
+      ],
+      "is_c_variadic": false,
+      "output": {
+        "borrowed_ref": {
+          "is_mutable": false,
+          "lifetime": null,
+          "type": {
+            "slice": {
+              "generic": "T"
+            }
+          }
+        }
+      }
+    },
+    "source_context": "   158: ///       them from other data. You can obtain a pointer that is usable as `data`\n   159: ///       for zero-length slices using [`NonNull::dangling()`].\n   160: ///\n   161: /// * `data` must point to `len` consecutive properly initialized values of type `T`.\n   162: ///\n   163: /// * The memory referenced by the returned slice must not be accessed through any other pointer\n   164: ///   (not derived from the return value) for the duration of lifetime `'a`.\n   165: ///   Both read and write accesses are forbidden.\n   166: ///\n   167: /// * The total size `len * size_of::<T>()` of the slice must be no larger than `isize::MAX`,\n   168: ///   and adding that size to `data` must not \"wrap around\" the address space.\n   169: ///   See the safety documentation of [`pointer::offset`].\n   170: ///\n   171: /// [valid]: ptr#safety\n   172: /// [`NonNull::dangling()`]: ptr::NonNull::dangling\n   173: #[inline]\n   174: #[stable(feature = \"rust1\", since = \"1.0.0\")]\n   175: #[rustc_const_stable(feature = \"const_slice_from_raw_parts_mut\", since = \"1.83.0\")]\n   176: #[must_use]\n   177: #[rustc_diagnostic_item = \"slice_from_raw_parts_mut\"]\n   178: #[track_caller]\n   179: pub const unsafe fn from_raw_parts_mut<'a, T>(data: *mut T, len: usize) -> &'a mut [T] {\n   180:     // SAFETY: the caller must uphold the safety contract for `from_raw_parts_mut`.\n   181:     unsafe {\n   182:         ub_checks::assert_unsafe_precondition!(\n   183:             check_language_ub,\n   184:             \"slice::from_raw_parts_mut requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`\",\n   185:             (\n   186:                 data: *mut () = data as *mut (),\n   187:                 size: usize = size_of::<T>(),\n   188:                 align: usize = align_of::<T>(),\n   189:                 len: usize = len,\n   190:             ) =>\n   191:             ub_checks::maybe_is_aligned_and_not_null(data, align, false)\n   192:                 && ub_checks::is_valid_allocation_size(size, len)\n   193:         );\n   194:         &mut *ptr::slice_from_raw_parts_mut(data, len)\n   195:     }\n   196: }\n   197: \n   198: /// Converts a reference to T into a slice of length 1 (without copying).\n   199: #[stable(feature = \"from_ref\", since = \"1.28.0\")]\n   200: #[rustc_const_stable(feature = \"const_slice_from_ref_shared\", since = \"1.63.0\")]\n   201: #[rustc_diagnostic_item = \"slice_from_ref\"]\n   202: #[must_use]\n   203: pub const fn from_ref<T>(s: &T) -> &[T] {\n   204:     array::from_ref(s)\n   205: }\n   206: \n   207: /// Converts a reference to T into a slice of length 1 (without copying).\n   208: #[stable(feature = \"from_ref\", since = \"1.28.0\")]\n   209: #[rustc_const_stable(feature = \"const_slice_from_ref\", since = \"1.83.0\")]\n   210: #[must_use]\n   211: pub const fn from_mut<T>(s: &mut T) -> &mut [T] {\n   212:     array::from_mut(s)\n   213: }\n   214: \n   215: /// Forms a slice from a pointer range.\n   216: ///\n   217: /// This function is useful for interacting with foreign interfaces which\n   218: /// use two pointers to refer to a range of elements in memory, as is\n   219: /// common in C++.\n   220: ///\n   221: /// # Safety\n   222: ///\n   223: /// Behavior is undefined if any of the following conditions are violated:\n   224: ///\n   225: /// * The `start` pointer of the range must be a non-null, [valid] and properly aligned pointer\n   226: ///   to the first element of a slice.\n   227: ///\n   228: /// * The `end` pointer must be a [valid] and properly aligned pointer to *one past*\n   229: ///   the last element, such that the offset from the end to the start pointer is\n   230: ///   the length of the slice.\n   231: ///\n   232: /// * The entire memory range of this slice must be contained within a single allocation!\n   233: ///   Slices can never span across multiple allocations.\n   234: ///\n   235: /// * The range must contain `N` consecutive properly initialized values of type `T`.\n   236: ///\n   237: /// * The memory referenced by the returned slice must not be mutated for the duration\n   238: ///   of lifetime `'a`, except inside an `UnsafeCell`.\n   239: ///\n   240: /// * The total length of the range must be no larger than `isize::MAX`,\n   241: ///   and adding that size to `start` must not \"wrap around\" the address space.\n   242: ///   See the safety documentation of [`pointer::offset`].\n   243: ///\n   244: /// Note that a range created from [`slice::as_ptr_range`] fulfills these requirements.\n   245: ///\n   246: /// # Panics\n   247: ///\n   248: /// This function panics if `T` is a Zero-Sized Type (\u201cZST\u201d).",
+    "span": {
+      "begin": [
+        203,
+        1
+      ],
+      "end": [
+        205,
+        2
+      ],
+      "filename": "core/src/slice/raw.rs"
+    },
+    "stability": null,
+    "visibility": "public",
+    "source_text": "pub const fn from_ref<T>(s: &T) -> &[T] {\n    array::from_ref(s)\n}",
+    "has_body": true
+  },
+  "trust_level": "B",
+  "trusted_assumptions": [
+    "The smaller core::array::from_ref contract: its returned singleton array view equals seq![*s]."
+  ],
+  "rationale": "The exact one-call implementation verifies compositionally; Verus preserves the singleton view through the array-reference-to-slice-reference coercion.",
+  "run_target_dir": "source-verification/feedback-proof/runs/full-gpt56sol/targets/core__slice__from_ref__406a9a9df37f"
+}

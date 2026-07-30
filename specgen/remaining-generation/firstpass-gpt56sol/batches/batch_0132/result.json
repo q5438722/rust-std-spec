@@ -1,0 +1,139 @@
+{
+  "batch": 132,
+  "group": "needs_new_vstd_abstraction",
+  "duration_ms": 195118,
+  "targets": [
+    "core::ops::Bound::as_ref",
+    "core::ops::Bound::cloned",
+    "core::ops::ControlFlow::break_ok",
+    "core::ops::ControlFlow::break_value",
+    "core::ops::ControlFlow::continue_ok",
+    "core::ops::ControlFlow::continue_value"
+  ],
+  "candidates": [
+    {
+      "target": "core::ops::Bound::as_ref",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<T>[ Bound::<T>::as_ref ](\n    bound: &Bound<T>,\n) -> (result: Bound<&T>)\n    ensures\n        spec_bound(result) == spec_bound_ref(bound),\n;",
+      "requires": [],
+      "ensures": [
+        "spec_bound(result) == spec_bound_ref(bound)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::Bound",
+        "vstd::prelude::*",
+        "vstd::std_specs::range::{spec_bound, spec_bound_ref}"
+      ],
+      "useful": true,
+      "rationale": "Existing spec_bound_ref exposes each borrowed Bound payload, so the result variant and original field reference are related directly.",
+      "risks": [
+        "reference_identity_vs_view"
+      ]
+    },
+    {
+      "target": "core::ops::Bound::cloned",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: Clone>[ Bound::<&'a T>::cloned ](\n    bound: Bound<&'a T>,\n) -> (result: Bound<T>)\n    ensures\n        spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded,\n        spec_bound(bound) is Included ==> spec_bound(result) is Included\n            && cloned::<T>(*(spec_bound(bound)->Included_0), spec_bound(result)->Included_0),\n        spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded\n            && cloned::<T>(*(spec_bound(bound)->Excluded_0), spec_bound(result)->Excluded_0),\n;",
+      "requires": [],
+      "ensures": [
+        "spec_bound(bound) is Unbounded ==> spec_bound(result) is Unbounded",
+        "spec_bound(bound) is Included ==> spec_bound(result) is Included && cloned::<T>(*(spec_bound(bound)->Included_0), spec_bound(result)->Included_0)",
+        "spec_bound(bound) is Excluded ==> spec_bound(result) is Excluded && cloned::<T>(*(spec_bound(bound)->Excluded_0), spec_bound(result)->Excluded_0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::Bound",
+        "vstd::prelude::*",
+        "vstd::std_specs::range::spec_bound"
+      ],
+      "useful": true,
+      "rationale": "spec_bound exposes variant payloads and vstd::cloned supplies the existing relational model for arbitrary Clone implementations.",
+      "risks": [
+        "Clone is relational and may unwind; the contract describes normal returns."
+      ]
+    },
+    {
+      "target": "core::ops::ControlFlow::break_ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::break_ok ](\n    flow: ControlFlow<B, C>,\n) -> (result: Result<B, C>)\n    ensures\n        result == match flow {\n            ControlFlow::Continue(c) => Err(c),\n            ControlFlow::Break(b) => Ok(b),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result == match flow { ControlFlow::Continue(c) => Err(c), ControlFlow::Break(b) => Ok(b) }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "ControlFlow variants are exposed by vstd's external type specification, allowing the source's exact Result conversion.",
+      "risks": []
+    },
+    {
+      "target": "core::ops::ControlFlow::break_value",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::break_value ](\n    flow: ControlFlow<B, C>,\n) -> (result: Option<B>)\n    ensures\n        result == match flow {\n            ControlFlow::Continue(_) => None,\n            ControlFlow::Break(b) => Some(b),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result == match flow { ControlFlow::Continue(_) => None, ControlFlow::Break(b) => Some(b) }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The public ControlFlow and Option variant models express the source's exact branch-to-option conversion.",
+      "risks": [
+        "Dropping a Continue payload may unwind; the postcondition applies to normal returns."
+      ]
+    },
+    {
+      "target": "core::ops::ControlFlow::continue_ok",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::continue_ok ](\n    flow: ControlFlow<B, C>,\n) -> (result: Result<C, B>)\n    ensures\n        result == match flow {\n            ControlFlow::Continue(c) => Ok(c),\n            ControlFlow::Break(b) => Err(b),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result == match flow { ControlFlow::Continue(c) => Ok(c), ControlFlow::Break(b) => Err(b) }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "core::result::Result",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "Existing enum models directly express the source's variant-preserving conversion into Result<C, B>.",
+      "risks": []
+    },
+    {
+      "target": "core::ops::ControlFlow::continue_value",
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<B, C>[ ControlFlow::<B, C>::continue_value ](\n    flow: ControlFlow<B, C>,\n) -> (result: Option<C>)\n    ensures\n        result == match flow {\n            ControlFlow::Continue(c) => Some(c),\n            ControlFlow::Break(_) => None,\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "result == match flow { ControlFlow::Continue(c) => Some(c), ControlFlow::Break(_) => None }"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "core::ops::ControlFlow",
+        "core::option::Option",
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The public ControlFlow and Option variant models express the source's exact continue-payload extraction.",
+      "risks": [
+        "Dropping a Break payload may unwind; the postcondition applies to normal returns."
+      ]
+    }
+  ]
+}

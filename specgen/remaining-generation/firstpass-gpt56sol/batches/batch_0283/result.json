@@ -1,0 +1,129 @@
+{
+  "batch": 283,
+  "group": "trait_contract_integration",
+  "duration_ms": 350223,
+  "targets": [
+    "core::fmt::Write::write_fmt",
+    "core::fmt::Write::write_str",
+    "core::future::Future::poll",
+    "core::future::IntoFuture::into_future",
+    "core::iter::DoubleEndedIterator::nth_back",
+    "core::iter::DoubleEndedIterator::rfind"
+  ],
+  "candidates": [
+    {
+      "target": "core::fmt::Write::write_fmt",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Arguments and the writer's formatting effect have no public logical model in current vstd; the Result alone gives no useful state relation.",
+      "risks": [
+        "unmodeled formatting arguments",
+        "implementation-defined writer mutation"
+      ]
+    },
+    {
+      "target": "core::fmt::Write::write_str",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Write implementations expose no common logical view of their mutable state, so successful or failed writes cannot be related usefully to self.",
+      "risks": [
+        "unmodeled formatting effect",
+        "implementation-specific failure effects"
+      ]
+    },
+    {
+      "target": "core::future::Future::poll",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Current vstd lacks an abstraction connecting pinned future state, Poll results, and Context/Waker effects; the source also leaves polling after completion unconstrained.",
+      "risks": [
+        "unmodeled pinned state",
+        "unmodeled wakeup effects",
+        "post-completion behavior is unconstrained"
+      ]
+    },
+    {
+      "target": "core::future::IntoFuture::into_future",
+      "decision": "skip",
+      "contract_form": "external_trait_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The source guarantees only the associated-type relationship already enforced by Rust typing; arbitrary implementations have no universal value-level relation expressible in vstd.",
+      "risks": [
+        "missing future value abstraction",
+        "implementation-defined conversion"
+      ]
+    },
+    {
+      "target": "core::iter::DoubleEndedIterator::nth_back",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn nth_back(&mut self, n: usize) -> (ret: Option<<Self as core::iter::Iterator>::Item>)\n    default_ensures\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) == <Self as IteratorSpec>::obeys_prophetic_iter_laws(old(self)),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) ==> <Self as IteratorSpec>::will_return_none(final(self)) == <Self as IteratorSpec>::will_return_none(old(self)),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) ==> (<Self as IteratorSpec>::decrease(old(self)) is Some <==> <Self as IteratorSpec>::decrease(final(self)) is Some),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) ==> ({\n            let old_remaining = <Self as IteratorSpec>::remaining(old(self));\n            let final_remaining = <Self as IteratorSpec>::remaining(final(self));\n            if (n as int) < old_remaining.len() {\n                &&& ret == Some(old_remaining[old_remaining.len() - n as int - 1])\n                &&& final_remaining == old_remaining.subrange(0, old_remaining.len() - n as int - 1)\n            } else {\n                &&& ret == None\n                &&& final_remaining.len() == 0\n                &&& <Self as IteratorSpec>::will_return_none(final(self))\n            }\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec::obeys_prophetic_iter_laws is preserved",
+        "will_return_none and availability of the decrease metric are preserved for conforming iterators",
+        "when n is in range, ret is the nth item from the back and final(self).remaining() is the preceding prefix",
+        "when n is out of range, ret is None and the remaining sequence is empty"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The supplied default implementation skips n tail elements and calls next_back; vstd's existing prophetic remaining sequence expresses this exactly.",
+      "risks": [
+        "usable only under obeys_prophetic_iter_laws",
+        "default_ensures does not constrain overriding implementations"
+      ]
+    },
+    {
+      "target": "core::iter::DoubleEndedIterator::rfind",
+      "decision": "add_spec",
+      "contract_form": "external_trait_specification",
+      "contract_code": "fn rfind<P>(&mut self, predicate: P) -> (ret: Option<<Self as core::iter::Iterator>::Item>)\n    where\n        Self: Sized,\n        P: FnMut(&<Self as core::iter::Iterator>::Item) -> bool\n    default_ensures\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) == <Self as IteratorSpec>::obeys_prophetic_iter_laws(old(self)),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) ==> <Self as IteratorSpec>::will_return_none(final(self)) == <Self as IteratorSpec>::will_return_none(old(self)),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) ==> (<Self as IteratorSpec>::decrease(old(self)) is Some <==> <Self as IteratorSpec>::decrease(final(self)) is Some),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) ==> <Self as IteratorSpec>::remaining(final(self)).is_prefix_of(<Self as IteratorSpec>::remaining(old(self))),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) && ret.is_none() ==> ({\n            let old_remaining = <Self as IteratorSpec>::remaining(old(self));\n            &&& <Self as IteratorSpec>::remaining(final(self)).len() == 0\n            &&& forall |i| 0 <= i < old_remaining.len() ==> predicate.ensures((#[trigger] &old_remaining[i],), ret.is_some())\n        }),\n        <Self as IteratorSpec>::obeys_prophetic_iter_laws(final(self)) && ret.is_some() ==> ({\n            let old_remaining = <Self as IteratorSpec>::remaining(old(self));\n            let idx = <Self as IteratorSpec>::remaining(final(self)).len();\n            &&& 0 <= idx < old_remaining.len()\n            &&& old_remaining[idx] == ret.unwrap()\n            &&& predicate.ensures((&ret.unwrap(),), ret.is_some())\n            &&& forall |i| idx < i < old_remaining.len() ==> predicate.ensures((#[trigger] &old_remaining[i],), ret.is_none())\n        }),\n;",
+      "requires": [],
+      "ensures": [
+        "IteratorSpec consistency properties are preserved",
+        "final(self).remaining() is a prefix of old(self).remaining()",
+        "None consumes the sequence and records no predicate match",
+        "Some returns the last matching element and records that every later element did not match"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*",
+        "vstd::std_specs::iter::IteratorSpec"
+      ],
+      "useful": true,
+      "rationale": "The source reverse-folds until the first predicate match; IteratorSpec::remaining and the existing FnMut ensures vocabulary model the retained prefix, result, and inspected suffix.",
+      "risks": [
+        "usable only under obeys_prophetic_iter_laws",
+        "default_ensures does not constrain rfind overrides",
+        "relies on the predicate's FnMut specification"
+      ]
+    }
+  ]
+}

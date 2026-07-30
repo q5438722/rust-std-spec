@@ -1,0 +1,111 @@
+{
+  "candidates": [
+    {
+      "target": "core::sync::atomic::AtomicIsize::update",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The operation mutates atomic state through shared access and may invoke the FnMut closure repeatedly under interference. Current public vstd vocabulary provides no atomic-state abstraction for a sound pre/post relation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "closure_invocation_count_under_interference",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::as_ptr",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The returned raw pointer identifies the atomic's hidden storage, but no public vstd view relates AtomicPtr to that storage. A useful identity or aliasing contract would require an unavailable abstraction.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_storage_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::compare_and_swap",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Its result and conditional write depend on hidden atomic state at the linearization point. Current vstd vocabulary cannot express that state transition or the required pointer-address comparison.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::compare_exchange",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Success, failure, returned prior value, and the conditional write all depend on hidden atomic state at one linearization point. No current public vstd abstraction captures this transition or pointer-address comparison.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "ABA_problem",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::compare_exchange_weak",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "Besides depending on hidden atomic state and pointer-address comparison, this operation may fail spuriously. Existing public vstd vocabulary cannot express a useful sound state-transition contract.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "spurious_failure",
+        "ABA_problem",
+        "missing_atomic_state_abstraction"
+      ]
+    },
+    {
+      "target": "core::sync::atomic::AtomicPtr::fetch_and",
+      "decision": "skip",
+      "contract_form": "assume_specification",
+      "contract_code": "",
+      "requires": [],
+      "ensures": [],
+      "feature_gates": [],
+      "imports": [],
+      "useful": false,
+      "rationale": "The method returns the prior hidden atomic pointer and atomically changes its address while preserving provenance. Current vstd vocabulary lacks both an atomic-state model and a suitable public provenance-aware pointer-address relation.",
+      "risks": [
+        "concurrency_or_hidden_state",
+        "raw_pointer_equality",
+        "pointer_provenance",
+        "missing_atomic_state_abstraction"
+      ]
+    }
+  ]
+}
+
