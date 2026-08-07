@@ -1,0 +1,655 @@
+target,transition,prior_category,fresh_category,prior_status,fresh_status,prior_rounds,fresh_rounds,prior_initial_decision,fresh_initial_decision,prior_final_decision,fresh_final_decision,prior_contract_form,fresh_contract_form,prior_typecheck_passed,fresh_typecheck_passed,prior_det_status,fresh_det_status,prior_r0_z3,fresh_r0_z3,prior_classification,fresh_classification,prior_raw_det_reward,fresh_raw_det_reward,prior_guarded_reward,fresh_guarded_reward,prior_semantic_guarded_reward,fresh_semantic_guarded_reward,prior_issues,fresh_issues,prior_semantic_gate_issues,fresh_semantic_gate_issues,prior_semantic_review_issues,fresh_semantic_review_issues,prior_requires,fresh_requires,prior_ensures,fresh_ensures,prior_rationale,fresh_rationale,prior_requires_source_fidelity_classification,fresh_requires_source_fidelity_classification,prior_requires_source_fidelity_rationale,fresh_requires_source_fidelity_rationale,prior_requires_source_reference,fresh_requires_source_reference,prior_requires_source_excerpt,fresh_requires_source_excerpt,prior_contract_code,fresh_contract_code
+alloc::collections::BTreeMap::get_mut,skip->add_spec,data_structure,data_structure,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,obeys_cmp::<Key>(),,"{
+            let old_map = old(m)@;
+            let selected_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &selected_key)
+            &&& result is Some == contains_borrowed_key(old_map, k)
+            &&& match result {
+                Some(v) => {
+                    &&& *v == old_map[selected_key]
+                    &&& *final(v) == *v
+                    &&& final(m)@ == old_map
+                },
+                None => {
+                    &&& !contains_borrowed_key(old_map, k)
+                    &&& final(m)@ == old_map
+                },
+            }
+        }","The result is an optional mutable reference aliasing the value selected through Borrow-based ordered lookup. A useful contract must connect mutations through that reference to the corresponding final map entry, which is unsupported.","Rust 1.96 documents BTreeMap::get_mut as returning a mutable reference to the value for the borrowed key, requires borrowed-form ordering to match the key ordering, and implements the lookup by search_tree(key) with Found(handle) returning handle.into_val_mut(). The contract chooses the stored key selected by the borrowed-key model, returns the old value through that mutable reference, and records that the lookup itself does not mutate the map.",,source_justified,,"alloc/src/collections/btree/map.rs:1006 documents that get_mut returns a mutable reference to the value for a borrowed key, requires borrowed-key ordering to match the owned key ordering, and implements the lookup with `search_tree(key)` / `Found(handle) => Some(handle.into_val_mut())`; `obeys_cmp` is the vstd law connecting that source ordering behavior to the semantic map view.",,alloc/src/collections/btree/map.rs:1006,,"981:         K: Borrow<Q> + Ord,
+982:         Q: Ord,
+987:     /// Returns a mutable reference to the value corresponding to the key.
+1006:     pub fn get_mut<Q: ?Sized>(&mut self, key: &Q) -> Option<&mut V>
+1008:         K: Borrow<Q> + Ord,
+1009:         Q: Ord,
+1012:         match root_node.search_tree(key) {
+1013:             Found(handle) => Some(handle.into_val_mut()),
+1014:             GoDown(_) => None,",,"pub assume_specification<
+    'a,
+    Key: core::borrow::Borrow<Q> + core::cmp::Ord,
+    Value,
+    A: core::alloc::Allocator + core::clone::Clone,
+    Q: core::cmp::Ord + ?Sized,
+>[ alloc::collections::BTreeMap::<Key, Value, A>::get_mut::<Q> ](
+    m: &'a mut alloc::collections::BTreeMap<Key, Value, A>,
+    k: &Q,
+) -> (result: core::option::Option<&'a mut Value>)
+    requires
+        obeys_cmp::<Key>(),
+    ensures
+        {
+            let old_map = old(m)@;
+            let selected_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &selected_key)
+            &&& result is Some == contains_borrowed_key(old_map, k)
+            &&& match result {
+                Some(v) => {
+                    &&& *v == old_map[selected_key]
+                    &&& *final(v) == *v
+                    &&& final(m)@ == old_map
+                },
+                None => {
+                    &&& !contains_borrowed_key(old_map, k)
+                    &&& final(m)@ == old_map
+                },
+            }
+        },
+;"
+alloc::collections::LinkedList::back_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"result is Some == (old(list)@.len() != 0); result is None == (old(list)@.len() == 0); result matches Some(value) ==> {
+            &&& *value == old(list)@.last()
+            &&& *final(value) == *value
+            &&& final(list)@ == old(list)@
+        }; result is None ==> final(list)@ == old(list)@",The returned optional mutable reference directly aliases the tail element. Current vstd lacks a supported way to connect mutations through that result to the final LinkedList sequence.,"Rust 1.96 implements LinkedList::back_mut as `self.tail.as_mut().map(|node| &mut node.as_mut().element)`, so it returns Some exactly for nonempty lists and projects the old tail element. The contract models only the observable sequence value of that returned mutable reference and preserves both the returned value and the list view at function return, without pointer or private-node identity claims.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, A: Allocator>[ LinkedList::<T, A>::back_mut ](
+    list: &mut LinkedList<T, A>,
+) -> (result: Option<&mut T>)
+    ensures
+        result is Some == (old(list)@.len() != 0),
+        result is None == (old(list)@.len() == 0),
+        result matches Some(value) ==> {
+            &&& *value == old(list)@.last()
+            &&& *final(value) == *value
+            &&& final(list)@ == old(list)@
+        },
+        result is None ==> final(list)@ == old(list)@,
+;"
+alloc::collections::VecDeque::binary_search,skip->add_spec,data_structure,data_structure,,,1,3,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:needs_new_vstd_abstraction,,,,,,,"obeys_cmp::<T>(); forall|i: int, j: int| 0 <= i < j < v@.len() ==>
+            v@[i].cmp_spec(&v@[j]) != Ordering::Greater; forall|i: int, j: int|
+            0 <= i < v@.len() && 0 <= j < v@.len()
+            && v@[i].cmp_spec(x) == Ordering::Equal
+            && v@[j].cmp_spec(x) == Ordering::Equal ==> i == j",,"match result {
+            Ok(i) => {
+                &&& i < v@.len()
+                &&& v@[i as int].cmp_spec(x) == Ordering::Equal
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) < j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+            Err(i) => {
+                &&& i <= v@.len()
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) <= j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+        }",The result can only be characterized against the deque's ordered logical contents and the runtime Ord comparison. Current vstd lacks the VecDeque view needed to express found indices or insertion positions.,"For a sorted deque with lawful modeled comparison, binary_search returns the unique matching index or the unique insertion index. Requiring at most one element equal to the searched value removes the documented duplicate-match nondeterminism without requiring all deque elements to be distinct. Parenthesizing casts in chained comparisons makes the contract parse and typecheck in Verus.",,source_justified,,"alloc/src/collections/vec_deque/mod.rs:3201 shows `VecDeque::binary_search` has a `T: Ord` bound, delegates to `self.binary_search_by(|e| e.cmp(x))`, documents the sorted-input domain and insertion-index result, and documents that duplicate matches may return any matching index while unique matches have a uniquely determined position; `obeys_cmp` plus the sortedness and unique-match requires clauses and the Ok/Err partition postcondition are the vstd bridge that makes this source behavior deterministic.",,alloc/src/collections/vec_deque/mod.rs:3201,,"3156:     /// one of the matches could be returned. If the value is not found then
+3157:     /// [`Result::Err`] is returned, containing the index where a matching
+3158:     /// element could be inserted while maintaining sorted order.
+3169:     /// uniquely determined position; the second and third are not
+3193:     /// // If `num` is unique, `s.partition_point(|&x| x < num)` (with `<`) is equivalent to
+3201:     pub fn binary_search(&self, x: &T) -> Result<usize, usize>
+3203:         T: Ord,
+3205:         self.binary_search_by(|e| e.cmp(x))
+3213:     /// If the `VecDeque` is not sorted or if the comparator function does not
+3218:     /// index of the matching element. If there are multiple matches, then any
+3219:     /// one of the matches could be returned. If the value is not found then
+3220:     /// [`Result::Err`] is returned, containing the index where a matching
+3221:     /// element could be inserted while maintaining sorted order.
+3232:     /// uniquely determined position; the second and third are not",,"pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::binary_search ](
+    v: &VecDeque<T, A>,
+    x: &T,
+) -> (result: Result<usize, usize>)
+where
+    T: Ord,
+    requires
+        obeys_cmp::<T>(),
+        forall|i: int, j: int| 0 <= i < j < v@.len() ==>
+            v@[i].cmp_spec(&v@[j]) != Ordering::Greater,
+        forall|i: int, j: int|
+            0 <= i < v@.len() && 0 <= j < v@.len()
+            && v@[i].cmp_spec(x) == Ordering::Equal
+            && v@[j].cmp_spec(x) == Ordering::Equal ==> i == j,
+    ensures
+        match result {
+            Ok(i) => {
+                &&& i < v@.len()
+                &&& v@[i as int].cmp_spec(x) == Ordering::Equal
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) < j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+            Err(i) => {
+                &&& i <= v@.len()
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) <= j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+        },
+;"
+alloc::ffi::CString::from_vec_with_nul_unchecked,skip->add_spec,other,other,,,1,3,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:unsafe_or_representation_sensitive,,,,,,,c_string_bytes_with_nul_valid(bytes@),,result@ == bytes@.drop_last(),"The Vec safety predicate is expressible, but current vstd has no CString contents abstraction relating the consumed bytes to the opaque result.","Although the function is unsafe, its documented safety invariant is expressible exactly by the existing CString validity predicate. Under that invariant, the source stores the supplied bytes unchanged, while the existing modeled CString view exposes the payload without its required trailing nul; therefore result@ equals bytes@.drop_last().",,source_justified,,"alloc/src/ffi/c_str.rs:635 states the safety precondition that the input Vec has exactly one nul byte and it is the last element, then delegates to `_from_vec_with_nul_unchecked` which stores the vector as the CString backing slice; `c_string_bytes_with_nul_valid(bytes@)` and `result@ == bytes@.drop_last()` are exactly that safe deterministic CString view.",,alloc/src/ffi/c_str.rs:635,,"621:     /// The given [`Vec`] **must** have one nul byte as its last element.
+622:     /// This means it cannot be empty nor have any other nul byte anywhere else.
+635:     pub unsafe fn from_vec_with_nul_unchecked(v: Vec<u8>) -> Self {
+637:         unsafe { Self::_from_vec_with_nul_unchecked(v) }
+641:         Self { inner: v.into_boxed_slice() }",,"pub assume_specification[ alloc::ffi::CString::from_vec_with_nul_unchecked ](
+    bytes: alloc::vec::Vec<u8>,
+) -> (result: alloc::ffi::CString)
+    requires
+        c_string_bytes_with_nul_valid(bytes@),
+    ensures
+        result@ == bytes@.drop_last(),
+;"
+core::array::as_mut_slice,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,out@ == old(ar)@; final(out)@ == out@; final(out)@ == final(ar)@,The result is a mutable slice alias of the entire input array. Expressing its identity and mutation correspondence requires the unsupported mutable-reference-return model.,"Rust 1.96 documents [T; N]::as_mut_slice as returning a mutable slice over the entire array, equivalent to `&mut s[..]`, and the body returns `self`. The contract keeps exactly that whole-array view relation and final mutation correspondence.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T; N]>::as_mut_slice ](
+    ar: &mut [T; N],
+) -> (out: &mut [T])
+    ensures
+        out@ == old(ar)@,
+        final(out)@ == out@,
+        final(out)@ == final(ar)@,
+;"
+core::array::each_mut,skip->add_spec,data_structure,data_structure,,,1,1,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,forall|i: int| #![auto] 0 <= i < N ==> *out[i] == old(ar)@[i]; forall|i: int| #![auto] 0 <= i < N ==> *final(out[i]) == *out[i]; forall|i: int| #![auto] 0 <= i < N ==> *final(out[i]) == final(ar)@[i],"The result contains mutable references aliasing each element of self. Current vstd views cannot express their per-element identity and write-back behavior, and mutable-reference returns are unsupported.","Rust 1.96 constructs one mutable reference for each array element (`buf[i] = &raw mut self[i]`) and transmutes the initialized pointer array to `[&mut T; N]`. The contract records only observable per-index values: each returned reference initially dereferences to the corresponding pre-call array element, no mutation occurs during the call, and each final returned-reference value equals the corresponding `final(ar)@` element. It intentionally makes no pointer identity or provenance claim.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T; N]>::each_mut ](
+    ar: &mut [T; N],
+) -> (out: [&mut T; N])
+    ensures
+        forall|i: int| #![auto] 0 <= i < N ==> *out[i] == old(ar)@[i],
+        forall|i: int| #![auto] 0 <= i < N ==> *final(out[i]) == *out[i],
+        forall|i: int| #![auto] 0 <= i < N ==> *final(out[i]) == final(ar)@[i],
+;"
+core::array::from_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,out@[0] == *old(s); final(out)@ == out@; *final(s) == final(out)@[0],"The returned array reference aliases exactly the storage of s. Snapshot equality would not capture that identity or subsequent write-back, and mutable-reference returns are unsupported.","Rust 1.96 documents array::from_mut as converting `&mut T` to `&mut [T; 1]` without copying, and its body performs exactly the `(s as *mut T).cast::<[T; 1]>()` reinterpretation. The contract models only the observable singleton array view and the final mutation correspondence to the input reference.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T>[ core::array::from_mut::<T> ](
+    s: &mut T,
+) -> (out: &mut [T; 1])
+    ensures
+        out@[0] == *old(s),
+        final(out)@ == out@,
+        *final(s) == final(out)@[0],
+;"
+core::slice::as_chunks_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,N != 0,,"{
+            let chunks = choose|candidate: Seq<[T; N]>| {
+                &&& candidate.len() == old(slice)@.len() / (N as nat)
+                &&& forall|i: int| 0 <= i < candidate.len() ==>
+                    (#[trigger] candidate[i])@ == old(slice)@.subrange(
+                        i * (N as int),
+                        (i + 1) * (N as int),
+                    )
+            };
+            &&& ret.0@ == chunks
+            &&& ret.0@.len() == old(slice)@.len() / (N as nat)
+            &&& ret.1@ == old(slice)@.subrange(
+                ((old(slice)@.len() / (N as nat)) * (N as nat)) as int,
+                old(slice)@.len() as int,
+            )
+            &&& final(ret.0)@ == ret.0@
+            &&& final(ret.1)@ == ret.1@
+            &&& final(slice)@ == old(slice)@
+        }",The result contains two mutable views whose contents and later writeback must correspond to disjoint regions of self. Mutable-reference returns and that alias-preserving view relation are not expressible here.,"Rust 1.96 documents and asserts that the mutable safe chunk API panics for N == 0, then splits at len / N * N and casts the exact multiple-of-N prefix with as_chunks_unchecked_mut. The contract models the returned chunk/remainder views, preserves those returned mutable views at function return, and records the unchanged final input slice without pointer/provenance claims.",,source_justified,,"core/src/slice/mod.rs:1555 documents that this safe chunk partition panics when `N` is zero, immediately asserts `N != 0`, and then splits the slice before casting the exact multiple-of-N region with `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the `N != 0` requires clause is therefore exactly the source-backed normal-return domain.",,core/src/slice/mod.rs:1555,,"1519:     /// `let (chunks, remainder) = slice.as_chunks_mut()`, then:
+1520:     /// - `chunks.len()` equals `slice.len() / N`,
+1521:     /// - `remainder.len()` equals `slice.len() % N`, and
+1530:     /// Panics if `N` is zero.
+1555:     pub const fn as_chunks_mut<const N: usize>(&mut self) -> (&mut [[T; N]], &mut [T]) {
+1556:         assert!(N != 0, ""chunk size must be non-zero"");
+1557:         let len_rounded_down = self.len() / N * N;
+1560:         let (multiple_of_n, remainder) = unsafe { self.split_at_mut_unchecked(len_rounded_down) };
+1563:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1572:     /// `let (remainder, chunks) = slice.as_rchunks_mut()`, then:
+1573:     /// - `remainder.len()` equals `slice.len() % N`,
+1574:     /// - `chunks.len()` equals `slice.len() / N`, and
+1583:     /// Panics if `N` is zero.",,"pub assume_specification<T, const N: usize>[ <[T]>::as_chunks_mut::<N> ](
+    slice: &mut [T],
+) -> (ret: (&mut [[T; N]], &mut [T]))
+    requires
+        N != 0,
+    ensures
+        {
+            let chunks = choose|candidate: Seq<[T; N]>| {
+                &&& candidate.len() == old(slice)@.len() / (N as nat)
+                &&& forall|i: int| 0 <= i < candidate.len() ==>
+                    (#[trigger] candidate[i])@ == old(slice)@.subrange(
+                        i * (N as int),
+                        (i + 1) * (N as int),
+                    )
+            };
+            &&& ret.0@ == chunks
+            &&& ret.0@.len() == old(slice)@.len() / (N as nat)
+            &&& ret.1@ == old(slice)@.subrange(
+                ((old(slice)@.len() / (N as nat)) * (N as nat)) as int,
+                old(slice)@.len() as int,
+            )
+            &&& final(ret.0)@ == ret.0@
+            &&& final(ret.1)@ == ret.1@
+            &&& final(slice)@ == old(slice)@
+        },
+;"
+core::slice::as_mut_array,skip->add_spec,data_structure,data_structure,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (old(slice)@.len() == N); ret matches Some(out) ==> {
+            &&& out@ == old(slice)@
+            &&& final(out)@ == out@
+            &&& final(slice)@ == final(out)@
+        }; ret is None ==> final(slice)@ == old(slice)@","The Some/None length condition is expressible, but the Some payload is a mutable reference that must remain the same storage as self. Without a mutable view/writeback relation, the resulting contract would not be useful.","Rust 1.96 documents slice::as_mut_array as returning Some exactly when the slice length equals N, then reinterprets the same mutable storage as `[T; N]`. The contract models only that observable whole slice/array view, returned-view preservation, and unchanged None branch without pointer or provenance claims.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T]>::as_mut_array::<N> ](
+    slice: &mut [T],
+) -> (ret: Option<&mut [T; N]>)
+    ensures
+        ret is Some == (old(slice)@.len() == N),
+        ret matches Some(out) ==> {
+            &&& out@ == old(slice)@
+            &&& final(out)@ == out@
+            &&& final(slice)@ == final(out)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::as_rchunks_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,N != 0,,"ret.0@ == old(slice)@.subrange(
+            0,
+            (old(slice)@.len() % (N as nat)) as int,
+        ); ret.1@ == Seq::new(
+            old(slice)@.len() / (N as nat),
+            |i: int| choose|chunk: [T; N]|
+                chunk@ == old(slice)@.subrange(
+                    (old(slice)@.len() % (N as nat)) as int + i * (N as int),
+                    (old(slice)@.len() % (N as nat)) as int + (i + 1) * (N as int),
+                ),
+        ); forall|i: int| i >= 0 && ret.1@.len() > i ==>
+            (#[trigger] ret.1@[i])@ == old(slice)@.subrange(
+                (old(slice)@.len() % (N as nat)) as int + i * (N as int),
+                (old(slice)@.len() % (N as nat)) as int + (i + 1) * (N as int),
+            ); final(ret.0)@ == ret.0@; final(ret.1)@ == ret.1@; final(slice)@ == old(slice)@","The result contains disjoint mutable remainder and reverse-chunk views of self. Current vstd vocabulary cannot describe their storage identity, partitioning, and writeback behavior.","Rust 1.96 documents and asserts that the mutable reverse chunk API panics for N == 0, then splits off the len % N leading remainder and casts the exact multiple-of-N suffix with as_chunks_unchecked_mut. The contract models those deterministic returned views, preserves them at function return, and avoids reference-identity or provenance claims.",,source_justified,,"core/src/slice/mod.rs:1608 documents that this safe chunk partition panics when `N` is zero, immediately asserts `N != 0`, and then splits the slice before casting the exact multiple-of-N region with `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the `N != 0` requires clause is therefore exactly the source-backed normal-return domain.",,core/src/slice/mod.rs:1608,,"1563:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1572:     /// `let (remainder, chunks) = slice.as_rchunks_mut()`, then:
+1573:     /// - `remainder.len()` equals `slice.len() % N`,
+1574:     /// - `chunks.len()` equals `slice.len() / N`, and
+1583:     /// Panics if `N` is zero.
+1608:     pub const fn as_rchunks_mut<const N: usize>(&mut self) -> (&mut [T], &mut [[T; N]]) {
+1609:         assert!(N != 0, ""chunk size must be non-zero"");
+1611:         let (remainder, multiple_of_n) = self.split_at_mut(self.len() - len * N);
+1614:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1627:     /// Panics if `N` is zero.
+1650:         assert!(N != 0, ""window size must be non-zero"");",,"pub assume_specification<T, const N: usize>[ <[T]>::as_rchunks_mut::<N> ](
+    slice: &mut [T],
+) -> (ret: (&mut [T], &mut [[T; N]]))
+    requires
+        N != 0,
+    ensures
+        ret.0@ == old(slice)@.subrange(
+            0,
+            (old(slice)@.len() % (N as nat)) as int,
+        ),
+        ret.1@ == Seq::new(
+            old(slice)@.len() / (N as nat),
+            |i: int| choose|chunk: [T; N]|
+                chunk@ == old(slice)@.subrange(
+                    (old(slice)@.len() % (N as nat)) as int + i * (N as int),
+                    (old(slice)@.len() % (N as nat)) as int + (i + 1) * (N as int),
+                ),
+        ),
+        forall|i: int| i >= 0 && ret.1@.len() > i ==>
+            (#[trigger] ret.1@[i])@ == old(slice)@.subrange(
+                (old(slice)@.len() % (N as nat)) as int + i * (N as int),
+                (old(slice)@.len() % (N as nat)) as int + (i + 1) * (N as int),
+            ),
+        final(ret.0)@ == ret.0@,
+        final(ret.1)@ == ret.1@,
+        final(slice)@ == old(slice)@,
+;"
+core::slice::first_chunk_mut,skip->add_spec,data_structure,data_structure,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some(out) ==> {
+            &&& out@ == old(slice)@.subrange(0, N as int)
+            &&& final(out)@ == out@
+            &&& final(slice)@ == final(out)@ + old(slice)@.subrange(N as int, old(slice)@.len() as int)
+        }; ret is None ==> final(slice)@ == old(slice)@","The returned mutable array reference aliases the slice prefix. Current vstd cannot express that identity and its write-back behavior, and mutable-reference returns are unsupported.","Rust 1.96 documents first_chunk_mut as returning None when the slice is shorter than N and otherwise returning a mutable array reference to the first N items. The source casts the slice's mutable pointer after the length check, so the contract models the prefix view, returned-view preservation, and the untouched suffix.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T]>::first_chunk_mut::<N> ](
+    slice: &mut [T],
+) -> (ret: Option<&mut [T; N]>)
+    ensures
+        ret is Some == (N as int <= old(slice)@.len()),
+        ret matches Some(out) ==> {
+            &&& out@ == old(slice)@.subrange(0, N as int)
+            &&& final(out)@ == out@
+            &&& final(slice)@ == final(out)@ + old(slice)@.subrange(N as int, old(slice)@.len() as int)
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::from_mut,skip->add_spec,data_structure,data_structure,,,1,6,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,ret@ == seq![*old(s)]; final(ret)@ == ret@; final(ret)@ == seq![*final(s)]; *final(s) == *old(s),A useful contract must state that the one-element mutable slice is the same storage as the input reference and propagates mutations back. Current vstd cannot express this aliasing relation.,Rust 1.96 documents slice::from_mut as producing a length-one slice without copying and implements it by delegating directly to `array::from_mut(s)`. The contract models the singleton slice contents before and after mutation through the returned view.,,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T>[ core::slice::from_mut ](
+    s: &mut T,
+) -> (ret: &mut [T])
+    ensures
+        ret@ == seq![*old(s)],
+        final(ret)@ == ret@,
+        final(ret)@ == seq![*final(s)],
+        *final(s) == *old(s),
+;"
+core::slice::last_chunk_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some(out) ==> {
+            &&& out@ == old(slice)@.subrange(old(slice)@.len() - N as int, old(slice)@.len() as int)
+            &&& final(out)@ == out@
+            &&& final(slice)@ == old(slice)@.subrange(0, old(slice)@.len() - N as int) + final(out)@
+        }; ret is None ==> final(slice)@ == old(slice)@","Although the source selects the final N elements when N fits, current vocabulary cannot relate an Option-wrapped mutable array reference to that region and its eventual writeback into self.","Rust 1.96 documents last_chunk_mut as returning None when the slice is shorter than N and otherwise returning a mutable array reference to the last N items. The body computes the suffix index with checked_sub, splits at that index, and casts the last slice to `[T; N]`, so the contract models the unchanged prefix and returned suffix view without provenance claims.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T]>::last_chunk_mut::<N> ](
+    slice: &mut [T],
+) -> (ret: Option<&mut [T; N]>)
+    ensures
+        ret is Some == (N as int <= old(slice)@.len()),
+        ret matches Some(out) ==> {
+            &&& out@ == old(slice)@.subrange(old(slice)@.len() - N as int, old(slice)@.len() as int)
+            &&& final(out)@ == out@
+            &&& final(slice)@ == old(slice)@.subrange(0, old(slice)@.len() - N as int) + final(out)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::reverse,skip->add_spec,data_structure,data_structure,,,1,3,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,,,,,,,,,,final(slice)@ == old(slice)@.reverse(),"A useful contract must relate every final element to the corresponding reversed old element, but the exact mutable-slice receiver produces an unsized by-value `[T]` post-state that current vstd equality/view machinery cannot model here.","Rust 1.96 reverses the slice in place by splitting the front and back halves and swapping mirrored elements. The contract records only the observable final sequence view, avoiding pointer or provenance claims while preserving the operation's full semantics.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T>[ <[T]>::reverse ](slice: &mut [T])
+    ensures
+        final(slice)@ == old(slice)@.reverse(),
+;"
+core::slice::split_at_mut_checked,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (mid <= old(slice)@.len()); ret matches Some((left, right)) ==> {
+            &&& left@ == old(slice)@.subrange(0, mid as int)
+            &&& right@ == old(slice)@.subrange(mid as int, old(slice)@.len() as int)
+            &&& final(left)@ == left@
+            &&& final(right)@ == right@
+            &&& final(slice)@ == final(left)@ + final(right)@
+        }; ret is None ==> final(slice)@ == old(slice)@","The source returns two disjoint mutable subslices exactly when mid is in bounds, but current vocabulary cannot express their aliasing identity and eventual combined writeback through an Option-wrapped result.","Rust 1.96 returns Some exactly when `mid <= self.len()`, delegates that branch to `self.split_at_mut_unchecked(mid)`, and otherwise returns None. The contract reuses the accepted split_at_checked Option shape, the accepted mutable split post-state preservation, and the unchanged input state on the None branch.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T>[ <[T]>::split_at_mut_checked ](
+    slice: &mut [T],
+    mid: usize,
+) -> (ret: Option<(&mut [T], &mut [T])>)
+    ensures
+        ret is Some == (mid <= old(slice)@.len()),
+        ret matches Some((left, right)) ==> {
+            &&& left@ == old(slice)@.subrange(0, mid as int)
+            &&& right@ == old(slice)@.subrange(mid as int, old(slice)@.len() as int)
+            &&& final(left)@ == left@
+            &&& final(right)@ == right@
+            &&& final(slice)@ == final(left)@ + final(right)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::split_at_mut_unchecked,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,mid as int <= old(slice)@.len(),,"ret.0@ == old(slice)@.subrange(0, mid as int); ret.1@ == old(slice)@.subrange(mid as int, old(slice)@.len() as int); final(ret.0)@ == ret.0@; final(ret.1)@ == ret.1@; final(slice)@ == final(ret.0)@ + final(ret.1)@","The API returns two disjoint mutable subslices and requires mid <= self.len(). Mutable-reference returns are unsupported, and sequence views cannot express the returned references' disjoint identity and write-back relationship to self.","Rust 1.96 documents the unsafe precondition `0 <= mid <= self.len()`, checks `mid <= len`, then returns the prefix and suffix with `from_raw_parts_mut(ptr, mid)` and `from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid))`. The contract models those prefix/suffix slice views, preserves the returned sub-slice contents at function return, and exposes the final concatenated input state without specifying reference provenance.",,source_justified,,"core/src/slice/mod.rs:2095 states the unsafe precondition `0 <= mid <= self.len()`, checks `mid <= len`, and constructs the two mutable sub-slices with `from_raw_parts_mut(ptr, mid)` and `from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid))`; the requires clause, prefix/suffix view postconditions, returned sub-slice preservation at function return, and concatenated input post-state are exactly that source-backed normal-return shape.",,core/src/slice/mod.rs:2095,,"2052:             (mid: usize = mid, len: usize = len) => mid <= len,
+2055:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`
+2071:     /// `0 <= mid <= self.len()`.
+2095:     pub const unsafe fn split_at_mut_unchecked(&mut self, mid: usize) -> (&mut [T], &mut [T]) {
+2102:             (mid: usize = mid, len: usize = len) => mid <= len,
+2105:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`.
+2107:         // `[ptr; mid]` and `[mid; len]` are not overlapping, so returning a mutable reference
+2111:                 from_raw_parts_mut(ptr, mid),
+2112:                 from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid)),",,"pub assume_specification<T>[ <[T]>::split_at_mut_unchecked ](
+    slice: &mut [T],
+    mid: usize,
+) -> (ret: (&mut [T], &mut [T]))
+    requires
+        mid as int <= old(slice)@.len(),
+    ensures
+        ret.0@ == old(slice)@.subrange(0, mid as int),
+        ret.1@ == old(slice)@.subrange(mid as int, old(slice)@.len() as int),
+        final(ret.0)@ == ret.0@,
+        final(ret.1)@ == ret.1@,
+        final(slice)@ == final(ret.0)@ + final(ret.1)@,
+;"
+core::slice::split_first_chunk_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some((first, tail)) ==> {
+            &&& first@ == old(slice)@.subrange(0, N as int)
+            &&& tail@ == old(slice)@.subrange(N as int, old(slice)@.len() as int)
+            &&& final(first)@ == first@
+            &&& final(tail)@ == tail@
+            &&& final(slice)@ == final(first)@ + final(tail)@
+        }; ret is None ==> final(slice)@ == old(slice)@","The result condition depends on whether self.len() >= N and, on success, returns disjoint mutable references to the first array chunk and tail. Current vstd views cannot capture their aliasing and write-back behavior.","Rust 1.96 returns Some exactly when `split_at_mut_checked(N)` succeeds, casts the checked first slice to `[T; N]`, and returns the remaining tail. The contract models those returned mutable views by their old slice/array contents, preserves each returned view at function return, and relates the final input slice to the final first-chunk and tail views without claiming pointer identity.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T]>::split_first_chunk_mut::<N> ](
+    slice: &mut [T],
+) -> (ret: Option<(&mut [T; N], &mut [T])>)
+    ensures
+        ret is Some == (N as int <= old(slice)@.len()),
+        ret matches Some((first, tail)) ==> {
+            &&& first@ == old(slice)@.subrange(0, N as int)
+            &&& tail@ == old(slice)@.subrange(N as int, old(slice)@.len() as int)
+            &&& final(first)@ == first@
+            &&& final(tail)@ == tail@
+            &&& final(slice)@ == final(first)@ + final(tail)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::split_first_mut,skip->add_spec,data_structure,data_structure,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (old(slice)@.len() != 0); ret matches Some((first, tail)) ==> {
+            &&& *first == old(slice)@[0]
+            &&& tail@ == old(slice)@.subrange(1, old(slice)@.len() as int)
+            &&& *final(first) == *first
+            &&& final(tail)@ == tail@
+            &&& final(slice)@ == seq![*final(first)] + final(tail)@
+        }; ret is None ==> final(slice)@ == old(slice)@","On a nonempty slice this returns disjoint mutable references to the first element and tail. Mutable-reference results are unsupported, and their coordinated write-back into the original slice is not representable by sequence views alone.","Rust 1.96 pattern-matches `[first, tail @ ..]` and returns `Some((first, tail))` exactly for nonempty slices. The contract models the returned element by its dereferenced value, the returned tail by its semantic view, preserves both returned mutable views at function return, and reconstructs the final input slice from those views without pointer/provenance claims.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T>[ <[T]>::split_first_mut ](
+    slice: &mut [T],
+) -> (ret: Option<(&mut T, &mut [T])>)
+    ensures
+        ret is Some == (old(slice)@.len() != 0),
+        ret matches Some((first, tail)) ==> {
+            &&& *first == old(slice)@[0]
+            &&& tail@ == old(slice)@.subrange(1, old(slice)@.len() as int)
+            &&& *final(first) == *first
+            &&& final(tail)@ == tail@
+            &&& final(slice)@ == seq![*final(first)] + final(tail)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::split_last_chunk_mut,skip->add_spec,data_structure,data_structure,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some((init, last)) ==> {
+            &&& init@ == old(slice)@.subrange(0, old(slice)@.len() - N as int)
+            &&& last@ == old(slice)@.subrange(old(slice)@.len() - N as int, old(slice)@.len() as int)
+            &&& final(init)@ == init@
+            &&& final(last)@ == last@
+            &&& final(slice)@ == final(init)@ + final(last)@
+        }; ret is None ==> final(slice)@ == old(slice)@","The successful result consists of disjoint mutable references to the prefix and final N-element array. Existing public vstd vocabulary cannot model their reference identity, separation, and write-back to self.","Rust 1.96 returns None when `self.len().checked_sub(N)` fails; otherwise it splits at the checked index, returns the init slice and casts the last slice to `[T; N]`. The contract models that branch shape with old init/last views, preserves both returned views at function return, and reconstructs the final input slice from their final semantic views.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, const N: usize>[ <[T]>::split_last_chunk_mut::<N> ](
+    slice: &mut [T],
+) -> (ret: Option<(&mut [T], &mut [T; N])>)
+    ensures
+        ret is Some == (N as int <= old(slice)@.len()),
+        ret matches Some((init, last)) ==> {
+            &&& init@ == old(slice)@.subrange(0, old(slice)@.len() - N as int)
+            &&& last@ == old(slice)@.subrange(old(slice)@.len() - N as int, old(slice)@.len() as int)
+            &&& final(init)@ == init@
+            &&& final(last)@ == last@
+            &&& final(slice)@ == final(init)@ + final(last)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::split_last_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (old(slice)@.len() != 0); ret matches Some((last, init)) ==> {
+            &&& *last == old(slice)@[(old(slice)@.len() - 1) as int]
+            &&& init@ == old(slice)@.subrange(0, old(slice)@.len() - 1)
+            &&& *final(last) == *last
+            &&& final(init)@ == init@
+            &&& final(slice)@ == final(init)@ + seq![*final(last)]
+        }; ret is None ==> final(slice)@ == old(slice)@","On a nonempty slice this returns disjoint mutable references to the last element and preceding slice. Sequence equality would omit the essential alias separation and write-back semantics, while mutable-reference returns are unsupported.","Rust 1.96 pattern-matches `[init @ .., last]` and returns `Some((last, init))` exactly for nonempty slices. The contract models the returned element by its dereferenced value, the returned init slice by its semantic view, preserves both returned mutable views, and reconstructs the final input slice from those views.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T>[ <[T]>::split_last_mut ](
+    slice: &mut [T],
+) -> (ret: Option<(&mut T, &mut [T])>)
+    ensures
+        ret is Some == (old(slice)@.len() != 0),
+        ret matches Some((last, init)) ==> {
+            &&& *last == old(slice)@[(old(slice)@.len() - 1) as int]
+            &&& init@ == old(slice)@.subrange(0, old(slice)@.len() - 1)
+            &&& *final(last) == *last
+            &&& final(init)@ == init@
+            &&& final(slice)@ == final(init)@ + seq![*final(last)]
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::split_off_first,skip->add_spec,data_structure,data_structure,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,,,,,,,,,,"ret.is_none() == (old(slice)@.len() == 0); ret.is_some() ==> *ret.unwrap() == old(slice)@[0]; old(slice)@.len() == 0 ==> final(slice)@ == old(slice)@; old(slice)@.len() > 0 ==> final(slice)@ == old(slice)@.subrange(1, old(slice)@.len() as int)","The exact `&mut &'a [T]` input requires modeling both the returned first element and the updated slice view. Current Verus lowering materializes the inner shared slice as unsized `[T]` when tracking the mutable reference, so no valid contract can express the observable post-state.",The implementation returns None without modifying an empty slice; otherwise it returns the first element and replaces the input slice reference with the remaining suffix. The contract compares element and slice semantic views rather than reference identity.,,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, 'a>[ <[T]>::split_off_first ](
+    slice: &mut &'a [T],
+) -> (ret: Option<&'a T>)
+    ensures
+        ret.is_none() == (old(slice)@.len() == 0),
+        ret.is_some() ==> *ret.unwrap() == old(slice)@[0],
+        old(slice)@.len() == 0 ==> final(slice)@ == old(slice)@,
+        old(slice)@.len() > 0 ==> final(slice)@ == old(slice)@.subrange(1, old(slice)@.len() as int),
+;"
+core::slice::split_off_first_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (old(slice)@.len() != 0); ret matches Some(first) ==> {
+            &&& *first == old(slice)@[0]
+            &&& *final(first) == *first
+            &&& final(slice)@ == old(slice)@.subrange(1, old(slice)@.len() as int)
+            &&& old(slice)@ == seq![*final(first)] + final(slice)@
+        }; ret is None ==> final(slice)@ == old(slice)@","This updates the outer mutable slice reference to its tail while returning a mutable reference to the removed first element with the original lifetime. Current vstd lacks an abstraction for this reference reassignment, alias separation, and shared write-back provenance.","Rust 1.96 replaces `self` with an empty mutable slice, delegates to `split_first_mut`, assigns `*self = rem`, and returns `Some(first)` only for nonempty slices. The contract models the returned element by dereferenced value and reconstructs the final slice reference as the remaining tail, without pointer/provenance claims.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<'a, T>[ <[T]>::split_off_first_mut ](
+    slice: &mut &'a mut [T],
+) -> (ret: Option<&'a mut T>)
+    ensures
+        ret is Some == (old(slice)@.len() != 0),
+        ret matches Some(first) ==> {
+            &&& *first == old(slice)@[0]
+            &&& *final(first) == *first
+            &&& final(slice)@ == old(slice)@.subrange(1, old(slice)@.len() as int)
+            &&& old(slice)@ == seq![*final(first)] + final(slice)@
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::slice::split_off_last_mut,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some == (old(slice)@.len() != 0); ret matches Some(last) ==> {
+            &&& *last == old(slice)@[(old(slice)@.len() - 1) as int]
+            &&& *final(last) == *last
+            &&& final(slice)@ == old(slice)@.subrange(0, old(slice)@.len() - 1)
+            &&& old(slice)@ == final(slice)@ + seq![*final(last)]
+        }; ret is None ==> final(slice)@ == old(slice)@",Success both shortens `self` and returns an exclusive reference to the removed last element. Current modeling cannot express the required mutable-reference identity and disjointness.,"Rust 1.96 replaces `self` with an empty mutable slice, delegates to `split_last_mut`, assigns `*self = rem`, and returns `Some(last)` only for nonempty slices. The contract models the returned element by dereferenced value and reconstructs the final slice reference as the remaining init slice, without pointer/provenance claims.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<'a, T>[ <[T]>::split_off_last_mut ](
+    slice: &mut &'a mut [T],
+) -> (ret: Option<&'a mut T>)
+    ensures
+        ret is Some == (old(slice)@.len() != 0),
+        ret matches Some(last) ==> {
+            &&& *last == old(slice)@[(old(slice)@.len() - 1) as int]
+            &&& *final(last) == *last
+            &&& final(slice)@ == old(slice)@.subrange(0, old(slice)@.len() - 1)
+            &&& old(slice)@ == final(slice)@ + seq![*final(last)]
+        },
+        ret is None ==> final(slice)@ == old(slice)@,
+;"
+core::str::from_utf8,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:unsafe_or_representation_sensitive,,,,,,,,,valid_utf8(v@) ==> (result matches Ok(string) && string@ == decode_utf8(v@)); !valid_utf8(v@) ==> result is Err,"vstd can express UTF-8 validity and successful string bytes, but core::str::Utf8Error is unsupported. A contract therefore requires an additional external type specification not present in current vstd.","Promotes the saved round-01 source-backed contract for the inherent `str::from_utf8` declaration only. Rust 1.96 delegates the inherent constructor to `converts::from_utf8`, whose body returns `Ok` after `run_utf8_validation` succeeds and `Err(err)` otherwise; the contract specifies only the decoded string view and Result branch.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification[ str::from_utf8 ](
+    v: &[u8],
+) -> (result: Result<&str, core::str::Utf8Error>)
+    ensures
+        valid_utf8(v@) ==> (result matches Ok(string) && string@ == decode_utf8(v@)),
+        !valid_utf8(v@) ==> result is Err,
+;"
+core::str::from_utf8_mut,skip->add_spec,data_structure,data_structure,,,1,3,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,final(v)@ == old(v)@; valid_utf8(old(v)@) ==> (result matches Ok(string) && string@ == decode_utf8(old(v)@)); !valid_utf8(old(v)@) ==> result is Err,A useful contract must characterize UTF-8 validation and make an `Ok` result the same mutable storage reinterpreted as `str`. Current vocabulary lacks both the needed UTF-8/error model and mutable-reference identity relation.,"The contract typechecks and directly models the source behavior: conversion does not modify the bytes, succeeds exactly when the original byte sequence is valid UTF-8, and exposes the decoded semantic string on success. The determinism failure is caused by the checker passing the unsized [u8] post-state by value, not by this contract.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification[ core::str::from_utf8_mut ](
+    v: &mut [u8],
+) -> (result: Result<&mut str, core::str::Utf8Error>)
+    ensures
+        final(v)@ == old(v)@,
+        valid_utf8(old(v)@) ==> (result matches Ok(string) && string@ == decode_utf8(old(v)@)),
+        !valid_utf8(old(v)@) ==> result is Err,
+;"
+core::str::make_ascii_lowercase,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,,,,,,,,,,"final(s).spec_bytes().len() == old(s).spec_bytes().len(); forall|i: int| 0 <= i < old(s).spec_bytes().len() ==> #[trigger] final(s).spec_bytes()[i] as int
+            == if 0x41u8 <= old(s).spec_bytes()[i] && old(s).spec_bytes()[i] <= 0x5au8 {
+                old(s).spec_bytes()[i] as int + 32
+            } else {
+                old(s).spec_bytes()[i] as int
+            }","Its observable behavior is the mutated string contents, but the exact `&mut str` post-state is currently materialized as unsized by-value `str` and cannot typecheck.","The implementation mutates the string bytes in place, mapping ASCII 'A' through 'Z' to 'a' through 'z' while preserving all other bytes and the byte length. Casting byte observations to int matches the existing vstd ASCII-folding spec style and avoids Verus branch type mismatches without changing the modeled byte relation.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification[ str::make_ascii_lowercase ](s: &mut str)
+    ensures
+        final(s).spec_bytes().len() == old(s).spec_bytes().len(),
+        forall|i: int| 0 <= i < old(s).spec_bytes().len() ==> #[trigger] final(s).spec_bytes()[i] as int
+            == if 0x41u8 <= old(s).spec_bytes()[i] && old(s).spec_bytes()[i] <= 0x5au8 {
+                old(s).spec_bytes()[i] as int + 32
+            } else {
+                old(s).spec_bytes()[i] as int
+            },
+;"
+core::str::make_ascii_uppercase,skip->add_spec,data_structure,data_structure,,,1,3,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,,,,,,,,,,"final(s).spec_bytes().len() == old(s).spec_bytes().len(); forall|i: int| 0 <= i < old(s).spec_bytes().len() ==>
+            final(s).spec_bytes()[i] as int == if 0x61u8 <= old(s).spec_bytes()[i] && old(s).spec_bytes()[i] <= 0x7au8 {
+                old(s).spec_bytes()[i] as int - 0x20int
+            } else {
+                old(s).spec_bytes()[i] as int
+            }","Its observable behavior is the mutated string contents, but the exact `&mut str` post-state is currently materialized as unsized by-value `str` and cannot typecheck.","The method mutates the UTF-8 bytes in place by uppercasing ASCII lowercase letters. Casting byte values to int makes both conditional branches type-compatible while still specifying the complete deterministic post-state: length is preserved, bytes in a-z are reduced by 0x20, and every other byte is unchanged.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification[ str::make_ascii_uppercase ](s: &mut str)
+    ensures
+        final(s).spec_bytes().len() == old(s).spec_bytes().len(),
+        forall|i: int| 0 <= i < old(s).spec_bytes().len() ==>
+            final(s).spec_bytes()[i] as int == if 0x61u8 <= old(s).spec_bytes()[i] && old(s).spec_bytes()[i] <= 0x7au8 {
+                old(s).spec_bytes()[i] as int - 0x20int
+            } else {
+                old(s).spec_bytes()[i] as int
+            },
+;"
+core::str::split_at_mut_checked,skip->add_spec,data_structure,data_structure,,,1,5,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,,,"ret is Some <==> is_char_boundary(old(s).spec_bytes(), mid as int); ret matches Some((left, right)) ==> {
+            &&& left.spec_bytes() =~= old(s).spec_bytes().subrange(0, mid as int)
+            &&& right.spec_bytes() =~= old(s).spec_bytes().subrange(mid as int, old(s).spec_bytes().len() as int)
+            &&& final(left).spec_bytes() == left.spec_bytes()
+            &&& final(right).spec_bytes() == right.spec_bytes()
+            &&& final(s).spec_bytes() == final(left).spec_bytes() + final(right).spec_bytes()
+        }; ret is None ==> final(s).spec_bytes() == old(s).spec_bytes()",The optional result contains two disjoint mutable aliases into self; their separation and writeback behavior cannot be captured by a useful supported contract.,"Rust 1.96 returns Some exactly when `self.is_char_boundary(mid)`, delegates that branch to `self.split_at_mut_unchecked(mid)`, and otherwise returns None. The contract models the returned mutable str slices extensionally by their byte subranges and preserves the input byte state on the None branch without claiming pointer provenance.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification[ str::split_at_mut_checked ](
+    s: &mut str,
+    mid: usize,
+) -> (ret: Option<(&mut str, &mut str)>)
+    ensures
+        ret is Some <==> is_char_boundary(old(s).spec_bytes(), mid as int),
+        ret matches Some((left, right)) ==> {
+            &&& left.spec_bytes() =~= old(s).spec_bytes().subrange(0, mid as int)
+            &&& right.spec_bytes() =~= old(s).spec_bytes().subrange(mid as int, old(s).spec_bytes().len() as int)
+            &&& final(left).spec_bytes() == left.spec_bytes()
+            &&& final(right).spec_bytes() == right.spec_bytes()
+            &&& final(s).spec_bytes() == final(left).spec_bytes() + final(right).spec_bytes()
+        },
+        ret is None ==> final(s).spec_bytes() == old(s).spec_bytes(),
+;"
+std::collections::HashMap::get_mut,skip->add_spec,other,other,,,1,4,skip,add_spec,skip,add_spec,assume_specification,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:determinism_checker_unsupported,,,,,,,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),,"{
+            let old_map = old(m)@;
+            let selected_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &selected_key)
+            &&& result is Some == contains_borrowed_key(old_map, k)
+            &&& match result {
+                Some(v) => {
+                    &&& *v == old_map[selected_key]
+                    &&& *final(v) == *v
+                    &&& final(m)@ == old_map
+                },
+                None => {
+                    &&& !contains_borrowed_key(old_map, k)
+                    &&& final(m)@ == old_map
+                },
+            }
+        }",Usefulness requires specifying that the returned mutable reference aliases the queried entry and that writes through it update the map; this identity/write-back relation is unsupported.,"Rust 1.96 documents HashMap::get_mut as returning a mutable reference to the value for the borrowed key, requires borrowed-form Hash/Eq compatibility, and delegates to self.base.get_mut(k). The contract chooses the stored key selected by the borrowed-key model, returns the old value through the mutable reference when present, and records that the lookup itself does not mutate the map.",,source_justified,,"std/src/collections/hash/map.rs:1297 documents that get_mut returns a mutable reference to the value for a borrowed key, requires borrowed-key Hash/Eq compatibility, and delegates to `self.base.get_mut(k)`; `obeys_key_model` and `builds_valid_hashers` are the vstd laws connecting that source HashMap behavior to the borrowed-key semantic view.",,std/src/collections/hash/map.rs:1297,,"1252:     /// The key may be any borrowed form of the map's key type, but
+1253:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1271:         K: Borrow<Q>,
+1272:         Q: Hash + Eq,
+1277:     /// Returns a mutable reference to the value corresponding to the key.
+1279:     /// The key may be any borrowed form of the map's key type, but
+1280:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1297:     pub fn get_mut<Q: ?Sized>(&mut self, k: &Q) -> Option<&mut V>
+1299:         K: Borrow<Q>,
+1300:         Q: Hash + Eq,
+1302:         self.base.get_mut(k)",,"pub assume_specification<
+    'a,
+    Key: std::borrow::Borrow<Q> + std::hash::Hash + Eq,
+    Value,
+    S: std::hash::BuildHasher,
+    A: std::alloc::Allocator,
+    Q: std::hash::Hash + Eq + ?Sized,
+>[ std::collections::HashMap::<Key, Value, S, A>::get_mut::<Q> ](
+    m: &'a mut std::collections::HashMap<Key, Value, S, A>,
+    k: &Q,
+) -> (result: Option<&'a mut Value>)
+    requires
+        obeys_key_model::<Key>(),
+        builds_valid_hashers::<S>(),
+    ensures
+        {
+            let old_map = old(m)@;
+            let selected_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &selected_key)
+            &&& result is Some == contains_borrowed_key(old_map, k)
+            &&& match result {
+                Some(v) => {
+                    &&& *v == old_map[selected_key]
+                    &&& *final(v) == *v
+                    &&& final(m)@ == old_map
+                },
+                None => {
+                    &&& !contains_borrowed_key(old_map, k)
+                    &&& final(m)@ == old_map
+                },
+            }
+        },
+;"
+std::thread::Result::flatten,skip->add_spec,io_os_runtime,io_os_runtime,,,2,3,add_spec,add_spec,skip,add_spec,none,assume_specification,False,True,,ok,,unsat,,complete,0,1,0,1,0,1,classification:runtime_or_hidden_state;determinism_unsupported_contract_form,,,,,,,,,"match value {
+            core::result::Result::Ok(inner) => result == inner,
+            core::result::Result::Err(e) => result == core::result::Result::Err(e),
+        }","std::thread::Result is a type alias, and this method resolves to the generic core::result::Result::flatten declaration. The proposed specification would therefore cover the canonical generic API rather than a distinct thread-specific API, creating a redundant and mis-scoped contract.","The contract exactly follows the implementation: an Ok returns its inner Result unchanged, while an Err is preserved. Result is a modeled output, so payload-preserving equality gives a source-justified deterministic specification rather than merely constraining the output variant. The canonical core Result method is targeted because std::thread::Result is a type alias.",,not_applicable,,No requires clause is present.,,,,,,"pub assume_specification<T, E>[core::result::Result::<core::result::Result<T, E>, E>::flatten](
+    value: core::result::Result<core::result::Result<T, E>, E>,
+) -> (result: core::result::Result<T, E>)
+    ensures
+        match value {
+            core::result::Result::Ok(inner) => result == inner,
+            core::result::Result::Err(e) => result == core::result::Result::Err(e),
+        },
+;"

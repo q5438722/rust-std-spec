@@ -1,0 +1,188 @@
+{
+  "target": "alloc::collections::VecDeque::binary_search_by",
+  "category": "data_structure",
+  "history": [
+    {
+      "round": 0,
+      "llm_ms": 32539,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, A: Allocator, F>[ VecDeque::<T, A>::binary_search_by ](\n    v: &'a VecDeque<T, A>,\n    f: F,\n) -> (result: Result<usize, usize>)\nwhere\n    F: FnMut(&'a T) -> Ordering,\n    ensures\n        result is Ok ==> (result->Ok_0) as nat < v@.len(),\n        result is Err ==> (result->Err_0) as nat <= v@.len(),\n;",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> (result->Ok_0) as nat < v@.len()",
+          "result is Err ==> (result->Err_0) as nat <= v@.len()"
+        ],
+        "feature_gates": [
+          "allocator_api"
+        ],
+        "imports": [
+          "alloc::alloc::Allocator",
+          "alloc::collections::VecDeque",
+          "core::cmp::Ordering"
+        ],
+        "useful": true,
+        "rationale": "The implementation returns a matching element index for Ok and an insertion position for Err; both are bounded by the deque length, with Ok necessarily strictly in bounds. These bounds are useful without modeling comparator calls.",
+        "risks": [
+          "The contract does not characterize matching, insertion ordering, comparator side effects, or behavior on inconsistent comparators."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 1,
+          "duration_ms": 31,
+          "stderr_tail": "error: expected `,`\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/alloc__collections__VecDeque__binary_search_by/round_00/contract_harness.rs:17:51\n   |\n17 |         result is Ok ==> (result->Ok_0) as nat < v@.len(),\n   |                                                   ^\n\nerror: aborting due to 1 previous error\n\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "classification:higher_order_contract",
+        "contract_typecheck_failed"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false
+    },
+    {
+      "round": 1,
+      "llm_ms": 16593,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, A: Allocator, F>[ VecDeque::<T, A>::binary_search_by ](\n    v: &'a VecDeque<T, A>,\n    f: F,\n) -> (result: Result<usize, usize>)\nwhere\n    F: FnMut(&'a T) -> Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < v@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= v@.len(),\n;",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> ((result->Ok_0) as nat) < v@.len()",
+          "result is Err ==> ((result->Err_0) as nat) <= v@.len()"
+        ],
+        "feature_gates": [
+          "allocator_api"
+        ],
+        "imports": [
+          "alloc::alloc::Allocator",
+          "alloc::collections::VecDeque",
+          "core::cmp::Ordering"
+        ],
+        "useful": true,
+        "rationale": "The implementation always returns either a matching index strictly within the deque or an insertion index at most equal to its length. These observable bounds hold independently of comparator consistency and avoid requiring a higher-order model of comparator calls.",
+        "risks": [
+          "The contract does not characterize matching, insertion ordering, comparator side effects, or behavior on inconsistent comparators."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 0,
+          "duration_ms": 538,
+          "stderr_tail": ""
+        },
+        "determinism": {
+          "status": "verus_error",
+          "requires": [],
+          "ensures": [
+            "result is Ok ==> ((result->Ok_0) as nat) < v@.len()",
+            "result is Err ==> ((result->Err_0) as nat) <= v@.len()"
+          ],
+          "equal_fn_trivial": false,
+          "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/alloc__collections__VecDeque__binary_search_by/round_01/det_harness.rs:17:14\n   |\n16 | proof fn det___rust_std_candidate<'a, T, A: Allocator, F>(g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng:...\n   |                                   -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n17 |     where F: FnMut(&'a T) -> Ordering\n   |              ^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n16 | proof fn det___rust_std_candidate<'a, T: 'a, A: Allocator, F>(g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, v: &VecDeque<T, A>, f: F, r1: Result<usize, usize>, r2: Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "checker_status:verus_error",
+        "classification:higher_order_contract"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false
+    },
+    {
+      "round": 2,
+      "llm_ms": 13803,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T: 'a, A: Allocator, F>[ VecDeque::<T, A>::binary_search_by ](\n    v: &'a VecDeque<T, A>,\n    f: F,\n) -> (result: Result<usize, usize>)\nwhere\n    F: FnMut(&'a T) -> Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < v@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= v@.len(),\n;",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> ((result->Ok_0) as nat) < v@.len()",
+          "result is Err ==> ((result->Err_0) as nat) <= v@.len()"
+        ],
+        "feature_gates": [
+          "allocator_api"
+        ],
+        "imports": [
+          "alloc::alloc::Allocator",
+          "alloc::collections::VecDeque",
+          "core::cmp::Ordering"
+        ],
+        "useful": true,
+        "rationale": "The explicit T: 'a bound makes the higher-order comparator bound well-formed. The implementation always returns either a matching index strictly within the deque or an insertion index no greater than its length, independently of comparator consistency.",
+        "risks": [
+          "The contract does not characterize matching, insertion ordering, comparator side effects, or behavior on inconsistent comparators."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 1,
+          "duration_ms": 396,
+          "stderr_tail": "error: assume_specification trait bound mismatch\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/alloc__collections__VecDeque__binary_search_by/recheck_final/contract_harness.rs:10:1\n   |\n10 | / pub assume_specification<'a, T: 'a, A: Allocator, F>[ VecDeque::<T, A>::binary_search_by ](\n11 | |     v: &'a VecDeque<T, A>,\n12 | |     f: F,\n13 | | ) -> (result: Result<usize, usize>)\n14 | | where\n15 | |     F: FnMut(&'a T) -> Ordering,\n   | |________________________________^\n   |\n   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds\n           but the proxy function's trait bounds are:\n             - T: std::marker::Sized\n             - A: std::marker::Sized\n             - F: std::marker::Sized\n             - T: 'a\n             - A: std::alloc::Allocator\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == std::cmp::Ordering\n           the external function's trait bounds are:\n             - T: std::marker::Sized\n             - A: std::marker::Sized\n             - A: std::alloc::Allocator\n             - F: std::marker::Sized\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == std::cmp::Ordering\n\nerror: aborting due to 1 previous error\n\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "classification:higher_order_contract",
+        "contract_typecheck_failed"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false,
+      "rechecked": true,
+      "recheck_source_target": "alloc::collections::VecDeque::binary_search_by"
+    }
+  ],
+  "final": {
+    "round": 2,
+    "llm_ms": 13803,
+    "candidate": {
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T: 'a, A: Allocator, F>[ VecDeque::<T, A>::binary_search_by ](\n    v: &'a VecDeque<T, A>,\n    f: F,\n) -> (result: Result<usize, usize>)\nwhere\n    F: FnMut(&'a T) -> Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < v@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= v@.len(),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ((result->Ok_0) as nat) < v@.len()",
+        "result is Err ==> ((result->Err_0) as nat) <= v@.len()"
+      ],
+      "feature_gates": [
+        "allocator_api"
+      ],
+      "imports": [
+        "alloc::alloc::Allocator",
+        "alloc::collections::VecDeque",
+        "core::cmp::Ordering"
+      ],
+      "useful": true,
+      "rationale": "The explicit T: 'a bound makes the higher-order comparator bound well-formed. The implementation always returns either a matching index strictly within the deque or an insertion index no greater than its length, independently of comparator consistency.",
+      "risks": [
+        "The contract does not characterize matching, insertion ordering, comparator side effects, or behavior on inconsistent comparators."
+      ]
+    },
+    "checker": {
+      "typecheck": {
+        "returncode": 1,
+        "duration_ms": 396,
+        "stderr_tail": "error: assume_specification trait bound mismatch\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/alloc__collections__VecDeque__binary_search_by/recheck_final/contract_harness.rs:10:1\n   |\n10 | / pub assume_specification<'a, T: 'a, A: Allocator, F>[ VecDeque::<T, A>::binary_search_by ](\n11 | |     v: &'a VecDeque<T, A>,\n12 | |     f: F,\n13 | | ) -> (result: Result<usize, usize>)\n14 | | where\n15 | |     F: FnMut(&'a T) -> Ordering,\n   | |________________________________^\n   |\n   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds\n           but the proxy function's trait bounds are:\n             - T: std::marker::Sized\n             - A: std::marker::Sized\n             - F: std::marker::Sized\n             - T: 'a\n             - A: std::alloc::Allocator\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == std::cmp::Ordering\n           the external function's trait bounds are:\n             - T: std::marker::Sized\n             - A: std::marker::Sized\n             - A: std::alloc::Allocator\n             - F: std::marker::Sized\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == std::cmp::Ordering\n\nerror: aborting due to 1 previous error\n\n"
+      }
+    },
+    "anti_vacuity_issues": [
+      "classification:higher_order_contract",
+      "contract_typecheck_failed"
+    ],
+    "raw_det_reward": 0,
+    "guarded_reward": 0,
+    "soundness_status": "unverified_trusted_external_contract",
+    "apply_upstream": false,
+    "rechecked": true,
+    "recheck_source_target": "alloc::collections::VecDeque::binary_search_by"
+  }
+}

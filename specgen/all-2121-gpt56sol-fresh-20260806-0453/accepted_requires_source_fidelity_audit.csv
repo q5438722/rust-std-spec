@@ -1,0 +1,581 @@
+target,requires,classification,rationale,source_reference,source_excerpt,accepted_after_source_gate
+alloc::collections::BTreeMap::append,obeys_cmp::<Key>(),source_justified,"alloc/src/collections/btree/map.rs:1236 shows this BTree operation is implemented over the ordered map/set structure with an `Ord` bound, and its documented effect is exactly the map/set algebra modeled by the candidate; the Verus `obeys_cmp` law is the bridge from Rust `Ord` execution to the semantic collection view.",alloc/src/collections/btree/map.rs:1236,"1232:     /// assert_eq!(a[&4], ""e"");
+1233:     /// assert_eq!(a[&5], ""f"");
+1234:     /// ```
+1235:     #[stable(feature = ""btree_append"", since = ""1.11.0"")]
+1236:     pub fn append(&mut self, other: &mut Self)
+1237:     where
+1238:         K: Ord,
+1239:         A: Clone,
+1240:     {
+1241:         let other = mem::replace(other, Self::new_in((*self.alloc).clone()));
+1242:         self.merge(other, |_key, _self_val, other_val| other_val);
+1243:     }
+1244: ",True
+alloc::collections::BTreeMap::first_key_value,vstd::laws_cmp::obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/map.rs:810 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/map.rs:810,"806:     /// map.insert(2, ""a"");
+807:     /// assert_eq!(map.first_key_value(), Some((&1, &""b"")));
+808:     /// ```
+809:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+810:     pub fn first_key_value(&self) -> Option<(&K, &V)>
+811:     where
+812:         K: Ord,
+813:     {
+814:         let root_node = self.root.as_ref()?.reborrow();
+815:         root_node.first_leaf_edge().right_kv().ok().map(Handle::into_kv)
+816:     }
+817: 
+818:     /// Returns the first entry in the map for in-place manipulation.",True
+alloc::collections::BTreeMap::get_mut,obeys_cmp::<Key>(),source_justified,"alloc/src/collections/btree/map.rs:1006 documents that get_mut returns a mutable reference to the value for a borrowed key, requires borrowed-key ordering to match the owned key ordering, and implements the lookup with `search_tree(key)` / `Found(handle) => Some(handle.into_val_mut())`; `obeys_cmp` is the vstd law connecting that source ordering behavior to the semantic map view.",alloc/src/collections/btree/map.rs:1006,"981:         K: Borrow<Q> + Ord,
+982:         Q: Ord,
+987:     /// Returns a mutable reference to the value corresponding to the key.
+1006:     pub fn get_mut<Q: ?Sized>(&mut self, key: &Q) -> Option<&mut V>
+1008:         K: Borrow<Q> + Ord,
+1009:         Q: Ord,
+1012:         match root_node.search_tree(key) {
+1013:             Found(handle) => Some(handle.into_val_mut()),
+1014:             GoDown(_) => None,",True
+alloc::collections::BTreeMap::last_key_value,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/map.rs:893 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/map.rs:893,"889:     /// map.insert(2, ""a"");
+890:     /// assert_eq!(map.last_key_value(), Some((&2, &""a"")));
+891:     /// ```
+892:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+893:     pub fn last_key_value(&self) -> Option<(&K, &V)>
+894:     where
+895:         K: Ord,
+896:     {
+897:         let root_node = self.root.as_ref()?.reborrow();
+898:         root_node.last_leaf_edge().left_kv().ok().map(Handle::into_kv)
+899:     }
+900: 
+901:     /// Returns the last entry in the map for in-place manipulation.",True
+alloc::collections::BTreeMap::pop_first,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/map.rs:872 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/map.rs:872,"868:     /// }
+869:     /// assert!(map.is_empty());
+870:     /// ```
+871:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+872:     pub fn pop_first(&mut self) -> Option<(K, V)>
+873:     where
+874:         K: Ord,
+875:     {
+876:         self.first_entry().map(|entry| entry.remove_entry())
+877:     }
+878: 
+879:     /// Returns the last key-value pair in the map.
+880:     /// The key in this pair is the maximum key in the map.",True
+alloc::collections::BTreeMap::pop_last,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/map.rs:955 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/map.rs:955,"951:     /// }
+952:     /// assert!(map.is_empty());
+953:     /// ```
+954:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+955:     pub fn pop_last(&mut self) -> Option<(K, V)>
+956:     where
+957:         K: Ord,
+958:     {
+959:         self.last_entry().map(|entry| entry.remove_entry())
+960:     }
+961: 
+962:     /// Returns `true` if the map contains a value for the specified key.
+963:     ///",True
+alloc::collections::BTreeSet::append,obeys_cmp::<Key>(),source_justified,"alloc/src/collections/btree/set.rs:1139 shows this BTree operation is implemented over the ordered map/set structure with an `Ord` bound, and its documented effect is exactly the map/set algebra modeled by the candidate; the Verus `obeys_cmp` law is the bridge from Rust `Ord` execution to the semantic collection view.",alloc/src/collections/btree/set.rs:1139,"1135:     /// assert!(a.contains(&4));
+1136:     /// assert!(a.contains(&5));
+1137:     /// ```
+1138:     #[stable(feature = ""btree_append"", since = ""1.11.0"")]
+1139:     pub fn append(&mut self, other: &mut Self)
+1140:     where
+1141:         T: Ord,
+1142:         A: Clone,
+1143:     {
+1144:         self.map.append(&mut other.map);
+1145:     }
+1146: 
+1147:     /// Splits the collection into two at the value. Returns a new collection",True
+alloc::collections::BTreeSet::first,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/set.rs:792 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:792,"788:     /// ```
+789:     #[must_use]
+790:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+791:     #[rustc_confusables(""front"")]
+792:     pub fn first(&self) -> Option<&T>
+793:     where
+794:         T: Ord,
+795:     {
+796:         self.map.first_key_value().map(|(k, _)| k)
+797:     }
+798: 
+799:     /// Returns a reference to the last element in the set, if any.
+800:     /// This element is always the maximum of all elements in the set.",True
+alloc::collections::BTreeSet::is_disjoint,obeys_cmp::<Key>(),source_justified,"alloc/src/collections/btree/set.rs:658 shows this BTree operation is implemented over the ordered map/set structure with an `Ord` bound, and its documented effect is exactly the map/set algebra modeled by the candidate; the Verus `obeys_cmp` law is the bridge from Rust `Ord` execution to the semantic collection view.",alloc/src/collections/btree/set.rs:658,"654:     /// assert_eq!(a.is_disjoint(&b), false);
+655:     /// ```
+656:     #[must_use]
+657:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+658:     pub fn is_disjoint(&self, other: &BTreeSet<T, A>) -> bool
+659:     where
+660:         T: Ord,
+661:     {
+662:         self.intersection(other).next().is_none()
+663:     }
+664: 
+665:     /// Returns `true` if the set is a subset of another,
+666:     /// i.e., `other` contains at least all the elements in `self`.",True
+alloc::collections::BTreeSet::is_subset,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/set.rs:684 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:684,"680:     /// assert_eq!(set.is_subset(&sup), false);
+681:     /// ```
+682:     #[must_use]
+683:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+684:     pub fn is_subset(&self, other: &BTreeSet<T, A>) -> bool
+685:     where
+686:         T: Ord,
+687:     {
+688:         // Same result as self.difference(other).next().is_none()
+689:         // but the code below is faster (hugely in some cases).
+690:         if self.len() > other.len() {
+691:             return false; // self has more elements than other
+692:         }",True
+alloc::collections::BTreeSet::is_superset,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/set.rs:765 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:765,"761:     /// assert_eq!(set.is_superset(&sub), true);
+762:     /// ```
+763:     #[must_use]
+764:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+765:     pub fn is_superset(&self, other: &BTreeSet<T, A>) -> bool
+766:     where
+767:         T: Ord,
+768:     {
+769:         other.is_subset(self)
+770:     }
+771: 
+772:     /// Returns a reference to the first element in the set, if any.
+773:     /// This element is always the minimum of all elements in the set.",True
+alloc::collections::BTreeSet::last,vstd::laws_cmp::obeys_cmp::<T>(),source_justified,alloc/src/collections/btree/set.rs:819 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:819,"815:     /// ```
+816:     #[must_use]
+817:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+818:     #[rustc_confusables(""back"")]
+819:     pub fn last(&self) -> Option<&T>
+820:     where
+821:         T: Ord,
+822:     {
+823:         self.map.last_key_value().map(|(k, _)| k)
+824:     }
+825: 
+826:     /// Removes the first element from the set and returns it, if any.
+827:     /// The first element is always the minimum element in the set.",True
+alloc::collections::BTreeSet::pop_first,obeys_cmp::<T>(),source_justified,alloc/src/collections/btree/set.rs:843 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:843,"839:     /// }
+840:     /// assert!(set.is_empty());
+841:     /// ```
+842:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+843:     pub fn pop_first(&mut self) -> Option<T>
+844:     where
+845:         T: Ord,
+846:     {
+847:         self.map.pop_first().map(|kv| kv.0)
+848:     }
+849: 
+850:     /// Removes the last element from the set and returns it, if any.
+851:     /// The last element is always the maximum element in the set.",True
+alloc::collections::BTreeSet::pop_last,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/set.rs:867 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:867,"863:     /// }
+864:     /// assert!(set.is_empty());
+865:     /// ```
+866:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+867:     pub fn pop_last(&mut self) -> Option<T>
+868:     where
+869:         T: Ord,
+870:     {
+871:         self.map.pop_last().map(|kv| kv.0)
+872:     }
+873: 
+874:     /// Adds a value to the set.
+875:     ///",True
+alloc::collections::BTreeSet::replace,obeys_cmp::<Key>(),source_justified,alloc/src/collections/btree/set.rs:924 shows the BTree operation's Rust source is ordered by the `Ord` comparator; the Verus `obeys_cmp` precondition is the vstd law connecting that source comparator to the semantic map/set view.,alloc/src/collections/btree/set.rs:924,"920:     /// assert_eq!(set.get(&[][..]).unwrap().capacity(), 10);
+921:     /// ```
+922:     #[stable(feature = ""set_recovery"", since = ""1.9.0"")]
+923:     #[rustc_confusables(""swap"")]
+924:     pub fn replace(&mut self, value: T) -> Option<T>
+925:     where
+926:         T: Ord,
+927:     {
+928:         self.map.replace(value)
+929:     }
+930: 
+931:     /// Inserts the given `value` into the set if it is not present, then
+932:     /// returns a reference to the value in the set.",True
+alloc::collections::VecDeque::binary_search,"obeys_cmp::<T>(); forall|i: int, j: int| 0 <= i < j < v@.len() ==>
+            v@[i].cmp_spec(&v@[j]) != Ordering::Greater; forall|i: int, j: int|
+            0 <= i < v@.len() && 0 <= j < v@.len()
+            && v@[i].cmp_spec(x) == Ordering::Equal
+            && v@[j].cmp_spec(x) == Ordering::Equal ==> i == j",source_justified,"alloc/src/collections/vec_deque/mod.rs:3201 shows `VecDeque::binary_search` has a `T: Ord` bound, delegates to `self.binary_search_by(|e| e.cmp(x))`, documents the sorted-input domain and insertion-index result, and documents that duplicate matches may return any matching index while unique matches have a uniquely determined position; `obeys_cmp` plus the sortedness and unique-match requires clauses and the Ok/Err partition postcondition are the vstd bridge that makes this source behavior deterministic.",alloc/src/collections/vec_deque/mod.rs:3201,"3156:     /// one of the matches could be returned. If the value is not found then
+3157:     /// [`Result::Err`] is returned, containing the index where a matching
+3158:     /// element could be inserted while maintaining sorted order.
+3169:     /// uniquely determined position; the second and third are not
+3193:     /// // If `num` is unique, `s.partition_point(|&x| x < num)` (with `<`) is equivalent to
+3201:     pub fn binary_search(&self, x: &T) -> Result<usize, usize>
+3203:         T: Ord,
+3205:         self.binary_search_by(|e| e.cmp(x))
+3213:     /// If the `VecDeque` is not sorted or if the comparator function does not
+3218:     /// index of the matching element. If there are multiple matches, then any
+3219:     /// one of the matches could be returned. If the value is not found then
+3220:     /// [`Result::Err`] is returned, containing the index where a matching
+3221:     /// element could be inserted while maintaining sorted order.
+3232:     /// uniquely determined position; the second and third are not",True
+alloc::ffi::CString::from_vec_with_nul_unchecked,c_string_bytes_with_nul_valid(bytes@),source_justified,"alloc/src/ffi/c_str.rs:635 states the safety precondition that the input Vec has exactly one nul byte and it is the last element, then delegates to `_from_vec_with_nul_unchecked` which stores the vector as the CString backing slice; `c_string_bytes_with_nul_valid(bytes@)` and `result@ == bytes@.drop_last()` are exactly that safe deterministic CString view.",alloc/src/ffi/c_str.rs:635,"621:     /// The given [`Vec`] **must** have one nul byte as its last element.
+622:     /// This means it cannot be empty nor have any other nul byte anywhere else.
+635:     pub unsafe fn from_vec_with_nul_unchecked(v: Vec<u8>) -> Self {
+637:         unsafe { Self::_from_vec_with_nul_unchecked(v) }
+641:         Self { inner: v.into_boxed_slice() }",True
+alloc::string::String::from_utf8_unchecked,exists|chars: vstd::prelude::Seq<char>| vstd::utf8::encode_utf8(chars) == bytes@,source_justified,alloc/src/string.rs:1018 states the safety precondition that the input bytes are valid UTF-8 and constructs `String { vec: bytes }`; the UTF-8 encoding existence requirement and `res@` character-view postcondition are exactly that deterministic observable String value.,alloc/src/string.rs:1018,"989:     /// Converts a vector of bytes to a `String` without checking that the
+990:     /// string contains valid UTF-8.
+998:     /// This function is unsafe because it does not check that the bytes passed
+999:     /// to it are valid UTF-8. If this constraint is violated, it may cause
+1001:     /// the standard library assumes that `String`s are valid UTF-8.
+1018:     pub unsafe fn from_utf8_unchecked(bytes: Vec<u8>) -> String {
+1019:         String { vec: bytes }
+1058:         // SAFETY: String contents are stipulated to be valid UTF-8, invalid contents are an error",True
+alloc::string::String::insert,"exists |i: int| 0 <= i <= old(s)@.len()
+            && encode_utf8(old(s)@.subrange(0, i)).len() == idx as nat",source_justified,alloc/src/string.rs:1731 shows the String source checks or indexes on UTF-8 character boundaries before returning normally; the requires clause encodes that documented non-panicking byte-index domain in vstd UTF-8 terms.,alloc/src/string.rs:1731,"1727:     #[inline]
+1728:     #[track_caller]
+1729:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1730:     #[rustc_confusables(""set"")]
+1731:     pub fn insert(&mut self, idx: usize, ch: char) {
+1732:         assert!(self.is_char_boundary(idx));
+1733: 
+1734:         let len = self.len();
+1735:         let ch_len = ch.len_utf8();
+1736:         self.reserve(ch_len);
+1737: 
+1738:         // SAFETY: Move the bytes starting from `idx` to their new location `ch_len`
+1739:         // bytes ahead. This is safe because sufficient capacity was reserved, and `idx`",True
+alloc::string::String::insert_str,"idx as nat <= vstd::utf8::encode_utf8(old(s)@).len(); vstd::utf8::valid_utf8(
+            vstd::utf8::encode_utf8(old(s)@).take(idx as int)
+        )",source_justified,alloc/src/string.rs:1788 shows the String source checks or indexes on UTF-8 character boundaries before returning normally; the requires clause encodes that documented non-panicking byte-index domain in vstd UTF-8 terms.,alloc/src/string.rs:1788,"1784:     #[inline]
+1785:     #[track_caller]
+1786:     #[stable(feature = ""insert_str"", since = ""1.16.0"")]
+1787:     #[rustc_diagnostic_item = ""string_insert_str""]
+1788:     pub fn insert_str(&mut self, idx: usize, string: &str) {
+1789:         assert!(self.is_char_boundary(idx));
+1790: 
+1791:         let len = self.len();
+1792:         let amt = string.len();
+1793:         self.reserve(amt);
+1794: 
+1795:         // SAFETY: Move the bytes starting from `idx` to their new location `amt` bytes
+1796:         // ahead. This is safe because sufficient capacity was just reserved, and `idx`",True
+alloc::string::String::remove,"exists |i: int| #![trigger encode_utf8(old(s)@.subrange(0, i))]
+            0 <= i < old(s)@.len()
+            && idx as nat == encode_utf8(old(s)@.subrange(0, i)).len()",source_justified,alloc/src/string.rs:1535 shows the String source checks or indexes on UTF-8 character boundaries before returning normally; the requires clause encodes that documented non-panicking byte-index domain in vstd UTF-8 terms.,alloc/src/string.rs:1535,"1531:     #[inline]
+1532:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1533:     #[track_caller]
+1534:     #[rustc_confusables(""delete"", ""take"")]
+1535:     pub fn remove(&mut self, idx: usize) -> char {
+1536:         let ch = match self[idx..].chars().next() {
+1537:             Some(ch) => ch,
+1538:             None => panic!(""cannot remove a char from the end of a string""),
+1539:         };
+1540: 
+1541:         let next = idx + ch.len_utf8();
+1542:         let len = self.len();
+1543:         unsafe {",True
+alloc::string::String::replace_range,"string_replace_range_valid(&range, encode_utf8(old(s)@))",source_justified,"alloc/src/string.rs:2080 normalizes `range` exactly once with `slice::range(range, ..self.len())`, documents the panic domain for invalid range order and non-character-boundary endpoints, then checks both byte endpoints before splicing replacement bytes; `string_replace_range_valid` is exactly that source-backed normal-return domain.",alloc/src/string.rs:2080,"2064:     /// Panics if the range has `start_bound > end_bound`, or, if the range is
+2065:     /// bounded on either end and does not lie on a [`char`] boundary.
+2080:     pub fn replace_range<R>(&mut self, range: R, replace_with: &str)
+2082:         R: RangeBounds<usize>,
+2084:         // We avoid #81138 (nondeterministic RangeBounds impls) because we only use `range` once, here.
+2085:         let checked_range = slice::range(range, ..self.len());
+2088:             self.is_char_boundary(checked_range.start),
+2092:             self.is_char_boundary(checked_range.end),
+2096:         unsafe { self.as_mut_vec() }.splice(checked_range, replace_with.bytes());",True
+alloc::string::String::split_off,"exists |i: int| 0 <= i <= old(s)@.len()
+            && vstd::utf8::encode_utf8(old(s)@.take(i)).len() == at as nat",source_justified,alloc/src/string.rs:1917 shows the String source checks or indexes on UTF-8 character boundaries before returning normally; the requires clause encodes that documented non-panicking byte-index domain in vstd UTF-8 terms.,alloc/src/string.rs:1917,"1913:     #[inline]
+1914:     #[track_caller]
+1915:     #[stable(feature = ""string_split_off"", since = ""1.16.0"")]
+1916:     #[must_use = ""use `.truncate()` if you don't need the other half""]
+1917:     pub fn split_off(&mut self, at: usize) -> String {
+1918:         assert!(self.is_char_boundary(at));
+1919:         let other = self.vec.split_off(at);
+1920:         unsafe { String::from_utf8_unchecked(other) }
+1921:     }
+1922: 
+1923:     /// Truncates this `String`, removing all contents.
+1924:     ///
+1925:     /// While this means the `String` will have a length of zero, it does not",True
+alloc::string::String::truncate,"new_len as nat >= encode_utf8(old(s)@).len()
+            || exists |i: int| 0 <= i <= old(s)@.len()
+                && encode_utf8(old(s)@.take(i)).len() == new_len as nat",source_justified,alloc/src/string.rs:1478 shows the String source checks or indexes on UTF-8 character boundaries before returning normally; the requires clause encodes that documented non-panicking byte-index domain in vstd UTF-8 terms.,alloc/src/string.rs:1478,"1474:     /// ```
+1475:     #[inline]
+1476:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1477:     #[track_caller]
+1478:     pub fn truncate(&mut self, new_len: usize) {
+1479:         if new_len <= self.len() {
+1480:             assert!(self.is_char_boundary(new_len));
+1481:             self.vec.truncate(new_len)
+1482:         }
+1483:     }
+1484: 
+1485:     /// Removes the last character from the string buffer and returns it.
+1486:     ///",True
+alloc::vec::Vec::dedup,vstd::laws_eq::obeys_eq::<T>(),source_justified,"alloc/src/vec/mod.rs:3704 shows `Vec::dedup` delegates to `dedup_by(|a, b| a == b)`; the vstd equality law connects that source `PartialEq` comparison to the sequence-view postcondition.",alloc/src/vec/mod.rs:3704,"3700:     /// assert_eq!(vec, [1, 2, 3, 2]);
+3701:     /// ```
+3702:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+3703:     #[inline]
+3704:     pub fn dedup(&mut self) {
+3705:         self.dedup_by(|a, b| a == b)
+3706:     }
+3707: }
+3708: 
+3709: ////////////////////////////////////////////////////////////////////////////////
+3710: // Internal methods and functions
+3711: ////////////////////////////////////////////////////////////////////////////////
+3712: ",True
+alloc::vec::Vec::into_flattened,vec@.len() * (N as nat) <= usize::MAX as nat,source_justified,alloc/src/vec/mod.rs:3633 shows the source computes the flattened length with checked multiplication and panics on length overflow; the requires clause restricts the contract to the normal-return domain.,alloc/src/vec/mod.rs:3633,"3629:     /// let mut flattened = vec.into_flattened();
+3630:     /// assert_eq!(flattened.pop(), Some(6));
+3631:     /// ```
+3632:     #[stable(feature = ""slice_flatten"", since = ""1.80.0"")]
+3633:     pub fn into_flattened(self) -> Vec<T, A> {
+3634:         let (ptr, len, cap, alloc) = self.into_raw_parts_with_alloc();
+3635:         let (new_len, new_cap) = if T::IS_ZST {
+3636:             (len.checked_mul(N).expect(""vec len overflow""), usize::MAX)
+3637:         } else {
+3638:             // SAFETY:
+3639:             // - `cap * N` cannot overflow because the allocation is already in
+3640:             // the address space.
+3641:             // - Each `[T; N]` has `N` valid elements, so there are `len * N`",True
+core::cmp::max,T::obeys_cmp_spec(),source_justified,"core/src/cmp.rs:1681 shows `T: Ord`, documents that equal comparisons return the second argument, and delegates the executable body to `v1.max(v2)`; `T::obeys_cmp_spec()` is the vstd law connecting that Rust ordering behavior to the modeled comparison relation.",core/src/cmp.rs:1681,"1644: /// Compares and returns the maximum of two values.
+1646: /// Returns the second argument if the comparison determines them to be equal.
+1648: /// Internally uses an alias to [`Ord::max`].
+1681: pub const fn max<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {
+1682:     v1.max(v2)
+1687: /// Returns the second argument if the comparison determines them to be equal.
+1722: /// Returns the second argument if the comparison determines them to be equal.",True
+core::cmp::min,T::obeys_cmp_spec(),source_justified,"core/src/cmp.rs:1574 shows `T: Ord`, documents that equal comparisons return the first argument, and delegates the executable body to `v1.min(v2)`; `T::obeys_cmp_spec()` is the vstd law connecting that Rust ordering behavior to the modeled comparison relation.",core/src/cmp.rs:1574,"1537: /// Compares and returns the minimum of two values.
+1539: /// Returns the first argument if the comparison determines them to be equal.
+1541: /// Internally uses an alias to [`Ord::min`].
+1574: pub const fn min<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {
+1575:     v1.min(v2)
+1580: /// Returns the first argument if the comparison determines them to be equal.
+1615: /// Returns the first argument if the comparison determines them to be equal.",True
+core::ops::Range::is_empty,<Idx as PartialOrdSpec<Idx>>::obeys_partial_cmp_spec(),source_justified,core/src/ops/range.rs:151 shows the Rust source is guarded by `PartialOrd` and computes the result with `<`/`<=`; the vstd partial-order law connects those executable comparisons to the spec predicates.,core/src/ops/range.rs:151,"147:     /// ```
+148:     #[inline]
+149:     #[stable(feature = ""range_is_empty"", since = ""1.47.0"")]
+150:     #[rustc_const_unstable(feature = ""const_range"", issue = ""none"")]
+151:     pub const fn is_empty(&self) -> bool
+152:     where
+153:         Idx: [const] PartialOrd<Idx>,
+154:     {
+155:         !(self.start < self.end)
+156:     }
+157: }
+158: 
+159: /// A range only bounded inclusively below (`start..`).",True
+core::ops::RangeInclusive::is_empty,Idx::obeys_partial_cmp_spec(),source_justified,core/src/ops/range.rs:559 shows the Rust source is guarded by `PartialOrd` and computes the result with `<`/`<=`; the vstd partial-order law connects those executable comparisons to the spec predicates.,core/src/ops/range.rs:559,"555:     /// ```
+556:     #[stable(feature = ""range_is_empty"", since = ""1.47.0"")]
+557:     #[inline]
+558:     #[rustc_const_unstable(feature = ""const_range"", issue = ""none"")]
+559:     pub const fn is_empty(&self) -> bool
+560:     where
+561:         Idx: [const] PartialOrd,
+562:     {
+563:         self.exhausted || !(self.start <= self.end)
+564:     }
+565: }
+566: 
+567: /// A range only bounded inclusively above (`..=end`).",True
+core::result::Result::expect_err,result is Err,source_justified,core/src/result.rs:1291 shows the source returns only the `Err(e)` match arm and calls the unwrap failure path for `Ok`; the requires clause selects the non-panicking normal-return branch.,core/src/result.rs:1291,"1287:     /// ```
+1288:     #[inline]
+1289:     #[track_caller]
+1290:     #[stable(feature = ""result_expect_err"", since = ""1.17.0"")]
+1291:     pub fn expect_err(self, msg: &str) -> E
+1292:     where
+1293:         T: fmt::Debug,
+1294:     {
+1295:         match self {
+1296:             Ok(t) => unwrap_failed(msg, &t),
+1297:             Err(e) => e,
+1298:         }
+1299:     }",True
+core::slice::as_chunks,N != 0,source_justified,"core/src/slice/mod.rs:1399 documents that this safe chunk partition panics when `N` is zero, immediately asserts `N != 0`, and then splits the slice before casting the exact multiple-of-N region with `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the `N != 0` requires clause is therefore exactly the source-backed normal-return domain.",core/src/slice/mod.rs:1399,"1360:     /// - `chunks.len()` equals `slice.len() / N`,
+1361:     /// - `remainder.len()` equals `slice.len() % N`, and
+1370:     /// Panics if `N` is zero.
+1399:     pub const fn as_chunks<const N: usize>(&self) -> (&[[T; N]], &[T]) {
+1400:         assert!(N != 0, ""chunk size must be non-zero"");
+1401:         let len_rounded_down = self.len() / N * N;
+1404:         let (multiple_of_n, remainder) = unsafe { self.split_at_unchecked(len_rounded_down) };
+1407:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };
+1416:     /// `let (remainder, chunks) = slice.as_rchunks()`, then:
+1417:     /// - `remainder.len()` equals `slice.len() % N`,
+1418:     /// - `chunks.len()` equals `slice.len() / N`, and
+1427:     /// Panics if `N` is zero.
+1437:     /// let (remainder, chunks) = slice.as_rchunks();",True
+core::slice::as_chunks_mut,N != 0,source_justified,"core/src/slice/mod.rs:1555 documents that this safe chunk partition panics when `N` is zero, immediately asserts `N != 0`, and then splits the slice before casting the exact multiple-of-N region with `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the `N != 0` requires clause is therefore exactly the source-backed normal-return domain.",core/src/slice/mod.rs:1555,"1519:     /// `let (chunks, remainder) = slice.as_chunks_mut()`, then:
+1520:     /// - `chunks.len()` equals `slice.len() / N`,
+1521:     /// - `remainder.len()` equals `slice.len() % N`, and
+1530:     /// Panics if `N` is zero.
+1555:     pub const fn as_chunks_mut<const N: usize>(&mut self) -> (&mut [[T; N]], &mut [T]) {
+1556:         assert!(N != 0, ""chunk size must be non-zero"");
+1557:         let len_rounded_down = self.len() / N * N;
+1560:         let (multiple_of_n, remainder) = unsafe { self.split_at_mut_unchecked(len_rounded_down) };
+1563:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1572:     /// `let (remainder, chunks) = slice.as_rchunks_mut()`, then:
+1573:     /// - `remainder.len()` equals `slice.len() % N`,
+1574:     /// - `chunks.len()` equals `slice.len() / N`, and
+1583:     /// Panics if `N` is zero.",True
+core::slice::as_flattened,slice@.len() * N <= usize::MAX,source_justified,core/src/slice/mod.rs:5451 shows the source computes the flattened length with checked multiplication and panics on length overflow; the requires clause restricts the contract to the normal-return domain.,core/src/slice/mod.rs:5451,"5447:     /// assert!(empty_slice_of_arrays.as_flattened().is_empty());
+5448:     /// ```
+5449:     #[stable(feature = ""slice_flatten"", since = ""1.80.0"")]
+5450:     #[rustc_const_stable(feature = ""const_slice_flatten"", since = ""1.87.0"")]
+5451:     pub const fn as_flattened(&self) -> &[T] {
+5452:         let len = if T::IS_ZST {
+5453:             self.len().checked_mul(N).expect(""slice len overflow"")
+5454:         } else {
+5455:             // SAFETY: `self.len() * N` cannot overflow because `self` is
+5456:             // already in the address space.
+5457:             unsafe { self.len().unchecked_mul(N) }
+5458:         };
+5459:         // SAFETY: `[T]` is layout-identical to `[T; N]`",True
+core::slice::as_rchunks,N != 0,source_justified,"core/src/slice/mod.rs:1446 documents that this safe chunk partition panics when `N` is zero, immediately asserts `N != 0`, and then splits the slice before casting the exact multiple-of-N region with `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the `N != 0` requires clause is therefore exactly the source-backed normal-return domain.",core/src/slice/mod.rs:1446,"1401:         let len_rounded_down = self.len() / N * N;
+1404:         let (multiple_of_n, remainder) = unsafe { self.split_at_unchecked(len_rounded_down) };
+1407:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };
+1416:     /// `let (remainder, chunks) = slice.as_rchunks()`, then:
+1417:     /// - `remainder.len()` equals `slice.len() % N`,
+1418:     /// - `chunks.len()` equals `slice.len() / N`, and
+1427:     /// Panics if `N` is zero.
+1437:     /// let (remainder, chunks) = slice.as_rchunks();
+1446:     pub const fn as_rchunks<const N: usize>(&self) -> (&[T], &[[T; N]]) {
+1447:         assert!(N != 0, ""chunk size must be non-zero"");
+1452:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };
+1483:     ///     unsafe { slice.as_chunks_unchecked_mut() };
+1488:     ///     unsafe { slice.as_chunks_unchecked_mut() };",True
+core::slice::as_rchunks_mut,N != 0,source_justified,"core/src/slice/mod.rs:1608 documents that this safe chunk partition panics when `N` is zero, immediately asserts `N != 0`, and then splits the slice before casting the exact multiple-of-N region with `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the `N != 0` requires clause is therefore exactly the source-backed normal-return domain.",core/src/slice/mod.rs:1608,"1563:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1572:     /// `let (remainder, chunks) = slice.as_rchunks_mut()`, then:
+1573:     /// - `remainder.len()` equals `slice.len() % N`,
+1574:     /// - `chunks.len()` equals `slice.len() / N`, and
+1583:     /// Panics if `N` is zero.
+1608:     pub const fn as_rchunks_mut<const N: usize>(&mut self) -> (&mut [T], &mut [[T; N]]) {
+1609:         assert!(N != 0, ""chunk size must be non-zero"");
+1611:         let (remainder, multiple_of_n) = self.split_at_mut(self.len() - len * N);
+1614:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1627:     /// Panics if `N` is zero.
+1650:         assert!(N != 0, ""window size must be non-zero"");",True
+core::slice::binary_search,"obeys_cmp::<T>(); forall|i: int, j: int| 0 <= i < j < v@.len() ==>
+            v@[i].cmp_spec(&v@[j]) != Ordering::Greater; forall|i: int, j: int|
+            0 <= i < v@.len() && 0 <= j < v@.len()
+            && v@[i].cmp_spec(x) == Ordering::Equal
+            && v@[j].cmp_spec(x) == Ordering::Equal ==> i == j",source_justified,"core/src/slice/mod.rs:2925 shows `slice::binary_search` has a `T: Ord` bound, delegates to `self.binary_search_by(|p| p.cmp(x))`, documents the sorted-input domain and insertion-index result, and documents that duplicate matches may return any matching index while unique matches have a uniquely determined position; `obeys_cmp` plus the sortedness and unique-match requires clauses and the Ok/Err partition postcondition are the vstd bridge that makes this source behavior deterministic.",core/src/slice/mod.rs:2925,"2918:     /// // If `num` is unique, `s.partition_point(|&x| x < num)` (with `<`) is equivalent to
+2925:     pub fn binary_search(&self, x: &T) -> Result<usize, usize>
+2927:         T: Ord,
+2929:         self.binary_search_by(|p| p.cmp(x))
+2937:     /// If the slice is not sorted or if the comparator function does not
+2942:     /// index of the matching element. If there are multiple matches, then any
+2943:     /// one of the matches could be returned. The index is chosen
+2946:     /// the index where a matching element could be inserted while maintaining
+2958:     /// uniquely determined position; the second and third are not",True
+core::slice::contains,T::obeys_eq_spec(),source_justified,core/src/slice/mod.rs:2594 shows the slice source requires `PartialEq` and computes the result by equality comparison; the vstd equality law connects that executable comparison to `eq_spec`.,core/src/slice/mod.rs:2594,"2590:     /// ```
+2591:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2592:     #[inline]
+2593:     #[must_use]
+2594:     pub fn contains(&self, x: &T) -> bool
+2595:     where
+2596:         T: PartialEq,
+2597:     {
+2598:         cmp::SliceContains::slice_contains(x, self)
+2599:     }
+2600: 
+2601:     /// Returns `true` if `needle` is a prefix of the slice or equal to the slice.
+2602:     ///",True
+core::slice::is_sorted,T::obeys_partial_cmp_spec(),source_justified,core/src/slice/mod.rs:4735 shows the Rust source is guarded by `PartialOrd` and computes the result with `<`/`<=`; the vstd partial-order law connects those executable comparisons to the spec predicates.,core/src/slice/mod.rs:4735,"4731:     /// ```
+4732:     #[inline]
+4733:     #[stable(feature = ""is_sorted"", since = ""1.82.0"")]
+4734:     #[must_use]
+4735:     pub fn is_sorted(&self) -> bool
+4736:     where
+4737:         T: PartialOrd,
+4738:     {
+4739:         // This odd number works the best. 32 + 1 extra due to overlapping chunk boundaries.
+4740:         const CHUNK_SIZE: usize = 33;
+4741:         if self.len() < CHUNK_SIZE {
+4742:             return self.windows(2).all(|w| w[0] <= w[1]);
+4743:         }",True
+core::slice::split_at_mut_unchecked,mid as int <= old(slice)@.len(),source_justified,"core/src/slice/mod.rs:2095 states the unsafe precondition `0 <= mid <= self.len()`, checks `mid <= len`, and constructs the two mutable sub-slices with `from_raw_parts_mut(ptr, mid)` and `from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid))`; the requires clause, prefix/suffix view postconditions, returned sub-slice preservation at function return, and concatenated input post-state are exactly that source-backed normal-return shape.",core/src/slice/mod.rs:2095,"2052:             (mid: usize = mid, len: usize = len) => mid <= len,
+2055:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`
+2071:     /// `0 <= mid <= self.len()`.
+2095:     pub const unsafe fn split_at_mut_unchecked(&mut self, mid: usize) -> (&mut [T], &mut [T]) {
+2102:             (mid: usize = mid, len: usize = len) => mid <= len,
+2105:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`.
+2107:         // `[ptr; mid]` and `[mid; len]` are not overlapping, so returning a mutable reference
+2111:                 from_raw_parts_mut(ptr, mid),
+2112:                 from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid)),",True
+core::slice::starts_with,T::obeys_eq_spec(),source_justified,core/src/slice/mod.rs:2624 shows the slice source requires `PartialEq` and computes the result by equality comparison; the vstd equality law connects that executable comparison to `eq_spec`.,core/src/slice/mod.rs:2624,"2620:     /// assert!(v.starts_with(&[]));
+2621:     /// ```
+2622:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2623:     #[must_use]
+2624:     pub fn starts_with(&self, needle: &[T]) -> bool
+2625:     where
+2626:         T: PartialEq,
+2627:     {
+2628:         let n = needle.len();
+2629:         self.len() >= n && needle == &self[..n]
+2630:     }
+2631: 
+2632:     /// Returns `true` if `needle` is a suffix of the slice or equal to the slice.",True
+std::collections::HashMap::get_mut,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),source_justified,"std/src/collections/hash/map.rs:1297 documents that get_mut returns a mutable reference to the value for a borrowed key, requires borrowed-key Hash/Eq compatibility, and delegates to `self.base.get_mut(k)`; `obeys_key_model` and `builds_valid_hashers` are the vstd laws connecting that source HashMap behavior to the borrowed-key semantic view.",std/src/collections/hash/map.rs:1297,"1252:     /// The key may be any borrowed form of the map's key type, but
+1253:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1271:         K: Borrow<Q>,
+1272:         Q: Hash + Eq,
+1277:     /// Returns a mutable reference to the value corresponding to the key.
+1279:     /// The key may be any borrowed form of the map's key type, but
+1280:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1297:     pub fn get_mut<Q: ?Sized>(&mut self, k: &Q) -> Option<&mut V>
+1299:         K: Borrow<Q>,
+1300:         Q: Hash + Eq,
+1302:         self.base.get_mut(k)",True
+std::collections::HashMap::remove_entry,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),source_justified,"std/src/collections/hash/map.rs:1420 documents that remove_entry accepts any borrowed key whose Hash/Eq behavior matches the map key type, returns the stored key and value when present, and delegates to `self.base.remove_entry(k)`; `obeys_key_model` and `builds_valid_hashers` are the vstd laws connecting that source HashMap behavior to the borrowed-key semantic view.",std/src/collections/hash/map.rs:1420,"1375:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1393:         K: Borrow<Q>,
+1394:         Q: Hash + Eq,
+1399:     /// Removes a key from the map, returning the stored key and value if the
+1402:     /// The key may be any borrowed form of the map's key type, but
+1403:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1420:     pub fn remove_entry<Q: ?Sized>(&mut self, k: &Q) -> Option<(K, V)>
+1422:         K: Borrow<Q>,
+1423:         Q: Hash + Eq,
+1425:         self.base.remove_entry(k)",True
+std::collections::HashSet::is_disjoint,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),source_justified,"std/src/collections/hash/set.rs:955 shows the HashSet operation is implemented by iteration and `contains`/subset queries; Rust HashSet semantics rely on Eq/Hash and the BuildHasher, and the vstd `obeys_key_model`/`builds_valid_hashers` laws are the semantic bridge for that source behavior.",std/src/collections/hash/set.rs:955,"951:     /// b.insert(1);
+952:     /// assert_eq!(a.is_disjoint(&b), false);
+953:     /// ```
+954:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+955:     pub fn is_disjoint(&self, other: &HashSet<T, S, A>) -> bool {
+956:         if self.len() <= other.len() {
+957:             self.iter().all(|v| !other.contains(v))
+958:         } else {
+959:             other.iter().all(|v| !self.contains(v))
+960:         }
+961:     }
+962: 
+963:     /// Returns `true` if the set is a subset of another,",True
+std::collections::HashSet::is_subset,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),source_justified,"std/src/collections/hash/set.rs:981 shows the HashSet operation is implemented by iteration and `contains`/subset queries; Rust HashSet semantics rely on Eq/Hash and the BuildHasher, and the vstd `obeys_key_model`/`builds_valid_hashers` laws are the semantic bridge for that source behavior.",std/src/collections/hash/set.rs:981,"977:     /// set.insert(4);
+978:     /// assert_eq!(set.is_subset(&sup), false);
+979:     /// ```
+980:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+981:     pub fn is_subset(&self, other: &HashSet<T, S, A>) -> bool {
+982:         if self.len() <= other.len() { self.iter().all(|v| other.contains(v)) } else { false }
+983:     }
+984: 
+985:     /// Returns `true` if the set is a superset of another,
+986:     /// i.e., `self` contains at least all the values in `other`.
+987:     ///
+988:     /// # Examples
+989:     ///",True
+std::collections::HashSet::is_superset,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),source_justified,"std/src/collections/hash/set.rs:1007 shows the HashSet operation is implemented by iteration and `contains`/subset queries; Rust HashSet semantics rely on Eq/Hash and the BuildHasher, and the vstd `obeys_key_model`/`builds_valid_hashers` laws are the semantic bridge for that source behavior.",std/src/collections/hash/set.rs:1007,"1003:     /// assert_eq!(set.is_superset(&sub), true);
+1004:     /// ```
+1005:     #[inline]
+1006:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1007:     pub fn is_superset(&self, other: &HashSet<T, S, A>) -> bool {
+1008:         other.is_subset(self)
+1009:     }
+1010: 
+1011:     /// Adds a value to the set.
+1012:     ///
+1013:     /// Returns whether the value was newly inserted. That is:
+1014:     ///
+1015:     /// - If the set did not previously contain this value, `true` is returned.",True
+std::collections::HashSet::replace,obeys_key_model::<Key>(); builds_valid_hashers::<S>(),source_justified,"std/src/collections/hash/set.rs:1056 documents replacing an equal existing set value and returning the replaced value, and delegates to `self.base.replace(value)`; Rust HashSet semantics rely on Eq/Hash and the BuildHasher, so the vstd `obeys_key_model`/`builds_valid_hashers` laws are the required semantic bridge.",std/src/collections/hash/set.rs:1056,"1052:     /// ```
+1053:     #[inline]
+1054:     #[stable(feature = ""set_recovery"", since = ""1.9.0"")]
+1055:     #[rustc_confusables(""swap"")]
+1056:     pub fn replace(&mut self, value: T) -> Option<T> {
+1057:         self.base.replace(value)
+1058:     }
+1059: 
+1060:     /// Removes a value from the set. Returns whether the value was
+1061:     /// present in the set.
+1062:     ///
+1063:     /// The value may be any borrowed form of the set's value type, but
+1064:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for",True

@@ -1,0 +1,187 @@
+{
+  "target": "core::slice::binary_search_by_key",
+  "category": "data_structure",
+  "history": [
+    {
+      "round": 0,
+      "llm_ms": 17941,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, B, F>[ <[T]>::binary_search_by_key::<B, F> ](\n    slice: &'a [T],\n    b: &B,\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> B,\n    B: core::cmp::Ord,\n    ensures\n        match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        },\n;",
+        "requires": [],
+        "ensures": [
+          "match result { core::result::Result::Ok(index) => index < slice.len(), core::result::Result::Err(index) => index <= slice.len() }"
+        ],
+        "feature_gates": [],
+        "imports": [],
+        "useful": true,
+        "rationale": "The implementation delegates to slice binary search, whose successful index is within the slice and whose insertion index is at most its length. This provides useful bounds without unsoundly modeling closure calls, key equality, ordering, or the choice among duplicate matches.",
+        "risks": [
+          "The contract intentionally does not prove that an Ok index has a matching key.",
+          "The contract does not model FnMut capture mutations or invocation behavior.",
+          "Insertion-point ordering properties remain unspecified."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 0,
+          "duration_ms": 536,
+          "stderr_tail": ""
+        },
+        "determinism": {
+          "status": "verus_error",
+          "requires": [],
+          "ensures": [
+            "match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        }"
+          ],
+          "equal_fn_trivial": false,
+          "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by_key/round_00/det_harness.rs:13:14\n   |\n12 | proof fn det___rust_std_candidate<'a, T, B, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat...\n   |                                   -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n13 |     where F: core::ops::FnMut(&'a T) -> B,\n   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n12 | proof fn det___rust_std_candidate<'a, T: 'a, B, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], b: &B, f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "checker_status:verus_error",
+        "classification:higher_order_contract",
+        "structured_contract_mismatch"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false
+    },
+    {
+      "round": 1,
+      "llm_ms": 13900,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T: 'a, B, F>[ <[T]>::binary_search_by_key::<B, F> ](\n    slice: &'a [T],\n    b: &B,\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> B,\n    B: core::cmp::Ord,\n    ensures\n        match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        },\n;",
+        "requires": [],
+        "ensures": [
+          "match result { core::result::Result::Ok(index) => index < slice.len(), core::result::Result::Err(index) => index <= slice.len() }"
+        ],
+        "feature_gates": [],
+        "imports": [],
+        "useful": true,
+        "rationale": "The explicit `T: 'a` bound makes the higher-order signature well-formed because `F` accepts `&'a T`. The postcondition captures source-guaranteed bounds on the observable result without modeling closure calls, ordering, or duplicate-key selection.",
+        "risks": [
+          "The contract does not prove that an Ok index has a matching key.",
+          "The contract does not model FnMut capture mutations or invocation behavior.",
+          "Insertion-point ordering properties and duplicate-match selection remain unspecified."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 1,
+          "duration_ms": 428,
+          "stderr_tail": "error: assume_specification trait bound mismatch\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by_key/round_01/contract_harness.rs:6:1\n   |\n 6 | / pub assume_specification<'a, T: 'a, B, F>[ <[T]>::binary_search_by_key::<B, F> ](\n 7 | |     slice: &'a [T],\n 8 | |     b: &B,\n 9 | |     f: F,\n...  |\n12 | |     F: core::ops::FnMut(&'a T) -> B,\n13 | |     B: core::cmp::Ord,\n   | |______________________^\n   |\n   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds\n           but the proxy function's trait bounds are:\n             - T: std::marker::Sized\n             - B: std::marker::Sized\n             - F: std::marker::Sized\n             - T: 'a\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == B\n             - B: std::cmp::Ord\n           the external function's trait bounds are:\n             - T: std::marker::Sized\n             - B: std::marker::Sized\n             - F: std::marker::Sized\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == B\n             - B: std::cmp::Ord\n\nerror: aborting due to 1 previous error\n\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "classification:higher_order_contract",
+        "contract_typecheck_failed"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false
+    },
+    {
+      "round": 2,
+      "llm_ms": 13203,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, B, F>[ <[T]>::binary_search_by_key::<B, F> ](\n    slice: &'a [T],\n    b: &B,\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> B,\n    B: core::cmp::Ord,\n    ensures\n        match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        },\n;",
+        "requires": [],
+        "ensures": [
+          "match result { core::result::Result::Ok(index) => index < slice.len(), core::result::Result::Err(index) => index <= slice.len() }"
+        ],
+        "feature_gates": [],
+        "imports": [],
+        "useful": true,
+        "rationale": "The proxy now exactly matches the external function's generic bounds by omitting the extra `T: 'a` predicate. The postcondition captures source-guaranteed bounds on the observable result without imposing sorting, closure-purity, or duplicate-selection assumptions.",
+        "risks": [
+          "The contract does not prove that an Ok index has a matching key.",
+          "The contract does not model FnMut capture mutations or invocation behavior.",
+          "Insertion-point ordering properties and duplicate-match selection remain unspecified."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 0,
+          "duration_ms": 501,
+          "stderr_tail": ""
+        },
+        "determinism": {
+          "status": "verus_error",
+          "requires": [],
+          "ensures": [
+            "match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        }"
+          ],
+          "equal_fn_trivial": false,
+          "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by_key/recheck_final/det_harness.rs:13:14\n   |\n12 | proof fn det___rust_std_candidate<'a, T, B, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat...\n   |                                   -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n13 |     where F: core::ops::FnMut(&'a T) -> B,\n   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n12 | proof fn det___rust_std_candidate<'a, T: 'a, B, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], b: &B, f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "checker_status:verus_error",
+        "classification:higher_order_contract",
+        "structured_contract_mismatch"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false,
+      "rechecked": true,
+      "recheck_source_target": "core::slice::binary_search_by_key"
+    }
+  ],
+  "final": {
+    "round": 2,
+    "llm_ms": 13203,
+    "candidate": {
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, B, F>[ <[T]>::binary_search_by_key::<B, F> ](\n    slice: &'a [T],\n    b: &B,\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> B,\n    B: core::cmp::Ord,\n    ensures\n        match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        },\n;",
+      "requires": [],
+      "ensures": [
+        "match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        }"
+      ],
+      "feature_gates": [],
+      "imports": [],
+      "useful": true,
+      "rationale": "The proxy now exactly matches the external function's generic bounds by omitting the extra `T: 'a` predicate. The postcondition captures source-guaranteed bounds on the observable result without imposing sorting, closure-purity, or duplicate-selection assumptions.",
+      "risks": [
+        "The contract does not prove that an Ok index has a matching key.",
+        "The contract does not model FnMut capture mutations or invocation behavior.",
+        "Insertion-point ordering properties and duplicate-match selection remain unspecified."
+      ]
+    },
+    "checker": {
+      "typecheck": {
+        "returncode": 0,
+        "duration_ms": 501,
+        "stderr_tail": ""
+      },
+      "determinism": {
+        "status": "verus_error",
+        "requires": [],
+        "ensures": [
+          "match result {\n            core::result::Result::Ok(index) => index < slice.len(),\n            core::result::Result::Err(index) => index <= slice.len(),\n        }"
+        ],
+        "equal_fn_trivial": false,
+        "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by_key/recheck_final/det_harness.rs:13:14\n   |\n12 | proof fn det___rust_std_candidate<'a, T, B, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat...\n   |                                   -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n13 |     where F: core::ops::FnMut(&'a T) -> B,\n   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n12 | proof fn det___rust_std_candidate<'a, T: 'a, B, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], b: &B, f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+      }
+    },
+    "anti_vacuity_issues": [
+      "checker_status:verus_error",
+      "classification:higher_order_contract"
+    ],
+    "raw_det_reward": 0,
+    "guarded_reward": 0,
+    "soundness_status": "unverified_trusted_external_contract",
+    "apply_upstream": false,
+    "rechecked": true,
+    "recheck_source_target": "core::slice::binary_search_by_key"
+  }
+}

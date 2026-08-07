@@ -1,0 +1,2097 @@
+target,ensures,classification,evidence_kind,rationale,source_reference,source_excerpt
+alloc::collections::BTreeMap::append,"final(m)@ == old(m)@.union_prefer_right(old(other)@); final(other)@ == Map::<Key, Value>::empty()",source_justified,exact_btree_raw_algebra_source_gate,alloc/src/collections/btree/map.rs:1236 documents and implements this BTree operation over the ordered map/set structure; the ensures clauses use the accepted source-backed semantic map/set algebra for that operation.,alloc/src/collections/btree/map.rs:1236,"1232:     /// assert_eq!(a[&4], ""e"");
+1233:     /// assert_eq!(a[&5], ""f"");
+1234:     /// ```
+1235:     #[stable(feature = ""btree_append"", since = ""1.11.0"")]
+1236:     pub fn append(&mut self, other: &mut Self)
+1237:     where
+1238:         K: Ord,
+1239:         A: Clone,
+1240:     {
+1241:         let other = mem::replace(other, Self::new_in((*self.alloc).clone()));
+1242:         self.merge(other, |_key, _self_val, other_val| other_val);
+1243:     }
+1244: "
+alloc::collections::BTreeMap::first_key_value,"match result {
+            Some((key, value)) => {
+                &&& m@.contains_key(*key)
+                &&& m@[*key] == *value
+                &&& forall|other: Key| #[trigger] m@.contains_key(other) ==>
+                    (*key).cmp_spec(&other) != core::cmp::Ordering::Greater
+                &&& *key == choose|candidate: Key| {
+                    m@.contains_key(candidate)
+                        && forall|other: Key| #[trigger] m@.contains_key(other) ==>
+                            candidate.cmp_spec(&other) != core::cmp::Ordering::Greater
+                }
+            },
+            None => m@.is_empty(),
+        }",source_justified,btree_map_declaration_source_context,"alloc/src/collections/btree/map.rs:810 is the classified Rust declaration/source_context for `BTreeMap::first_key_value` over the ordered map implementation; the accepted ensures clauses are expressed only over the observable map view, first/last key selection, returned value, and documented mutation effect from that source operation.",alloc/src/collections/btree/map.rs:810,"806:     /// map.insert(2, ""a"");
+807:     /// assert_eq!(map.first_key_value(), Some((&1, &""b"")));
+808:     /// ```
+809:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+810:     pub fn first_key_value(&self) -> Option<(&K, &V)>
+811:     where
+812:         K: Ord,
+813:     {
+814:         let root_node = self.root.as_ref()?.reborrow();
+815:         root_node.first_leaf_edge().right_kv().ok().map(Handle::into_kv)
+816:     }
+817: 
+818:     /// Returns the first entry in the map for in-place manipulation."
+alloc::collections::BTreeMap::get_mut,"{
+            let old_map = old(m)@;
+            let selected_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &selected_key)
+            &&& result is Some == contains_borrowed_key(old_map, k)
+            &&& match result {
+                Some(v) => {
+                    &&& *v == old_map[selected_key]
+                    &&& *final(v) == *v
+                    &&& final(m)@ == old_map
+                },
+                None => {
+                    &&& !contains_borrowed_key(old_map, k)
+                    &&& final(m)@ == old_map
+                },
+            }
+        }",source_justified,exact_map_get_mut_source_gate,alloc/src/collections/btree/map.rs:1006 documents borrowed-key lookup and implements the mutable-reference return through the underlying map search; the ensures clauses model the selected old semantic value and unchanged map view without pointer/provenance claims.,alloc/src/collections/btree/map.rs:1006,"981:         K: Borrow<Q> + Ord,
+982:         Q: Ord,
+987:     /// Returns a mutable reference to the value corresponding to the key.
+1006:     pub fn get_mut<Q: ?Sized>(&mut self, key: &Q) -> Option<&mut V>
+1008:         K: Borrow<Q> + Ord,
+1009:         Q: Ord,
+1012:         match root_node.search_tree(key) {
+1013:             Found(handle) => Some(handle.into_val_mut()),
+1014:             GoDown(_) => None,"
+alloc::collections::BTreeMap::last_key_value,"match result {
+            Some((k, v)) => {
+                &&& *k == choose|max_key: Key| {
+                    &&& m@.contains_key(max_key)
+                    &&& forall|other: Key| #[trigger] m@.contains_key(other) ==>
+                        other.cmp_spec(&max_key) != core::cmp::Ordering::Greater
+                }
+                &&& m@.contains_key(*k)
+                &&& m@[*k] == *v
+                &&& forall|other: Key| #[trigger] m@.contains_key(other) ==>
+                    other.cmp_spec(k) != core::cmp::Ordering::Greater
+            },
+            None => m@.is_empty(),
+        }",source_justified,btree_map_declaration_source_context,"alloc/src/collections/btree/map.rs:893 is the classified Rust declaration/source_context for `BTreeMap::last_key_value` over the ordered map implementation; the accepted ensures clauses are expressed only over the observable map view, first/last key selection, returned value, and documented mutation effect from that source operation.",alloc/src/collections/btree/map.rs:893,"889:     /// map.insert(2, ""a"");
+890:     /// assert_eq!(map.last_key_value(), Some((&2, &""a"")));
+891:     /// ```
+892:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+893:     pub fn last_key_value(&self) -> Option<(&K, &V)>
+894:     where
+895:         K: Ord,
+896:     {
+897:         let root_node = self.root.as_ref()?.reborrow();
+898:         root_node.last_leaf_edge().left_kv().ok().map(Handle::into_kv)
+899:     }
+900: 
+901:     /// Returns the last entry in the map for in-place manipulation."
+alloc::collections::BTreeMap::pop_first,"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let k = choose|k: Key| {
+                &&& old(m)@.contains_key(k)
+                &&& forall|key: Key| #[trigger] old(m)@.contains_key(key) ==>
+                    key == k || k.cmp_spec(&key) == core::cmp::Ordering::Less
+            };
+            &&& result == Some((k, old(m)@[k]))
+            &&& final(m)@ == old(m)@.remove(k)
+        }",source_justified,btree_map_declaration_source_context,"alloc/src/collections/btree/map.rs:872 is the classified Rust declaration/source_context for `BTreeMap::pop_first` over the ordered map implementation; the accepted ensures clauses are expressed only over the observable map view, first/last key selection, returned value, and documented mutation effect from that source operation.",alloc/src/collections/btree/map.rs:872,"868:     /// }
+869:     /// assert!(map.is_empty());
+870:     /// ```
+871:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+872:     pub fn pop_first(&mut self) -> Option<(K, V)>
+873:     where
+874:         K: Ord,
+875:     {
+876:         self.first_entry().map(|entry| entry.remove_entry())
+877:     }
+878: 
+879:     /// Returns the last key-value pair in the map.
+880:     /// The key in this pair is the maximum key in the map."
+alloc::collections::BTreeMap::pop_last,"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let k = choose|k: Key|
+                old(m)@.contains_key(k)
+                && forall|other: Key| #![auto]
+                    old(m)@.contains_key(other) ==> {
+                        other.cmp_spec(&k) is Less || other == k
+                    };
+            &&& result == Some((k, old(m)@[k]))
+            &&& final(m)@ == old(m)@.remove(k)
+        }",source_justified,btree_map_declaration_source_context,"alloc/src/collections/btree/map.rs:955 is the classified Rust declaration/source_context for `BTreeMap::pop_last` over the ordered map implementation; the accepted ensures clauses are expressed only over the observable map view, first/last key selection, returned value, and documented mutation effect from that source operation.",alloc/src/collections/btree/map.rs:955,"951:     /// }
+952:     /// assert!(map.is_empty());
+953:     /// ```
+954:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+955:     pub fn pop_last(&mut self) -> Option<(K, V)>
+956:     where
+957:         K: Ord,
+958:     {
+959:         self.last_entry().map(|entry| entry.remove_entry())
+960:     }
+961: 
+962:     /// Returns `true` if the map contains a value for the specified key.
+963:     ///"
+alloc::collections::BTreeSet::append,final(m)@ == old(m)@.union(old(other)@); final(other)@ == vstd::set::Set::<Key>::empty(),source_justified,exact_btree_raw_algebra_source_gate,alloc/src/collections/btree/set.rs:1139 documents and implements this BTree operation over the ordered map/set structure; the ensures clauses use the accepted source-backed semantic map/set algebra for that operation.,alloc/src/collections/btree/set.rs:1139,"1135:     /// assert!(a.contains(&4));
+1136:     /// assert!(a.contains(&5));
+1137:     /// ```
+1138:     #[stable(feature = ""btree_append"", since = ""1.11.0"")]
+1139:     pub fn append(&mut self, other: &mut Self)
+1140:     where
+1141:         T: Ord,
+1142:         A: Clone,
+1143:     {
+1144:         self.map.append(&mut other.map);
+1145:     }
+1146: 
+1147:     /// Splits the collection into two at the value. Returns a new collection"
+alloc::collections::BTreeSet::first,"match result {
+            Some(v) => {
+                &&& m@.contains(*v)
+                &&& forall|other: Key| #[trigger] m@.contains(other) ==>
+                    (*v).cmp_spec(&other) != core::cmp::Ordering::Greater
+                &&& *v == choose|candidate: Key| {
+                    m@.contains(candidate)
+                        && forall|other: Key| #[trigger] m@.contains(other) ==>
+                            candidate.cmp_spec(&other) != core::cmp::Ordering::Greater
+                }
+            },
+            None => m@.is_empty(),
+        }",source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:792 is the classified Rust declaration/source_context for `BTreeSet::first` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:792,"788:     /// ```
+789:     #[must_use]
+790:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+791:     #[rustc_confusables(""front"")]
+792:     pub fn first(&self) -> Option<&T>
+793:     where
+794:         T: Ord,
+795:     {
+796:         self.map.first_key_value().map(|(k, _)| k)
+797:     }
+798: 
+799:     /// Returns a reference to the last element in the set, if any.
+800:     /// This element is always the maximum of all elements in the set."
+alloc::collections::BTreeSet::is_disjoint,result == m@.disjoint(other@),source_justified,exact_btree_raw_algebra_source_gate,alloc/src/collections/btree/set.rs:658 documents and implements this BTree operation over the ordered map/set structure; the ensures clauses use the accepted source-backed semantic map/set algebra for that operation.,alloc/src/collections/btree/set.rs:658,"654:     /// assert_eq!(a.is_disjoint(&b), false);
+655:     /// ```
+656:     #[must_use]
+657:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+658:     pub fn is_disjoint(&self, other: &BTreeSet<T, A>) -> bool
+659:     where
+660:         T: Ord,
+661:     {
+662:         self.intersection(other).next().is_none()
+663:     }
+664: 
+665:     /// Returns `true` if the set is a subset of another,
+666:     /// i.e., `other` contains at least all the elements in `self`."
+alloc::collections::BTreeSet::is_subset,result == m@.subset_of(other@),source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:684 is the classified Rust declaration/source_context for `BTreeSet::is_subset` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:684,"680:     /// assert_eq!(set.is_subset(&sup), false);
+681:     /// ```
+682:     #[must_use]
+683:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+684:     pub fn is_subset(&self, other: &BTreeSet<T, A>) -> bool
+685:     where
+686:         T: Ord,
+687:     {
+688:         // Same result as self.difference(other).next().is_none()
+689:         // but the code below is faster (hugely in some cases).
+690:         if self.len() > other.len() {
+691:             return false; // self has more elements than other
+692:         }"
+alloc::collections::BTreeSet::is_superset,result == other@.subset_of(m@),source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:765 is the classified Rust declaration/source_context for `BTreeSet::is_superset` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:765,"761:     /// assert_eq!(set.is_superset(&sub), true);
+762:     /// ```
+763:     #[must_use]
+764:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+765:     pub fn is_superset(&self, other: &BTreeSet<T, A>) -> bool
+766:     where
+767:         T: Ord,
+768:     {
+769:         other.is_subset(self)
+770:     }
+771: 
+772:     /// Returns a reference to the first element in the set, if any.
+773:     /// This element is always the minimum of all elements in the set."
+alloc::collections::BTreeSet::last,"match result {
+            core::option::Option::Some(value) => {
+                &&& !m@.is_empty()
+                &&& *value == m@.find_unique_maximal(
+                    |x: T, y: T| x.cmp_spec(&y) != core::cmp::Ordering::Greater,
+                )
+                &&& m@.contains(*value)
+                &&& forall|x: T| #[trigger] m@.contains(x) ==>
+                    x.cmp_spec(value) != core::cmp::Ordering::Greater
+            },
+            core::option::Option::None => m@.is_empty(),
+        }",source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:819 is the classified Rust declaration/source_context for `BTreeSet::last` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:819,"815:     /// ```
+816:     #[must_use]
+817:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+818:     #[rustc_confusables(""back"")]
+819:     pub fn last(&self) -> Option<&T>
+820:     where
+821:         T: Ord,
+822:     {
+823:         self.map.last_key_value().map(|(k, _)| k)
+824:     }
+825: 
+826:     /// Removes the first element from the set and returns it, if any.
+827:     /// The first element is always the minimum element in the set."
+alloc::collections::BTreeSet::pop_first,"if old(m)@.is_empty() {
+            &&& result is None
+            &&& final(m)@ == old(m)@
+        } else {
+            let first = choose|candidate: T| {
+                &&& old(m)@.contains(candidate)
+                &&& forall|element: T| old(m)@.contains(element)
+                    ==> candidate.cmp_spec(&element) != Ordering::Greater
+            };
+            &&& result == Some(first)
+            &&& old(m)@.contains(first)
+            &&& forall|element: T| old(m)@.contains(element)
+                ==> first.cmp_spec(&element) != Ordering::Greater
+            &&& final(m)@ == old(m)@.remove(first)
+        }",source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:843 is the classified Rust declaration/source_context for `BTreeSet::pop_first` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:843,"839:     /// }
+840:     /// assert!(set.is_empty());
+841:     /// ```
+842:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+843:     pub fn pop_first(&mut self) -> Option<T>
+844:     where
+845:         T: Ord,
+846:     {
+847:         self.map.pop_first().map(|kv| kv.0)
+848:     }
+849: 
+850:     /// Removes the last element from the set and returns it, if any.
+851:     /// The last element is always the maximum element in the set."
+alloc::collections::BTreeSet::pop_last,"forall|v: Key| #![auto]
+            result == Some(v) <==> old(m)@.contains(v)
+                && forall|k: Key| #![auto]
+                    old(m)@.contains(k) && k != v ==> k.cmp_spec(&v) is Less; (result is None) == old(m)@.is_empty(); match result {
+            Some(v) => final(m)@ == old(m)@.remove(v),
+            None => final(m)@ == old(m)@,
+        }",source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:867 is the classified Rust declaration/source_context for `BTreeSet::pop_last` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:867,"863:     /// }
+864:     /// assert!(set.is_empty());
+865:     /// ```
+866:     #[stable(feature = ""map_first_last"", since = ""1.66.0"")]
+867:     pub fn pop_last(&mut self) -> Option<T>
+868:     where
+869:         T: Ord,
+870:     {
+871:         self.map.pop_last().map(|kv| kv.0)
+872:     }
+873: 
+874:     /// Adds a value to the set.
+875:     ///"
+alloc::collections::BTreeSet::replace,final(m)@ == old(m)@.insert(value); result == if old(m)@.contains(value) { Some(value) } else { None },source_justified,btree_set_declaration_source_context,"alloc/src/collections/btree/set.rs:924 is the classified Rust declaration/source_context for `BTreeSet::replace` over the ordered set implementation; the accepted ensures clauses are expressed only over the observable set view, first/last element selection, relation result, and documented mutation effect from that source operation.",alloc/src/collections/btree/set.rs:924,"920:     /// assert_eq!(set.get(&[][..]).unwrap().capacity(), 10);
+921:     /// ```
+922:     #[stable(feature = ""set_recovery"", since = ""1.9.0"")]
+923:     #[rustc_confusables(""swap"")]
+924:     pub fn replace(&mut self, value: T) -> Option<T>
+925:     where
+926:         T: Ord,
+927:     {
+928:         self.map.replace(value)
+929:     }
+930: 
+931:     /// Inserts the given `value` into the set if it is not present, then
+932:     /// returns a reference to the value in the set."
+alloc::collections::LinkedList::back_mut,"result is Some == (old(list)@.len() != 0); result is None == (old(list)@.len() == 0); result matches Some(value) ==> {
+            &&& *value == old(list)@.last()
+            &&& *final(value) == *value
+            &&& final(list)@ == old(list)@
+        }; result is None ==> final(list)@ == old(list)@",source_justified,exact_linkedlist_back_mut_source_gate,"alloc/src/collections/linked_list.rs:824 documents a mutable back-element lookup and implements it by projecting `self.tail.as_mut()` to `node.as_mut().element`; the ensures clauses model the source-backed Some/None branch, old tail value, and unchanged list view without pointer/provenance claims.",alloc/src/collections/linked_list.rs:824,"800: /// Provides a mutable reference to the back element, or `None` if the list
+824: pub fn back_mut(&mut self) -> Option<&mut T> {
+825: unsafe { self.tail.as_mut().map(|node| &mut node.as_mut().element) }"
+alloc::collections::VecDeque::binary_search,"match result {
+            Ok(i) => {
+                &&& i < v@.len()
+                &&& v@[i as int].cmp_spec(x) == Ordering::Equal
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) < j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+            Err(i) => {
+                &&& i <= v@.len()
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) <= j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+        }",source_justified,exact_binary_search_source_gate,"alloc/src/collections/vec_deque/mod.rs:3201 shows `VecDeque::binary_search` has the `T: Ord` bound, documents sorted-input/insertion-index behavior and duplicate-match nondeterminism, and delegates to `self.binary_search_by(|e| e.cmp(x))`; the ensures clauses are the source-backed unique-match Ok/Err partition model.",alloc/src/collections/vec_deque/mod.rs:3201,"3156:     /// one of the matches could be returned. If the value is not found then
+3157:     /// [`Result::Err`] is returned, containing the index where a matching
+3158:     /// element could be inserted while maintaining sorted order.
+3169:     /// uniquely determined position; the second and third are not
+3193:     /// // If `num` is unique, `s.partition_point(|&x| x < num)` (with `<`) is equivalent to
+3201:     pub fn binary_search(&self, x: &T) -> Result<usize, usize>
+3203:         T: Ord,
+3205:         self.binary_search_by(|e| e.cmp(x))
+3213:     /// If the `VecDeque` is not sorted or if the comparator function does not
+3218:     /// index of the matching element. If there are multiple matches, then any
+3219:     /// one of the matches could be returned. If the value is not found then
+3220:     /// [`Result::Err`] is returned, containing the index where a matching
+3221:     /// element could be inserted while maintaining sorted order.
+3232:     /// uniquely determined position; the second and third are not"
+alloc::ffi::CString::from_vec_with_nul_unchecked,result@ == bytes@.drop_last(),source_justified,exact_unsafe_constructor_source_gate,alloc/src/ffi/c_str.rs:635 contains the Rust 1.96 safety/documentation and constructor body that establish the accepted observable result view; the ensures clause is the exact source-backed postcondition checked by the semantic gate.,alloc/src/ffi/c_str.rs:635,"621:     /// The given [`Vec`] **must** have one nul byte as its last element.
+622:     /// This means it cannot be empty nor have any other nul byte anywhere else.
+635:     pub unsafe fn from_vec_with_nul_unchecked(v: Vec<u8>) -> Self {
+637:         unsafe { Self::_from_vec_with_nul_unchecked(v) }
+641:         Self { inner: v.into_boxed_slice() }"
+alloc::string::String::as_bytes,res@ == encode_utf8(s@),source_justified,string_declaration_source_context,"alloc/src/string.rs:1450 is the classified Rust declaration/source_context for `String::as_bytes`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1450,"1446:     #[inline]
+1447:     #[must_use]
+1448:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1449:     #[rustc_const_stable(feature = ""const_vec_string_slice"", since = ""1.87.0"")]
+1450:     pub const fn as_bytes(&self) -> &[u8] {
+1451:         self.vec.as_slice()
+1452:     }
+1453: 
+1454:     /// Shortens this `String` to the specified length.
+1455:     ///
+1456:     /// If `new_len` is greater than or equal to the string's current length, this has no
+1457:     /// effect.
+1458:     ///"
+alloc::string::String::clear,final(s)@ == Seq::<char>::empty(); final(s).spec_capacity() == old(s).spec_capacity(),source_justified,string_declaration_source_context,"alloc/src/string.rs:1941 is the classified Rust declaration/source_context for `String::clear`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1941,"1937:     /// assert_eq!(3, s.capacity());
+1938:     /// ```
+1939:     #[inline]
+1940:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1941:     pub fn clear(&mut self) {
+1942:         self.vec.clear()
+1943:     }
+1944: 
+1945:     /// Removes the specified range from the string in bulk, returning all
+1946:     /// removed characters as an iterator.
+1947:     ///
+1948:     /// The returned iterator keeps a mutable borrow on the string to optimize
+1949:     /// its implementation."
+alloc::string::String::from_utf8_unchecked,"forall|chars: vstd::prelude::Seq<char>|
+            vstd::utf8::encode_utf8(chars) == bytes@ ==> res@ == chars",source_justified,exact_unsafe_constructor_source_gate,alloc/src/string.rs:1018 contains the Rust 1.96 safety/documentation and constructor body that establish the accepted observable result view; the ensures clause is the exact source-backed postcondition checked by the semantic gate.,alloc/src/string.rs:1018,"989:     /// Converts a vector of bytes to a `String` without checking that the
+990:     /// string contains valid UTF-8.
+998:     /// This function is unsafe because it does not check that the bytes passed
+999:     /// to it are valid UTF-8. If this constraint is violated, it may cause
+1001:     /// the standard library assumes that `String`s are valid UTF-8.
+1018:     pub unsafe fn from_utf8_unchecked(bytes: Vec<u8>) -> String {
+1019:         String { vec: bytes }
+1058:         // SAFETY: String contents are stipulated to be valid UTF-8, invalid contents are an error"
+alloc::string::String::insert,"final(s)@ == old(s)@.insert(
+            choose |i: int| 0 <= i <= old(s)@.len()
+                && encode_utf8(old(s)@.subrange(0, i)).len() == idx as nat,
+            ch,
+        )",source_justified,string_declaration_source_context,"alloc/src/string.rs:1731 is the classified Rust declaration/source_context for `String::insert`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1731,"1727:     #[inline]
+1728:     #[track_caller]
+1729:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1730:     #[rustc_confusables(""set"")]
+1731:     pub fn insert(&mut self, idx: usize, ch: char) {
+1732:         assert!(self.is_char_boundary(idx));
+1733: 
+1734:         let len = self.len();
+1735:         let ch_len = ch.len_utf8();
+1736:         self.reserve(ch_len);
+1737: 
+1738:         // SAFETY: Move the bytes starting from `idx` to their new location `ch_len`
+1739:         // bytes ahead. This is safe because sufficient capacity was reserved, and `idx`"
+alloc::string::String::insert_str,"final(s)@ == vstd::utf8::decode_utf8(
+            vstd::utf8::encode_utf8(old(s)@).take(idx as int)
+                + vstd::utf8::encode_utf8(string@)
+                + vstd::utf8::encode_utf8(old(s)@).skip(idx as int)
+        )",source_justified,string_declaration_source_context,"alloc/src/string.rs:1788 is the classified Rust declaration/source_context for `String::insert_str`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1788,"1784:     #[inline]
+1785:     #[track_caller]
+1786:     #[stable(feature = ""insert_str"", since = ""1.16.0"")]
+1787:     #[rustc_diagnostic_item = ""string_insert_str""]
+1788:     pub fn insert_str(&mut self, idx: usize, string: &str) {
+1789:         assert!(self.is_char_boundary(idx));
+1790: 
+1791:         let len = self.len();
+1792:         let amt = string.len();
+1793:         self.reserve(amt);
+1794: 
+1795:         // SAFETY: Move the bytes starting from `idx` to their new location `amt` bytes
+1796:         // ahead. This is safe because sufficient capacity was just reserved, and `idx`"
+alloc::string::String::into_bytes,res@ == vstd::utf8::encode_utf8(s@),source_justified,string_declaration_source_context,"alloc/src/string.rs:1039 is the classified Rust declaration/source_context for `String::into_bytes`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1039,"1035:     #[must_use = ""`self` will be dropped if the result is not used""]
+1036:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1037:     #[rustc_const_stable(feature = ""const_vec_string_slice"", since = ""1.87.0"")]
+1038:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]
+1039:     pub const fn into_bytes(self) -> Vec<u8> {
+1040:         self.vec
+1041:     }
+1042: 
+1043:     /// Extracts a string slice containing the entire `String`.
+1044:     ///
+1045:     /// # Examples
+1046:     ///
+1047:     /// ```"
+alloc::string::String::is_empty,result == (s@.len() == 0),source_justified,string_declaration_source_context,"alloc/src/string.rs:1885 is the classified Rust declaration/source_context for `String::is_empty`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1885,"1881:     #[must_use]
+1882:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1883:     #[rustc_const_stable(feature = ""const_vec_string_slice"", since = ""1.87.0"")]
+1884:     #[rustc_no_implicit_autorefs]
+1885:     pub const fn is_empty(&self) -> bool {
+1886:         self.len() == 0
+1887:     }
+1888: 
+1889:     /// Splits the string into two at the given byte index.
+1890:     ///
+1891:     /// Returns a newly allocated `String`. `self` contains bytes `[0, at)`, and
+1892:     /// the returned `String` contains bytes `[at, len)`. `at` must be on the
+1893:     /// boundary of a UTF-8 code point."
+alloc::string::String::len,result as nat == encode_utf8(s@).len(),source_justified,string_declaration_source_context,"alloc/src/string.rs:1865 is the classified Rust declaration/source_context for `String::len`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1865,"1861:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1862:     #[rustc_const_stable(feature = ""const_vec_string_slice"", since = ""1.87.0"")]
+1863:     #[rustc_confusables(""length"", ""size"")]
+1864:     #[rustc_no_implicit_autorefs]
+1865:     pub const fn len(&self) -> usize {
+1866:         self.vec.len()
+1867:     }
+1868: 
+1869:     /// Returns `true` if this `String` has a length of zero, and `false` otherwise.
+1870:     ///
+1871:     /// # Examples
+1872:     ///
+1873:     /// ```"
+alloc::string::String::pop,"old(s)@.len() == 0 ==> result == None && final(s)@ == old(s)@; old(s)@.len() > 0 ==> result == Some(old(s)@[old(s)@.len() - 1])
+            && final(s)@ == old(s)@.drop_last()",source_justified,string_declaration_source_context,"alloc/src/string.rs:1502 is the classified Rust declaration/source_context for `String::pop`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1502,"1498:     /// assert_eq!(s.pop(), None);
+1499:     /// ```
+1500:     #[inline]
+1501:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1502:     pub fn pop(&mut self) -> Option<char> {
+1503:         let ch = self.chars().rev().next()?;
+1504:         let newlen = self.len() - ch.len_utf8();
+1505:         unsafe {
+1506:             self.vec.set_len(newlen);
+1507:         }
+1508:         Some(ch)
+1509:     }
+1510: "
+alloc::string::String::push,final(s)@ == old(s)@.push(ch),source_justified,string_declaration_source_context,"alloc/src/string.rs:1421 is the classified Rust declaration/source_context for `String::push`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1421,"1417:     /// ```
+1418:     #[cfg(not(no_global_oom_handling))]
+1419:     #[inline]
+1420:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1421:     pub fn push(&mut self, ch: char) {
+1422:         let len = self.len();
+1423:         let ch_len = ch.len_utf8();
+1424:         self.reserve(ch_len);
+1425: 
+1426:         // SAFETY: Just reserved capacity for at least the length needed to encode `ch`.
+1427:         unsafe {
+1428:             core::char::encode_utf8_raw_unchecked(ch as u32, self.vec.as_mut_ptr().add(len));
+1429:             self.vec.set_len(len + ch_len);"
+alloc::string::String::push_str,final(s)@ == old(s)@ + string@,source_justified,string_declaration_source_context,"alloc/src/string.rs:1106 is the classified Rust declaration/source_context for `String::push_str`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1106,"1102:     #[inline]
+1103:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1104:     #[rustc_confusables(""append"", ""push"")]
+1105:     #[rustc_diagnostic_item = ""string_push_str""]
+1106:     pub fn push_str(&mut self, string: &str) {
+1107:         self.vec.extend_from_slice(string.as_bytes())
+1108:     }
+1109: 
+1110:     #[cfg(not(no_global_oom_handling))]
+1111:     #[inline]
+1112:     fn push_str_slice(&mut self, slice: &[&str]) {
+1113:         // use saturating arithmetic to ensure that in the case of an overflow, reserve() throws OOM
+1114:         let additional: Saturating<usize> = slice.iter().map(|x| Saturating(x.len())).sum();"
+alloc::string::String::remove,"forall |i: int| #![trigger encode_utf8(old(s)@.subrange(0, i))]
+            0 <= i < old(s)@.len()
+            && idx as nat == encode_utf8(old(s)@.subrange(0, i)).len()
+            ==> result == old(s)@[i]
+                && final(s)@ == old(s)@.subrange(0, i)
+                    + old(s)@.subrange(i + 1, old(s)@.len() as int)",source_justified,string_declaration_source_context,"alloc/src/string.rs:1535 is the classified Rust declaration/source_context for `String::remove`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1535,"1531:     #[inline]
+1532:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1533:     #[track_caller]
+1534:     #[rustc_confusables(""delete"", ""take"")]
+1535:     pub fn remove(&mut self, idx: usize) -> char {
+1536:         let ch = match self[idx..].chars().next() {
+1537:             Some(ch) => ch,
+1538:             None => panic!(""cannot remove a char from the end of a string""),
+1539:         };
+1540: 
+1541:         let next = idx + ch.len_utf8();
+1542:         let len = self.len();
+1543:         unsafe {"
+alloc::string::String::replace_range,"final(s)@ == string_replace_range_result(&range, encode_utf8(old(s)@), replace_with@)",source_justified,exact_string_replace_range_source_gate,"alloc/src/string.rs:2080 snapshots `range` once with `slice::range`, checks the resulting byte endpoints as UTF-8 character boundaries, and splices `replace_with.bytes()` into that checked byte range; the ensures clause models exactly the decoded byte sequence after that source-backed splice.",alloc/src/string.rs:2080,"2064:     /// Panics if the range has `start_bound > end_bound`, or, if the range is
+2065:     /// bounded on either end and does not lie on a [`char`] boundary.
+2080:     pub fn replace_range<R>(&mut self, range: R, replace_with: &str)
+2082:         R: RangeBounds<usize>,
+2084:         // We avoid #81138 (nondeterministic RangeBounds impls) because we only use `range` once, here.
+2085:         let checked_range = slice::range(range, ..self.len());
+2088:             self.is_char_boundary(checked_range.start),
+2092:             self.is_char_boundary(checked_range.end),
+2096:         unsafe { self.as_mut_vec() }.splice(checked_range, replace_with.bytes());"
+alloc::string::String::split_off,"forall |i: int| #![auto]
+            0 <= i <= old(s)@.len()
+                && vstd::utf8::encode_utf8(old(s)@.take(i)).len() == at as nat
+            ==> final(s)@ == old(s)@.take(i)
+                && result@ == old(s)@.skip(i); final(s).spec_capacity() == old(s).spec_capacity()",source_justified,string_declaration_source_context,"alloc/src/string.rs:1917 is the classified Rust declaration/source_context for `String::split_off`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1917,"1913:     #[inline]
+1914:     #[track_caller]
+1915:     #[stable(feature = ""string_split_off"", since = ""1.16.0"")]
+1916:     #[must_use = ""use `.truncate()` if you don't need the other half""]
+1917:     pub fn split_off(&mut self, at: usize) -> String {
+1918:         assert!(self.is_char_boundary(at));
+1919:         let other = self.vec.split_off(at);
+1920:         unsafe { String::from_utf8_unchecked(other) }
+1921:     }
+1922: 
+1923:     /// Truncates this `String`, removing all contents.
+1924:     ///
+1925:     /// While this means the `String` will have a length of zero, it does not"
+alloc::string::String::truncate,"final(s)@ == if (new_len as nat) < encode_utf8(old(s)@).len() {
+            old(s)@.take(choose |i: int| 0 <= i <= old(s)@.len()
+                && encode_utf8(old(s)@.take(i)).len() == new_len as nat)
+        } else {
+            old(s)@
+        }",source_justified,string_declaration_source_context,"alloc/src/string.rs:1478 is the classified Rust declaration/source_context for `String::truncate`; the accepted ensures clauses model only the observable UTF-8 character/byte view, length/capacity, returned character/string, and documented mutation effect of that source body.",alloc/src/string.rs:1478,"1474:     /// ```
+1475:     #[inline]
+1476:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1477:     #[track_caller]
+1478:     pub fn truncate(&mut self, new_len: usize) {
+1479:         if new_len <= self.len() {
+1480:             assert!(self.is_char_boundary(new_len));
+1481:             self.vec.truncate(new_len)
+1482:         }
+1483:     }
+1484: 
+1485:     /// Removes the last character from the string buffer and returns it.
+1486:     ///"
+alloc::vec::Vec::dedup,"final(vec)@ == Seq::new(old(vec)@.len(), |i: int| i)
+            .filter(|i: int| i == 0 || !old(vec)@[i].eq_spec(&old(vec)@[i - 1]))
+            .map(|_j: int, i: int| old(vec)@[i])",source_justified,vec_declaration_source_context,alloc/src/vec/mod.rs:3704 is the classified Rust declaration/source_context for `Vec::dedup`; the accepted ensures clauses model the documented observable vector/slice view transformation of that source.,alloc/src/vec/mod.rs:3704,"3700:     /// assert_eq!(vec, [1, 2, 3, 2]);
+3701:     /// ```
+3702:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+3703:     #[inline]
+3704:     pub fn dedup(&mut self) {
+3705:         self.dedup_by(|a, b| a == b)
+3706:     }
+3707: }
+3708: 
+3709: ////////////////////////////////////////////////////////////////////////////////
+3710: // Internal methods and functions
+3711: ////////////////////////////////////////////////////////////////////////////////
+3712: "
+alloc::vec::Vec::into_boxed_slice,slice@ == vec@,source_justified,vec_declaration_source_context,alloc/src/vec/mod.rs:1731 is the classified Rust declaration/source_context for `Vec::into_boxed_slice`; the accepted ensures clauses model the documented observable vector/slice view transformation of that source.,alloc/src/vec/mod.rs:1731,"1727:     /// assert_eq!(slice.into_vec().capacity(), 3);
+1728:     /// ```
+1729:     #[cfg(not(no_global_oom_handling))]
+1730:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1731:     pub fn into_boxed_slice(mut self) -> Box<[T], A> {
+1732:         unsafe {
+1733:             self.shrink_to_fit();
+1734:             let me = ManuallyDrop::new(self);
+1735:             let buf = ptr::read(&me.buf);
+1736:             let len = me.len();
+1737:             buf.into_box(len).assume_init()
+1738:         }
+1739:     }"
+alloc::vec::Vec::into_flattened,"result@ == Seq::new(vec@.len() * (N as nat), |k: int|
+            (vec@[k / (N as int)])@[k % (N as int)])",source_justified,vec_declaration_source_context,alloc/src/vec/mod.rs:3633 is the classified Rust declaration/source_context for `Vec::into_flattened`; the accepted ensures clauses model the documented observable vector/slice view transformation of that source.,alloc/src/vec/mod.rs:3633,"3629:     /// let mut flattened = vec.into_flattened();
+3630:     /// assert_eq!(flattened.pop(), Some(6));
+3631:     /// ```
+3632:     #[stable(feature = ""slice_flatten"", since = ""1.80.0"")]
+3633:     pub fn into_flattened(self) -> Vec<T, A> {
+3634:         let (ptr, len, cap, alloc) = self.into_raw_parts_with_alloc();
+3635:         let (new_len, new_cap) = if T::IS_ZST {
+3636:             (len.checked_mul(N).expect(""vec len overflow""), usize::MAX)
+3637:         } else {
+3638:             // SAFETY:
+3639:             // - `cap * N` cannot overflow because the allocation is already in
+3640:             // the address space.
+3641:             // - Each `[T; N]` has `N` valid elements, so there are `len * N`"
+core::array::as_mut_slice,out@ == old(ar)@; final(out)@ == out@; final(out)@ == final(ar)@,source_justified,exact_direct_mut_view_adapter_source_gate,core/src/array/mod.rs:658 constructs the returned mutable view directly from the input array/slice/value without copying; the ensures clauses model that source-backed view and final-state relationship.,core/src/array/mod.rs:658,"654:     /// Returns a mutable slice containing the entire array. Equivalent to
+655:     /// `&mut s[..]`.
+656:     #[stable(feature = ""array_as_slice"", since = ""1.57.0"")]
+657:     #[rustc_const_stable(feature = ""const_array_as_mut_slice"", since = ""1.89.0"")]
+658:     pub const fn as_mut_slice(&mut self) -> &mut [T] {
+659:         self
+660:     }
+661: 
+662:     /// Borrows each element and returns an array of references with the same
+663:     /// size as `self`.
+664:     ///
+665:     ///
+666:     /// # Example"
+core::array::each_mut,forall|i: int| #![auto] 0 <= i < N ==> *out[i] == old(ar)@[i]; forall|i: int| #![auto] 0 <= i < N ==> *final(out[i]) == *out[i]; forall|i: int| #![auto] 0 <= i < N ==> *final(out[i]) == final(ar)@[i],source_justified,exact_array_each_mut_source_gate,"core/src/array/mod.rs:719 constructs one mutable reference for each array element and transmutes that initialized pointer array into the returned reference array; the ensures clauses model only per-index dereferenced values and the final array relation, without pointer or provenance claims.",core/src/array/mod.rs:719,"700:         unsafe { transmute_unchecked(buf) }
+703:     /// Borrows each element mutably and returns an array of mutable references
+719:     pub const fn each_mut(&mut self) -> [&mut T; N] {
+725:             buf[i] = &raw mut self[i];
+730:         // SAFETY: `*mut T` has the same layout as `&mut T`, and we've also initialised each pointer as a valid reference.
+731:         unsafe { transmute_unchecked(buf) }"
+core::array::each_ref,forall|i: int| 0 <= i < N ==> *(out@[i]) == ar@[i],source_justified,array_declaration_source_context,core/src/array/mod.rs:688 is the classified Rust declaration/source_context for `array::each_ref`; the accepted ensures clauses model the documented array/slice/reference view constructed by that source.,core/src/array/mod.rs:688,"684:     /// assert_eq!(strings.len(), 3);
+685:     /// ```
+686:     #[stable(feature = ""array_methods"", since = ""1.77.0"")]
+687:     #[rustc_const_stable(feature = ""const_array_each_ref"", since = ""1.91.0"")]
+688:     pub const fn each_ref(&self) -> [&T; N] {
+689:         let mut buf = [null::<T>(); N];
+690: 
+691:         // FIXME(const_trait_impl): We would like to simply use iterators for this (as in the original implementation), but this is not allowed in constant expressions.
+692:         let mut i = 0;
+693:         while i < N {
+694:             buf[i] = &raw const self[i];
+695: 
+696:             i += 1;"
+core::array::from_mut,out@[0] == *old(s); final(out)@ == out@; *final(s) == final(out)@[0],source_justified,exact_direct_mut_view_adapter_source_gate,core/src/array/mod.rs:175 constructs the returned mutable view directly from the input array/slice/value without copying; the ensures clauses model that source-backed view and final-state relationship.,core/src/array/mod.rs:175,"171: 
+172: /// Converts a mutable reference to `T` into a mutable reference to an array of length 1 (without copying).
+173: #[stable(feature = ""array_from_ref"", since = ""1.53.0"")]
+174: #[rustc_const_stable(feature = ""const_array_from_ref"", since = ""1.83.0"")]
+175: pub const fn from_mut<T>(s: &mut T) -> &mut [T; 1] {
+176:     // SAFETY: Converting `&mut T` to `&mut [T; 1]` is sound.
+177:     unsafe { &mut *(s as *mut T).cast::<[T; 1]>() }
+178: }
+179: 
+180: /// The error type returned when a conversion from a slice to an array fails.
+181: #[stable(feature = ""try_from"", since = ""1.34.0"")]
+182: #[derive(Debug, Copy, Clone)]
+183: pub struct TryFromSliceError(());"
+core::array::from_ref,out@ == seq![*s],source_justified,array_declaration_source_context,core/src/array/mod.rs:167 is the classified Rust declaration/source_context for `array::from_ref`; the accepted ensures clauses model the documented array/slice/reference view constructed by that source.,core/src/array/mod.rs:167,"163: 
+164: /// Converts a reference to `T` into a reference to an array of length 1 (without copying).
+165: #[stable(feature = ""array_from_ref"", since = ""1.53.0"")]
+166: #[rustc_const_stable(feature = ""const_array_from_ref_shared"", since = ""1.63.0"")]
+167: pub const fn from_ref<T>(s: &T) -> &[T; 1] {
+168:     // SAFETY: Converting `&T` to `&[T; 1]` is sound.
+169:     unsafe { &*(s as *const T).cast::<[T; 1]>() }
+170: }
+171: 
+172: /// Converts a mutable reference to `T` into a mutable reference to an array of length 1 (without copying).
+173: #[stable(feature = ""array_from_ref"", since = ""1.53.0"")]
+174: #[rustc_const_stable(feature = ""const_array_from_ref"", since = ""1.83.0"")]
+175: pub const fn from_mut<T>(s: &mut T) -> &mut [T; 1] {"
+core::cmp::max,"match v1.cmp_spec(&v2) {
+            core::cmp::Ordering::Greater => r == v1,
+            core::cmp::Ordering::Less | core::cmp::Ordering::Equal => r == v2,
+        }",source_justified,cmp_min_max_source_context,"core/src/cmp.rs:1681 documents the maximum operation, the equal tie rule returning the second argument, and delegates to `v1.max(v2)`; the ensures clauses model that exact source-backed comparison result.",core/src/cmp.rs:1681,"1644: /// Compares and returns the maximum of two values.
+1646: /// Returns the second argument if the comparison determines them to be equal.
+1648: /// Internally uses an alias to [`Ord::max`].
+1681: pub const fn max<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {
+1682:     v1.max(v2)
+1687: /// Returns the second argument if the comparison determines them to be equal.
+1722: /// Returns the second argument if the comparison determines them to be equal."
+core::cmp::min,"match v1.cmp_spec(&v2) {
+            core::cmp::Ordering::Less => r == v1,
+            core::cmp::Ordering::Equal => r == v1,
+            core::cmp::Ordering::Greater => r == v2,
+        }",source_justified,cmp_min_max_source_context,"core/src/cmp.rs:1574 documents the minimum operation, the equal tie rule returning the first argument, and delegates to `v1.min(v2)`; the ensures clauses model that exact source-backed comparison result.",core/src/cmp.rs:1574,"1537: /// Compares and returns the minimum of two values.
+1539: /// Returns the first argument if the comparison determines them to be equal.
+1541: /// Internally uses an alias to [`Ord::min`].
+1574: pub const fn min<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {
+1575:     v1.min(v2)
+1580: /// Returns the first argument if the comparison determines them to be equal.
+1615: /// Returns the first argument if the comparison determines them to be equal."
+core::convert::identity,ret == x,source_justified,identity_like_declaration_source_context,core/src/convert/mod.rs:106 is the classified Rust declaration/source_context for an identity-like executable API; the accepted ensures clause models the source-backed returned input value.,core/src/convert/mod.rs:106,"102: #[stable(feature = ""convert_id"", since = ""1.33.0"")]
+103: #[rustc_const_stable(feature = ""const_identity"", since = ""1.33.0"")]
+104: #[inline(always)]
+105: #[rustc_diagnostic_item = ""convert_identity""]
+106: pub const fn identity<T>(x: T) -> T {
+107:     x
+108: }
+109: 
+110: /// Used to do a cheap reference-to-reference conversion.
+111: ///
+112: /// This trait is similar to [`AsMut`] which is used for converting between mutable references.
+113: /// If you need to do a costly conversion it is better to implement [`From`] with type
+114: /// `&T` or write a custom function."
+core::hint::black_box,output == dummy,source_justified,identity_like_declaration_source_context,core/src/hint.rs:490 is the classified Rust declaration/source_context for an identity-like executable API; the accepted ensures clause models the source-backed returned input value.,core/src/hint.rs:490,"486: /// During constant evaluation, `black_box` is treated as a no-op.
+487: #[inline]
+488: #[stable(feature = ""bench_black_box"", since = ""1.66.0"")]
+489: #[rustc_const_stable(feature = ""const_black_box"", since = ""1.86.0"")]
+490: pub const fn black_box<T>(dummy: T) -> T {
+491:     crate::intrinsics::black_box(dummy)
+492: }
+493: 
+494: /// An identity function that causes an `unused_must_use` warning to be
+495: /// triggered if the given value is not used (returned, stored in a variable,
+496: /// etc) by the caller.
+497: ///
+498: /// This is primarily intended for use in macro-generated code, in which a"
+core::hint::select_unpredictable,condition ==> result == true_val; !condition ==> result == false_val,source_justified,select_unpredictable_declaration_source_context,core/src/hint.rs:832 is the classified Rust declaration/source_context for `select_unpredictable`; the accepted ensures clause models the documented selected input value without relying on branch prediction.,core/src/hint.rs:832,"828: /// ```
+829: #[inline(always)]
+830: #[stable(feature = ""select_unpredictable"", since = ""1.88.0"")]
+831: #[rustc_const_unstable(feature = ""const_select_unpredictable"", issue = ""145938"")]
+832: pub const fn select_unpredictable<T>(condition: bool, true_val: T, false_val: T) -> T
+833: where
+834:     T: [const] Destruct,
+835: {
+836:     // FIXME(https://github.com/rust-lang/unsafe-code-guidelines/issues/245):
+837:     // Change this to use ManuallyDrop instead.
+838:     let mut true_val = MaybeUninit::new(true_val);
+839:     let mut false_val = MaybeUninit::new(false_val);
+840: "
+core::mem::min_align_of,res == core::mem::align_of::<T>(),source_justified,mem_align_declaration_source_context,core/src/mem/mod.rs:489 is the classified Rust declaration/source_context for the minimum-alignment query; the accepted ensures clause models the source-backed alignment value exposed by that API.,core/src/mem/mod.rs:489,"485: #[inline]
+486: #[must_use]
+487: #[stable(feature = ""rust1"", since = ""1.0.0"")]
+488: #[deprecated(note = ""use `align_of` instead"", since = ""1.2.0"", suggestion = ""align_of"")]
+489: pub fn min_align_of<T>() -> usize {
+490:     <T as SizedTypeProperties>::ALIGN
+491: }
+492: 
+493: /// Returns the [ABI]-required minimum alignment of the type of the value that `val` points to in
+494: /// bytes.
+495: ///
+496: /// Every reference to a value of the type `T` must be a multiple of this number.
+497: ///"
+core::mem::min_align_of_val,res == core::mem::align_of_val(val),source_justified,mem_align_declaration_source_context,core/src/mem/mod.rs:512 is the classified Rust declaration/source_context for the minimum-alignment query; the accepted ensures clause models the source-backed alignment value exposed by that API.,core/src/mem/mod.rs:512,"508: #[inline]
+509: #[must_use]
+510: #[stable(feature = ""rust1"", since = ""1.0.0"")]
+511: #[deprecated(note = ""use `align_of_val` instead"", since = ""1.2.0"", suggestion = ""align_of_val"")]
+512: pub fn min_align_of_val<T: ?Sized>(val: &T) -> usize {
+513:     // SAFETY: val is a reference, so it's a valid raw pointer
+514:     unsafe { intrinsics::align_of_val(val) }
+515: }
+516: 
+517: /// Returns the [ABI]-required minimum alignment of a type, in bytes.
+518: ///
+519: /// Every reference to a value of the type `T` must be a multiple of this number.
+520: ///"
+core::mem::replace,res == *old(dest); *final(dest) == src,source_justified,mem_replace_declaration_source_context,core/src/mem/mod.rs:954 is the classified Rust declaration/source_context for `mem::replace`; the accepted ensures clauses model the documented old-value return and new destination post-state.,core/src/mem/mod.rs:954,"950: #[stable(feature = ""rust1"", since = ""1.0.0"")]
+951: #[must_use = ""if you don't need the old value, you can just assign the new value directly""]
+952: #[rustc_const_stable(feature = ""const_replace"", since = ""1.83.0"")]
+953: #[rustc_diagnostic_item = ""mem_replace""]
+954: pub const fn replace<T>(dest: &mut T, src: T) -> T {
+955:     // It may be tempting to use `swap` to avoid `unsafe` here. Don't!
+956:     // The compiler optimizes the implementation below to two `memcpy`s
+957:     // while `swap` would require at least three. See PR#83022 for details.
+958: 
+959:     // SAFETY: We read from `dest` but directly write `src` into it afterwards,
+960:     // such that the old value is not duplicated. Nothing is dropped and
+961:     // nothing here can panic.
+962:     unsafe {"
+core::ops::Range::is_empty,ret == !r.start.is_lt(&r.end),source_justified,range_declaration_source_context,core/src/ops/range.rs:151 is the classified Rust declaration/source_context for `Range::is_empty`; the accepted ensures clause models the documented empty-range comparison over the observable bounds.,core/src/ops/range.rs:151,"147:     /// ```
+148:     #[inline]
+149:     #[stable(feature = ""range_is_empty"", since = ""1.47.0"")]
+150:     #[rustc_const_unstable(feature = ""const_range"", issue = ""none"")]
+151:     pub const fn is_empty(&self) -> bool
+152:     where
+153:         Idx: [const] PartialOrd<Idx>,
+154:     {
+155:         !(self.start < self.end)
+156:     }
+157: }
+158: 
+159: /// A range only bounded inclusively below (`start..`)."
+core::ops::RangeInclusive::into_inner,ret.0 == r@.start; ret.1 == r@.end,source_justified,range_inclusive_declaration_source_context,core/src/ops/range.rs:457 is the classified Rust declaration/source_context for `RangeInclusive::into_inner`; the accepted ensures clauses model the documented start/end pair or emptiness predicate for the non-exhausted observable range state.,core/src/ops/range.rs:457,"453:     /// ```
+454:     #[stable(feature = ""inclusive_range_methods"", since = ""1.27.0"")]
+455:     #[inline]
+456:     #[rustc_const_unstable(feature = ""const_range_bounds"", issue = ""108082"")]
+457:     pub const fn into_inner(self) -> (Idx, Idx) {
+458:         (self.start, self.end)
+459:     }
+460: }
+461: 
+462: impl RangeInclusive<usize> {
+463:     /// Converts to an exclusive `Range` for `SliceIndex` implementations.
+464:     /// The caller is responsible for dealing with `end == usize::MAX`.
+465:     #[inline]"
+core::ops::RangeInclusive::is_empty,ret == (r@.exhausted || !r@.start.is_le(&r@.end)),source_justified,range_inclusive_declaration_source_context,core/src/ops/range.rs:559 is the classified Rust declaration/source_context for `RangeInclusive::is_empty`; the accepted ensures clauses model the documented start/end pair or emptiness predicate for the non-exhausted observable range state.,core/src/ops/range.rs:559,"555:     /// ```
+556:     #[stable(feature = ""range_is_empty"", since = ""1.47.0"")]
+557:     #[inline]
+558:     #[rustc_const_unstable(feature = ""const_range"", issue = ""none"")]
+559:     pub const fn is_empty(&self) -> bool
+560:     where
+561:         Idx: [const] PartialOrd,
+562:     {
+563:         self.exhausted || !(self.start <= self.end)
+564:     }
+565: }
+566: 
+567: /// A range only bounded inclusively above (`..=end`)."
+core::option::Option::and,option.is_none() ==> res.is_none(); option.is_some() ==> res == optb,source_justified,option_declaration_source_context,core/src/option.rs:1493 is the classified Rust declaration/source_context for `Option::and` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:1493,"1489:     /// ```
+1490:     #[inline]
+1491:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1492:     #[rustc_const_unstable(feature = ""const_option_ops"", issue = ""143956"")]
+1493:     pub const fn and<U>(self, optb: Option<U>) -> Option<U>
+1494:     where
+1495:         T: [const] Destruct,
+1496:         U: [const] Destruct,
+1497:     {
+1498:         match self {
+1499:             Some(_) => optb,
+1500:             None => None,
+1501:         }"
+core::option::Option::flatten,"res == match option {
+            Some(inner) => inner,
+            None => None,
+        }",source_justified,option_declaration_source_context,core/src/option.rs:2937 is the classified Rust declaration/source_context for `Option::flatten` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:2937,"2933:     #[inline]
+2934:     #[stable(feature = ""option_flattening"", since = ""1.40.0"")]
+2935:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]
+2936:     #[rustc_const_stable(feature = ""const_option"", since = ""1.83.0"")]
+2937:     pub const fn flatten(self) -> Option<T> {
+2938:         // FIXME(const-hack): could be written with `and_then`
+2939:         match self {
+2940:             Some(inner) => inner,
+2941:             None => None,
+2942:         }
+2943:     }
+2944: }
+2945: "
+core::option::Option::or,option.is_some() ==> res == option; option.is_none() ==> res == optb,source_justified,option_declaration_source_context,core/src/option.rs:1617 is the classified Rust declaration/source_context for `Option::or` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:1617,"1613:     /// ```
+1614:     #[inline]
+1615:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1616:     #[rustc_const_unstable(feature = ""const_option_ops"", issue = ""143956"")]
+1617:     pub const fn or(self, optb: Option<T>) -> Option<T>
+1618:     where
+1619:         T: [const] Destruct,
+1620:     {
+1621:         match self {
+1622:             x @ Some(_) => x,
+1623:             None => optb,
+1624:         }
+1625:     }"
+core::option::Option::replace,res == *old(option); *final(option) == core::option::Option::Some(value),source_justified,option_declaration_source_context,core/src/option.rs:1958 is the classified Rust declaration/source_context for `Option::replace` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:1958,"1954:     /// ```
+1955:     #[inline]
+1956:     #[stable(feature = ""option_replace"", since = ""1.31.0"")]
+1957:     #[rustc_const_stable(feature = ""const_option"", since = ""1.83.0"")]
+1958:     pub const fn replace(&mut self, value: T) -> Option<T> {
+1959:         mem::replace(self, Some(value))
+1960:     }
+1961: 
+1962:     /// Makes a tuple of the value in `self` and the value in another `Option`.
+1963:     ///
+1964:     /// If `self` is `Some(s)` and `other` is `Some(o)`, this method returns `Some((s, o))`.
+1965:     /// Otherwise, `None` is returned.
+1966:     ///"
+core::option::Option::transpose,"res == match option { Some(Ok(x)) => Ok(Some(x)), Some(Err(e)) => Err(e), None => Ok(None) }",source_justified,option_declaration_source_context,core/src/option.rs:2237 is the classified Rust declaration/source_context for `Option::transpose` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:2237,"2233:     #[inline]
+2234:     #[stable(feature = ""transpose_result"", since = ""1.33.0"")]
+2235:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]
+2236:     #[rustc_const_stable(feature = ""const_option"", since = ""1.83.0"")]
+2237:     pub const fn transpose(self) -> Result<Option<T>, E> {
+2238:         match self {
+2239:             Some(Ok(x)) => Ok(Some(x)),
+2240:             Some(Err(e)) => Err(e),
+2241:             None => Ok(None),
+2242:         }
+2243:     }
+2244: }
+2245: "
+core::option::Option::unzip,"option is Some ==> res.0 is Some && res.1 is Some && option->0 == (res.0->0, res.1->0); option is None ==> res.0 is None && res.1 is None",source_justified,option_declaration_source_context,core/src/option.rs:2110 is the classified Rust declaration/source_context for `Option::unzip` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:2110,"2106:     /// assert_eq!(y.unzip(), (None, None));
+2107:     /// ```
+2108:     #[inline]
+2109:     #[stable(feature = ""unzip_option"", since = ""1.66.0"")]
+2110:     pub fn unzip(self) -> (Option<T>, Option<U>) {
+2111:         match self {
+2112:             Some((a, b)) => (Some(a), Some(b)),
+2113:             None => (None, None),
+2114:         }
+2115:     }
+2116: }
+2117: 
+2118: impl<T> Option<&T> {"
+core::option::Option::xor,"res == match (option, optb) { (Some(a), None) => Some(a), (None, Some(b)) => Some(b), _ => None }",source_justified,option_declaration_source_context,core/src/option.rs:1680 is the classified Rust declaration/source_context for `Option::xor` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:1680,"1676:     /// ```
+1677:     #[inline]
+1678:     #[stable(feature = ""option_xor"", since = ""1.37.0"")]
+1679:     #[rustc_const_unstable(feature = ""const_option_ops"", issue = ""143956"")]
+1680:     pub const fn xor(self, optb: Option<T>) -> Option<T>
+1681:     where
+1682:         T: [const] Destruct,
+1683:     {
+1684:         match (self, optb) {
+1685:             (a @ Some(_), None) => a,
+1686:             (None, b @ Some(_)) => b,
+1687:             _ => None,
+1688:         }"
+core::option::Option::zip,"res == match (option, other) {
+            (core::option::Option::Some(a), core::option::Option::Some(b)) => core::option::Option::Some((a, b)),
+            _ => core::option::Option::None,
+        }",source_justified,option_declaration_source_context,core/src/option.rs:1979 is the classified Rust declaration/source_context for `Option::zip` and exposes the match/constructor branches; the accepted ensures clauses model only that public Some/None branch result.,core/src/option.rs:1979,"1975:     /// assert_eq!(x.zip(z), None);
+1976:     /// ```
+1977:     #[stable(feature = ""option_zip_option"", since = ""1.46.0"")]
+1978:     #[rustc_const_unstable(feature = ""const_option_ops"", issue = ""143956"")]
+1979:     pub const fn zip<U>(self, other: Option<U>) -> Option<(T, U)>
+1980:     where
+1981:         T: [const] Destruct,
+1982:         U: [const] Destruct,
+1983:     {
+1984:         match (self, other) {
+1985:             (Some(a), Some(b)) => Some((a, b)),
+1986:             _ => None,
+1987:         }"
+core::result::Result::and,result is Ok ==> and_result == res; result is Err ==> and_result is Err && and_result->Err_0 == result->Err_0,source_justified,result_declaration_source_context,core/src/result.rs:1440 is the classified Rust declaration/source_context for `Result::and` and exposes the match/constructor branches; the accepted ensures clauses model only that public Ok/Err branch result or documented non-panicking branch.,core/src/result.rs:1440,"1436:     /// ```
+1437:     #[inline]
+1438:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1439:     #[rustc_const_unstable(feature = ""const_result_trait_fn"", issue = ""144211"")]
+1440:     pub const fn and<U>(self, res: Result<U, E>) -> Result<U, E>
+1441:     where
+1442:         T: [const] Destruct,
+1443:         E: [const] Destruct,
+1444:         U: [const] Destruct,
+1445:     {
+1446:         match self {
+1447:             Ok(_) => res,
+1448:             Err(e) => Err(e),"
+core::result::Result::expect_err,e == result->Err_0,source_justified,result_declaration_source_context,core/src/result.rs:1291 is the classified Rust declaration/source_context for `Result::expect_err` and exposes the match/constructor branches; the accepted ensures clauses model only that public Ok/Err branch result or documented non-panicking branch.,core/src/result.rs:1291,"1287:     /// ```
+1288:     #[inline]
+1289:     #[track_caller]
+1290:     #[stable(feature = ""result_expect_err"", since = ""1.17.0"")]
+1291:     pub fn expect_err(self, msg: &str) -> E
+1292:     where
+1293:         T: fmt::Debug,
+1294:     {
+1295:         match self {
+1296:             Ok(t) => unwrap_failed(msg, &t),
+1297:             Err(e) => e,
+1298:         }
+1299:     }"
+core::result::Result::flatten,"flattened == match result {
+            core::result::Result::Ok(inner) => inner,
+            core::result::Result::Err(e) => core::result::Result::Err(e),
+        }",source_justified,result_declaration_source_context,core/src/result.rs:1855 is the classified Rust declaration/source_context for `Result::flatten` and exposes the match/constructor branches; the accepted ensures clauses model only that public Ok/Err branch result or documented non-panicking branch.,core/src/result.rs:1855,"1851:     #[inline]
+1852:     #[stable(feature = ""result_flattening"", since = ""1.89.0"")]
+1853:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]
+1854:     #[rustc_const_stable(feature = ""result_flattening"", since = ""1.89.0"")]
+1855:     pub const fn flatten(self) -> Result<T, E> {
+1856:         // FIXME(const-hack): could be written with `and_then`
+1857:         match self {
+1858:             Ok(inner) => inner,
+1859:             Err(e) => Err(e),
+1860:         }
+1861:     }
+1862: }
+1863: "
+core::result::Result::or,result is Ok ==> or_result is Ok && or_result->Ok_0 == result->Ok_0; result is Err ==> or_result == res,source_justified,result_declaration_source_context,core/src/result.rs:1526 is the classified Rust declaration/source_context for `Result::or` and exposes the match/constructor branches; the accepted ensures clauses model only that public Ok/Err branch result or documented non-panicking branch.,core/src/result.rs:1526,"1522:     /// ```
+1523:     #[inline]
+1524:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1525:     #[rustc_const_unstable(feature = ""const_result_trait_fn"", issue = ""144211"")]
+1526:     pub const fn or<F>(self, res: Result<T, F>) -> Result<T, F>
+1527:     where
+1528:         T: [const] Destruct,
+1529:         E: [const] Destruct,
+1530:         F: [const] Destruct,
+1531:     {
+1532:         match self {
+1533:             Ok(v) => Ok(v),
+1534:             Err(_) => res,"
+core::result::Result::transpose,"transposed == match result {
+            core::result::Result::Ok(core::option::Option::Some(x)) => core::option::Option::Some(core::result::Result::Ok(x)),
+            core::result::Result::Ok(core::option::Option::None) => core::option::Option::None,
+            core::result::Result::Err(e) => core::option::Option::Some(core::result::Result::Err(e)),
+        }",source_justified,result_declaration_source_context,core/src/result.rs:1819 is the classified Rust declaration/source_context for `Result::transpose` and exposes the match/constructor branches; the accepted ensures clauses model only that public Ok/Err branch result or documented non-panicking branch.,core/src/result.rs:1819,"1815:     #[inline]
+1816:     #[stable(feature = ""transpose_result"", since = ""1.33.0"")]
+1817:     #[rustc_const_stable(feature = ""const_result"", since = ""1.83.0"")]
+1818:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]
+1819:     pub const fn transpose(self) -> Option<Result<T, E>> {
+1820:         match self {
+1821:             Ok(Some(x)) => Some(Ok(x)),
+1822:             Ok(None) => None,
+1823:             Err(e) => Some(Err(e)),
+1824:         }
+1825:     }
+1826: }
+1827: "
+core::result::Result::unwrap_or,result is Ok ==> value == result->Ok_0; result is Err ==> value == default,source_justified,result_declaration_source_context,core/src/result.rs:1588 is the classified Rust declaration/source_context for `Result::unwrap_or` and exposes the match/constructor branches; the accepted ensures clauses model only that public Ok/Err branch result or documented non-panicking branch.,core/src/result.rs:1588,"1584:     /// ```
+1585:     #[inline]
+1586:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1587:     #[rustc_const_unstable(feature = ""const_result_trait_fn"", issue = ""144211"")]
+1588:     pub const fn unwrap_or(self, default: T) -> T
+1589:     where
+1590:         T: [const] Destruct,
+1591:         E: [const] Destruct,
+1592:     {
+1593:         match self {
+1594:             Ok(t) => t,
+1595:             Err(_) => default,
+1596:         }"
+core::slice::as_array,ret.is_some() <==> slice@.len() == N; ret.is_some() ==> ret.unwrap()@ == slice@,source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:853 is the classified Rust declaration/source_context for `slice::as_array`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:853,"849:     #[stable(feature = ""core_slice_as_array"", since = ""1.93.0"")]
+850:     #[rustc_const_stable(feature = ""core_slice_as_array"", since = ""1.93.0"")]
+851:     #[inline]
+852:     #[must_use]
+853:     pub const fn as_array<const N: usize>(&self) -> Option<&[T; N]> {
+854:         if self.len() == N {
+855:             let ptr = self.as_ptr().cast_array();
+856: 
+857:             // SAFETY: The underlying array of a slice can be reinterpreted as an actual array `[T; N]` if `N` is not greater than the slice's length.
+858:             let me = unsafe { &*ptr };
+859:             Some(me)
+860:         } else {
+861:             None"
+core::slice::as_chunks,"{
+            let chunks = choose|candidate: Seq<[T; N]>| {
+                &&& candidate.len() == slice@.len() / (N as nat)
+                &&& forall|i: int| 0 <= i < candidate.len() ==>
+                    (#[trigger] candidate[i])@ == slice@.subrange(
+                        i * (N as int),
+                        (i + 1) * (N as int),
+                    )
+            };
+            &&& ret.0@ == chunks
+            &&& ret.0@.len() == slice@.len() / (N as nat)
+            &&& ret.1@.len() == slice@.len() % (N as nat)
+            &&& slice@.len() == ret.0@.len() * (N as nat) + ret.1@.len()
+            &&& forall|i: int| 0 <= i < ret.0@.len() ==>
+                (#[trigger] ret.0@[i])@ == slice@.subrange(
+                    i * (N as int),
+                    (i + 1) * (N as int),
+                )
+            &&& ret.1@ == slice@.subrange(
+                ((slice@.len() / (N as nat)) * (N as nat)) as int,
+                slice@.len() as int,
+            )
+        }",source_justified,slice_chunk_source_context,"core/src/slice/mod.rs:1399 documents the chunk/remainder lengths, panics for zero `N`, and implements the result by splitting before `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the ensures clauses model exactly those source-backed chunk and remainder views.",core/src/slice/mod.rs:1399,"1360:     /// - `chunks.len()` equals `slice.len() / N`,
+1361:     /// - `remainder.len()` equals `slice.len() % N`, and
+1370:     /// Panics if `N` is zero.
+1399:     pub const fn as_chunks<const N: usize>(&self) -> (&[[T; N]], &[T]) {
+1400:         assert!(N != 0, ""chunk size must be non-zero"");
+1401:         let len_rounded_down = self.len() / N * N;
+1404:         let (multiple_of_n, remainder) = unsafe { self.split_at_unchecked(len_rounded_down) };
+1407:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };
+1416:     /// `let (remainder, chunks) = slice.as_rchunks()`, then:
+1417:     /// - `remainder.len()` equals `slice.len() % N`,
+1418:     /// - `chunks.len()` equals `slice.len() / N`, and
+1427:     /// Panics if `N` is zero.
+1437:     /// let (remainder, chunks) = slice.as_rchunks();"
+core::slice::as_chunks_mut,"{
+            let chunks = choose|candidate: Seq<[T; N]>| {
+                &&& candidate.len() == old(slice)@.len() / (N as nat)
+                &&& forall|i: int| 0 <= i < candidate.len() ==>
+                    (#[trigger] candidate[i])@ == old(slice)@.subrange(
+                        i * (N as int),
+                        (i + 1) * (N as int),
+                    )
+            };
+            &&& ret.0@ == chunks
+            &&& ret.0@.len() == old(slice)@.len() / (N as nat)
+            &&& ret.1@ == old(slice)@.subrange(
+                ((old(slice)@.len() / (N as nat)) * (N as nat)) as int,
+                old(slice)@.len() as int,
+            )
+            &&& final(ret.0)@ == ret.0@
+            &&& final(ret.1)@ == ret.1@
+            &&& final(slice)@ == old(slice)@
+        }",source_justified,slice_chunk_source_context,"core/src/slice/mod.rs:1555 documents the chunk/remainder lengths, panics for zero `N`, and implements the result by splitting before `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the ensures clauses model exactly those source-backed chunk and remainder views.",core/src/slice/mod.rs:1555,"1519:     /// `let (chunks, remainder) = slice.as_chunks_mut()`, then:
+1520:     /// - `chunks.len()` equals `slice.len() / N`,
+1521:     /// - `remainder.len()` equals `slice.len() % N`, and
+1530:     /// Panics if `N` is zero.
+1555:     pub const fn as_chunks_mut<const N: usize>(&mut self) -> (&mut [[T; N]], &mut [T]) {
+1556:         assert!(N != 0, ""chunk size must be non-zero"");
+1557:         let len_rounded_down = self.len() / N * N;
+1560:         let (multiple_of_n, remainder) = unsafe { self.split_at_mut_unchecked(len_rounded_down) };
+1563:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1572:     /// `let (remainder, chunks) = slice.as_rchunks_mut()`, then:
+1573:     /// - `remainder.len()` equals `slice.len() % N`,
+1574:     /// - `chunks.len()` equals `slice.len() / N`, and
+1583:     /// Panics if `N` is zero."
+core::slice::as_flattened,ret@.len() == slice@.len() * N; forall|i: int| 0 <= i < ret@.len() ==> ret@[i] == slice@[i / (N as int)][i % (N as int)],source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:5451 is the classified Rust declaration/source_context for `slice::as_flattened`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:5451,"5447:     /// assert!(empty_slice_of_arrays.as_flattened().is_empty());
+5448:     /// ```
+5449:     #[stable(feature = ""slice_flatten"", since = ""1.80.0"")]
+5450:     #[rustc_const_stable(feature = ""const_slice_flatten"", since = ""1.87.0"")]
+5451:     pub const fn as_flattened(&self) -> &[T] {
+5452:         let len = if T::IS_ZST {
+5453:             self.len().checked_mul(N).expect(""slice len overflow"")
+5454:         } else {
+5455:             // SAFETY: `self.len() * N` cannot overflow because `self` is
+5456:             // already in the address space.
+5457:             unsafe { self.len().unchecked_mul(N) }
+5458:         };
+5459:         // SAFETY: `[T]` is layout-identical to `[T; N]`"
+core::slice::as_mut_array,"ret is Some == (old(slice)@.len() == N); ret matches Some(out) ==> {
+            &&& out@ == old(slice)@
+            &&& final(out)@ == out@
+            &&& final(slice)@ == final(out)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_direct_mut_view_adapter_source_gate,core/src/slice/mod.rs:872 constructs the returned mutable view directly from the input array/slice/value without copying; the ensures clauses model that source-backed view and final-state relationship.,core/src/slice/mod.rs:872,"868:     #[stable(feature = ""core_slice_as_array"", since = ""1.93.0"")]
+869:     #[rustc_const_stable(feature = ""core_slice_as_array"", since = ""1.93.0"")]
+870:     #[inline]
+871:     #[must_use]
+872:     pub const fn as_mut_array<const N: usize>(&mut self) -> Option<&mut [T; N]> {
+873:         if self.len() == N {
+874:             let ptr = self.as_mut_ptr().cast_array();
+875: 
+876:             // SAFETY: The underlying array of a slice can be reinterpreted as an actual array `[T; N]` if `N` is not greater than the slice's length.
+877:             let me = unsafe { &mut *ptr };
+878:             Some(me)
+879:         } else {
+880:             None"
+core::slice::as_rchunks,"ret.0@ == slice@.subrange(
+            0,
+            (slice@.len() % (N as nat)) as int,
+        ); ret.1@ == Seq::new(
+            slice@.len() / (N as nat),
+            |i: int| choose|chunk: [T; N]|
+                chunk@ == slice@.subrange(
+                    (slice@.len() % (N as nat)) as int + i * (N as int),
+                    (slice@.len() % (N as nat)) as int + (i + 1) * (N as int),
+                ),
+        ); forall|i: int| i >= 0 && ret.1@.len() > i ==>
+            (#[trigger] ret.1@[i])@ == slice@.subrange(
+                (slice@.len() % (N as nat)) as int + i * (N as int),
+                (slice@.len() % (N as nat)) as int + (i + 1) * (N as int),
+            )",source_justified,slice_chunk_source_context,"core/src/slice/mod.rs:1446 documents the chunk/remainder lengths, panics for zero `N`, and implements the result by splitting before `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the ensures clauses model exactly those source-backed chunk and remainder views.",core/src/slice/mod.rs:1446,"1401:         let len_rounded_down = self.len() / N * N;
+1404:         let (multiple_of_n, remainder) = unsafe { self.split_at_unchecked(len_rounded_down) };
+1407:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };
+1416:     /// `let (remainder, chunks) = slice.as_rchunks()`, then:
+1417:     /// - `remainder.len()` equals `slice.len() % N`,
+1418:     /// - `chunks.len()` equals `slice.len() / N`, and
+1427:     /// Panics if `N` is zero.
+1437:     /// let (remainder, chunks) = slice.as_rchunks();
+1446:     pub const fn as_rchunks<const N: usize>(&self) -> (&[T], &[[T; N]]) {
+1447:         assert!(N != 0, ""chunk size must be non-zero"");
+1452:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked() };
+1483:     ///     unsafe { slice.as_chunks_unchecked_mut() };
+1488:     ///     unsafe { slice.as_chunks_unchecked_mut() };"
+core::slice::as_rchunks_mut,"ret.0@ == old(slice)@.subrange(
+            0,
+            (old(slice)@.len() % (N as nat)) as int,
+        ); ret.1@ == Seq::new(
+            old(slice)@.len() / (N as nat),
+            |i: int| choose|chunk: [T; N]|
+                chunk@ == old(slice)@.subrange(
+                    (old(slice)@.len() % (N as nat)) as int + i * (N as int),
+                    (old(slice)@.len() % (N as nat)) as int + (i + 1) * (N as int),
+                ),
+        ); forall|i: int| i >= 0 && ret.1@.len() > i ==>
+            (#[trigger] ret.1@[i])@ == old(slice)@.subrange(
+                (old(slice)@.len() % (N as nat)) as int + i * (N as int),
+                (old(slice)@.len() % (N as nat)) as int + (i + 1) * (N as int),
+            ); final(ret.0)@ == ret.0@; final(ret.1)@ == ret.1@; final(slice)@ == old(slice)@",source_justified,slice_chunk_source_context,"core/src/slice/mod.rs:1608 documents the chunk/remainder lengths, panics for zero `N`, and implements the result by splitting before `as_chunks_unchecked`/`as_chunks_unchecked_mut`; the ensures clauses model exactly those source-backed chunk and remainder views.",core/src/slice/mod.rs:1608,"1563:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1572:     /// `let (remainder, chunks) = slice.as_rchunks_mut()`, then:
+1573:     /// - `remainder.len()` equals `slice.len() % N`,
+1574:     /// - `chunks.len()` equals `slice.len() / N`, and
+1583:     /// Panics if `N` is zero.
+1608:     pub const fn as_rchunks_mut<const N: usize>(&mut self) -> (&mut [T], &mut [[T; N]]) {
+1609:         assert!(N != 0, ""chunk size must be non-zero"");
+1611:         let (remainder, multiple_of_n) = self.split_at_mut(self.len() - len * N);
+1614:         let array_slice = unsafe { multiple_of_n.as_chunks_unchecked_mut() };
+1627:     /// Panics if `N` is zero.
+1650:         assert!(N != 0, ""window size must be non-zero"");"
+core::slice::binary_search,"match result {
+            Ok(i) => {
+                &&& i < v@.len()
+                &&& v@[i as int].cmp_spec(x) == Ordering::Equal
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) < j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+            Err(i) => {
+                &&& i <= v@.len()
+                &&& forall|j: int| 0 <= j < (i as int) ==>
+                    v@[j].cmp_spec(x) == Ordering::Less
+                &&& forall|j: int| (i as int) <= j < v@.len() ==>
+                    v@[j].cmp_spec(x) == Ordering::Greater
+            },
+        }",source_justified,exact_binary_search_source_gate,"core/src/slice/mod.rs:2925 shows `slice::binary_search` has the `T: Ord` bound, documents sorted-input/insertion-index behavior and duplicate-match nondeterminism, and delegates to `self.binary_search_by(|p| p.cmp(x))`; the ensures clauses are the source-backed unique-match Ok/Err partition model.",core/src/slice/mod.rs:2925,"2918:     /// // If `num` is unique, `s.partition_point(|&x| x < num)` (with `<`) is equivalent to
+2925:     pub fn binary_search(&self, x: &T) -> Result<usize, usize>
+2927:         T: Ord,
+2929:         self.binary_search_by(|p| p.cmp(x))
+2937:     /// If the slice is not sorted or if the comparator function does not
+2942:     /// index of the matching element. If there are multiple matches, then any
+2943:     /// one of the matches could be returned. The index is chosen
+2946:     /// the index where a matching element could be inserted while maintaining
+2958:     /// uniquely determined position; the second and third are not"
+core::slice::contains,result <==> exists|i: int| 0 <= i < slice@.len() && slice@[i].eq_spec(x),source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:2594 is the classified Rust declaration/source_context for `slice::contains`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:2594,"2590:     /// ```
+2591:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2592:     #[inline]
+2593:     #[must_use]
+2594:     pub fn contains(&self, x: &T) -> bool
+2595:     where
+2596:         T: PartialEq,
+2597:     {
+2598:         cmp::SliceContains::slice_contains(x, self)
+2599:     }
+2600: 
+2601:     /// Returns `true` if `needle` is a prefix of the slice or equal to the slice.
+2602:     ///"
+core::slice::eq_ignore_ascii_case,"result == (
+            slice@.len() == other@.len()
+            && forall|i: int| 0 <= i < slice@.len() ==> {
+                let a = (#[trigger] slice@[i]) as int;
+                let b = other@[i] as int;
+                a == b
+                    || (65 <= a && a <= 90 && b == a + 32)
+                    || (65 <= b && b <= 90 && a == b + 32)
+            }
+        )",source_justified,slice_declaration_source_context,"core/src/slice/ascii.rs:60 is the classified Rust declaration/source_context for `slice::eq_ignore_ascii_case`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/ascii.rs:60,"56:     #[stable(feature = ""ascii_methods_on_intrinsics"", since = ""1.23.0"")]
+57:     #[rustc_const_stable(feature = ""const_eq_ignore_ascii_case"", since = ""1.89.0"")]
+58:     #[must_use]
+59:     #[inline]
+60:     pub const fn eq_ignore_ascii_case(&self, other: &[u8]) -> bool {
+61:         if self.len() != other.len() {
+62:             return false;
+63:         }
+64: 
+65:         #[cfg(all(target_arch = ""x86_64"", target_feature = ""sse2""))]
+66:         {
+67:             const CHUNK_SIZE: usize = 16;
+68:             // The following function has two invariants:"
+core::slice::first_chunk,"match ret {
+            Option::Some(chunk) =>
+                slice@.len() >= N && chunk@ == slice@.subrange(0, N as int),
+            Option::None => slice@.len() < N,
+        }",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:327 is the classified Rust declaration/source_context for `slice::first_chunk`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:327,"323:     /// ```
+324:     #[inline]
+325:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+326:     #[rustc_const_stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+327:     pub const fn first_chunk<const N: usize>(&self) -> Option<&[T; N]> {
+328:         if self.len() < N {
+329:             None
+330:         } else {
+331:             // SAFETY: We explicitly check for the correct number of elements,
+332:             //   and do not let the reference outlive the slice.
+333:             Some(unsafe { &*(self.as_ptr().cast_array()) })
+334:         }
+335:     }"
+core::slice::first_chunk_mut,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some(out) ==> {
+            &&& out@ == old(slice)@.subrange(0, N as int)
+            &&& final(out)@ == out@
+            &&& final(slice)@ == final(out)@ + old(slice)@.subrange(N as int, old(slice)@.len() as int)
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_direct_mut_view_adapter_source_gate,core/src/slice/mod.rs:357 constructs the returned mutable view directly from the input array/slice/value without copying; the ensures clauses model that source-backed view and final-state relationship.,core/src/slice/mod.rs:357,"353:     /// ```
+354:     #[inline]
+355:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+356:     #[rustc_const_stable(feature = ""const_slice_first_last_chunk"", since = ""1.83.0"")]
+357:     pub const fn first_chunk_mut<const N: usize>(&mut self) -> Option<&mut [T; N]> {
+358:         if self.len() < N {
+359:             None
+360:         } else {
+361:             // SAFETY: We explicitly check for the correct number of elements,
+362:             //   do not let the reference outlive the slice,
+363:             //   and require exclusive access to the entire slice to mutate the chunk.
+364:             Some(unsafe { &mut *(self.as_mut_ptr().cast_array()) })
+365:         }"
+core::slice::from_mut,ret@ == seq![*old(s)]; final(ret)@ == ret@; final(ret)@ == seq![*final(s)]; *final(s) == *old(s),source_justified,exact_direct_mut_view_adapter_source_gate,core/src/slice/raw.rs:211 constructs the returned mutable view directly from the input array/slice/value without copying; the ensures clauses model that source-backed view and final-state relationship.,core/src/slice/raw.rs:211,"207: /// Converts a reference to T into a slice of length 1 (without copying).
+208: #[stable(feature = ""from_ref"", since = ""1.28.0"")]
+209: #[rustc_const_stable(feature = ""const_slice_from_ref"", since = ""1.83.0"")]
+210: #[must_use]
+211: pub const fn from_mut<T>(s: &mut T) -> &mut [T] {
+212:     array::from_mut(s)
+213: }
+214: 
+215: /// Forms a slice from a pointer range.
+216: ///
+217: /// This function is useful for interacting with foreign interfaces which
+218: /// use two pointers to refer to a range of elements in memory, as is
+219: /// common in C++."
+core::slice::from_ref,result@ == seq![*s],source_justified,slice_declaration_source_context,"core/src/slice/raw.rs:203 is the classified Rust declaration/source_context for `slice::from_ref`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/raw.rs:203,"199: #[stable(feature = ""from_ref"", since = ""1.28.0"")]
+200: #[rustc_const_stable(feature = ""const_slice_from_ref_shared"", since = ""1.63.0"")]
+201: #[rustc_diagnostic_item = ""slice_from_ref""]
+202: #[must_use]
+203: pub const fn from_ref<T>(s: &T) -> &[T] {
+204:     array::from_ref(s)
+205: }
+206: 
+207: /// Converts a reference to T into a slice of length 1 (without copying).
+208: #[stable(feature = ""from_ref"", since = ""1.28.0"")]
+209: #[rustc_const_stable(feature = ""const_slice_from_ref"", since = ""1.83.0"")]
+210: #[must_use]
+211: pub const fn from_mut<T>(s: &mut T) -> &mut [T] {"
+core::slice::is_ascii,ret == (forall|i: int| 0 <= i < slice@.len() ==> slice@[i] <= 0x7f),source_justified,slice_declaration_source_context,"core/src/slice/ascii.rs:18 is the classified Rust declaration/source_context for `slice::is_ascii`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/ascii.rs:18,"14:     #[stable(feature = ""ascii_methods_on_intrinsics"", since = ""1.23.0"")]
+15:     #[rustc_const_stable(feature = ""const_slice_is_ascii"", since = ""1.74.0"")]
+16:     #[must_use]
+17:     #[inline]
+18:     pub const fn is_ascii(&self) -> bool {
+19:         is_ascii(self)
+20:     }
+21: 
+22:     /// If this slice [`is_ascii`](Self::is_ascii), returns it as a slice of
+23:     /// [ASCII characters](`ascii::Char`), otherwise returns `None`.
+24:     #[unstable(feature = ""ascii_char"", issue = ""110998"")]
+25:     #[must_use]
+26:     #[inline]"
+core::slice::is_sorted,"result <==> forall|i: int|
+            0 <= i && i + 1 < slice@.len()
+                ==> (#[trigger] slice@[i]).is_le(&slice@[i + 1])",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:4735 is the classified Rust declaration/source_context for `slice::is_sorted`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:4735,"4731:     /// ```
+4732:     #[inline]
+4733:     #[stable(feature = ""is_sorted"", since = ""1.82.0"")]
+4734:     #[must_use]
+4735:     pub fn is_sorted(&self) -> bool
+4736:     where
+4737:         T: PartialOrd,
+4738:     {
+4739:         // This odd number works the best. 32 + 1 extra due to overlapping chunk boundaries.
+4740:         const CHUNK_SIZE: usize = 33;
+4741:         if self.len() < CHUNK_SIZE {
+4742:             return self.windows(2).all(|w| w[0] <= w[1]);
+4743:         }"
+core::slice::last_chunk,"ret.is_some() <==> N <= slice.len(); ret.is_some() ==> ret.unwrap()@ == slice@.subrange(slice@.len() as int - N as int, slice@.len() as int)",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:509 is the classified Rust declaration/source_context for `slice::last_chunk`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:509,"505:     /// ```
+506:     #[inline]
+507:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+508:     #[rustc_const_stable(feature = ""const_slice_last_chunk"", since = ""1.80.0"")]
+509:     pub const fn last_chunk<const N: usize>(&self) -> Option<&[T; N]> {
+510:         // FIXME(const-hack): Without const traits, we need this instead of `get`.
+511:         let Some(index) = self.len().checked_sub(N) else { return None };
+512:         let (_, last) = self.split_at(index);
+513: 
+514:         // SAFETY: We explicitly check for the correct number of elements,
+515:         //   and do not let the references outlive the slice.
+516:         Some(unsafe { &*(last.as_ptr().cast_array()) })
+517:     }"
+core::slice::last_chunk_mut,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some(out) ==> {
+            &&& out@ == old(slice)@.subrange(old(slice)@.len() - N as int, old(slice)@.len() as int)
+            &&& final(out)@ == out@
+            &&& final(slice)@ == old(slice)@.subrange(0, old(slice)@.len() - N as int) + final(out)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_direct_mut_view_adapter_source_gate,core/src/slice/mod.rs:539 constructs the returned mutable view directly from the input array/slice/value without copying; the ensures clauses model that source-backed view and final-state relationship.,core/src/slice/mod.rs:539,"535:     /// ```
+536:     #[inline]
+537:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+538:     #[rustc_const_stable(feature = ""const_slice_first_last_chunk"", since = ""1.83.0"")]
+539:     pub const fn last_chunk_mut<const N: usize>(&mut self) -> Option<&mut [T; N]> {
+540:         // FIXME(const-hack): Without const traits, we need this instead of `get`.
+541:         let Some(index) = self.len().checked_sub(N) else { return None };
+542:         let (_, last) = self.split_at_mut(index);
+543: 
+544:         // SAFETY: We explicitly check for the correct number of elements,
+545:         //   do not let the reference outlive the slice,
+546:         //   and require exclusive access to the entire slice to mutate the chunk.
+547:         Some(unsafe { &mut *(last.as_mut_ptr().cast_array()) })"
+core::slice::reverse,final(slice)@ == old(slice)@.reverse(),source_justified,exact_mutating_slice_source_gate,core/src/slice/mod.rs:981 reverses the slice in place by swapping mirrored front/back elements; the ensures clause models the full observable final sequence view without pointer/provenance claims.,core/src/slice/mod.rs:981,"969:     /// Reverses the order of elements in the slice, in place.
+981:     pub const fn reverse(&mut self) {
+982:         let half_len = self.len() / 2;
+1001:         revswap(front_half, back_half, half_len);
+1018:                 mem::swap(&mut a[i], &mut b[n - 1 - i]);"
+core::slice::split_at_checked,"ret is Some == (mid <= slice.len()); ret matches Some((left, right)) ==> {
+            &&& left@ == slice@.subrange(0, mid as int)
+            &&& right@ == slice@.subrange(mid as int, slice@.len() as int)
+        }",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:2156 is the classified Rust declaration/source_context for `slice::split_at_checked`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:2156,"2152:     #[stable(feature = ""split_at_checked"", since = ""1.80.0"")]
+2153:     #[rustc_const_stable(feature = ""split_at_checked"", since = ""1.80.0"")]
+2154:     #[inline]
+2155:     #[must_use]
+2156:     pub const fn split_at_checked(&self, mid: usize) -> Option<(&[T], &[T])> {
+2157:         if mid <= self.len() {
+2158:             // SAFETY: `[ptr; mid]` and `[mid; len]` are inside `self`, which
+2159:             // fulfills the requirements of `split_at_unchecked`.
+2160:             Some(unsafe { self.split_at_unchecked(mid) })
+2161:         } else {
+2162:             None
+2163:         }
+2164:     }"
+core::slice::split_at_mut_checked,"ret is Some == (mid <= old(slice)@.len()); ret matches Some((left, right)) ==> {
+            &&& left@ == old(slice)@.subrange(0, mid as int)
+            &&& right@ == old(slice)@.subrange(mid as int, old(slice)@.len() as int)
+            &&& final(left)@ == left@
+            &&& final(right)@ == right@
+            &&& final(slice)@ == final(left)@ + final(right)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_slice_split_at_mut_checked_source_gate,core/src/slice/mod.rs:2195 documents the checked split branch and delegates the successful branch to `split_at_mut_unchecked`; the ensures clauses model the exact Some/None source behavior.,core/src/slice/mod.rs:2195,"2150:     /// assert_eq!(None, v.split_at_checked(7));
+2157:         if mid <= self.len() {
+2162:             None
+2166:     /// Divides one mutable slice into two at an index, returning `None` if the
+2171:     /// second will contain all indices from `[mid, len)` (excluding the index
+2174:     /// Otherwise, if `mid > len`, returns `None`.
+2189:     /// assert_eq!(None, v.split_at_mut_checked(7));
+2195:     pub const fn split_at_mut_checked(&mut self, mid: usize) -> Option<(&mut [T], &mut [T])> {
+2196:         if mid <= self.len() {
+2199:             Some(unsafe { self.split_at_mut_unchecked(mid) })
+2201:             None
+2216:     /// assert!(iter.next().is_none());
+2230:     /// assert!(iter.next().is_none());"
+core::slice::split_at_mut_unchecked,"ret.0@ == old(slice)@.subrange(0, mid as int); ret.1@ == old(slice)@.subrange(mid as int, old(slice)@.len() as int); final(ret.0)@ == ret.0@; final(ret.1)@ == ret.1@; final(slice)@ == final(ret.0)@ + final(ret.1)@",source_justified,exact_split_at_mut_unchecked_source_gate,core/src/slice/mod.rs:2095 checks `mid <= len` and constructs the returned mutable prefix/suffix with `from_raw_parts_mut`; the ensures clauses model those source-backed returned views and final slice state.,core/src/slice/mod.rs:2095,"2052:             (mid: usize = mid, len: usize = len) => mid <= len,
+2055:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`
+2071:     /// `0 <= mid <= self.len()`.
+2095:     pub const unsafe fn split_at_mut_unchecked(&mut self, mid: usize) -> (&mut [T], &mut [T]) {
+2102:             (mid: usize = mid, len: usize = len) => mid <= len,
+2105:         // SAFETY: Caller has to check that `0 <= mid <= self.len()`.
+2107:         // `[ptr; mid]` and `[mid; len]` are not overlapping, so returning a mutable reference
+2111:                 from_raw_parts_mut(ptr, mid),
+2112:                 from_raw_parts_mut(ptr.add(mid), unchecked_sub(len, mid)),"
+core::slice::split_first,"ret.is_some() == (slice@.len() > 0); match ret {
+            Some((first, tail)) =>
+                *first == slice@[0]
+                && tail@ == slice@.subrange(1, slice@.len() as int),
+            None => true,
+        }",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:198 is the classified Rust declaration/source_context for `slice::split_first`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:198,"194:     #[stable(feature = ""slice_splits"", since = ""1.5.0"")]
+195:     #[rustc_const_stable(feature = ""const_slice_first_last_not_mut"", since = ""1.56.0"")]
+196:     #[inline]
+197:     #[must_use]
+198:     pub const fn split_first(&self) -> Option<(&T, &[T])> {
+199:         if let [first, tail @ ..] = self { Some((first, tail)) } else { None }
+200:     }
+201: 
+202:     /// Returns the first and all the rest of the elements of the slice, or `None` if it is empty.
+203:     ///
+204:     /// # Examples
+205:     ///
+206:     /// ```"
+core::slice::split_first_chunk,"ret.is_some() <==> N <= slice.len(); ret.is_some() ==> ret.unwrap().0@ == slice@.subrange(0, N as int); ret.is_some() ==> ret.unwrap().1@ == slice@.subrange(N as int, slice@.len() as int)",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:387 is the classified Rust declaration/source_context for `slice::split_first_chunk`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:387,"383:     /// ```
+384:     #[inline]
+385:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+386:     #[rustc_const_stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+387:     pub const fn split_first_chunk<const N: usize>(&self) -> Option<(&[T; N], &[T])> {
+388:         let Some((first, tail)) = self.split_at_checked(N) else { return None };
+389: 
+390:         // SAFETY: We explicitly check for the correct number of elements,
+391:         //   and do not let the references outlive the slice.
+392:         Some((unsafe { &*(first.as_ptr().cast_array()) }, tail))
+393:     }
+394: 
+395:     /// Returns a mutable array reference to the first `N` items in the slice and the remaining"
+core::slice::split_first_chunk_mut,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some((first, tail)) ==> {
+            &&& first@ == old(slice)@.subrange(0, N as int)
+            &&& tail@ == old(slice)@.subrange(N as int, old(slice)@.len() as int)
+            &&& final(first)@ == first@
+            &&& final(tail)@ == tail@
+            &&& final(slice)@ == final(first)@ + final(tail)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_option_mut_tuple_view_source_gate,core/src/slice/mod.rs:417 branches on the checked split and returns the documented mutable chunk/tail tuple; the ensures clauses model the source-backed Some/None tuple views and input post-state.,core/src/slice/mod.rs:417,"413:     /// ```
+414:     #[inline]
+415:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+416:     #[rustc_const_stable(feature = ""const_slice_first_last_chunk"", since = ""1.83.0"")]
+417:     pub const fn split_first_chunk_mut<const N: usize>(
+418:         &mut self,
+419:     ) -> Option<(&mut [T; N], &mut [T])> {
+420:         let Some((first, tail)) = self.split_at_mut_checked(N) else { return None };
+421: 
+422:         // SAFETY: We explicitly check for the correct number of elements,
+423:         //   do not let the reference outlive the slice,
+424:         //   and enforce exclusive mutability of the chunk by the split.
+425:         Some((unsafe { &mut *(first.as_mut_ptr().cast_array()) }, tail))"
+core::slice::split_first_mut,"ret is Some == (old(slice)@.len() != 0); ret matches Some((first, tail)) ==> {
+            &&& *first == old(slice)@[0]
+            &&& tail@ == old(slice)@.subrange(1, old(slice)@.len() as int)
+            &&& *final(first) == *first
+            &&& final(tail)@ == tail@
+            &&& final(slice)@ == seq![*final(first)] + final(tail)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_single_element_mut_split_source_gate,core/src/slice/mod.rs:220 splits off the first/last mutable element exactly as documented and implemented; the ensures clauses model the returned element/rest views and final input state.,core/src/slice/mod.rs:220,"216:     #[stable(feature = ""slice_splits"", since = ""1.5.0"")]
+217:     #[rustc_const_stable(feature = ""const_slice_first_last"", since = ""1.83.0"")]
+218:     #[inline]
+219:     #[must_use]
+220:     pub const fn split_first_mut(&mut self) -> Option<(&mut T, &mut [T])> {
+221:         if let [first, tail @ ..] = self { Some((first, tail)) } else { None }
+222:     }
+223: 
+224:     /// Returns the last and all the rest of the elements of the slice, or `None` if it is empty.
+225:     ///
+226:     /// # Examples
+227:     ///
+228:     /// ```"
+core::slice::split_last,"ret.is_some() == (slice@.len() > 0); ret.is_some() ==> *ret.unwrap().0 == slice@[slice@.len() - 1]; ret.is_some() ==> ret.unwrap().1@ == slice@.subrange(0, slice@.len() - 1)",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:240 is the classified Rust declaration/source_context for `slice::split_last`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:240,"236:     #[stable(feature = ""slice_splits"", since = ""1.5.0"")]
+237:     #[rustc_const_stable(feature = ""const_slice_first_last_not_mut"", since = ""1.56.0"")]
+238:     #[inline]
+239:     #[must_use]
+240:     pub const fn split_last(&self) -> Option<(&T, &[T])> {
+241:         if let [init @ .., last] = self { Some((last, init)) } else { None }
+242:     }
+243: 
+244:     /// Returns the last and all the rest of the elements of the slice, or `None` if it is empty.
+245:     ///
+246:     /// # Examples
+247:     ///
+248:     /// ```"
+core::slice::split_last_chunk,"ret matches Some(_) <==> N <= slice@.len(); ret matches Some(parts) ==> parts.0@ == slice@.subrange(0, slice@.len() - N as int); ret matches Some(parts) ==> parts.1@ == slice@.subrange(slice@.len() - N as int, slice@.len() as int)",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:447 is the classified Rust declaration/source_context for `slice::split_last_chunk`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:447,"443:     /// ```
+444:     #[inline]
+445:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+446:     #[rustc_const_stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+447:     pub const fn split_last_chunk<const N: usize>(&self) -> Option<(&[T], &[T; N])> {
+448:         let Some(index) = self.len().checked_sub(N) else { return None };
+449:         let (init, last) = self.split_at(index);
+450: 
+451:         // SAFETY: We explicitly check for the correct number of elements,
+452:         //   and do not let the references outlive the slice.
+453:         Some((init, unsafe { &*(last.as_ptr().cast_array()) }))
+454:     }
+455: "
+core::slice::split_last_chunk_mut,"ret is Some == (N as int <= old(slice)@.len()); ret matches Some((init, last)) ==> {
+            &&& init@ == old(slice)@.subrange(0, old(slice)@.len() - N as int)
+            &&& last@ == old(slice)@.subrange(old(slice)@.len() - N as int, old(slice)@.len() as int)
+            &&& final(init)@ == init@
+            &&& final(last)@ == last@
+            &&& final(slice)@ == final(init)@ + final(last)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_option_mut_tuple_view_source_gate,core/src/slice/mod.rs:478 branches on the checked split and returns the documented mutable chunk/tail tuple; the ensures clauses model the source-backed Some/None tuple views and input post-state.,core/src/slice/mod.rs:478,"474:     /// ```
+475:     #[inline]
+476:     #[stable(feature = ""slice_first_last_chunk"", since = ""1.77.0"")]
+477:     #[rustc_const_stable(feature = ""const_slice_first_last_chunk"", since = ""1.83.0"")]
+478:     pub const fn split_last_chunk_mut<const N: usize>(
+479:         &mut self,
+480:     ) -> Option<(&mut [T], &mut [T; N])> {
+481:         let Some(index) = self.len().checked_sub(N) else { return None };
+482:         let (init, last) = self.split_at_mut(index);
+483: 
+484:         // SAFETY: We explicitly check for the correct number of elements,
+485:         //   do not let the reference outlive the slice,
+486:         //   and enforce exclusive mutability of the chunk by the split."
+core::slice::split_last_mut,"ret is Some == (old(slice)@.len() != 0); ret matches Some((last, init)) ==> {
+            &&& *last == old(slice)@[(old(slice)@.len() - 1) as int]
+            &&& init@ == old(slice)@.subrange(0, old(slice)@.len() - 1)
+            &&& *final(last) == *last
+            &&& final(init)@ == init@
+            &&& final(slice)@ == final(init)@ + seq![*final(last)]
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_single_element_mut_split_source_gate,core/src/slice/mod.rs:262 splits off the first/last mutable element exactly as documented and implemented; the ensures clauses model the returned element/rest views and final input state.,core/src/slice/mod.rs:262,"258:     #[stable(feature = ""slice_splits"", since = ""1.5.0"")]
+259:     #[rustc_const_stable(feature = ""const_slice_first_last"", since = ""1.83.0"")]
+260:     #[inline]
+261:     #[must_use]
+262:     pub const fn split_last_mut(&mut self) -> Option<(&mut T, &mut [T])> {
+263:         if let [init @ .., last] = self { Some((last, init)) } else { None }
+264:     }
+265: 
+266:     /// Returns the last element of the slice, or `None` if it is empty.
+267:     ///
+268:     /// # Examples
+269:     ///
+270:     /// ```"
+core::slice::split_off_first,"ret.is_none() == (old(slice)@.len() == 0); ret.is_some() ==> *ret.unwrap() == old(slice)@[0]; old(slice)@.len() == 0 ==> final(slice)@ == old(slice)@; old(slice)@.len() > 0 ==> final(slice)@ == old(slice)@.subrange(1, old(slice)@.len() as int)",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:5017 is the classified Rust declaration/source_context for `slice::split_off_first`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:5017,"5013:     /// ```
+5014:     #[inline]
+5015:     #[stable(feature = ""slice_take"", since = ""1.87.0"")]
+5016:     #[rustc_const_unstable(feature = ""const_split_off_first_last"", issue = ""138539"")]
+5017:     pub const fn split_off_first<'a>(self: &mut &'a Self) -> Option<&'a T> {
+5018:         // FIXME(const-hack): Use `?` when available in const instead of `let-else`.
+5019:         let Some((first, rem)) = self.split_first() else { return None };
+5020:         *self = rem;
+5021:         Some(first)
+5022:     }
+5023: 
+5024:     /// Removes the first element of the slice and returns a mutable
+5025:     /// reference to it."
+core::slice::split_off_first_mut,"ret is Some == (old(slice)@.len() != 0); ret matches Some(first) ==> {
+            &&& *first == old(slice)@[0]
+            &&& *final(first) == *first
+            &&& final(slice)@ == old(slice)@.subrange(1, old(slice)@.len() as int)
+            &&& old(slice)@ == seq![*final(first)] + final(slice)@
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_single_element_mut_split_source_gate,core/src/slice/mod.rs:5042 splits off the first/last mutable element exactly as documented and implemented; the ensures clauses model the returned element/rest views and final input state.,core/src/slice/mod.rs:5042,"5038:     /// ```
+5039:     #[inline]
+5040:     #[stable(feature = ""slice_take"", since = ""1.87.0"")]
+5041:     #[rustc_const_unstable(feature = ""const_split_off_first_last"", issue = ""138539"")]
+5042:     pub const fn split_off_first_mut<'a>(self: &mut &'a mut Self) -> Option<&'a mut T> {
+5043:         // FIXME(const-hack): Use `mem::take` and `?` when available in const.
+5044:         // Original: `mem::take(self).split_first_mut()?`
+5045:         let Some((first, rem)) = mem::replace(self, &mut []).split_first_mut() else { return None };
+5046:         *self = rem;
+5047:         Some(first)
+5048:     }
+5049: 
+5050:     /// Removes the last element of the slice and returns a reference"
+core::slice::split_off_last_mut,"ret is Some == (old(slice)@.len() != 0); ret matches Some(last) ==> {
+            &&& *last == old(slice)@[(old(slice)@.len() - 1) as int]
+            &&& *final(last) == *last
+            &&& final(slice)@ == old(slice)@.subrange(0, old(slice)@.len() - 1)
+            &&& old(slice)@ == final(slice)@ + seq![*final(last)]
+        }; ret is None ==> final(slice)@ == old(slice)@",source_justified,exact_single_element_mut_split_source_gate,core/src/slice/mod.rs:5092 splits off the first/last mutable element exactly as documented and implemented; the ensures clauses model the returned element/rest views and final input state.,core/src/slice/mod.rs:5092,"5088:     /// ```
+5089:     #[inline]
+5090:     #[stable(feature = ""slice_take"", since = ""1.87.0"")]
+5091:     #[rustc_const_unstable(feature = ""const_split_off_first_last"", issue = ""138539"")]
+5092:     pub const fn split_off_last_mut<'a>(self: &mut &'a mut Self) -> Option<&'a mut T> {
+5093:         // FIXME(const-hack): Use `mem::take` and `?` when available in const.
+5094:         // Original: `mem::take(self).split_last_mut()?`
+5095:         let Some((last, rem)) = mem::replace(self, &mut []).split_last_mut() else { return None };
+5096:         *self = rem;
+5097:         Some(last)
+5098:     }
+5099: 
+5100:     /// Returns mutable references to many indices at once, without doing any checks."
+core::slice::starts_with,"ret <==> (
+            needle@.len() <= slice@.len()
+            && forall|i: int| 0 <= i < needle@.len() ==> slice@[i].eq_spec(&needle@[i])
+        )",source_justified,slice_declaration_source_context,"core/src/slice/mod.rs:2624 is the classified Rust declaration/source_context for `slice::starts_with`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/mod.rs:2624,"2620:     /// assert!(v.starts_with(&[]));
+2621:     /// ```
+2622:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2623:     #[must_use]
+2624:     pub fn starts_with(&self, needle: &[T]) -> bool
+2625:     where
+2626:         T: PartialEq,
+2627:     {
+2628:         let n = needle.len();
+2629:         self.len() >= n && needle == &self[..n]
+2630:     }
+2631: 
+2632:     /// Returns `true` if `needle` is a suffix of the slice or equal to the slice."
+core::slice::trim_ascii,"exists|start: int, end: int| {
+            &&& 0 <= start <= end <= slice@.len()
+            &&& r@ == slice@.subrange(start, end)
+            &&& (forall|i: int| 0 <= i < start ==> spec_is_ascii_whitespace(slice@[i]))
+            &&& (forall|i: int| end <= i < slice@.len() ==> spec_is_ascii_whitespace(slice@[i]))
+            &&& (start < end ==> !spec_is_ascii_whitespace(slice@[start]))
+            &&& (start < end ==> !spec_is_ascii_whitespace(slice@[end - 1]))
+        }",source_justified,slice_declaration_source_context,"core/src/slice/ascii.rs:308 is the classified Rust declaration/source_context for `slice::trim_ascii`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/ascii.rs:308,"304:     /// ```
+305:     #[stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+306:     #[rustc_const_stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+307:     #[inline]
+308:     pub const fn trim_ascii(&self) -> &[u8] {
+309:         self.trim_ascii_start().trim_ascii_end()
+310:     }
+311: }
+312: 
+313: impl_fn_for_zst! {
+314:     #[derive(Clone)]
+315:     struct EscapeByte impl Fn = |byte: &u8| -> ascii::EscapeDefault {
+316:         ascii::escape_default(*byte)"
+core::slice::trim_ascii_end,"result@ == slice@.subrange(0, result@.len() as int); result@.len() <= slice@.len(); forall|i: int| result@.len() <= i < slice@.len() ==> {
+            let byte = #[trigger] slice@[i];
+            byte == 0x09 || byte == 0x0a || byte == 0x0c || byte == 0x0d || byte == 0x20
+        }; result@.len() > 0 ==> {
+            let byte = result@[(result@.len() - 1) as int];
+            !(byte == 0x09 || byte == 0x0a || byte == 0x0c || byte == 0x0d || byte == 0x20)
+        }",source_justified,slice_declaration_source_context,"core/src/slice/ascii.rs:274 is the classified Rust declaration/source_context for `slice::trim_ascii_end`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/ascii.rs:274,"270:     /// ```
+271:     #[stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+272:     #[rustc_const_stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+273:     #[inline]
+274:     pub const fn trim_ascii_end(&self) -> &[u8] {
+275:         let mut bytes = self;
+276:         // Note: A pattern matching based approach (instead of indexing) allows
+277:         // making the function const.
+278:         while let [rest @ .., last] = bytes {
+279:             if last.is_ascii_whitespace() {
+280:                 bytes = rest;
+281:             } else {
+282:                 break;"
+core::slice::trim_ascii_start,"exists|start: int|
+            0 <= start <= slice@.len()
+            && (forall|i: int| 0 <= i < start ==> (
+                slice@[i] == 0x09u8
+                || slice@[i] == 0x0au8
+                || slice@[i] == 0x0cu8
+                || slice@[i] == 0x0du8
+                || slice@[i] == 0x20u8
+            ))
+            && (start == slice@.len() || (
+                slice@[start] != 0x09u8
+                && slice@[start] != 0x0au8
+                && slice@[start] != 0x0cu8
+                && slice@[start] != 0x0du8
+                && slice@[start] != 0x20u8
+            ))
+            && ret@ == slice@.subrange(start, slice@.len() as int)",source_justified,slice_declaration_source_context,"core/src/slice/ascii.rs:241 is the classified Rust declaration/source_context for `slice::trim_ascii_start`; the accepted ensures clauses model only the documented observable slice view, split/chunk relation, ASCII predicate, search result, or returned array/slice view from that source.",core/src/slice/ascii.rs:241,"237:     /// ```
+238:     #[stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+239:     #[rustc_const_stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+240:     #[inline]
+241:     pub const fn trim_ascii_start(&self) -> &[u8] {
+242:         let mut bytes = self;
+243:         // Note: A pattern matching based approach (instead of indexing) allows
+244:         // making the function const.
+245:         while let [first, rest @ ..] = bytes {
+246:             if first.is_ascii_whitespace() {
+247:                 bytes = rest;
+248:             } else {
+249:                 break;"
+core::str::ceil_char_boundary,result <= s.len(); index >= s.len() ==> result == s.len(); index < s.len() ==> index <= result; s.is_char_boundary(result); forall|i: usize| index <= i && i < result ==> !s.is_char_boundary(i),source_justified,str_declaration_source_context,"core/src/str/mod.rs:480 is the classified Rust declaration/source_context for `str::ceil_char_boundary`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:480,"476:     /// ```
+477:     #[stable(feature = ""round_char_boundary"", since = ""1.91.0"")]
+478:     #[rustc_const_stable(feature = ""round_char_boundary"", since = ""1.91.0"")]
+479:     #[inline]
+480:     pub const fn ceil_char_boundary(&self, index: usize) -> usize {
+481:         if index >= self.len() {
+482:             self.len()
+483:         } else {
+484:             let mut i = index;
+485:             while !self.as_bytes()[i].is_utf8_char_boundary() {
+486:                 i += 1;
+487:                 if i >= self.len() {
+488:                     break;"
+core::str::eq_ignore_ascii_case,result == (s.spec_bytes().len() == other.spec_bytes().len() && forall|i: int| 0 <= i < s.spec_bytes().len() ==> (if 65 <= s.spec_bytes()[i] && s.spec_bytes()[i] <= 90 { (s.spec_bytes()[i] as int) + 32 } else { s.spec_bytes()[i] as int }) == (if 65 <= other.spec_bytes()[i] && other.spec_bytes()[i] <= 90 { (other.spec_bytes()[i] as int) + 32 } else { other.spec_bytes()[i] as int })),source_justified,str_declaration_source_context,"core/src/str/mod.rs:2859 is the classified Rust declaration/source_context for `str::eq_ignore_ascii_case`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2859,"2855:     #[stable(feature = ""ascii_methods_on_intrinsics"", since = ""1.23.0"")]
+2856:     #[rustc_const_stable(feature = ""const_eq_ignore_ascii_case"", since = ""1.89.0"")]
+2857:     #[must_use]
+2858:     #[inline]
+2859:     pub const fn eq_ignore_ascii_case(&self, other: &str) -> bool {
+2860:         self.as_bytes().eq_ignore_ascii_case(other.as_bytes())
+2861:     }
+2862: 
+2863:     /// Checks that two strings are a caseless match, according to
+2864:     /// [Definition 144] in Chapter 3 of the Unicode Standard.
+2865:     ///
+2866:     /// [Definition 144]: https://www.unicode.org/versions/latest/core-spec/chapter-3/#G53513
+2867:     ///"
+core::str::floor_char_boundary,result <= index; result <= s.spec_bytes().len(); s.is_char_boundary(result); forall|i: usize| result < i && i <= index ==> !s.is_char_boundary(i),source_justified,str_declaration_source_context,"core/src/str/mod.rs:423 is the classified Rust declaration/source_context for `str::floor_char_boundary`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:423,"419:     /// ```
+420:     #[stable(feature = ""round_char_boundary"", since = ""1.91.0"")]
+421:     #[rustc_const_stable(feature = ""round_char_boundary"", since = ""1.91.0"")]
+422:     #[inline]
+423:     pub const fn floor_char_boundary(&self, index: usize) -> usize {
+424:         if index >= self.len() {
+425:             return self.len();
+426:         }
+427:         if self.as_bytes()[index].is_utf8_char_boundary() {
+428:             return index;
+429:         }
+430:         // Unlike `ceil_char_boundary`, the loop is unrolled manually to prevent the compiler from
+431:         // generating excessive unrolled loop bodies when `index` is statically known."
+core::str::from_utf8,valid_utf8(v@) ==> (result matches Ok(string) && string@ == decode_utf8(v@)); !valid_utf8(v@) ==> result is Err,source_justified,exact_str_from_utf8_source_gate,core/src/str/mod.rs:252 delegates validation to `run_utf8_validation` and returns Ok only through `from_utf8_unchecked`; the ensures clauses model precisely the valid/invalid UTF-8 result branches.,core/src/str/mod.rs:252,"248:     /// ```
+249:     #[stable(feature = ""inherent_str_constructors"", since = ""1.87.0"")]
+250:     #[rustc_const_stable(feature = ""inherent_str_constructors"", since = ""1.87.0"")]
+251:     #[rustc_diagnostic_item = ""str_inherent_from_utf8""]
+252:     pub const fn from_utf8(v: &[u8]) -> Result<&str, Utf8Error> {
+253:         converts::from_utf8(v)
+254:     }
+255: 
+256:     /// Converts a mutable slice of bytes to a mutable string slice.
+257:     ///
+258:     /// # Examples
+259:     ///
+260:     /// Basic usage:"
+core::str::from_utf8_mut,final(v)@ == old(v)@; valid_utf8(old(v)@) ==> (result matches Ok(string) && string@ == decode_utf8(old(v)@)); !valid_utf8(old(v)@) ==> result is Err,source_justified,exact_str_from_utf8_mut_source_gate,core/src/str/mod.rs:285 delegates mutable-byte validation to `run_utf8_validation` and returns Ok only through `from_utf8_unchecked_mut`; the ensures clauses model the preserved byte slice and exact valid/invalid UTF-8 result branches.,core/src/str/mod.rs:285,"281:     /// errors that can be returned.
+282:     #[stable(feature = ""inherent_str_constructors"", since = ""1.87.0"")]
+283:     #[rustc_const_stable(feature = ""const_str_from_utf8"", since = ""1.87.0"")]
+284:     #[rustc_diagnostic_item = ""str_inherent_from_utf8_mut""]
+285:     pub const fn from_utf8_mut(v: &mut [u8]) -> Result<&mut str, Utf8Error> {
+286:         converts::from_utf8_mut(v)
+287:     }
+288: 
+289:     /// Converts a slice of bytes to a string slice without checking
+290:     /// that the string contains valid UTF-8.
+291:     ///
+292:     /// See the safe version, [`from_utf8`], for more information.
+293:     ///"
+core::str::make_ascii_lowercase,"final(s).spec_bytes().len() == old(s).spec_bytes().len(); forall|i: int| 0 <= i < old(s).spec_bytes().len() ==> #[trigger] final(s).spec_bytes()[i] as int
+            == if 0x41u8 <= old(s).spec_bytes()[i] && old(s).spec_bytes()[i] <= 0x5au8 {
+                old(s).spec_bytes()[i] as int + 32
+            } else {
+                old(s).spec_bytes()[i] as int
+            }",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2966 is the classified Rust declaration/source_context for `str::make_ascii_lowercase`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2966,"2962:     /// ```
+2963:     #[stable(feature = ""ascii_methods_on_intrinsics"", since = ""1.23.0"")]
+2964:     #[rustc_const_stable(feature = ""const_make_ascii"", since = ""1.84.0"")]
+2965:     #[inline]
+2966:     pub const fn make_ascii_lowercase(&mut self) {
+2967:         // SAFETY: changing ASCII letters only does not invalidate UTF-8.
+2968:         let me = unsafe { self.as_bytes_mut() };
+2969:         me.make_ascii_lowercase()
+2970:     }
+2971: 
+2972:     /// Returns a string slice with leading ASCII whitespace removed.
+2973:     ///
+2974:     /// 'Whitespace' refers to the definition used by"
+core::str::make_ascii_uppercase,"final(s).spec_bytes().len() == old(s).spec_bytes().len(); forall|i: int| 0 <= i < old(s).spec_bytes().len() ==>
+            final(s).spec_bytes()[i] as int == if 0x61u8 <= old(s).spec_bytes()[i] && old(s).spec_bytes()[i] <= 0x7au8 {
+                old(s).spec_bytes()[i] as int - 0x20int
+            } else {
+                old(s).spec_bytes()[i] as int
+            }",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2938 is the classified Rust declaration/source_context for `str::make_ascii_uppercase`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2938,"2934:     /// ```
+2935:     #[stable(feature = ""ascii_methods_on_intrinsics"", since = ""1.23.0"")]
+2936:     #[rustc_const_stable(feature = ""const_make_ascii"", since = ""1.84.0"")]
+2937:     #[inline]
+2938:     pub const fn make_ascii_uppercase(&mut self) {
+2939:         // SAFETY: changing ASCII letters only does not invalidate UTF-8.
+2940:         let me = unsafe { self.as_bytes_mut() };
+2941:         me.make_ascii_uppercase()
+2942:     }
+2943: 
+2944:     /// Converts this string to its ASCII lower case equivalent in-place.
+2945:     ///
+2946:     /// ASCII letters 'A' to 'Z' are mapped to 'a' to 'z',"
+core::str::split_at_checked,"ret.is_some() == is_char_boundary(s.spec_bytes(), mid as int); ret.is_some() ==> ret.unwrap().0.spec_bytes() == s.spec_bytes().subrange(0, mid as int); ret.is_some() ==> ret.unwrap().1.spec_bytes() == s.spec_bytes().subrange(mid as int, s.spec_bytes().len() as int)",source_justified,exact_str_split_at_checked_source_gate,core/src/str/mod.rs:940 checks the UTF-8 character boundary and delegates the successful branch to `split_at_unchecked`; the ensures clauses model that byte-view Some/None behavior.,core/src/str/mod.rs:940,"902:         if self.is_char_boundary(mid) {
+912:     /// The argument, `mid`, should be a valid byte offset from the start of the
+913:     /// string. It must also be on the boundary of a UTF-8 code point. The
+914:     /// method returns `None` if that’s not the case.
+916:     /// The two slices returned go from the start of the string slice to `mid`,
+933:     /// assert_eq!(None, s.split_at_checked(13));  // Inside “ö”
+934:     /// assert_eq!(None, s.split_at_checked(16));  // Beyond the string length
+940:     pub const fn split_at_checked(&self, mid: usize) -> Option<(&str, &str)> {
+942:         if self.is_char_boundary(mid) {
+944:             Some(unsafe { self.split_at_unchecked(mid) })
+946:             None
+952:     /// The argument, `mid`, should be a valid byte offset from the start of the
+953:     /// string. It must also be on the boundary of a UTF-8 code point. The
+954:     /// method returns `None` if that’s not the case.
+956:     /// The two slices returned go from the start of the string slice to `mid`,
+974:     /// assert_eq!(None, s.split_at_mut_checked(13));  // Inside “ö”
+975:     /// assert_eq!(None, s.split_at_mut_checked(16));  // Beyond the string length
+983:         if self.is_char_boundary(mid) {"
+core::str::split_at_mut_checked,"ret is Some <==> is_char_boundary(old(s).spec_bytes(), mid as int); ret matches Some((left, right)) ==> {
+            &&& left.spec_bytes() =~= old(s).spec_bytes().subrange(0, mid as int)
+            &&& right.spec_bytes() =~= old(s).spec_bytes().subrange(mid as int, old(s).spec_bytes().len() as int)
+            &&& final(left).spec_bytes() == left.spec_bytes()
+            &&& final(right).spec_bytes() == right.spec_bytes()
+            &&& final(s).spec_bytes() == final(left).spec_bytes() + final(right).spec_bytes()
+        }; ret is None ==> final(s).spec_bytes() == old(s).spec_bytes()",source_justified,exact_str_split_at_mut_checked_source_gate,core/src/str/mod.rs:981 checks the UTF-8 character boundary and builds mutable prefix/suffix strings from the split byte slices; the ensures clauses model that exact source-backed Some/None behavior.,core/src/str/mod.rs:981,"942:         if self.is_char_boundary(mid) {
+946:             None
+952:     /// The argument, `mid`, should be a valid byte offset from the start of the
+953:     /// string. It must also be on the boundary of a UTF-8 code point. The
+954:     /// method returns `None` if that’s not the case.
+974:     /// assert_eq!(None, s.split_at_mut_checked(13));  // Inside “ö”
+975:     /// assert_eq!(None, s.split_at_mut_checked(16));  // Beyond the string length
+981:     pub const fn split_at_mut_checked(&mut self, mid: usize) -> Option<(&mut str, &mut str)> {
+983:         if self.is_char_boundary(mid) {
+985:             Some(unsafe { self.split_at_mut_unchecked(mid) })
+987:             None
+995:     /// The caller must ensure that `mid` is a valid byte offset from the start
+996:     /// of the string and falls on the boundary of a UTF-8 code point.
+1014:     /// The caller must ensure that `mid` is a valid byte offset from the start
+1015:     /// of the string and falls on the boundary of a UTF-8 code point.
+1022:                 from_utf8_unchecked_mut(slice::from_raw_parts_mut(ptr, mid)),
+1023:                 from_utf8_unchecked_mut(slice::from_raw_parts_mut(ptr.add(mid), len - mid)),"
+core::str::trim,"result@ == ({
+            let bounds = choose|bounds: (int, int)|
+                0 <= bounds.0
+                && bounds.0 <= bounds.1
+                && bounds.1 <= s@.len()
+                && (forall|i: int| 0 <= i < bounds.0 ==>
+                    #[trigger] str_unicode_white_space(s@[i]))
+                && (forall|i: int| bounds.1 <= i < s@.len() ==>
+                    #[trigger] str_unicode_white_space(s@[i]))
+                && (bounds.0 == bounds.1 || !str_unicode_white_space(s@[bounds.0]))
+                && (bounds.0 == bounds.1 || !str_unicode_white_space(s@[bounds.1 - 1]));
+            s@.subrange(bounds.0, bounds.1)
+        })",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2186 is the classified Rust declaration/source_context for `str::trim`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2186,"2182:     #[must_use = ""this returns the trimmed string as a slice, \
+2183:                   without modifying the original""]
+2184:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2185:     #[rustc_diagnostic_item = ""str_trim""]
+2186:     pub fn trim(&self) -> &str {
+2187:         self.trim_matches(char::is_whitespace)
+2188:     }
+2189: 
+2190:     /// Returns a string slice with leading whitespace removed.
+2191:     ///
+2192:     /// 'Whitespace' is defined according to the terms of the Unicode Derived
+2193:     /// Core Property `White_Space`, which includes newlines.
+2194:     ///"
+core::str::trim_ascii,"result@ == ({
+            let bounds = choose|bounds: (int, int)|
+                0 <= bounds.0
+                && bounds.0 <= bounds.1
+                && bounds.1 <= s@.len()
+                && (forall|i: int| 0 <= i < bounds.0 ==> (s@[i] == ' ' || s@[i] == '\t' || s@[i] == '\n' || s@[i] == '\x0c' || s@[i] == '\r'))
+                && (forall|i: int| bounds.1 <= i < s@.len() ==> (s@[i] == ' ' || s@[i] == '\t' || s@[i] == '\n' || s@[i] == '\x0c' || s@[i] == '\r'))
+                && (bounds.0 < bounds.1 ==> !(s@[bounds.0] == ' ' || s@[bounds.0] == '\t' || s@[bounds.0] == '\n' || s@[bounds.0] == '\x0c' || s@[bounds.0] == '\r'))
+                && (bounds.0 < bounds.1 ==> !(s@[bounds.1 - 1] == ' ' || s@[bounds.1 - 1] == '\t' || s@[bounds.1 - 1] == '\n' || s@[bounds.1 - 1] == '\x0c' || s@[bounds.1 - 1] == '\r'));
+            s@.subrange(bounds.0, bounds.1)
+        })",source_justified,str_declaration_source_context,"core/src/str/mod.rs:3051 is the classified Rust declaration/source_context for `str::trim_ascii`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:3051,"3047:                   without modifying the original""]
+3048:     #[stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+3049:     #[rustc_const_stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+3050:     #[inline]
+3051:     pub const fn trim_ascii(&self) -> &str {
+3052:         // SAFETY: Removing ASCII characters from a `&str` does not invalidate
+3053:         // UTF-8.
+3054:         unsafe { core::str::from_utf8_unchecked(self.as_bytes().trim_ascii()) }
+3055:     }
+3056: 
+3057:     /// Returns an iterator that escapes each char in `self` with [`char::escape_debug`].
+3058:     ///
+3059:     /// Note: only extended grapheme codepoints that begin the string will be"
+core::str::trim_ascii_end,"result@ == s@.subrange(0, result@.len() as int); result@.len() <= s@.len(); forall|i: int| result@.len() <= i < s@.len() ==> {
+            let c = #[trigger] s@[i];
+            c == ' ' || c == '\t' || c == '\n' || c == '\x0c' || c == '\r'
+        }; result@.len() > 0 ==> {
+            let c = result@[(result@.len() - 1) as int];
+            !(c == ' ' || c == '\t' || c == '\n' || c == '\x0c' || c == '\r')
+        }",source_justified,str_declaration_source_context,"core/src/str/mod.rs:3022 is the classified Rust declaration/source_context for `str::trim_ascii_end`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:3022,"3018:                   without modifying the original""]
+3019:     #[stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+3020:     #[rustc_const_stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+3021:     #[inline]
+3022:     pub const fn trim_ascii_end(&self) -> &str {
+3023:         // SAFETY: Removing ASCII characters from a `&str` does not invalidate
+3024:         // UTF-8.
+3025:         unsafe { core::str::from_utf8_unchecked(self.as_bytes().trim_ascii_end()) }
+3026:     }
+3027: 
+3028:     /// Returns a string slice with leading and trailing ASCII whitespace
+3029:     /// removed.
+3030:     ///"
+core::str::trim_ascii_start,"result@ == ({
+            let start = choose|start: int|
+                0 <= start
+                && start <= s@.len()
+                && (forall|i: int| 0 <= i < start ==> (s@[i] == ' ' || s@[i] == '\t' || s@[i] == '\n' || s@[i] == '\x0c' || s@[i] == '\r'))
+                && (start == s@.len() || !(s@[start] == ' ' || s@[start] == '\t' || s@[start] == '\n' || s@[start] == '\x0c' || s@[start] == '\r'));
+            s@.subrange(start, s@.len() as int)
+        })",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2994 is the classified Rust declaration/source_context for `str::trim_ascii_start`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2994,"2990:                   without modifying the original""]
+2991:     #[stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+2992:     #[rustc_const_stable(feature = ""byte_slice_trim_ascii"", since = ""1.80.0"")]
+2993:     #[inline]
+2994:     pub const fn trim_ascii_start(&self) -> &str {
+2995:         // SAFETY: Removing ASCII characters from a `&str` does not invalidate
+2996:         // UTF-8.
+2997:         unsafe { core::str::from_utf8_unchecked(self.as_bytes().trim_ascii_start()) }
+2998:     }
+2999: 
+3000:     /// Returns a string slice with trailing ASCII whitespace removed.
+3001:     ///
+3002:     /// 'Whitespace' refers to the definition used by"
+core::str::trim_end,"result@ == s@.subrange(0, result@.len() as int); result@.len() <= s@.len(); forall|i: int| result@.len() <= i < s@.len() ==> {
+            let c = #[trigger] s@[i];
+            str_unicode_white_space(c)
+        }; result@.len() > 0 ==> {
+            let c = result@[(result@.len() - 1) as int];
+            !str_unicode_white_space(c)
+        }",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2264 is the classified Rust declaration/source_context for `str::trim_end`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2264,"2260:     #[must_use = ""this returns the trimmed string as a new slice, \
+2261:                   without modifying the original""]
+2262:     #[stable(feature = ""trim_direction"", since = ""1.30.0"")]
+2263:     #[rustc_diagnostic_item = ""str_trim_end""]
+2264:     pub fn trim_end(&self) -> &str {
+2265:         self.trim_end_matches(char::is_whitespace)
+2266:     }
+2267: 
+2268:     /// Returns a string slice with leading whitespace removed.
+2269:     ///
+2270:     /// 'Whitespace' is defined according to the terms of the Unicode Derived
+2271:     /// Core Property `White_Space`.
+2272:     ///"
+core::str::trim_left,"result@ == ({
+            let start = choose|start: int|
+                0 <= start
+                && start <= s@.len()
+                && (forall|i: int| 0 <= i < start ==>
+                    #[trigger] str_unicode_white_space(s@[i]))
+                && (start == s@.len() || !str_unicode_white_space(s@[start]));
+            s@.subrange(start, s@.len() as int)
+        })",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2304 is the classified Rust declaration/source_context for `str::trim_left`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2304,"2300:                   without modifying the original""]
+2301:     #[inline]
+2302:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2303:     #[deprecated(since = ""1.33.0"", note = ""superseded by `trim_start`"", suggestion = ""trim_start"")]
+2304:     pub fn trim_left(&self) -> &str {
+2305:         self.trim_start()
+2306:     }
+2307: 
+2308:     /// Returns a string slice with trailing whitespace removed.
+2309:     ///
+2310:     /// 'Whitespace' is defined according to the terms of the Unicode Derived
+2311:     /// Core Property `White_Space`.
+2312:     ///"
+core::str::trim_right,"result@.len() <= s@.len(); result@ == s@.take(result@.len() as int); forall|i: int| result@.len() <= i < s@.len() ==> (
+            s@[i] == '\u{9}' || s@[i] == '\u{a}' || s@[i] == '\u{b}' || s@[i] == '\u{c}' || s@[i] == '\u{d}' ||
+            s@[i] == '\u{20}' || s@[i] == '\u{85}' || s@[i] == '\u{a0}' || s@[i] == '\u{1680}' ||
+            s@[i] == '\u{2000}' || s@[i] == '\u{2001}' || s@[i] == '\u{2002}' || s@[i] == '\u{2003}' ||
+            s@[i] == '\u{2004}' || s@[i] == '\u{2005}' || s@[i] == '\u{2006}' || s@[i] == '\u{2007}' ||
+            s@[i] == '\u{2008}' || s@[i] == '\u{2009}' || s@[i] == '\u{200a}' || s@[i] == '\u{2028}' ||
+            s@[i] == '\u{2029}' || s@[i] == '\u{202f}' || s@[i] == '\u{205f}' || s@[i] == '\u{3000}'
+        ); result@.len() == 0 || !(
+            result@[result@.len() - 1] == '\u{9}' || result@[result@.len() - 1] == '\u{a}' ||
+            result@[result@.len() - 1] == '\u{b}' || result@[result@.len() - 1] == '\u{c}' ||
+            result@[result@.len() - 1] == '\u{d}' || result@[result@.len() - 1] == '\u{20}' ||
+            result@[result@.len() - 1] == '\u{85}' || result@[result@.len() - 1] == '\u{a0}' ||
+            result@[result@.len() - 1] == '\u{1680}' || result@[result@.len() - 1] == '\u{2000}' ||
+            result@[result@.len() - 1] == '\u{2001}' || result@[result@.len() - 1] == '\u{2002}' ||
+            result@[result@.len() - 1] == '\u{2003}' || result@[result@.len() - 1] == '\u{2004}' ||
+            result@[result@.len() - 1] == '\u{2005}' || result@[result@.len() - 1] == '\u{2006}' ||
+            result@[result@.len() - 1] == '\u{2007}' || result@[result@.len() - 1] == '\u{2008}' ||
+            result@[result@.len() - 1] == '\u{2009}' || result@[result@.len() - 1] == '\u{200a}' ||
+            result@[result@.len() - 1] == '\u{2028}' || result@[result@.len() - 1] == '\u{2029}' ||
+            result@[result@.len() - 1] == '\u{202f}' || result@[result@.len() - 1] == '\u{205f}' ||
+            result@[result@.len() - 1] == '\u{3000}'
+        )",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2344 is the classified Rust declaration/source_context for `str::trim_right`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2344,"2340:                   without modifying the original""]
+2341:     #[inline]
+2342:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+2343:     #[deprecated(since = ""1.33.0"", note = ""superseded by `trim_end`"", suggestion = ""trim_end"")]
+2344:     pub fn trim_right(&self) -> &str {
+2345:         self.trim_end()
+2346:     }
+2347: 
+2348:     /// Returns a string slice with all prefixes and suffixes that match a
+2349:     /// pattern repeatedly removed.
+2350:     ///
+2351:     /// The [pattern] can be a [`char`], a slice of [`char`]s, or a function
+2352:     /// or closure that determines if a character matches."
+core::str::trim_start,"result@ == ({
+            let start = choose|start: int|
+                0 <= start
+                && start <= s@.len()
+                && (forall|i: int| 0 <= i < start ==>
+                    #[trigger] str_unicode_white_space(s@[i]))
+                && (start == s@.len() || !str_unicode_white_space(s@[start]));
+            s@.subrange(start, s@.len() as int)
+        })",source_justified,str_declaration_source_context,"core/src/str/mod.rs:2225 is the classified Rust declaration/source_context for `str::trim_start`; the accepted ensures clauses model only the documented UTF-8 byte/string view, boundary, trim, ASCII, or validation behavior exposed by that source operation.",core/src/str/mod.rs:2225,"2221:     #[must_use = ""this returns the trimmed string as a new slice, \
+2222:                   without modifying the original""]
+2223:     #[stable(feature = ""trim_direction"", since = ""1.30.0"")]
+2224:     #[rustc_diagnostic_item = ""str_trim_start""]
+2225:     pub fn trim_start(&self) -> &str {
+2226:         self.trim_start_matches(char::is_whitespace)
+2227:     }
+2228: 
+2229:     /// Returns a string slice with trailing whitespace removed.
+2230:     ///
+2231:     /// 'Whitespace' is defined according to the terms of the Unicode Derived
+2232:     /// Core Property `White_Space`, which includes newlines.
+2233:     ///"
+std::collections::HashMap::get_mut,"{
+            let old_map = old(m)@;
+            let selected_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &selected_key)
+            &&& result is Some == contains_borrowed_key(old_map, k)
+            &&& match result {
+                Some(v) => {
+                    &&& *v == old_map[selected_key]
+                    &&& *final(v) == *v
+                    &&& final(m)@ == old_map
+                },
+                None => {
+                    &&& !contains_borrowed_key(old_map, k)
+                    &&& final(m)@ == old_map
+                },
+            }
+        }",source_justified,exact_map_get_mut_source_gate,std/src/collections/hash/map.rs:1297 documents borrowed-key lookup and implements the mutable-reference return through the underlying map search; the ensures clauses model the selected old semantic value and unchanged map view without pointer/provenance claims.,std/src/collections/hash/map.rs:1297,"1252:     /// The key may be any borrowed form of the map's key type, but
+1253:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1271:         K: Borrow<Q>,
+1272:         Q: Hash + Eq,
+1277:     /// Returns a mutable reference to the value corresponding to the key.
+1279:     /// The key may be any borrowed form of the map's key type, but
+1280:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1297:     pub fn get_mut<Q: ?Sized>(&mut self, k: &Q) -> Option<&mut V>
+1299:         K: Borrow<Q>,
+1300:         Q: Hash + Eq,
+1302:         self.base.get_mut(k)"
+std::collections::HashMap::remove_entry,"{
+            let old_map = old(m)@;
+            let removed_key = choose|key: Key|
+                sets_borrowed_key_to_key(old_map.dom(), k, &key);
+            &&& contains_borrowed_key(old_map, k) ==>
+                sets_borrowed_key_to_key(old_map.dom(), k, &removed_key)
+            &&& result == if contains_borrowed_key(old_map, k) {
+                Some((removed_key, old_map[removed_key]))
+            } else {
+                None
+            }
+            &&& final(m)@ == if contains_borrowed_key(old_map, k) {
+                old_map.remove(removed_key)
+            } else {
+                old_map
+            }
+        }",source_justified,hashmap_remove_entry_source_context,"std/src/collections/hash/map.rs:1420 documents borrowed-key Hash/Eq compatibility, returns the stored key/value pair, and delegates to `self.base.remove_entry(k)`; the ensures clauses model exactly that source-backed removal and optional returned pair.",std/src/collections/hash/map.rs:1420,"1375:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1393:         K: Borrow<Q>,
+1394:         Q: Hash + Eq,
+1399:     /// Removes a key from the map, returning the stored key and value if the
+1402:     /// The key may be any borrowed form of the map's key type, but
+1403:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for
+1420:     pub fn remove_entry<Q: ?Sized>(&mut self, k: &Q) -> Option<(K, V)>
+1422:         K: Borrow<Q>,
+1423:         Q: Hash + Eq,
+1425:         self.base.remove_entry(k)"
+std::collections::HashSet::is_disjoint,result == m@.disjoint(other@),source_justified,hashset_declaration_source_context,std/src/collections/hash/set.rs:955 is the classified Rust declaration/source_context for `HashSet::is_disjoint` and contains the Eq/Hash-backed set operation used by the implementation; the accepted ensures clauses model only the observable semantic set relation/update.,std/src/collections/hash/set.rs:955,"951:     /// b.insert(1);
+952:     /// assert_eq!(a.is_disjoint(&b), false);
+953:     /// ```
+954:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+955:     pub fn is_disjoint(&self, other: &HashSet<T, S, A>) -> bool {
+956:         if self.len() <= other.len() {
+957:             self.iter().all(|v| !other.contains(v))
+958:         } else {
+959:             other.iter().all(|v| !self.contains(v))
+960:         }
+961:     }
+962: 
+963:     /// Returns `true` if the set is a subset of another,"
+std::collections::HashSet::is_subset,result == m@.subset_of(other@),source_justified,hashset_declaration_source_context,std/src/collections/hash/set.rs:981 is the classified Rust declaration/source_context for `HashSet::is_subset` and contains the Eq/Hash-backed set operation used by the implementation; the accepted ensures clauses model only the observable semantic set relation/update.,std/src/collections/hash/set.rs:981,"977:     /// set.insert(4);
+978:     /// assert_eq!(set.is_subset(&sup), false);
+979:     /// ```
+980:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+981:     pub fn is_subset(&self, other: &HashSet<T, S, A>) -> bool {
+982:         if self.len() <= other.len() { self.iter().all(|v| other.contains(v)) } else { false }
+983:     }
+984: 
+985:     /// Returns `true` if the set is a superset of another,
+986:     /// i.e., `self` contains at least all the values in `other`.
+987:     ///
+988:     /// # Examples
+989:     ///"
+std::collections::HashSet::is_superset,result == other@.subset_of(m@),source_justified,hashset_declaration_source_context,std/src/collections/hash/set.rs:1007 is the classified Rust declaration/source_context for `HashSet::is_superset` and contains the Eq/Hash-backed set operation used by the implementation; the accepted ensures clauses model only the observable semantic set relation/update.,std/src/collections/hash/set.rs:1007,"1003:     /// assert_eq!(set.is_superset(&sub), true);
+1004:     /// ```
+1005:     #[inline]
+1006:     #[stable(feature = ""rust1"", since = ""1.0.0"")]
+1007:     pub fn is_superset(&self, other: &HashSet<T, S, A>) -> bool {
+1008:         other.is_subset(self)
+1009:     }
+1010: 
+1011:     /// Adds a value to the set.
+1012:     ///
+1013:     /// Returns whether the value was newly inserted. That is:
+1014:     ///
+1015:     /// - If the set did not previously contain this value, `true` is returned."
+std::collections::HashSet::replace,"match result {
+            Some(replaced) => {
+                &&& sets_borrowed_key_to_key(old(m)@, &value, &replaced)
+                &&& final(m)@ == old(m)@.remove(replaced).insert(value)
+            },
+            None => {
+                &&& !set_contains_borrowed_key(old(m)@, &value)
+                &&& final(m)@ == old(m)@.insert(value)
+            },
+        }",source_justified,exact_hashset_replace_source_gate,std/src/collections/hash/set.rs:1056 documents replacing an equal existing value and delegates to `self.base.replace(value)`; the ensures clauses model the source-backed semantic set update and returned replaced value.,std/src/collections/hash/set.rs:1056,"1052:     /// ```
+1053:     #[inline]
+1054:     #[stable(feature = ""set_recovery"", since = ""1.9.0"")]
+1055:     #[rustc_confusables(""swap"")]
+1056:     pub fn replace(&mut self, value: T) -> Option<T> {
+1057:         self.base.replace(value)
+1058:     }
+1059: 
+1060:     /// Removes a value from the set. Returns whether the value was
+1061:     /// present in the set.
+1062:     ///
+1063:     /// The value may be any borrowed form of the set's value type, but
+1064:     /// [`Hash`] and [`Eq`] on the borrowed form *must* match those for"
+std::thread::Result::flatten,"match value {
+            core::result::Result::Ok(inner) => result == inner,
+            core::result::Result::Err(e) => result == core::result::Result::Err(e),
+        }",source_justified,exact_thread_result_flatten_source_gate,core/src/result.rs:1855 is a public alias for core Result::flatten and the classified source_context contains the matching Ok/Err branch structure; the ensures clause models exactly that branch result.,core/src/result.rs:1855,"1851:     #[inline]
+1852:     #[stable(feature = ""result_flattening"", since = ""1.89.0"")]
+1853:     #[rustc_allow_const_fn_unstable(const_precise_live_drops)]
+1854:     #[rustc_const_stable(feature = ""result_flattening"", since = ""1.89.0"")]
+1855:     pub const fn flatten(self) -> Result<T, E> {
+1856:         // FIXME(const-hack): could be written with `and_then`
+1857:         match self {
+1858:             Ok(inner) => inner,
+1859:             Err(e) => Err(e),
+1860:         }
+1861:     }
+1862: }
+1863: "

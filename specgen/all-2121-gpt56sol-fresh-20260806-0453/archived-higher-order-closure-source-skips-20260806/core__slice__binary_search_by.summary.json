@@ -1,0 +1,207 @@
+{
+  "target": "core::slice::binary_search_by",
+  "category": "data_structure",
+  "history": [
+    {
+      "round": 0,
+      "llm_ms": 60222,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, F>[ <[T]>::binary_search_by ](\n    slice: &'a [T],\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> core::cmp::Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < slice@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= slice@.len(),\n        slice@.len() == 0 ==> result == core::result::Result::Err(0),\n;",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+          "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+          "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+        ],
+        "feature_gates": [],
+        "imports": [
+          "vstd::prelude::*"
+        ],
+        "useful": true,
+        "rationale": "The implementation returns Err(0) for an empty slice and constructs every successful or insertion index within the slice bounds. These unconditional range guarantees are useful without modeling the stateful comparator.",
+        "risks": [
+          "The contract does not relate the result to comparator outcomes or sortedness.",
+          "It makes no claims about comparator calls, call order, or captured-state effects.",
+          "Multiple equal elements may yield any matching index, as documented."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 0,
+          "duration_ms": 524,
+          "stderr_tail": ""
+        },
+        "determinism": {
+          "status": "verus_error",
+          "requires": [],
+          "ensures": [
+            "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+            "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+            "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+          ],
+          "equal_fn_trivial": false,
+          "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by/round_00/det_harness.rs:14:14\n   |\n13 | ...et___rust_std_candidate<'a, T, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_...\n   |                            -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n14 | ...F: core::ops::FnMut(&'a T) -> core::cmp::Ordering\n   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n13 | proof fn det___rust_std_candidate<'a, T: 'a, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "checker_status:verus_error",
+        "classification:higher_order_contract"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false
+    },
+    {
+      "round": 1,
+      "llm_ms": 12176,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, F>[ <[T]>::binary_search_by ](\n    slice: &'a [T],\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    T: 'a,\n    F: core::ops::FnMut(&'a T) -> core::cmp::Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < slice@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= slice@.len(),\n        slice@.len() == 0 ==> result == core::result::Result::Err(0),\n;",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+          "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+          "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+        ],
+        "feature_gates": [],
+        "imports": [
+          "vstd::prelude::*"
+        ],
+        "useful": true,
+        "rationale": "The explicit T: 'a bound makes the higher-order comparator signature well-formed. The implementation returns Err(0) for an empty slice, and every successful or insertion index is bounded by the slice length. These observable guarantees remain useful without modeling comparator state or calls.",
+        "risks": [
+          "The contract does not relate the result to comparator outcomes or sortedness.",
+          "It makes no claims about comparator calls, call order, or captured-state effects.",
+          "Multiple equal elements may yield any matching index, as documented."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 1,
+          "duration_ms": 450,
+          "stderr_tail": "error: assume_specification trait bound mismatch\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by/round_01/contract_harness.rs:7:1\n   |\n 7 | / pub assume_specification<'a, T, F>[ <[T]>::binary_search_by ](\n 8 | |     slice: &'a [T],\n 9 | |     f: F,\n10 | | ) -> (result: core::result::Result<usize, usize>)\n11 | | where\n12 | |     T: 'a,\n13 | |     F: core::ops::FnMut(&'a T) -> core::cmp::Ordering,\n   | |______________________________________________________^\n   |\n   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds\n           but the proxy function's trait bounds are:\n             - T: std::marker::Sized\n             - F: std::marker::Sized\n             - T: 'a\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == std::cmp::Ordering\n           the external function's trait bounds are:\n             - T: std::marker::Sized\n             - F: std::marker::Sized\n             - F: FnMut(&'a T)\n             - <F as std::ops::FnOnce<(&'a T,)>>::Output == std::cmp::Ordering\n\nerror: aborting due to 1 previous error\n\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "classification:higher_order_contract",
+        "contract_typecheck_failed"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false
+    },
+    {
+      "round": 2,
+      "llm_ms": 13167,
+      "candidate": {
+        "decision": "add_spec",
+        "contract_form": "assume_specification",
+        "contract_code": "pub assume_specification<'a, T, F>[ <[T]>::binary_search_by ](\n    slice: &'a [T],\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> core::cmp::Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < slice@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= slice@.len(),\n        slice@.len() == 0 ==> result == core::result::Result::Err(0),\n;",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+          "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+          "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+        ],
+        "feature_gates": [],
+        "imports": [
+          "vstd::prelude::*"
+        ],
+        "useful": true,
+        "rationale": "The proxy now exactly matches the external function's trait bounds by omitting the extra T: 'a predicate. The implementation returns Err(0) for an empty slice, and every successful or insertion index is bounded by the slice length. These observable guarantees hold independently of comparator behavior and do not attempt to model its state, calls, or deterministically chosen index.",
+        "risks": [
+          "The contract does not relate the result to comparator outcomes or sortedness.",
+          "It makes no claims about comparator calls, call order, or captured-state effects.",
+          "It intentionally does not specify which matching index is chosen because that deterministic choice may change between Rust versions."
+        ]
+      },
+      "checker": {
+        "typecheck": {
+          "returncode": 0,
+          "duration_ms": 525,
+          "stderr_tail": ""
+        },
+        "determinism": {
+          "status": "verus_error",
+          "requires": [],
+          "ensures": [
+            "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+            "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+            "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+          ],
+          "equal_fn_trivial": false,
+          "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by/recheck_final/det_harness.rs:14:14\n   |\n13 | ...et___rust_std_candidate<'a, T, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_...\n   |                            -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n14 | ...F: core::ops::FnMut(&'a T) -> core::cmp::Ordering\n   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n13 | proof fn det___rust_std_candidate<'a, T: 'a, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+        }
+      },
+      "anti_vacuity_issues": [
+        "checker_status:verus_error",
+        "classification:higher_order_contract"
+      ],
+      "raw_det_reward": 0,
+      "guarded_reward": 0,
+      "soundness_status": "unverified_trusted_external_contract",
+      "apply_upstream": false,
+      "rechecked": true,
+      "recheck_source_target": "core::slice::binary_search_by"
+    }
+  ],
+  "final": {
+    "round": 2,
+    "llm_ms": 13167,
+    "candidate": {
+      "decision": "add_spec",
+      "contract_form": "assume_specification",
+      "contract_code": "pub assume_specification<'a, T, F>[ <[T]>::binary_search_by ](\n    slice: &'a [T],\n    f: F,\n) -> (result: core::result::Result<usize, usize>)\nwhere\n    F: core::ops::FnMut(&'a T) -> core::cmp::Ordering,\n    ensures\n        result is Ok ==> ((result->Ok_0) as nat) < slice@.len(),\n        result is Err ==> ((result->Err_0) as nat) <= slice@.len(),\n        slice@.len() == 0 ==> result == core::result::Result::Err(0),\n;",
+      "requires": [],
+      "ensures": [
+        "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+        "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+        "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+      ],
+      "feature_gates": [],
+      "imports": [
+        "vstd::prelude::*"
+      ],
+      "useful": true,
+      "rationale": "The proxy now exactly matches the external function's trait bounds by omitting the extra T: 'a predicate. The implementation returns Err(0) for an empty slice, and every successful or insertion index is bounded by the slice length. These observable guarantees hold independently of comparator behavior and do not attempt to model its state, calls, or deterministically chosen index.",
+      "risks": [
+        "The contract does not relate the result to comparator outcomes or sortedness.",
+        "It makes no claims about comparator calls, call order, or captured-state effects.",
+        "It intentionally does not specify which matching index is chosen because that deterministic choice may change between Rust versions."
+      ]
+    },
+    "checker": {
+      "typecheck": {
+        "returncode": 0,
+        "duration_ms": 525,
+        "stderr_tail": ""
+      },
+      "determinism": {
+        "status": "verus_error",
+        "requires": [],
+        "ensures": [
+          "result is Ok ==> ((result->Ok_0) as nat) < slice@.len()",
+          "result is Err ==> ((result->Err_0) as nat) <= slice@.len()",
+          "slice@.len() == 0 ==> result == core::result::Result::Err(0)"
+        ],
+        "equal_fn_trivial": false,
+        "stderr_tail": "error[E0309]: the parameter type `T` may not live long enough\n  --> /home/chentianyu/nanvix-rust-std-specgen-rerun-2026-08-06/specgen/all-2121-gpt56sol-fresh-20260806-0453/targets/core__slice__binary_search_by/recheck_final/det_harness.rs:14:14\n   |\n13 | ...et___rust_std_candidate<'a, T, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_...\n   |                            -- the parameter type `T` must be valid for the lifetime `'a` as defined here...\n14 | ...F: core::ops::FnMut(&'a T) -> core::cmp::Ordering\n   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at\n   |\nhelp: consider adding an explicit lifetime bound\n   |\n13 | proof fn det___rust_std_candidate<'a, T: 'a, F>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)\n   |                                        ++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0309`.\n"
+      }
+    },
+    "anti_vacuity_issues": [
+      "checker_status:verus_error",
+      "classification:higher_order_contract"
+    ],
+    "raw_det_reward": 0,
+    "guarded_reward": 0,
+    "soundness_status": "unverified_trusted_external_contract",
+    "apply_upstream": false,
+    "rechecked": true,
+    "recheck_source_target": "core::slice::binary_search_by"
+  }
+}
