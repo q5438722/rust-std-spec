@@ -1,0 +1,417 @@
+note: verifying root module (selected functions)
+
+error: postcondition not satisfied
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1218:9
+     |
+1218 | /         ({
+1219 | |             &&& (slice_permutation(pre_slice@, post1_slice@))
+1220 | |             &&& (slice_sorted_by_cmp(post1_slice@, comparator_observation(compare, pre_slice@)))
+1221 | |             &&& (slice_permutation(pre_slice@, post2_slice@))
+1222 | |             &&& (slice_sorted_by_cmp(post2_slice@, comparator_observation(compare, pre_slice@)))
+1223 | |         }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_slice, post2_slice),
+     | |____________________________________________________________________________________^ failed this postcondition
+...
+1231 |       if g_neq_tuple { assume(!det___rust_std_candidate_equal::<T>(r1, r2, post1_slice, post2_slice)); }
+     |       -------------------------------------------------------------------------------------------------- at the end of the function body
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:217:5
+    |
+217 |     exists|i: int| 0 <= i < seq.len() && partial_eq_observed(seq[i], value)
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:217:62
+    |
+217 |     exists|i: int| 0 <= i < seq.len() && partial_eq_observed(seq[i], value)
+    |                                                              ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:222:12
+    |
+222 |           && forall|i: int| 0 <= i < prefix.len()
+    |  ____________^
+223 | |             ==> partial_eq_observed(seq[i], prefix[i])
+    | |______________________________________________________^
+
+note:   trigger 1 of 2:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:223:37
+    |
+223 |             ==> partial_eq_observed(seq[i], prefix[i])
+    |                                     ^^^^^^
+
+note:   trigger 2 of 2:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:223:45
+    |
+223 |             ==> partial_eq_observed(seq[i], prefix[i])
+    |                                             ^^^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:281:12
+    |
+281 |         && forall|i: int| 0 <= i < source.len() ==> cloned::<T>(source[i], dest[i])
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 2:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:281:65
+    |
+281 |         && forall|i: int| 0 <= i < source.len() ==> cloned::<T>(source[i], dest[i])
+    |                                                                 ^^^^^^^^^
+
+note:   trigger 2 of 2:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:281:76
+    |
+281 |         && forall|i: int| 0 <= i < source.len() ==> cloned::<T>(source[i], dest[i])
+    |                                                                            ^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:290:12
+    |
+290 |         && forall|i: int| 0 <= i < dest.len() ==> cloned::<T>(value, dest[i])
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:290:70
+    |
+290 |         && forall|i: int| 0 <= i < dest.len() ==> cloned::<T>(value, dest[i])
+    |                                                                      ^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:525:12
+    |
+525 |           && forall|j: int| index as int <= j < seq.len()
+    |  ____________^
+526 | |             ==> ord_cmp_observed(seq[j], value) == core::cmp::Ordering::Greater
+    | |_______________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:526:34
+    |
+526 |             ==> ord_cmp_observed(seq[j], value) == core::cmp::Ordering::Greater
+    |                                  ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:523:12
+    |
+523 |           && forall|j: int| 0 <= j < index as int
+    |  ____________^
+524 | |             ==> ord_cmp_observed(seq[j], value) == core::cmp::Ordering::Less
+525 | |         && forall|j: int| index as int <= j < seq.len()
+526 | |             ==> ord_cmp_observed(seq[j], value) == core::cmp::Ordering::Greater
+    | |_______________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:524:34
+    |
+524 |             ==> ord_cmp_observed(seq[j], value) == core::cmp::Ordering::Less
+    |                                  ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:547:5
+    |
+547 | /     forall|i: int, j: int| 0 <= i <= j < seq.len()
+548 | |         ==> ordering_rank(fnmut_ordering_observed(f, seq[i]))
+549 | |             <= ordering_rank(fnmut_ordering_observed(f, seq[j]))
+    | |________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:548:54
+    |
+548 |         ==> ordering_rank(fnmut_ordering_observed(f, seq[i]))
+    |                                                      ^^^^^^
+549 |             <= ordering_rank(fnmut_ordering_observed(f, seq[j]))
+    |                                                         ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:569:12
+    |
+569 |           && forall|j: int| index as int <= j < seq.len()
+    |  ____________^
+570 | |             ==> fnmut_ordering_observed(f, seq[j]) == core::cmp::Ordering::Greater
+    | |__________________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:570:44
+    |
+570 |             ==> fnmut_ordering_observed(f, seq[j]) == core::cmp::Ordering::Greater
+    |                                            ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:567:12
+    |
+567 |           && forall|j: int| 0 <= j < index as int
+    |  ____________^
+568 | |             ==> fnmut_ordering_observed(f, seq[j]) == core::cmp::Ordering::Less
+569 | |         && forall|j: int| index as int <= j < seq.len()
+570 | |             ==> fnmut_ordering_observed(f, seq[j]) == core::cmp::Ordering::Greater
+    | |__________________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:568:44
+    |
+568 |             ==> fnmut_ordering_observed(f, seq[j]) == core::cmp::Ordering::Less
+    |                                            ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:622:12
+    |
+622 |           && forall|j: int| index as int <= j < seq.len()
+    |  ____________^
+623 | |             ==> ord_cmp_observed(fnmut_key_observed::<F, T, B>(f, seq[j]), key)
+624 | |                 == core::cmp::Ordering::Greater
+    | |_______________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:623:67
+    |
+623 |             ==> ord_cmp_observed(fnmut_key_observed::<F, T, B>(f, seq[j]), key)
+    |                                                                   ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:619:12
+    |
+619 |           && forall|j: int| 0 <= j < index as int
+    |  ____________^
+620 | |             ==> ord_cmp_observed(fnmut_key_observed::<F, T, B>(f, seq[j]), key)
+621 | |                 == core::cmp::Ordering::Less
+622 | |         && forall|j: int| index as int <= j < seq.len()
+623 | |             ==> ord_cmp_observed(fnmut_key_observed::<F, T, B>(f, seq[j]), key)
+624 | |                 == core::cmp::Ordering::Greater
+    | |_______________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:620:67
+    |
+620 |             ==> ord_cmp_observed(fnmut_key_observed::<F, T, B>(f, seq[j]), key)
+    |                                                                   ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:650:5
+    |
+650 | /     forall|i: int, j: int| 0 <= i <= j < seq.len()
+651 | |         ==> fnmut_predicate_observed(pred, seq[j]) ==> fnmut_predicate_observed(pred, seq[i])
+    | |_____________________________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:651:44
+    |
+651 |         ==> fnmut_predicate_observed(pred, seq[j]) ==> fnmut_predicate_observed(pred, seq[i])
+    |                                            ^^^^^^                                     ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:657:13
+    |
+657 |         &&& forall|j: int| 0 <= j < index as int ==> fnmut_predicate_observed(pred, seq[j])
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:657:85
+    |
+657 |         &&& forall|j: int| 0 <= j < index as int ==> fnmut_predicate_observed(pred, seq[j])
+    |                                                                                     ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:658:13
+    |
+658 |         &&& forall|j: int| index as int <= j < seq.len() ==> !fnmut_predicate_observed(pred, seq[j])
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:658:94
+    |
+658 |         &&& forall|j: int| index as int <= j < seq.len() ==> !fnmut_predicate_observed(pred, seq[j])
+    |                                                                                              ^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:734:5
+    |
+734 |     (forall|i: int| 0 <= i < left.len() ==> ord_leq_observed(left[i], pivot))
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:734:62
+    |
+734 |     (forall|i: int| 0 <= i < left.len() ==> ord_leq_observed(left[i], pivot))
+    |                                                              ^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:735:12
+    |
+735 |         && (forall|i: int| 0 <= i < right.len() ==> ord_leq_observed(pivot, right[i]))
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:735:77
+    |
+735 |         && (forall|i: int| 0 <= i < right.len() ==> ord_leq_observed(pivot, right[i]))
+    |                                                                             ^^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:744:5
+    |
+744 |     (forall|i: int| 0 <= i < left.len() ==> comparator_leq_observed(observation, left[i], pivot))
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:744:82
+    |
+744 |     (forall|i: int| 0 <= i < left.len() ==> comparator_leq_observed(observation, left[i], pivot))
+    |                                                                                  ^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:745:12
+    |
+745 |         && (forall|i: int| 0 <= i < right.len() ==> comparator_leq_observed(observation, pivot, right[i]))
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:745:97
+    |
+745 |         && (forall|i: int| 0 <= i < right.len() ==> comparator_leq_observed(observation, pivot, right[i]))
+    |                                                                                                 ^^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:754:5
+    |
+754 | /     (forall|i: int| 0 <= i < left.len()
+755 | |         ==> ord_leq_observed(fnmut_key_observed::<F, T, K>(f, left[i]), fnmut_key_observed::<F, T, K>(f, pivot)))
+    | |_________________________________________________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:755:63
+    |
+755 |         ==> ord_leq_observed(fnmut_key_observed::<F, T, K>(f, left[i]), fnmut_key_observed::<F, T, K>(f, pivot)))
+    |                                                               ^^^^^^^
+
+note: automatically chose triggers for this expression:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:756:12
+    |
+756 |           && (forall|i: int| 0 <= i < right.len()
+    |  ____________^
+757 | |             ==> ord_leq_observed(fnmut_key_observed::<F, T, K>(f, pivot), fnmut_key_observed::<F, T, K>(f, right[i])))
+    | |______________________________________________________________________________________________________________________^
+
+note:   trigger 1 of 1:
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:757:108
+    |
+757 |             ==> ord_leq_observed(fnmut_key_observed::<F, T, K>(f, pivot), fnmut_key_observed::<F, T, K>(f, right[i])))
+    |                                                                                                            ^^^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1097:12
+     |
+1097 |           && forall|i: int| 0 <= i < source.len()
+     |  ____________^
+1098 | |             ==> after.initialized[i] && after.values[i] == source[i]
+     | |____________________________________________________________________^
+
+note:   trigger 1 of 2:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1098:17
+     |
+1098 |             ==> after.initialized[i] && after.values[i] == source[i]
+     |                 ^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 2 of 2:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1098:60
+     |
+1098 |             ==> after.initialized[i] && after.values[i] == source[i]
+     |                                                            ^^^^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1148:5
+     |
+1148 |     forall|i: int| 0 <= i < seq.len() ==> ascii_is_byte(seq[i])
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1148:57
+     |
+1148 |     forall|i: int| 0 <= i < seq.len() ==> ascii_is_byte(seq[i])
+     |                                                         ^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1161:12
+     |
+1161 |         && forall|i: int| 0 <= i < left.len() ==> ascii_lower_byte(left[i]) == ascii_lower_byte(right[i])
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 2:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1161:68
+     |
+1161 |         && forall|i: int| 0 <= i < left.len() ==> ascii_lower_byte(left[i]) == ascii_lower_byte(right[i])
+     |                                                                    ^^^^^^^
+
+note:   trigger 2 of 2:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1161:97
+     |
+1161 |         && forall|i: int| 0 <= i < left.len() ==> ascii_lower_byte(left[i]) == ascii_lower_byte(right[i])
+     |                                                                                                 ^^^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1187:12
+     |
+1187 |         && (forall|i: int| 0 <= i < ascii_trim_start_index(seq) ==> ascii_is_whitespace(seq[i]))
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1187:89
+     |
+1187 |         && (forall|i: int| 0 <= i < ascii_trim_start_index(seq) ==> ascii_is_whitespace(seq[i]))
+     |                                                                                         ^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1194:12
+     |
+1194 |         && (forall|i: int| ascii_trim_end_index(seq) <= i < seq.len() ==> ascii_is_whitespace(seq[i]))
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1194:95
+     |
+1194 |         && (forall|i: int| ascii_trim_end_index(seq) <= i < seq.len() ==> ascii_is_whitespace(seq[i]))
+     |                                                                                               ^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1203:12
+     |
+1203 |         && (forall|i: int| 0 <= i < start ==> ascii_is_whitespace(seq[i]))
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1203:67
+     |
+1203 |         && (forall|i: int| 0 <= i < start ==> ascii_is_whitespace(seq[i]))
+     |                                                                   ^^^^^^
+
+note: automatically chose triggers for this expression:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1204:12
+     |
+1204 |         && (forall|i: int| end <= i < seq.len() ==> ascii_is_whitespace(seq[i]))
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note:   trigger 1 of 1:
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1204:73
+     |
+1204 |         && (forall|i: int| end <= i < seq.len() ==> ascii_is_whitespace(seq[i]))
+     |                                                                         ^^^^^^
+
+note: Verus printed one or more automatically chosen quantifier triggers
+      because it had low confidence in the chosen triggers.
+      To suppress these messages, do one of the following:
+        (1) manually annotate a single desired trigger using #[trigger]
+            (example: forall|i: int, j: int| f(i) && #[trigger] g(i) && #[trigger] h(j)),
+        (2) manually annotate multiple desired triggers using #![trigger ...]
+            (example: forall|i: int| #![trigger f(i)] #![trigger g(i)] f(i) && g(i)),
+        (3) accept the automatically chosen trigger using #![auto]
+            (example: forall|i: int, j: int| #![auto] f(i) && g(i) && h(j))
+        (4) use the --triggers-mode silent command-line option to suppress all printing of triggers.
+      (Note: triggers are used by the underlying SMT theorem prover to instantiate quantifiers;
+      the theorem prover instantiates a quantifier whenever some expression matches the
+      pattern specified by one of the quantifier's triggers.)
+    --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T1115Z-prune-unused-maybeuninit-helpers/core__slice__sort_unstable_by/det_harness.rs:1204:12
+     |
+1204 |         && (forall|i: int| end <= i < seq.len() ==> ascii_is_whitespace(seq[i]))
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+

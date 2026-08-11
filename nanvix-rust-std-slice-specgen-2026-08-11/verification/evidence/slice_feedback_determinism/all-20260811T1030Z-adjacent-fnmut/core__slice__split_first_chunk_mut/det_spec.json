@@ -1,0 +1,241 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T, const N: usize>(pre_slice: [T], post1_slice: [T], r1: Option<(&mut [T; N], &mut [T])>, post2_slice: [T], r2: Option<(&mut [T; N], &mut [T])>)\n    ensures\n        ({\n            &&& ((N as int) <= pre_slice@.len() ==> r1.is_some()\n            && array_mut_ref_view(r1.unwrap().0) == slice_fixed_prefix::<T, N>(pre_slice@)\n            && r1.unwrap().1@ == pre_slice@.subrange(N as int, pre_slice@.len() as int)\n            && post1_slice@\n                == array_value_view(*final(r1.unwrap().0)) + final(r1.unwrap().1)@)\n            &&& ((N as int) > pre_slice@.len() ==> r1.is_none() && post1_slice@ == pre_slice@)\n            &&& ((N as int) <= pre_slice@.len() ==> r2.is_some()\n            && array_mut_ref_view(r2.unwrap().0) == slice_fixed_prefix::<T, N>(pre_slice@)\n            && r2.unwrap().1@ == pre_slice@.subrange(N as int, pre_slice@.len() as int)\n            && post2_slice@\n                == array_value_view(*final(r2.unwrap().0)) + final(r2.unwrap().1)@)\n            &&& ((N as int) > pre_slice@.len() ==> r2.is_none() && post2_slice@ == pre_slice@)\n        }) ==> det___rust_std_candidate_equal::<T, N>(r1, r2, post1_slice, post2_slice),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "Option",
+        "name": "Option<(&mut [T; N], &mut [T])>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "struct",
+              "name": "(&mut [T; N], &mut [T])",
+              "fields": [
+                {
+                  "name": "0",
+                  "type": {
+                    "kind": "Seq",
+                    "name": "[T; N]",
+                    "type_args": [
+                      {
+                        "kind": "unknown",
+                        "name": "T"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "1",
+                  "type": {
+                    "kind": "Seq",
+                    "name": "[T]",
+                    "type_args": [
+                      {
+                        "kind": "unknown",
+                        "name": "T"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "struct",
+            "name": "(&mut [T; N], &mut [T])",
+            "fields": [
+              {
+                "name": "0",
+                "type": {
+                  "kind": "Seq",
+                  "name": "[T; N]",
+                  "type_args": [
+                    {
+                      "kind": "unknown",
+                      "name": "T"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "1",
+                "type": {
+                  "kind": "Seq",
+                  "name": "[T]",
+                  "type_args": [
+                    {
+                      "kind": "unknown",
+                      "name": "T"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "Option",
+        "name": "Option<(&mut [T; N], &mut [T])>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "struct",
+              "name": "(&mut [T; N], &mut [T])",
+              "fields": [
+                {
+                  "name": "0",
+                  "type": {
+                    "kind": "Seq",
+                    "name": "[T; N]",
+                    "type_args": [
+                      {
+                        "kind": "unknown",
+                        "name": "T"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "1",
+                  "type": {
+                    "kind": "Seq",
+                    "name": "[T]",
+                    "type_args": [
+                      {
+                        "kind": "unknown",
+                        "name": "T"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "struct",
+            "name": "(&mut [T; N], &mut [T])",
+            "fields": [
+              {
+                "name": "0",
+                "type": {
+                  "kind": "Seq",
+                  "name": "[T; N]",
+                  "type_args": [
+                    {
+                      "kind": "unknown",
+                      "name": "T"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "1",
+                "type": {
+                  "kind": "Seq",
+                  "name": "[T]",
+                  "type_args": [
+                    {
+                      "kind": "unknown",
+                      "name": "T"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "post1_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<T, const N: usize>(r1: Option<(&mut [T; N], &mut [T])>, r2: Option<(&mut [T; N], &mut [T])>, post1_slice: [T], post2_slice: [T]) -> bool {\n    (((r1 is Some) == (r2 is Some)) && ((r1 is Some) ==> ((r1->Some_0.0 =~= r2->Some_0.0) && (r1->Some_0.1 =~= r2->Some_0.1))))\n    && (post1_slice =~= post2_slice)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_slice",
+      "rhs": "post2_slice"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<T, const N: usize>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

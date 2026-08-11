@@ -1,0 +1,135 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T>(slice: &[T], subslice: &[T], r1: Option<core::range::Range<usize>>, r2: Option<core::range::Range<usize>>)\n    ensures\n        ({\n            &&& (r1.is_some() ==> slice_subslice_range_result(slice@, subslice@, r1.unwrap()))\n            &&& (r1.is_none() ==> !slice_subslice_in_domain(slice@, subslice@))\n            &&& (r2.is_some() ==> slice_subslice_range_result(slice@, subslice@, r2.unwrap()))\n            &&& (r2.is_none() ==> !slice_subslice_in_domain(slice@, subslice@))\n        }) ==> det___rust_std_candidate_equal(r1, r2),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "subslice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "Option",
+        "name": "Option<core::range::Range<usize>>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "unknown",
+              "name": "core::range::Range<usize>",
+              "type_args": [
+                {
+                  "kind": "usize",
+                  "name": "usize"
+                }
+              ]
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "core::range::Range<usize>",
+            "type_args": [
+              {
+                "kind": "usize",
+                "name": "usize"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "Option",
+        "name": "Option<core::range::Range<usize>>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "unknown",
+              "name": "core::range::Range<usize>",
+              "type_args": [
+                {
+                  "kind": "usize",
+                  "name": "usize"
+                }
+              ]
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "core::range::Range<usize>",
+            "type_args": [
+              {
+                "kind": "usize",
+                "name": "usize"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_simple"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False [custom_body in use]\nspec fn det___rust_std_candidate_equal(r1: Option<core::range::Range<usize>>, r2: Option<core::range::Range<usize>>) -> bool {\n    (r1 is Some) == (r2 is Some)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": "(r1 is Some) == (r2 is Some)",
+    "rationale": "The slice/Vec/cell raw-storage provisional lane checks determinism over source-backed storage pointer, length, capacity, and transparent-representation views rather than dereference validity, allocation ownership, aliasing, lifetimes, or canonical raw-pointer semantics.",
+    "source": "rust_std_specgen_slice_vec_cell_raw_storage_view"
+  },
+  "type_projections": {},
+  "generics_decl": "<T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

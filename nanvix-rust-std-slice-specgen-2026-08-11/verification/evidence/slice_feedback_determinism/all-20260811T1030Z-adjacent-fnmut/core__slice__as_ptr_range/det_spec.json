@@ -1,0 +1,73 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T>(slice: &[T], r1: core::ops::Range<*const T>, r2: core::ops::Range<*const T>)\n    ensures\n        ({\n            &&& (slice_ptr_range_result(slice@, r1))\n            &&& (slice_ptr_range_result(slice@, r2))\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "unknown",
+        "name": "core::ops::Range<*const T>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "*const T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "unknown",
+        "name": "core::ops::Range<*const T>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "*const T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False [custom_body in use]\nspec fn det___rust_std_candidate_equal<T>(r1: core::ops::Range<*const T>, r2: core::ops::Range<*const T>) -> bool {\n    (r1.start@.addr == r2.start@.addr) && (r1.start@.provenance == r2.start@.provenance) && (r1.start@.metadata == r2.start@.metadata) && (r1.end@.addr == r2.end@.addr) && (r1.end@.provenance == r2.end@.provenance) && (r1.end@.metadata == r2.end@.metadata)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": "(r1.start@.addr == r2.start@.addr) && (r1.start@.provenance == r2.start@.provenance) && (r1.start@.metadata == r2.start@.metadata) && (r1.end@.addr == r2.end@.addr) && (r1.end@.provenance == r2.end@.provenance) && (r1.end@.metadata == r2.end@.metadata)",
+    "rationale": "The slice/Vec/cell raw-storage provisional lane checks determinism over source-backed storage pointer, length, capacity, and transparent-representation views rather than dereference validity, allocation ownership, aliasing, lifetimes, or canonical raw-pointer semantics.",
+    "source": "rust_std_specgen_slice_vec_cell_raw_storage_view"
+  },
+  "type_projections": {},
+  "generics_decl": "<T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

@@ -1,0 +1,85 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T, const N: usize>(slice: &[T], r1: &[[T; N]], r2: &[[T; N]])\n    requires (N != 0), (slice@.len() % (N as nat) == 0),\n    ensures\n        ({\n            &&& (flatten_array_chunks::<T, N>(r1@) == slice@)\n            &&& (flatten_array_chunks::<T, N>(r2@) == slice@)\n        }) ==> det___rust_std_candidate_equal::<T, N>(r1, r2),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "Seq",
+        "name": "&[[T; N]]",
+        "type_args": [
+          {
+            "kind": "Seq",
+            "name": "[T; N]",
+            "type_args": [
+              {
+                "kind": "unknown",
+                "name": "T"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "Seq",
+        "name": "&[[T; N]]",
+        "type_args": [
+          {
+            "kind": "Seq",
+            "name": "[T; N]",
+            "type_args": [
+              {
+                "kind": "unknown",
+                "name": "T"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<T, const N: usize>(r1: &[[T; N]], r2: &[[T; N]]) -> bool {\n    (r1 =~= r2)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<T, const N: usize>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

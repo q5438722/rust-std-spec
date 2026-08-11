@@ -1,0 +1,105 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T>(slice: &[T], element: &T, r1: Option<usize>, r2: Option<usize>)\n    ensures\n        ({\n            &&& (r1.is_some() ==> r1.unwrap() < slice@.len()\n            && slice_element_offset_result(slice@, element, r1.unwrap()))\n            &&& (r1.is_none() ==> !slice_element_in_domain(slice@, element))\n            &&& (r2.is_some() ==> r2.unwrap() < slice@.len()\n            && slice_element_offset_result(slice@, element, r2.unwrap()))\n            &&& (r2.is_none() ==> !slice_element_in_domain(slice@, element))\n        }) ==> det___rust_std_candidate_equal(r1, r2),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "element",
+      "type": {
+        "kind": "unknown",
+        "name": "T"
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "Option",
+        "name": "Option<usize>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "usize",
+              "name": "usize"
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "usize",
+            "name": "usize"
+          }
+        ]
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "Option",
+        "name": "Option<usize>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "usize",
+              "name": "usize"
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "usize",
+            "name": "usize"
+          }
+        ]
+      },
+      "phase": "output_simple"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal(r1: Option<usize>, r2: Option<usize>) -> bool {\n    (((r1 is Some) == (r2 is Some)) && ((r1 is Some) ==> (r1->Some_0 == r2->Some_0)))\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

@@ -1,0 +1,157 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<'a, 'b, T: core::marker::Copy>(pre_slice: [core::mem::MaybeUninit<T>], src: &[T], post1_slice: [core::mem::MaybeUninit<T>], r1: &mut [T], post2_slice: [core::mem::MaybeUninit<T>], r2: &mut [T])\n    requires (pre_slice@.len() == src@.len()),\n    ensures\n        ({\n            &&& (r1@ == src@)\n            &&& (maybe_uninit_written_from(\n            maybe_uninit_seq_relation(pre_slice@),\n            maybe_uninit_seq_relation(post1_slice@),\n            src@,\n        ))\n            &&& (maybe_uninit_seq_relation(post1_slice@).values == final(r1)@)\n            &&& (r2@ == src@)\n            &&& (maybe_uninit_written_from(\n            maybe_uninit_seq_relation(pre_slice@),\n            maybe_uninit_seq_relation(post2_slice@),\n            src@,\n        ))\n            &&& (maybe_uninit_seq_relation(post2_slice@).values == final(r2)@)\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_slice, post2_slice),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[core::mem::MaybeUninit<T>]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "core::mem::MaybeUninit<T>",
+            "type_args": [
+              {
+                "kind": "unknown",
+                "name": "T"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "src",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "Seq",
+        "name": "&mut [T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "[T]",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "Seq",
+        "name": "&mut [T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "[T]",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post1_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[core::mem::MaybeUninit<T>]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "core::mem::MaybeUninit<T>",
+            "type_args": [
+              {
+                "kind": "unknown",
+                "name": "T"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[core::mem::MaybeUninit<T>]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "core::mem::MaybeUninit<T>",
+            "type_args": [
+              {
+                "kind": "unknown",
+                "name": "T"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<T: core::marker::Copy>(r1: &mut [T], r2: &mut [T], post1_slice: [core::mem::MaybeUninit<T>], post2_slice: [core::mem::MaybeUninit<T>]) -> bool {\n    ((r1)@ =~= (r2)@)\n    && (post1_slice =~= post2_slice)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_slice",
+      "rhs": "post2_slice"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<'a, 'b, T: core::marker::Copy>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

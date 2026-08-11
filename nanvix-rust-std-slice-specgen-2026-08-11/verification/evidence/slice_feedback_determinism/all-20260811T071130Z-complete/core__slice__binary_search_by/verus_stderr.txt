@@ -1,0 +1,16 @@
+error[E0309]: the parameter type `T` may not live long enough
+   --> /home/chentianyu/nanvix-rust-std-slice-specgen-2026-08-11/verification/evidence/slice_feedback_determinism/all-20260811T071130Z-complete/core__slice__binary_search_by/det_harness.rs:933:45
+    |
+933 | ... fn det___rust_std_candidate<'a, T, F: core::ops::FnMut(&'a T) -> core::cmp::Ordering>(g_slice_leneq: bool, k_slice_leneq: nat, ...
+    |                                 --        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ...so that the reference type `&'a T` does not outlive the data it points at
+    |                                 |
+    |                                 the parameter type `T` must be valid for the lifetime `'a` as defined here...
+    |
+help: consider adding an explicit lifetime bound
+    |
+933 | proof fn det___rust_std_candidate<'a, T: 'a, F: core::ops::FnMut(&'a T) -> core::cmp::Ordering>(g_slice_leneq: bool, k_slice_leneq: nat, g_slice_lenrng: bool, k_slice_lenrng_lo: nat, k_slice_lenrng_hi: nat, g_r1_is_Ok: bool, g_r1__Ok_0_eq: bool, k_r1__Ok_0_eq: int, g_r1__Ok_0_rng: bool, k_r1__Ok_0_rng_lo: int, k_r1__Ok_0_rng_hi: int, g_r1_is_Err: bool, g_r1__Err_0_eq: bool, k_r1__Err_0_eq: int, g_r1__Err_0_rng: bool, k_r1__Err_0_rng_lo: int, k_r1__Err_0_rng_hi: int, g_r2_is_Ok: bool, g_r2__Ok_0_eq: bool, k_r2__Ok_0_eq: int, g_r2__Ok_0_rng: bool, k_r2__Ok_0_rng_lo: int, k_r2__Ok_0_rng_hi: int, g_r2_is_Err: bool, g_r2__Err_0_eq: bool, k_r2__Err_0_eq: int, g_r2__Err_0_rng: bool, k_r2__Err_0_rng_lo: int, k_r2__Err_0_rng_hi: int, g_neq_tuple: bool, slice: &[T], f: F, r1: core::result::Result<usize, usize>, r2: core::result::Result<usize, usize>)
+    |                                        ++++
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0309`.

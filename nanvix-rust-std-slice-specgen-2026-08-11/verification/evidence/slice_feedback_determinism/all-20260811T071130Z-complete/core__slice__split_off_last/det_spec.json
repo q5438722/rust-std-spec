@@ -1,0 +1,129 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<'a, T>(pre_slice_ref: [T], post1_slice_ref: [T], r1: Option<&'a T>, post2_slice_ref: [T], r2: Option<&'a T>)\n    ensures\n        ({\n            &&& ((pre_slice_ref)@.len() == 0 ==> r1.is_none()\n            && (post1_slice_ref)@ == (pre_slice_ref)@)\n            &&& ((pre_slice_ref)@.len() != 0 ==> r1.is_some()\n            && slice_split_off_last_result::<T>(\n                (pre_slice_ref)@, (post1_slice_ref)@, *r1.unwrap(),\n            ))\n            &&& ((pre_slice_ref)@.len() == 0 ==> r2.is_none()\n            && (post2_slice_ref)@ == (pre_slice_ref)@)\n            &&& ((pre_slice_ref)@.len() != 0 ==> r2.is_some()\n            && slice_split_off_last_result::<T>(\n                (pre_slice_ref)@, (post2_slice_ref)@, *r2.unwrap(),\n            ))\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_slice_ref, post2_slice_ref),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_slice_ref",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "Option",
+        "name": "Option<&'a T>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "unknown",
+              "name": "T"
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "Option",
+        "name": "Option<&'a T>",
+        "variants": [
+          {
+            "name": "Some",
+            "inner": {
+              "kind": "unknown",
+              "name": "T"
+            }
+          },
+          {
+            "name": "None"
+          }
+        ],
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "post1_slice_ref",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_slice_ref",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<'a, T>(r1: Option<&'a T>, r2: Option<&'a T>, post1_slice_ref: [T], post2_slice_ref: [T]) -> bool {\n    (((r1 is Some) == (r2 is Some)) && ((r1 is Some) ==> (r1->Some_0 == r2->Some_0)))\n    && (post1_slice_ref =~= post2_slice_ref)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_slice_ref",
+      "rhs": "post2_slice_ref"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<'a, T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

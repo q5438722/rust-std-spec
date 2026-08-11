@@ -1,0 +1,157 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T>(pre_slice: [T], mid: usize, post1_slice: [T], r1: (&mut [T], &mut [T]), post2_slice: [T], r2: (&mut [T], &mut [T]))\n    requires (split_point_in_range(pre_slice@, mid)),\n    ensures\n        ({\n            &&& (r1.0@ == pre_slice@.subrange(0, mid as int))\n            &&& (r1.1@ == pre_slice@.subrange(mid as int, pre_slice@.len() as int))\n            &&& (post1_slice@ == final(r1.0)@ + final(r1.1)@)\n            &&& (r2.0@ == pre_slice@.subrange(0, mid as int))\n            &&& (r2.1@ == pre_slice@.subrange(mid as int, pre_slice@.len() as int))\n            &&& (post2_slice@ == final(r2.0)@ + final(r2.1)@)\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_slice, post2_slice),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "mid",
+      "type": {
+        "kind": "usize",
+        "name": "usize"
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "struct",
+        "name": "(&mut [T], &mut [T])",
+        "fields": [
+          {
+            "name": "0",
+            "type": {
+              "kind": "Seq",
+              "name": "[T]",
+              "type_args": [
+                {
+                  "kind": "unknown",
+                  "name": "T"
+                }
+              ]
+            }
+          },
+          {
+            "name": "1",
+            "type": {
+              "kind": "Seq",
+              "name": "[T]",
+              "type_args": [
+                {
+                  "kind": "unknown",
+                  "name": "T"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "struct",
+        "name": "(&mut [T], &mut [T])",
+        "fields": [
+          {
+            "name": "0",
+            "type": {
+              "kind": "Seq",
+              "name": "[T]",
+              "type_args": [
+                {
+                  "kind": "unknown",
+                  "name": "T"
+                }
+              ]
+            }
+          },
+          {
+            "name": "1",
+            "type": {
+              "kind": "Seq",
+              "name": "[T]",
+              "type_args": [
+                {
+                  "kind": "unknown",
+                  "name": "T"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post1_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<T>(r1: (&mut [T], &mut [T]), r2: (&mut [T], &mut [T]), post1_slice: [T], post2_slice: [T]) -> bool {\n    ((r1.0 =~= r2.0) && (r1.1 =~= r2.1))\n    && (post1_slice =~= post2_slice)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_slice",
+      "rhs": "post2_slice"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

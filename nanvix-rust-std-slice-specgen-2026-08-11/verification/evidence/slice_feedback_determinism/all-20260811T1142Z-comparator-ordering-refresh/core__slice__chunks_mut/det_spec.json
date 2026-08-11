@@ -1,0 +1,121 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<'a, T>(pre_slice: [T], chunk_size: usize, post1_slice: [T], r1: core::slice::ChunksMut<'a, T>, post2_slice: [T], r2: core::slice::ChunksMut<'a, T>)\n    requires (chunk_size != 0),\n    ensures\n        ({\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).source == pre_slice@)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).remaining == pre_slice@)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).yielded_prefix.len() == 0)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).remainder.len() == 0)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).chunk_size == chunk_size as int)\n            &&& (!slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).reverse)\n            &&& (post1_slice@ == pre_slice@)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).source == pre_slice@)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).remaining == pre_slice@)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).yielded_prefix.len() == 0)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).remainder.len() == 0)\n            &&& (slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).chunk_size == chunk_size as int)\n            &&& (!slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).reverse)\n            &&& (post2_slice@ == pre_slice@)\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_slice, post2_slice),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "input"
+    },
+    {
+      "name": "chunk_size",
+      "type": {
+        "kind": "usize",
+        "name": "usize"
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "unknown",
+        "name": "core::slice::ChunksMut<'a, T>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "'a"
+          },
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "unknown",
+        "name": "core::slice::ChunksMut<'a, T>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "'a"
+          },
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post1_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_slice",
+      "type": {
+        "kind": "Seq",
+        "name": "[T]",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          }
+        ]
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<'a, T>(r1: core::slice::ChunksMut<'a, T>, r2: core::slice::ChunksMut<'a, T>, post1_slice: [T], post2_slice: [T]) -> bool {\n    (\n        slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).source == slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).source\n        && slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).remaining == slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).remaining\n        && slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).yielded_prefix == slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).yielded_prefix\n        && slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).remainder == slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).remainder\n        && slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).chunk_size == slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).chunk_size\n        && slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r1).reverse == slice_iterator_view::<core::slice::ChunksMut<'a, T>, T>(r2).reverse\n    )\n    && (post1_slice =~= post2_slice)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_slice",
+      "rhs": "post2_slice"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": "core::slice::chunks_mut returns a slice iterator/adaptor whose public specification is the shared slice_iterator_view; determinism compares only the modeled view fields fixed by the contract instead of opaque Rust iterator object equality.",
+    "source": "nanvix_slice_iterator_view_fields"
+  },
+  "type_projections": {},
+  "generics_decl": "<'a, T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}
