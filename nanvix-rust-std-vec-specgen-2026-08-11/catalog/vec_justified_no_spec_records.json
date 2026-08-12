@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "attempted_contract": "pub assume_specification<T, A: core::alloc::Allocator, R: core::ops::RangeBounds<usize>, I: core::iter::IntoIterator<Item = T>>[ Vec::<T, A>::splice::<R, I> ](...) -> (splice: Splice<'_, I::IntoIter, A>)",
+      "rationale": "Exact executable signature requires `Splice<'_, I::IntoIter, A>` for `I: IntoIterator<Item = T>`. Verus reports that it does not recognize the associated type `IntoIterator::IntoIter` for this external trait, so an exact executable assume_specification cannot be typechecked without narrowing the Rust API to `I: Iterator`, which would be a source-shape mismatch.",
+      "signature": "pub fn splice<R, I>(&mut self, range: R, replace_with: I) -> Splice<'_, I::IntoIter, A> where R: RangeBounds<usize>, I: IntoIterator<Item = T>,",
+      "source_evidence": "rust-alloc-vec/vec/mod.rs:4045-4097 constructs `Splice { drain: self.drain(range), replace_with: replace_with.into_iter() }`; rust-alloc-vec/vec/splice.rs:54-97 documents drop-time draining, replacement, and tail movement.",
+      "source_reference": "alloc/src/vec/mod.rs:4141",
+      "status": "justified-no-spec",
+      "target": "alloc::vec::Vec::splice"
+    }
+  ],
+  "summary": {
+    "justified_no_spec": 1,
+    "targets": [
+      "alloc::vec::Vec::splice"
+    ]
+  }
+}

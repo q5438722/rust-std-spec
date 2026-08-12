@@ -1,0 +1,135 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T, A: core::alloc::Allocator>(pre_vec: Vec<T, A>, post1_vec: Vec<T, A>, r1: *mut T, post2_vec: Vec<T, A>, r2: *mut T)\n    ensures\n        ({\n            &&& (vec_start_mut_ptr(pre_vec@, pre_vec.spec_capacity(), r1))\n            &&& (post1_vec@ == pre_vec@)\n            &&& (vec_start_mut_ptr(pre_vec@, pre_vec.spec_capacity(), r2))\n            &&& (post2_vec@ == pre_vec@)\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_vec@, post2_vec@),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_vec",
+      "type": {
+        "kind": "Seq",
+        "name": "Vec<T, A>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          },
+          {
+            "kind": "unknown",
+            "name": "A"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "Seq<T>",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "unknown",
+        "name": "*mut T"
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "unknown",
+        "name": "*mut T"
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post1_vec",
+      "type": {
+        "kind": "Seq",
+        "name": "Vec<T, A>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          },
+          {
+            "kind": "unknown",
+            "name": "A"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "Seq<T>",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_vec",
+      "type": {
+        "kind": "Seq",
+        "name": "Vec<T, A>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          },
+          {
+            "kind": "unknown",
+            "name": "A"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "Seq<T>",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False [custom_body in use]\nspec fn det___rust_std_candidate_equal<T>(r1: *mut T, r2: *mut T, post1_vec: Seq<T>, post2_vec: Seq<T>) -> bool {\n    (r1@.addr == r2@.addr) && (r1@.provenance == r2@.provenance) && (r1@.metadata == r2@.metadata)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_vec@",
+      "rhs": "post2_vec@"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": "(r1@.addr == r2@.addr) && (r1@.provenance == r2@.provenance) && (r1@.metadata == r2@.metadata)",
+    "rationale": "The slice/Vec/cell raw-storage provisional lane checks determinism over source-backed storage pointer, length, capacity, and transparent-representation views rather than dereference validity, allocation ownership, aliasing, lifetimes, or canonical raw-pointer semantics.",
+    "source": "rust_std_specgen_slice_vec_cell_raw_storage_view"
+  },
+  "type_projections": {},
+  "generics_decl": "<T, A: core::alloc::Allocator>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}

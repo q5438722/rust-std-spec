@@ -1,0 +1,96 @@
+{
+  "artifacts": {
+    "__rust_std_candidate.rs": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/__rust_std_candidate.rs",
+    "active_contract_code.rs": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/active_contract_code.rs",
+    "candidate.json": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/candidate.json",
+    "det_harness.rs": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/det_harness.rs",
+    "det_spec.json": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/det_spec.json",
+    "det_stderr.txt": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/det_stderr.txt",
+    "det_stdout.txt": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/det_stdout.txt",
+    "result.json": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/result.json",
+    "schema_search_evidence.json": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/schema_search_evidence.json",
+    "smt2_files": [
+      "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/verus_log/root.smt2"
+    ],
+    "synthetic_spec.rs": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/synthetic_spec.rs",
+    "verus_stderr.txt": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/verus_stderr.txt",
+    "verus_stdout.txt": "verification/evidence/vec_feedback_determinism/all-20260811T1447Z-module-first/alloc__vec__Vec__set_len/verus_stdout.txt"
+  },
+  "assumes": [
+    "pre_vec@.len() == 0",
+    "new_len == 1",
+    "post1_vec@.len() == 1",
+    "post2_vec@.len() == 1",
+    "!det___rust_std_candidate_equal(r1, r2, post1_vec@, post2_vec@)"
+  ],
+  "candidate": {
+    "catalog_ensures": "final(vec)@.len() == new_len, vec_set_len_result(old(vec)@, old(vec).spec_capacity(), new_len, final(vec)@),",
+    "catalog_requires": "see executable declaration",
+    "contract_code": "#[verifier::reject_recursive_types(A)]\n#[verifier::reject_recursive_types(T)]\n#[verifier::external_type_specification]\n#[verifier::external_body]\npub struct ExDrain<'a, T, A>(std::vec::Drain<'a, T, A>)\nwhere\n    T: 'a,\n    A: std::alloc::Allocator,\n;\n\n#[verifier::external_type_specification]\n#[verifier::external_body]\n#[verifier::accept_recursive_types(T)]\n#[verifier::reject_recursive_types(F)]\n#[verifier::reject_recursive_types(A)]\npub struct ExExtractIf<'a, T, F, A: core::alloc::Allocator>(ExtractIf<'a, T, F, A>);\n\npub trait CapacitySpec {\n    spec fn spec_capacity(&self) -> nat;\n}\n\nimpl<T, A: core::alloc::Allocator> CapacitySpec for Vec<T, A> {\n    #[verifier::external_body]\n    uninterp spec fn spec_capacity(&self) -> nat;\n}\n\npub uninterp spec fn spec_vec_len<T, A: core::alloc::Allocator>(v: &Vec<T, A>) -> usize;\n\npub broadcast proof fn axiom_spec_len<T, A: core::alloc::Allocator>(v: &Vec<T, A>)\n    ensures\n        #[trigger] spec_vec_len(v) == v@.len(),\n{\n    admit();\n}\n\npub uninterp spec fn vec_start_ptr<T>(seq: Seq<T>, capacity: nat, ptr: *const T) -> bool;\npub uninterp spec fn vec_start_mut_ptr<T>(seq: Seq<T>, capacity: nat, ptr: *mut T) -> bool;\npub uninterp spec fn vec_raw_parts_domain<T>(ptr: *mut T, length: usize, capacity: usize) -> bool;\npub uninterp spec fn vec_raw_parts_initialized_seq<T>(ptr: *mut T, length: usize) -> Seq<T>;\npub uninterp spec fn vec_raw_parts_round_trip<T>(\n    seq: Seq<T>,\n    capacity: nat,\n    ptr: *mut T,\n    length: usize,\n    raw_capacity: usize,\n) -> bool;\n\npub open spec fn vec_set_len_domain<T>(seq: Seq<T>, capacity: nat, new_len: usize) -> bool {\n    new_len as nat <= capacity\n}\n\npub uninterp spec fn vec_set_len_result<T>(\n    old_seq: Seq<T>,\n    capacity: nat,\n    new_len: usize,\n    final_seq: Seq<T>,\n) -> bool;\n\npub uninterp spec fn vec_spare_capacity_relation<T>(\n    seq: Seq<T>,\n    capacity: nat,\n    spare: Seq<core::mem::MaybeUninit<T>>,\n) -> bool;\n\npub uninterp spec fn vec_drain_remaining<T, A: core::alloc::Allocator>(drain: &Drain<'_, T, A>) -> Seq<T>;\npub uninterp spec fn vec_into_iter_remaining<T, A: core::alloc::Allocator>(iter: &IntoIter<T, A>) -> Seq<T>;\npub uninterp spec fn vec_into_iter_remaining_mut<T, A: core::alloc::Allocator>(iter: IntoIter<T, A>) -> Seq<T>;\n\npub uninterp spec fn vec_range_start<T, R: core::ops::RangeBounds<usize>>(source: Seq<T>, range: R) -> int;\npub uninterp spec fn vec_range_end<T, R: core::ops::RangeBounds<usize>>(source: Seq<T>, range: R) -> int;\n\npub open spec fn vec_range_bounds_valid<T, R: core::ops::RangeBounds<usize>>(source: Seq<T>, range: R) -> bool {\n    0 <= vec_range_start(source, range)\n        && vec_range_start(source, range) <= vec_range_end(source, range)\n        && vec_range_end(source, range) <= source.len()\n}\n\npub open spec fn vec_extend_from_within_result<T: core::clone::Clone, R: core::ops::RangeBounds<usize>>(\n    source: Seq<T>,\n    range: R,\n    result: Seq<T>,\n) -> bool {\n    let start = vec_range_start(source, range);\n    let end = vec_range_end(source, range);\n    &&& vec_range_bounds_valid(source, range)\n    &&& result.len() == source.len() + (end - start)\n    &&& result.subrange(0, source.len() as int) == source\n    &&& forall|i: int| #![trigger result[i]]\n        source.len() <= i < result.len()\n        ==> cloned::<T>(source[start + i - source.len()], result[i])\n}\n\npub uninterp spec fn vec_drain_created<T, A: core::alloc::Allocator, R: core::ops::RangeBounds<usize>>(\n    source: Seq<T>,\n    range: R,\n    drain: Drain<'_, T, A>,\n    shortened_vec: Seq<T>,\n) -> bool;\n\npub uninterp spec fn vec_extract_if_created<T, A: core::alloc::Allocator, F: core::ops::FnMut(&mut T) -> bool, R: core::ops::RangeBounds<usize>>(\n    source: Seq<T>,\n    range: R,\n    filter: F,\n    iter: ExtractIf<'_, T, F, A>,\n    shortened_vec: Seq<T>,\n) -> bool;\n\npub uninterp spec fn boxed_slice_view<T, A: core::alloc::Allocator>(boxed: alloc::boxed::Box<[T], A>) -> Seq<T>;\npub uninterp spec fn boxed_slice_capacity<T, A: core::alloc::Allocator>(boxed: alloc::boxed::Box<[T], A>) -> nat;\n\npub uninterp spec fn array_value_view<T, const N: usize>(array: [T; N]) -> Seq<T>;\n\npub open spec fn flatten_array_vec<T, const N: usize>(source: Seq<[T; N]>) -> Seq<T>\n    decreases source.len()\n{\n    if source.len() == 0 {\n        Seq::<T>::empty()\n    } else {\n        array_value_view::<T, N>(source[0]) + flatten_array_vec::<T, N>(source.subrange(1, source.len() as int))\n    }\n}\n\npub uninterp spec fn vec_dedup_partial_eq_result<T: core::cmp::PartialEq>(source: Seq<T>, result: Seq<T>) -> bool;\npub uninterp spec fn vec_dedup_by_result<T, F: core::ops::FnMut(&mut T, &mut T) -> bool>(source: Seq<T>, same_bucket: F, result: Seq<T>) -> bool;\npub uninterp spec fn vec_dedup_by_key_result<T, F: core::ops::FnMut(&mut T) -> K, K: core::cmp::PartialEq>(source: Seq<T>, key: F, result: Seq<T>) -> bool;\npub uninterp spec fn vec_pop_if_result<T, P: core::ops::FnOnce(&mut T) -> bool>(source: Seq<T>, predicate: P, ret: Option<T>, result: Seq<T>) -> bool;\npub uninterp spec fn vec_resize_with_result<T, F: core::ops::FnMut() -> T>(source: Seq<T>, new_len: usize, f: F, result: Seq<T>) -> bool;\npub uninterp spec fn vec_retain_result<T, F: core::ops::FnMut(&T) -> bool>(source: Seq<T>, f: F, result: Seq<T>) -> bool;\npub uninterp spec fn vec_retain_mut_result<T, F: core::ops::FnMut(&mut T) -> bool>(source: Seq<T>, f: F, result: Seq<T>) -> bool;\n\npub assume_specification<T, A: core::alloc::Allocator>[ Vec::<T, A>::set_len ](\n    vec: &mut Vec<T, A>,\n    new_len: usize,\n)\n    requires\n        vec_set_len_domain(old(vec)@, old(vec).spec_capacity(), new_len),\n    ensures\n        final(vec)@.len() == new_len,\n        vec_set_len_result(old(vec)@, old(vec).spec_capacity(), new_len, final(vec)@),\n;",
+    "contract_form": "assume_specification",
+    "decision": "add_spec",
+    "ensures": [
+      "final(vec)@.len() == new_len",
+      "vec_set_len_result(old(vec)@, old(vec).spec_capacity(), new_len, final(vec)@)"
+    ],
+    "feature_gates": [
+      "allocator_api",
+      "vec_into_raw_parts"
+    ],
+    "imports": [
+      "vstd::seq::*",
+      "vstd::view::*",
+      "alloc::vec::*",
+      "alloc::boxed::Box"
+    ],
+    "rationale": "project-local alloc::vec candidate built from executable assume_specification and shared Vec vocabulary",
+    "requires": [
+      "vec_set_len_domain(old(vec)@, old(vec).spec_capacity(), new_len)"
+    ],
+    "risks": [
+      "pointer address, provenance, allocation layout, and initialized raw storage state are source-observable but not uniquely determined by the pure Vec Seq view"
+    ],
+    "semantic_family": "vec-raw-parts-pointer-provenance",
+    "source_ensures": [
+      "final(vec)@.len() == new_len",
+      "vec_set_len_result(old(vec)@, old(vec).spec_capacity(), new_len, final(vec)@)"
+    ],
+    "source_reference": "alloc/src/vec/mod.rs:2224",
+    "source_requires": [
+      "vec_set_len_domain(old(vec)@, old(vec).spec_capacity(), new_len)"
+    ],
+    "target": "alloc::vec::Vec::set_len",
+    "useful": true
+  },
+  "classification": "ok_inconclusive",
+  "contract_target": "Vec::<T, A>::set_len",
+  "det_function": "det___rust_std_candidate",
+  "ensures": [
+    "final(vec)@.len() == new_len",
+    "vec_set_len_result(old(vec)@, old(vec).spec_capacity(), new_len, final(vec)@)"
+  ],
+  "equal_fn_trivial": false,
+  "equal_policy": {
+    "compare_raw_pointers": false,
+    "custom_body": null,
+    "errs_equivalent": true,
+    "ignore_fields": [],
+    "opaque_ok": false,
+    "opaque_types": [],
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "n_rounds": 14,
+  "n_schemas": 9,
+  "permitted": false,
+  "r0_z3": "unknown",
+  "requires": [
+    "vec_set_len_domain(old(vec)@, old(vec).spec_capacity(), new_len)"
+  ],
+  "status": "ok",
+  "target": "alloc::vec::Vec::set_len",
+  "unknown_reason": "Pointer address, provenance, and allocation layout are not uniquely recoverable from the Vec Seq view.",
+  "unknown_reason_class": "raw-pointer-provenance-boundary",
+  "verus_ms": 681,
+  "verus_returncode": 1
+}

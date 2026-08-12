@@ -1,0 +1,151 @@
+{
+  "function": "__rust_std_candidate",
+  "det_check_template": "proof fn det___rust_std_candidate<T, A: core::alloc::Allocator, F: core::ops::FnMut() -> T>(pre_vec: Vec<T, A>, new_len: usize, f: F, post1_vec: Vec<T, A>, r1: (), post2_vec: Vec<T, A>, r2: ())\n    ensures\n        ({\n            &&& (new_len <= pre_vec@.len() ==> post1_vec@ == pre_vec@.subrange(0, new_len as int))\n            &&& (new_len > pre_vec@.len() ==> vec_resize_with_result(pre_vec@, new_len, f, post1_vec@))\n            &&& (new_len <= pre_vec@.len() ==> post2_vec@ == pre_vec@.subrange(0, new_len as int))\n            &&& (new_len > pre_vec@.len() ==> vec_resize_with_result(pre_vec@, new_len, f, post2_vec@))\n        }) ==> det___rust_std_candidate_equal::<T>(r1, r2, post1_vec@, post2_vec@),\n{\n{ASSUMES}}",
+  "symbols": [
+    {
+      "name": "pre_vec",
+      "type": {
+        "kind": "Seq",
+        "name": "Vec<T, A>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          },
+          {
+            "kind": "unknown",
+            "name": "A"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "Seq<T>",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "input"
+    },
+    {
+      "name": "new_len",
+      "type": {
+        "kind": "usize",
+        "name": "usize"
+      },
+      "phase": "input"
+    },
+    {
+      "name": "f",
+      "type": {
+        "kind": "unknown",
+        "name": "F"
+      },
+      "phase": "input"
+    },
+    {
+      "name": "r1",
+      "type": {
+        "kind": "()",
+        "name": "()"
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "r2",
+      "type": {
+        "kind": "()",
+        "name": "()"
+      },
+      "phase": "output_simple"
+    },
+    {
+      "name": "post1_vec",
+      "type": {
+        "kind": "Seq",
+        "name": "Vec<T, A>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          },
+          {
+            "kind": "unknown",
+            "name": "A"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "Seq<T>",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "output_compound"
+    },
+    {
+      "name": "post2_vec",
+      "type": {
+        "kind": "Seq",
+        "name": "Vec<T, A>",
+        "type_args": [
+          {
+            "kind": "unknown",
+            "name": "T"
+          },
+          {
+            "kind": "unknown",
+            "name": "A"
+          }
+        ],
+        "spec_view": {
+          "kind": "Seq",
+          "name": "Seq<T>",
+          "type_args": [
+            {
+              "kind": "unknown",
+              "name": "T"
+            }
+          ]
+        }
+      },
+      "phase": "output_compound"
+    }
+  ],
+  "verus_config": {},
+  "equal_fn_def": "// Generated equal-fn for determinism check.\n// Policy: errs_equivalent=True, opaque_ok=False\nspec fn det___rust_std_candidate_equal<T>(r1: (), r2: (), post1_vec: Seq<T>, post2_vec: Seq<T>) -> bool {\n    (r1 == r2)\n    && (post1_vec =~= post2_vec)\n}",
+  "equal_fn_name": "det___rust_std_candidate_equal",
+  "equal_arg_pairs": [
+    {
+      "lhs": "r1",
+      "rhs": "r2"
+    },
+    {
+      "lhs": "post1_vec@",
+      "rhs": "post2_vec@"
+    }
+  ],
+  "check_fn_name": "det___rust_std_candidate",
+  "equal_policy": {
+    "errs_equivalent": true,
+    "opaque_ok": false,
+    "compare_raw_pointers": false,
+    "ignore_fields": [],
+    "opaque_types": [],
+    "custom_body": null,
+    "rationale": null,
+    "source": "rust_std_specgen"
+  },
+  "type_projections": {},
+  "generics_decl": "<T, A: core::alloc::Allocator, F: core::ops::FnMut() -> T>",
+  "where_decl": "",
+  "self_type": null,
+  "opened_closed_specs": []
+}
