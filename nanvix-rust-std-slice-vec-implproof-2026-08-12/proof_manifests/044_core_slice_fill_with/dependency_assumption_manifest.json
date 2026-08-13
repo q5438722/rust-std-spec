@@ -1,0 +1,107 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "zero_arg_fnmut_outputs",
+      "rationale": "The generated contract records the sequence of outputs produced by the zero-argument FnMut callback. The harness instantiates the audited shared vocabulary and its length axiom without using assume_specification.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:309-314",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_callback_observation_boundary",
+      "name": "zero_arg_fnmut_call_at",
+      "rationale": "The Rust 1.96 loop body obtains each replacement value by calling `f()`. The public target verifies the element-by-element traversal and writes; this helper is the only trusted boundary for observing that the actual callback result at call index i is the i-th element of zero_arg_fnmut_outputs(f, len). The helper body is exactly `f()` and does not assume the target postcondition.",
+      "source_lines": "core/src/slice/mod.rs:4194-4196",
+      "status": "minimal_trusted_boundary_for_fnmut_callback_output_observation"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "F: core::ops::FnMut() -> T",
+      "rationale": "The source signature requires a stateful zero-argument callback. The generated relation preserves the callback-output trace instead of choosing concrete values or strengthening source nondeterminism.",
+      "source_lines": "core/src/slice/mod.rs:4190-4197",
+      "status": "preserved_source_callback_effects_without_target_body_assumption"
+    }
+  ],
+  "direct_call_names": [
+    "f",
+    "zero_arg_fnmut_call_at"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The harness replaces the seed recorder with a non-external public target. It mechanically represents the Rust `for el in self { *el = f(); }` traversal as an index loop to expose Verus invariants, then obtains one callback result per element through the source-backed `zero_arg_fnmut_call_at` boundary and writes it to the borrowed element. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 4196,
+      "disposition": "source_backed_zero_arg_fnmut_callback_output_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "name": "fill_with loop callback call `f()`",
+      "public": false,
+      "signature_start_line": 4190,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/044_core_slice_fill_with/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/044_core_slice_fill_with/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_zero_arg_fnmut_callback_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "a8850a1c2400e9f212f3ebdadf7f8ed4c286c67e9a31275914960d3c78479e48",
+  "target": "core::slice::fill_with",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/044_core_slice_fill_with/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/044_core_slice_fill_with/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::ops::FnMut() -> T callback output observation boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

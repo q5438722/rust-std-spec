@@ -1,0 +1,48 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/132_alloc_vec_Vec_from_raw_parts/harness.rs",
+  "harness_sha256": "522aaf9248d59fdd85c9d1aa44e5c0610629527d2672c379ec2e2d1b8650861a",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/132_alloc_vec_Vec_from_raw_parts/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 646,
+    "body_start_line": 644,
+    "item_sha256": "15a23750e7d631a39f08207076518c32dfb6ba427fafbc12f8e99e853f68b6de",
+    "signature_end_line": 644,
+    "signature_start_line": 644
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_allocator_rawvec_private_from_raw_parts_in_boundary",
+  "target": "alloc::vec::Vec::from_raw_parts",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable inherent `Vec<T, Global>::from_raw_parts` method, adapting only the return to Verus named-return syntax and preserving the Rust 1.96 body `unsafe { Self::from_raw_parts_in(ptr, length, capacity, Global) }`.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "alloc/src/vec/mod.rs:644-646",
+      "source_sha256": "15a23750e7d631a39f08207076518c32dfb6ba427fafbc12f8e99e853f68b6de"
+    },
+    {
+      "edit": "Extracted the target-local `Vec { buf, len }`, `RawVec<T, A>`, allocator marker, view, and capacity vocabulary needed to attach the generated raw-parts contract without changing the public target body.",
+      "kind": "source_backed_private_representation_context",
+      "rawvec_struct_sha256": "080bd3671c58fc5ab28e1c6a20943fd136214a3c5d9778e4e06c8ebfa7227ab2",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/raw_vec/mod.rs:73-75",
+      "source_sha256": "15a23750e7d631a39f08207076518c32dfb6ba427fafbc12f8e99e853f68b6de"
+    },
+    {
+      "edit": "Attached the generated `vec_raw_parts_domain::<T>(ptr, length, capacity)`, `vec@ == vec_raw_parts_initialized_seq::<T>(ptr, length)`, and `vec.spec_capacity() == capacity as nat` contract to the non-external public target method.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for alloc::vec::Vec::from_raw_parts",
+      "source_sha256": "e2f4ed068d3e9ae10bd4b657a02b285cb922b0ead5ef97ea922e368975a87066"
+    },
+    {
+      "edit": "Modeled only the allocator-aware private `Vec::from_raw_parts_in` / RawVec reconstruction, UB precondition, raw-pointer provenance transfer, and unsafe allocation layout as named source-backed boundaries.",
+      "kind": "source_backed_private_from_raw_parts_in_allocator_raw_pointer_boundary",
+      "rawvec_from_raw_parts_in_sha256": "d6f20e7019a752b130127db958b73142081a889afe365d71aa3b6304cbfce2b9",
+      "rawvec_inner_from_raw_parts_in_sha256": "ab0c9a37bf1137bed923bbf54871056a0a32da53404fc4fa303cbff1ee2fa7f2",
+      "source_lines": "alloc/src/vec/mod.rs:1193-1204, alloc/raw_vec/mod.rs:263-272, and alloc/raw_vec/mod.rs:597-599",
+      "source_sha256": "15a23750e7d631a39f08207076518c32dfb6ba427fafbc12f8e99e853f68b6de",
+      "vec_from_raw_parts_in_sha256": "4dec69892ebf01ea7c869349f44ad4472a78e0af7c7f2e1bfcedd8b70f021338"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_instantiation",
+      "name": "vec_drain_remaining::<T, A>",
+      "rationale": "The generated Vec helper is instantiated as a closed spec over the extracted `Drain.iter` field and the delegated slice iterator view. The harness does not assume the target postcondition directly.",
+      "source_lines": "alloc/src/vec/drain.rs:21-33",
+      "status": "minimal_trusted_boundary_for_shared_helper_representation"
+    },
+    {
+      "kind": "delegated_iterator_view_boundary",
+      "name": "slice::Iter::as_slice",
+      "rationale": "The target body is the Rust 1.96 expression `self.iter.as_slice()`. The harness verifies this call through the iterator accessor contract `ret@ == slice_iterator_view(self).remaining`, matching the previously reviewed iterator-view relation while leaving the raw pointer construction of slice iterator state outside this target.",
+      "source_lines": "core/src/slice/iter.rs:137-139",
+      "status": "source_backed_iterator_view_boundary"
+    },
+    {
+      "kind": "opaque_uninspected_field_model",
+      "name": "Drain.tail_start/tail_len/vec plus allocator storage",
+      "rationale": "The extracted Rust `Drain` representation keeps the source fields, but `as_slice` reads only `iter`; the other fields are modeled opaquely and do not contribute to the target postcondition.",
+      "source_lines": "alloc/src/vec/drain.rs:26-32",
+      "status": "non_semantic_structural_context"
+    }
+  ],
+  "direct_call_names": [
+    "as_slice"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "Target body preserves the Rust 1.96 flow `self.iter.as_slice()` after adapting the inherent receiver to Verus return naming. The proof is modulo the source-backed iterator-view vocabulary boundary, not an assume_specification or target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/121_alloc_vec_Drain_as_slice/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/121_alloc_vec_Drain_as_slice/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "a0db920c6c7282cc331ab7ef87973336f72a9317f710015494a85fe70c23ab44",
+  "source_item_sha256": "499a0275b9e12deee5d729b3178413319b23ffd95be4e479468c2b244c9fb8d9",
+  "target": "alloc::vec::Drain::as_slice",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

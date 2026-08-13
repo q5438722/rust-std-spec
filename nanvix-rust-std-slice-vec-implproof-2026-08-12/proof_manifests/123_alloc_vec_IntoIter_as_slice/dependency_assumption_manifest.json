@@ -1,0 +1,107 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "vec_into_iter_remaining",
+      "rationale": "The generated shared helper remains the contract vocabulary for the remaining immutable slice. The harness relates the Rust raw-parts construction and `self.len()` value to this helper without assuming the public target body.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_len_boundary",
+      "name": "IntoIter::len via ExactSizeIterator",
+      "rationale": "The Rust 1.96 target body calls `self.len()` to compute the raw slice length. The harness models only that iterator-state length fact as a narrow boundary: the returned `usize` length equals the generated `vec_into_iter_remaining` view length.",
+      "source_lines": "alloc/src/vec/into_iter.rs:88-90 and Iterator/ExactSizeIterator length semantics in alloc/src/vec/into_iter.rs",
+      "status": "minimal_trusted_boundary_until_iterator_len_body_is_discharged"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "unsafe { slice::from_raw_parts(self.ptr.as_ptr(), self.len()) }",
+      "rationale": "The public target is executable and non-external-body. It evaluates the Rust source operands `self.ptr.as_ptr()` and `self.len()`, then calls `rust_1_96_slice_from_raw_parts_remaining`, a target-local external-body boundary containing only the source-backed raw-slice construction `unsafe { &*core::ptr::slice_from_raw_parts(data, len) }` corresponding to `slice::from_raw_parts`.",
+      "source_excerpt_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/into_iter.rs:88-90",
+      "source_sha256": "67c76644a8b9172e9112aa9eb6e3000069c672ec3095d86f5b8762ed410fa67b",
+      "status": "minimal_trusted_boundary_for_source_backed_immutable_raw_slice_pointer_provenance_semantics"
+    },
+    {
+      "kind": "unsupported_type_boundary",
+      "name": "core::ptr::NonNull<T> and allocator storage",
+      "rationale": "The target body reads only `self.ptr` and `self.len()`; it does not inspect allocation ownership fields. The harness preserves the extracted field names/order with opaque stand-ins and assigns pointer/provenance facts to the named raw-parts boundary.",
+      "source_lines": "alloc/src/vec/into_iter.rs:45-60",
+      "status": "tool_model_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "as_ptr",
+    "len",
+    "rust_1_96_slice_from_raw_parts_remaining"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: it preserves the Rust 1.96 flow `unsafe { slice::from_raw_parts(self.ptr.as_ptr(), self.len()) }` through a named raw-parts/provenance boundary after evaluating the source operands. This is a B proof modulo the source-backed raw-pointer/provenance and iterator length boundaries, not an assume_specification or a public-target external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/123_alloc_vec_IntoIter_as_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_len_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "87132ec3ed996091ac45b47649a288e812d40345076f9ff7f0771fb7ca51e1df",
+  "source_item_sha256": "67c76644a8b9172e9112aa9eb6e3000069c672ec3095d86f5b8762ed410fa67b",
+  "target": "alloc::vec::IntoIter::as_slice",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/123_alloc_vec_IntoIter_as_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\bas_ptr\\s*\\(",
+        "\\bfrom_raw_parts",
+        "core::ptr::slice_from_raw_parts(data, len)"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{",
+        "unsafe { &*core::ptr::slice_from_raw_parts(data, len) }"
+      ],
+      "present": true
+    }
+  }
+}

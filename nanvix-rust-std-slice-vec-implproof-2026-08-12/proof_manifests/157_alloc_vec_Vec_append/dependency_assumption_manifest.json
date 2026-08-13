@@ -1,0 +1,143 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::append copied vstd Seq/View contract",
+      "rationale": "The harness preserves the exact existing-vstd postcondition: the final receiver sequence is old(receiver) concatenated with old(other), and other is emptied.",
+      "source_lines": "frozen_inputs/vec/catalog/vec_spec_catalog.csv row for alloc::vec::Vec::append and alloc/src/vec/mod.rs:2893-2898",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "Vec::as_slice raw slice view for other.as_slice() as _",
+      "rationale": "The Rust 1.96 body passes `other.as_slice() as _` to the private raw-pointer helper. The harness models only the relation between that raw slice pointer and the logical old(other) sequence.",
+      "source_lines": "alloc/src/vec/mod.rs:1823-1829 and alloc/src/vec/mod.rs:2895",
+      "status": "minimal_trusted_boundary_for_raw_slice_view_and_cast"
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "name": "Vec::append_elements",
+      "rationale": "The public target keeps the private helper call in place. The helper is source-backed by the frozen Rust body and is trusted only for copying the raw slice elements onto the receiver's initialized logical sequence.",
+      "source_lines": "alloc/src/vec/mod.rs:2903-2913",
+      "status": "minimal_trusted_boundary_for_private_raw_pointer_copy"
+    },
+    {
+      "kind": "source_backed_unsafe_len_commit_boundary",
+      "name": "Vec::set_len(0)",
+      "rationale": "The public target keeps the unsafe `other.set_len(0)` call after append_elements. The harness trusts only the source-backed raw-length commit needed to expose final(other) as the empty logical sequence.",
+      "source_lines": "alloc/src/vec/mod.rs:2187-2195 and alloc/src/vec/mod.rs:2896",
+      "status": "minimal_trusted_boundary_for_other_empty_commit"
+    }
+  ],
+  "direct_call_names": [
+    "append_elements",
+    "as_slice",
+    "set_len"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "ddfd8c396a55de2a1b18c6222e16f94c10df5d046f329cd6410ad300f6779dba",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 body shape `unsafe { self.append_elements(other.as_slice() as _); other.set_len(0); }`, adapted only by target-local Vec/RawVec view vocabulary and narrow source-backed boundaries for the raw slice view/cast, private append_elements raw-pointer copy, and unsafe set_len(0) emptying step. This proves the exact existing-vstd contract modulo those raw-pointer/unsafe/private-helper boundaries and does not assume the public target postcondition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 1829,
+      "disposition": "source_backed_raw_slice_view_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "as_slice",
+      "public": true,
+      "signature_start_line": 1823,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 2913,
+      "disposition": "source_backed_private_raw_pointer_copy_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "b27f0b62470705df69f025ca04600324428150d5a8794e18adb587b883486bf1",
+      "name": "append_elements",
+      "public": false,
+      "signature_start_line": 2903,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 2195,
+      "disposition": "source_backed_unsafe_len_commit_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "set_len",
+      "public": true,
+      "signature_start_line": 2187,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/157_alloc_vec_Vec_append/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/157_alloc_vec_Vec_append/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_vec_append_elements_set_len_unsafe_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "3cd88920bbbd623e427470b16a820597755c2441f892a764a8dc642920a4ea8f",
+  "target": "alloc::vec::Vec::append",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/157_alloc_vec_Vec_append/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/157_alloc_vec_Vec_append/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "other.as_slice() as _",
+        "append_elements raw pointer copy",
+        "set_len raw Vec length commit"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { self.append_elements(other.as_slice() as _); other.set_len(0); }"
+      ],
+      "present": true
+    }
+  }
+}

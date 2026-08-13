@@ -1,0 +1,124 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "flatten_array_vec;array_value_view",
+      "rationale": "Generated flattening contract vocabulary is instantiated in the harness as target-local spec declarations; the public target body does not assume its postcondition.",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_into_raw_parts_with_alloc_boundary",
+      "name": "Vec::into_raw_parts_with_alloc",
+      "rationale": "Rust 1.96 decomposes the source Vec into pointer, length, capacity, and allocator before rebuilding a Vec<T, A>. The harness keeps this call and records only the raw-storage view relation needed to connect the returned pointer to flatten_array_vec.",
+      "source_lines": "alloc/src/vec/mod.rs:1363-1370",
+      "status": "minimal_trusted_boundary_for_allocator_raw_parts_decomposition"
+    },
+    {
+      "kind": "source_backed_intrinsic_and_panic_boundary",
+      "name": "T::IS_ZST, checked_mul().expect, and unchecked_mul",
+      "rationale": "Rust 1.96 uses the ZST layout intrinsic to select checked length multiplication with the documented panic edge, and non-ZST unchecked length/capacity multiplication justified by the existing allocation address-space invariant. The harness keeps the branch and arithmetic shape while trusting these source-backed intrinsic/panic facts.",
+      "source_lines": "alloc/src/vec/mod.rs:3594-3602",
+      "status": "minimal_trusted_boundary_for_layout_query_overflow_panic_and_unchecked_arithmetic"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "ptr.cast() from *mut [T; N] to *mut T",
+      "rationale": "The source pointer cast is modeled as the layout-identical array-to-element raw-pointer conversion needed before Vec::<T, A>::from_raw_parts_in. Verus does not support raw pointer .cast() directly in verified code, so the harness isolates only that cast in a named external boundary.",
+      "source_lines": "alloc/src/vec/mod.rs:3610",
+      "status": "minimal_trusted_boundary_for_array_element_raw_pointer_provenance_cast"
+    },
+    {
+      "kind": "source_backed_from_raw_parts_in_boundary",
+      "name": "Vec::<T, A>::from_raw_parts_in",
+      "rationale": "The final unsafe reconstruction remains the allocator/raw-pointer/provenance boundary: Rust requires the raw parts to describe the same allocation, capacity, alignment, and initialized prefix. The harness preserves the call and carries the flattened initialized view through to Vec@.",
+      "source_lines": "alloc/src/vec/mod.rs:1193-1204 and alloc/src/raw_vec/mod.rs:263-272,597-599",
+      "status": "minimal_trusted_boundary_for_allocator_rawvec_reconstruction"
+    }
+  ],
+  "direct_call_names": [
+    "T::IS_ZST",
+    "checked_mul",
+    "expect",
+    "into_raw_parts_with_alloc",
+    "ptr.cast",
+    "unchecked_mul",
+    "Vec::from_raw_parts_in"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: it keeps the Rust 1.96 flow `let (ptr, len, cap, alloc) = self.into_raw_parts_with_alloc();` then the ZST checked-multiply panic path or non-ZST unchecked length/capacity multiply path, then `Vec::<T, A>::from_raw_parts_in(ptr.cast(), new_len, new_cap, alloc)`. This is a B proof modulo named source-backed allocator, intrinsic, panic, raw-pointer/provenance, and unsafe reconstruction boundaries, not an assume_specification or a public-target external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/135_alloc_vec_Vec_into_flattened/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_allocator_rawvec_flattened_raw_parts_intrinsic_panic_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "819497addbe0c00e81fdf0ed2bd3c5755a0e7b9be36f4fd8d11b50d72eef342b",
+  "target": "alloc::vec::Vec::into_flattened",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/135_alloc_vec_Vec_into_flattened/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/135_alloc_vec_Vec_into_flattened/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\balloc",
+        "into_raw_parts_with_alloc",
+        "Vec::<T, A>::from_raw_parts_in",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "T::IS_ZST",
+        "\\bunchecked_"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bexpect\\s*\\("
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.cast\\s*\\(",
+        "\\bfrom_raw_parts"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

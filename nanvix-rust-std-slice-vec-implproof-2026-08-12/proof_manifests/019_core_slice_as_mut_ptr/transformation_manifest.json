@@ -1,0 +1,38 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/harness.rs",
+  "harness_sha256": "44cfe6c106010d3fc49a01ad5b798c2c33c0e72d41d250a6be79d2cd0ddb097f",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 759,
+    "body_start_line": 757,
+    "item_sha256": "99e25e7a86cc5c6b6b7557a4e100daf10a6be356072e931c8a093b6c6198dd9c",
+    "signature_end_line": 757,
+    "signature_start_line": 757
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary",
+  "target": "core::slice::as_mut_ptr",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:757-759",
+      "source_sha256": "99e25e7a86cc5c6b6b7557a4e100daf10a6be356072e931c8a093b6c6198dd9c"
+    },
+    {
+      "edit": "Attached the generated `slice_start_mut_ptr(old(slice)@, ptr)` and `final(slice)@ == old(slice)@` postconditions to the target function; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::as_mut_ptr",
+      "source_sha256": "840c4efc8976016ca0b1c8728d1cabb13529c6e83939e8ca3cbc31232ba6a14a"
+    },
+    {
+      "edit": "Isolated the Rust body expression `self as *mut [T] as *mut T` in the target-local external function `rust_1_96_slice_as_mut_ptr_cast`; Verus rejects the cast when placed directly in the non-external target body, but accepts it inside this explicit source-backed raw-pointer/provenance boundary. The public target `as_mut_ptr` is not external_body and calls only that boundary.",
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "source_lines": "core/src/slice/mod.rs:757-759",
+      "source_sha256": "99e25e7a86cc5c6b6b7557a4e100daf10a6be356072e931c8a093b6c6198dd9c"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_instantiation",
+      "name": "slice_iterator_view::<RChunksExactMut<'a, T>, T>",
+      "rationale": "The generated contract's shared helper is instantiated in the target harness as a closed spec function over the extracted RChunksExactMut remainder field; this discharges the helper relation without assuming the target body or postcondition.",
+      "source_lines": "core/src/slice/iter.rs:2830-2840",
+      "status": "minimal_trusted_boundary_for_shared_helper_representation"
+    },
+    {
+      "kind": "trusted_private_representation_lemma",
+      "name": "RChunksExactMut::rchunks_exact_mut_private_invariant",
+      "rationale": "Verus rejects taking/moving a mutable-reference field out of a datatype that has a user-defined type invariant, so the proof uses a narrowly named trusted lemma for `rem.len() < chunk_size`. The lemma is justified by the Rust constructor's `slice.len() % chunk_size` remainder computation and API documentation; the constructor itself is not proved in this target harness.",
+      "source_lines": "core/src/slice/iter.rs:2844-2848,2851-2853",
+      "status": "minimal_trusted_boundary_until_constructor_family_is_verified"
+    }
+  ],
+  "direct_call_names": [],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body has no callees. The manifest is narrowed to the source-backed representation and mutable private-invariant boundary used by the target-specific Verus proof.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/007_core_slice_RChunksExactMut_into_remainder/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 60,
+    "stderr_relpath": "proof_harnesses/007_core_slice_RChunksExactMut_into_remainder/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/007_core_slice_RChunksExactMut_into_remainder/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "verus_version": "0.2026.07.21.1beb0fa.dirty; toolchain 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_private_representation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3",
+  "source_item_sha256": "e7afc872b12681ba54e0b518edd5b9d8e252d1866cb7a1524c6ae801db1b9c1e",
+  "target": "core::slice::RChunksExactMut::into_remainder",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

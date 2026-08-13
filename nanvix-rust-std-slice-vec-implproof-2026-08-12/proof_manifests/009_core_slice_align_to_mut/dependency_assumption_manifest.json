@@ -1,0 +1,135 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_align_to_domain;slice_align_to_mut_result;slice_align_to_result;slice_aligned_middle",
+      "rationale": "The executable target carries the generated mutable align_to contract vocabulary. The harness does not use assume_specification and does not mark the public target as external_body.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_intrinsic_layout_boundary",
+      "name": "rust_1_96_type_is_zst",
+      "rationale": "Models the Rust 1.96 `U::IS_ZST || T::IS_ZST` early-return layout query; recursive layout intrinsic proof is outside this per-target obligation.",
+      "source_excerpt_relpath": "proof_harnesses/009_core_slice_align_to_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:4566-4570",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+      "status": "minimal_trusted_boundary_until_type_layout_intrinsics_are_recursively_modelled"
+    },
+    {
+      "kind": "source_backed_raw_pointer_provenance_boundary",
+      "name": "rust_1_96_slice_as_ptr;rust_1_96_ptr_align_offset",
+      "rationale": "Covers `self.as_ptr()` and `crate::ptr::align_offset(ptr, align_of::<U>())`, including raw pointer provenance and alignment-offset semantics cited from the frozen target body.",
+      "source_excerpt_relpath": "proof_harnesses/009_core_slice_align_to_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:4573-4584",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+      "status": "minimal_trusted_boundary_until_pointer_alignment_intrinsics_are_recursively_modelled"
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "name": "rust_1_96_align_to_offsets",
+      "rationale": "Models private helper `align_to_offsets::<U>` from frozen `core/src/slice/mod.rs:4433-4458`; it records only the returned middle/suffix lengths and does not prove the helper body recursively.",
+      "source_excerpt_relpath": "proof_harnesses/009_core_slice_align_to_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:4433-4458,4589",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+      "status": "minimal_trusted_boundary_until_private_align_to_offsets_is_recursively_proved"
+    },
+    {
+      "kind": "source_backed_mut_split_raw_parts_final_frame_boundary",
+      "name": "rust_1_96_align_to_mut_zst_or_overflow;rust_1_96_align_to_mut_split_offsets_raw_parts",
+      "rationale": "Covers the offset-overflow return and the aligned branch containing `split_at_mut(offset)`, `rest.len()`, `rest.as_mut_ptr()`, mutable `from_raw_parts_mut` middle/suffix construction, raw-pointer provenance/aliasing, and the bridge to `final(slice)`/returned mutable sub-slice framing. This does not mark split_at_mut, from_raw_parts_mut, raw pointer casts/addition, or provenance complete for other targets.",
+      "source_excerpt_relpath": "proof_harnesses/009_core_slice_align_to_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:4585-4604",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+      "status": "minimal_trusted_boundary_until_mutable_split_raw_parts_provenance_aliasing_and_final_frame_are_recursively_proved"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_type_is_zst",
+    "rust_1_96_slice_as_ptr",
+    "rust_1_96_ptr_align_offset",
+    "rust_1_96_align_to_mut_zst_or_overflow",
+    "rust_1_96_align_to_mut_split_offsets_raw_parts"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_ptr",
+    "core::slice::from_raw_parts_mut",
+    "core::slice::split_at_mut"
+  ],
+  "module": "slice",
+  "notes": "B disposition: actual Verus verifies the executable public target, but the proof is modulo named source-backed layout, align_offset, private align_to_offsets, split_at_mut, mutable raw-parts/provenance/aliasing, and final-frame result-bridge boundaries. The target harness contains no assume_specification and the public target body is not external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 4458,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "019c66b921c4261118ba6d8b0f1b29a5d356fb96dcf3cd707e1c5cc0fa97c4dd",
+      "name": "align_to_offsets",
+      "public": false,
+      "signature_start_line": 4433,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_status": "actual_verus_verified_modulo_source_backed_align_offset_offsets_mut_raw_parts_provenance_split_at_mut_and_final_frame_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+  "target": "core::slice::align_to_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "U::IS_ZST",
+        "T::IS_ZST",
+        "crate::ptr::align_offset",
+        "align_of::<U>"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.as_ptr()",
+        "rest.as_mut_ptr()",
+        "mut_ptr as *mut U",
+        "mut_ptr.add(rest_len - ts_len)",
+        "from_raw_parts_mut"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe fn align_to_mut",
+        "unsafe { crate::ptr::align_offset(...) }",
+        "unsafe { from_raw_parts_mut(...) }"
+      ],
+      "present": true
+    }
+  },
+  "abcd_status": "B",
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/009_core_slice_align_to_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/009_core_slice_align_to_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/009_core_slice_align_to_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/009_core_slice_align_to_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/009_core_slice_align_to_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  }
+}

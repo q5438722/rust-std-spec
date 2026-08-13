@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/092_core_slice_split_inclusive/harness.rs",
+  "harness_sha256": "e99405659cf11168ee0098d8fa3b06fad9dc57bae1f250d31ef33406daa0899c",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/092_core_slice_split_inclusive/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 2307,
+    "body_start_line": 2305,
+    "item_sha256": "48bb9fbee8197b7c00e12c4f3645c65321c88576ac8730eb5db36302d69b4bdb",
+    "signature_end_line": 2305,
+    "signature_start_line": 2302
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary_and_fnmut_predicate_observation_boundary",
+  "target": "core::slice::split_inclusive",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:2302-2307",
+      "source_sha256": "48bb9fbee8197b7c00e12c4f3645c65321c88576ac8730eb5db36302d69b4bdb"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:2302",
+      "source_sha256": "48bb9fbee8197b7c00e12c4f3645c65321c88576ac8730eb5db36302d69b4bdb"
+    },
+    {
+      "edit": "Extracted the source-backed `SplitInclusive { v, pred, finished }` representation and executable `SplitInclusive::new(slice, pred) -> { let finished = slice.is_empty(); Self { v: slice, pred, finished } }` constructor data flow.",
+      "kind": "private_constructor_representation_extraction",
+      "source_lines": "core/src/slice/iter.rs:557-571",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Instantiated only `slice_predicate_split_view`, `slice_iterator_view`, and FnMut predicate-observation vocabulary boundaries to connect the source constructor state to the generated inclusive contract.",
+      "kind": "proof_only_vocabulary_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:791-849",
+      "source_sha256": "48bb9fbee8197b7c00e12c4f3645c65321c88576ac8730eb5db36302d69b4bdb"
+    }
+  ]
+}

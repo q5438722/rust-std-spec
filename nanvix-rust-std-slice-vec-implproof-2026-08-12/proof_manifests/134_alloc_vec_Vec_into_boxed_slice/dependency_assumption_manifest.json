@@ -1,0 +1,225 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "boxed_slice_view;boxed_slice_capacity",
+      "rationale": "Generated boxed-slice contract vocabulary is instantiated in the harness as target-local spec declarations; the target postcondition is not assumed by the public body.",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_vec_shrink_to_fit_boundary",
+      "name": "Vec::shrink_to_fit / RawVec::shrink_to_fit",
+      "rationale": "Rust 1.96 first shrinks the vector before boxing. The harness keeps the call and relies on the source-backed callee contract that the initialized sequence is preserved while capacity remains at least the length and no larger than the old capacity.",
+      "source_lines": "alloc/src/vec/mod.rs:1604-1611 and alloc/src/raw_vec/mod.rs:745-749,813-863",
+      "status": "minimal_trusted_boundary_for_allocator_shrink_runtime_effect"
+    },
+    {
+      "kind": "source_backed_manually_drop_boundary",
+      "name": "ManuallyDrop::new and Deref field access",
+      "rationale": "Rust 1.96 wraps the moved Vec before reading its RawVec field to prevent double drop. The harness models only the Vec field projection needed for the target proof.",
+      "source_lines": "core/src/mem/manually_drop.rs:184-185 and 273-278",
+      "status": "minimal_trusted_boundary_for_no_drop_wrapper_and_field_projection"
+    },
+    {
+      "kind": "source_backed_ptr_read_boundary",
+      "name": "ptr::read(&me.buf)",
+      "rationale": "The raw pointer read transfers the RawVec storage out of the ManuallyDrop wrapper without invalidating the modeled initialized sequence/capacity relation.",
+      "source_lines": "core/src/ptr/mod.rs:1682-1698",
+      "status": "minimal_trusted_boundary_for_raw_pointer_move_provenance"
+    },
+    {
+      "kind": "source_backed_rawvec_into_box_boundary",
+      "name": "RawVec::into_box(len)",
+      "rationale": "The private RawVec conversion builds a boxed MaybeUninit slice from the RawVec pointer, allocator, and requested length. The harness preserves the initialized sequence and records boxed-slice capacity as the requested len.",
+      "source_lines": "alloc/src/raw_vec/mod.rs:238-249",
+      "status": "minimal_trusted_boundary_for_allocator_rawvec_to_boxed_slice_conversion"
+    },
+    {
+      "kind": "source_backed_maybe_uninit_assume_init_boundary",
+      "name": "Box<[MaybeUninit<T>]>::assume_init",
+      "rationale": "The final unsafe conversion is valid because the source Vec length covers the initialized prefix; the harness carries that initialized sequence through to Box<[T]>.",
+      "source_lines": "alloc/src/boxed.rs:1229-1259",
+      "status": "minimal_trusted_boundary_for_maybe_uninit_slice_initialization_cast"
+    }
+  ],
+  "direct_call_names": [
+    "assume_init",
+    "into_box",
+    "len",
+    "new",
+    "read",
+    "shrink_to_fit"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 flow `self.shrink_to_fit(); let me = ManuallyDrop::new(self); let buf = ptr::read(&me.buf); let len = me.len(); buf.into_box(len).assume_init()`, adapted only for Verus by using a local mutable binding instead of unsupported `mut self`. The generated boxed_slice_view/boxed_slice_capacity contract is proved modulo named source-backed allocator, raw-pointer/provenance, ManuallyDrop, RawVec::into_box, and MaybeUninit/Box::assume_init boundaries.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 749,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "2dca66d6cea6daf93c743b6190f4ad3690d3b7ada161a9c75b3dc222b89ea0de",
+      "name": "shrink_to_fit",
+      "public": false,
+      "signature_start_line": 745,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 892,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "90247dad9d8c610c8c854d9359f06dc9fd91efe5e7740a213edf0b321390c4cd",
+      "name": "handle_error",
+      "public": false,
+      "signature_start_line": 887,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 499,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/alloc.rs",
+      "item_sha256": "55808ee0cae77c643c082302c9371e0c60809546961485880a4757dc9069e175",
+      "name": "shrink",
+      "public": false,
+      "signature_start_line": 491,
+      "source_reference_path": "alloc/src/alloc.rs"
+    },
+    {
+      "body_end_line": 2458,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/boxed.rs",
+      "item_sha256": "35a9aba6a95508317cbacd2843610e3231658b9a9cf4e581c0a1d2d088e9bc7d",
+      "name": "shrink",
+      "public": false,
+      "signature_start_line": 2450,
+      "source_reference_path": "alloc/src/boxed.rs"
+    },
+    {
+      "body_end_line": 817,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "d9df411acd8e7d75b7e65e53597c65fae6ba19fbed52c427b34479bfa33dfcdd",
+      "name": "shrink",
+      "public": false,
+      "signature_start_line": 813,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 29,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f40b8804f653b12b9065b086860e94646e97d7069b6708897f81d1326af7d225",
+      "name": "capacity_overflow",
+      "public": false,
+      "signature_start_line": 27,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 384,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/alloc.rs",
+      "item_sha256": "8de79923440d5541f9cdd4542bf4a54e00cf23ed1e1d185a2ce0605394375ad2",
+      "name": "shrink_impl",
+      "public": false,
+      "signature_start_line": 373,
+      "source_reference_path": "alloc/src/alloc.rs"
+    },
+    {
+      "body_end_line": 863,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "cb56294afe07500cee01974195a8fb3cab6534c6fdceb5b5816b0dd8fd891d70",
+      "name": "shrink_unchecked",
+      "public": false,
+      "signature_start_line": 829,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 620,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f008da15a61b6a40bc7e607ae5dea2847854b915e60345c9d0546c8459787254",
+      "name": "capacity",
+      "public": false,
+      "signature_start_line": 618,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 647,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "664a5137b011ab2c55d9e854af7ef0937fac8699ef0e5648dbc6bcfdf6863f50",
+      "name": "current_memory",
+      "public": false,
+      "signature_start_line": 633,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 778,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "87bad0c31abb0853ba6f0198f53b518f95728bc371e2d86ee38d7f12ab4a35fb",
+      "name": "set_ptr_and_cap",
+      "public": false,
+      "signature_start_line": 772,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_allocator_rawvec_box_maybe_uninit_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "9e01645b7eb77565f8c9119a9d5c258092a94b937fe775ec0227e0be20e18f44",
+  "target": "alloc::vec::Vec::into_boxed_slice",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/134_alloc_vec_Vec_into_boxed_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bbuf\\b",
+        "\\bshrink",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [
+        "\\bassume_init"
+      ],
+      "present": true
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\bptr::"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

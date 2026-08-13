@@ -1,0 +1,38 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+  "harness_relpath": "proof_harnesses/114_core_slice_trim_ascii/harness.rs",
+  "harness_sha256": "aa90382292f6ff9fa97c7001540a0cf03599ba6494067817f54d45c53a844cf4",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/114_core_slice_trim_ascii/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/ascii.rs",
+  "source_span": {
+    "body_end_line": 298,
+    "body_start_line": 296,
+    "item_sha256": "fffd32312dbd4f30bf1104a918ca697fe2f8902d346c2718c334a880bd0bf95d",
+    "signature_end_line": 296,
+    "signature_start_line": 296
+  },
+  "status": "verus_verified_modulo_reviewed_trim_ascii_start_end_source_body_composition_byte_ascii_helper_and_verus_slice_pattern_desugaring_boundary",
+  "target": "core::slice::trim_ascii",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus public target preserving the Rust 1.96 body `self.trim_ascii_start().trim_ascii_end()` as explicit receiver calls `trim_ascii_start(slice)` followed by `trim_ascii_end(bytes)`.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/ascii.rs:296-298",
+      "source_sha256": "fffd32312dbd4f30bf1104a918ca697fe2f8902d346c2718c334a880bd0bf95d"
+    },
+    {
+      "edit": "Instantiated the already reviewed trim_ascii_start and trim_ascii_end loop harnesses locally, including the audited ASCII whitespace vocabulary, choose-index boundary lemmas, and Verus slice-pattern desugarings for leading/trailing byte inspection.",
+      "kind": "reviewed_generated_dependency_reuse",
+      "source_lines": "core/src/slice/ascii.rs:237-249; core/src/slice/ascii.rs:266-278; proof_harnesses/116_core_slice_trim_ascii_start/harness.rs; proof_harnesses/115_core_slice_trim_ascii_end/harness.rs",
+      "source_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea"
+    },
+    {
+      "edit": "Attached and verified `ascii_trim_source_body_result`, the source-body composition relation obtained by trimming the start first and then trimming the end of that suffix. The project-local generated contract now claims this relation so nonempty all-whitespace inputs match the Rust body.",
+      "kind": "source_backed_contract_repair",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1241-1282; core/src/slice/ascii.rs:296-298",
+      "source_sha256": "86bf195e2caf95ee1674f248bc35cc88b0ecba022188ceb26e9836b783e4b1b6"
+    }
+  ]
+}

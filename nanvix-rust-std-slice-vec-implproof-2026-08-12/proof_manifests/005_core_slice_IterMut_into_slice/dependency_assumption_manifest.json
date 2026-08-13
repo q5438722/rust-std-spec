@@ -1,0 +1,107 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_raw_parts_boundary",
+      "name": "core::slice::from_raw_parts_mut(data, len)",
+      "rationale": "The Rust target reconstructs a mutable slice from `self.ptr.as_ptr()` and `len!(self)`. The harness verifies the target body against a narrow raw-parts view for those inputs while leaving non-null/alignment/allocation/provenance and lifetime safety from `from_raw_parts_mut` to the source-backed boundary.",
+      "source_lines": "core/src/slice/raw.rs:179-195",
+      "source_sha256": "0914968067f7e2bc798680c1edd72bcb032a9fd44ebb2b6fbc082a3a2b16941f",
+      "status": "minimal_trusted_boundary_until_from_raw_parts_mut_pointer_proof_is_discharged"
+    },
+    {
+      "kind": "source_backed_len_macro_boundary",
+      "name": "len!(self)",
+      "rationale": "The Rust macro computes the remaining iterator length from `end_or_len`, using ZST length storage or non-ZST pointer distance. The harness records this as `len_macro_view` instead of recursively proving the macro expansion and pointer-distance arithmetic here.",
+      "source_lines": "core/src/slice/iter/macros.rs:49-60",
+      "source_sha256": "3d02121faa057f039d2d677829b2d8e04d1d772c6891b5b5c66514e4e7f185dc",
+      "status": "minimal_trusted_boundary_until_len_macro_pointer_distance_proof_is_discharged"
+    },
+    {
+      "kind": "unsupported_type_boundary",
+      "name": "core::ptr::NonNull<T> and raw `end_or_len` iterator representation",
+      "rationale": "The extracted IterMut fields preserve the Rust names and roles, but the harness uses a target-local NonNull/raw-pointer model so that the target can execute the same `self.ptr.as_ptr()` call without recursively proving the standard pointer representation.",
+      "source_lines": "core/src/slice/iter.rs:194-205",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3",
+      "status": "tool_model_boundary"
+    },
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_iterator_view::<IterMut<'a, T>, T>",
+      "rationale": "The shared iterator-view vocabulary is instantiated through the raw-parts view of `self.ptr.as_ptr()` and `len!(self)`; the target postcondition is not directly assumed.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "NonNull::as_ptr",
+    "from_raw_parts_mut",
+    "len!"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 unsafe raw-parts expression. The proof is B modulo the source-backed raw pointer/provenance/unsafe and `len!` macro boundary, not an assume_specification or target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/005_core_slice_IterMut_into_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "version_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_parts_len_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3",
+  "source_item_sha256": "6b6f3d1c44a66191d56542d38615b12d4e540e8e4de042f6c176a22d715de7ca",
+  "target": "core::slice::IterMut::into_slice",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/005_core_slice_IterMut_into_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/005_core_slice_IterMut_into_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.ptr.as_ptr()",
+        "from_raw_parts_mut(data, len)",
+        "len!(self) pointer-distance over end_or_len"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { from_raw_parts_mut(self.ptr.as_ptr(), len!(self)) }"
+      ],
+      "present": true
+    }
+  }
+}

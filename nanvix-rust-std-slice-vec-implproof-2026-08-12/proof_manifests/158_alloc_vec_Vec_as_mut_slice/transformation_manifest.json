@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/harness.rs",
+  "harness_sha256": "6971a9d0f1585d313e42fb5efa6c3fdeedb5a3dc8231987b66f10c229c0ac7de",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 1878,
+    "body_start_line": 1859,
+    "item_sha256": "9e8c08a1429efd4843901f4acd702e6b4fea2a039c00ee3d8e52c0422918a310",
+    "signature_end_line": 1859,
+    "signature_start_line": 1859
+  },
+  "status": "verus_verified_modulo_reviewed_as_mut_ptr_and_source_backed_raw_pointer_cast_boundary_for_aggregate_raw_ptr_mut_slice_final_frame",
+  "target": "alloc::vec::Vec::as_mut_slice",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable inherent `Vec<T, A>::as_mut_slice` method, adapting the signature to Verus named-return/lifetime syntax while preserving the Rust 1.96 data flow through `self.as_mut_ptr()`, `self.len`, and the unsafe aggregate_raw_ptr mutable-slice construction.",
+      "kind": "verus_signature_and_body_adaptation",
+      "source_lines": "alloc/src/vec/mod.rs:1859-1878",
+      "source_sha256": "9e8c08a1429efd4843901f4acd702e6b4fea2a039c00ee3d8e52c0422918a310"
+    },
+    {
+      "edit": "Reused the reviewed `Vec::as_mut_ptr` vocabulary (`CapacitySpec::spec_capacity` and `vec_start_mut_ptr`) for the raw start-pointer relation instead of assuming the public target postcondition.",
+      "kind": "reviewed_dependency_vocabulary_reuse",
+      "source_lines": "alloc/src/vec/mod.rs:2022-2026",
+      "source_sha256": "56c46d9ef725e15cd271f3f23002feff485277b74e9e73f1bf9b87663be0718b"
+    },
+    {
+      "edit": "Modeled only the source-backed intrinsic/raw-pointer/unsafe boundary for `&mut *core::intrinsics::aggregate_raw_ptr::<*mut [T], _, _>(self.as_mut_ptr(), self.len)`, carrying the exact copied vstd postconditions `slice@ == old(vec)@` and `final(slice)@ == final(vec)@`.",
+      "kind": "source_backed_intrinsic_raw_mut_slice_boundary",
+      "source_lines": "alloc/src/vec/mod.rs:1873-1877",
+      "source_sha256": "9e8c08a1429efd4843901f4acd702e6b4fea2a039c00ee3d8e52c0422918a310"
+    },
+    {
+      "edit": "Public target remains non-external-body and contains no `assume_specification` marker.",
+      "kind": "proof_harness_hygiene",
+      "source_lines": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/harness.rs",
+      "source_sha256": "6971a9d0f1585d313e42fb5efa6c3fdeedb5a3dc8231987b66f10c229c0ac7de"
+    }
+  ]
+}

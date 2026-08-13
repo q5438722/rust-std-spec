@@ -1,0 +1,28 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/raw.rs",
+  "harness_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/harness.rs",
+  "harness_sha256": "27d7b7060a7a6dc7d3d118ad5300bedfc3d6470c115baaaaf0e93101e424598d",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/raw.rs",
+  "source_span": {
+    "body_end_line": 196,
+    "body_start_line": 179,
+    "item_sha256": "b19fba4b6bde2fc2195bda8acded38ced9f42f1eb67c475260a1e84a9c667093",
+    "signature_end_line": 179,
+    "signature_start_line": 179
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_ub_precondition_boundary",
+  "target": "core::slice::from_raw_parts_mut",
+  "transformations": [
+    {
+      "kind": "replace_seed_recorder_with_executable_target_harness",
+      "rationale": "Removed the string-only recorder and introduced an executable public `from_raw_parts_mut` target with the generated mutable raw-domain requires/ensures."
+    },
+    {
+      "kind": "source_backed_mut_raw_parts_boundary",
+      "rationale": "Isolated the Rust 1.96 UB-precondition/raw-pointer/provenance operation in `rust_1_96_from_raw_parts_mut_ub_checked_raw_slice`; the public target body is not external_body and contains no proof-by-assumption contract marker."
+    }
+  ]
+}

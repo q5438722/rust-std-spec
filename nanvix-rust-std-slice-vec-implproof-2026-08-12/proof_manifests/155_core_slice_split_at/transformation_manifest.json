@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/155_core_slice_split_at/harness.rs",
+  "harness_sha256": "ab605109bcb8775309f1c482255f96674bdc885a13a40c4e376ee1acf1451cd4",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/155_core_slice_split_at/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1957,
+    "body_start_line": 1952,
+    "item_sha256": "1737ca6053f4c97c0746a0ced8b32dd3b29c871561f987454033fa98c4b2e9ef",
+    "signature_end_line": 1952,
+    "signature_start_line": 1952
+  },
+  "status": "verus_verified_modulo_reviewed_split_at_checked_and_unreachable_panic_boundary",
+  "target": "core::slice::split_at",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:1952-1957",
+      "source_sha256": "1737ca6053f4c97c0746a0ced8b32dd3b29c871561f987454033fa98c4b2e9ef"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter, removed `const`, and named the return value for Verus; the public target body is not externalized.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1952",
+      "source_sha256": "1737ca6053f4c97c0746a0ced8b32dd3b29c871561f987454033fa98c4b2e9ef"
+    },
+    {
+      "edit": "Kept the public target flow as `match split_at_checked(slice, mid) { Some(pair) => pair, None => ... }` and reused the reviewed `core::slice::split_at_checked` relation from the generated harness to prove the exact-vstd subrange postcondition.",
+      "kind": "reviewed_dependency_attachment",
+      "source_lines": "core/src/slice/mod.rs:1953-1954 and core/src/slice/mod.rs:2153-2161",
+      "source_sha256": "1737ca6053f4c97c0746a0ced8b32dd3b29c871561f987454033fa98c4b2e9ef"
+    },
+    {
+      "edit": "Isolated only the unsupported `panic!(\"mid > len\")` macro expansion behind a named external-body helper with `ensures false`; the public target proves the branch unreachable under `mid <= slice@.len()`.",
+      "kind": "unreachable_panic_macro_boundary",
+      "source_lines": "core/src/slice/mod.rs:1956",
+      "source_sha256": "1737ca6053f4c97c0746a0ced8b32dd3b29c871561f987454033fa98c4b2e9ef"
+    },
+    {
+      "edit": "Attached the exact-vstd precondition and subrange ensures from the copied baseline: `mid <= slice.len()`, `ret.0@ == slice@.subrange(0, mid)`, and `ret.1@ == slice@.subrange(mid, slice@.len())`.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/std_specs/slice.rs:194-200",
+      "source_sha256": "864b63b736fe2c66ffb5baa0f5b7b6c4c27e7c92e27bd57d05d9aee16488cdc3"
+    }
+  ]
+}

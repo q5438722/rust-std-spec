@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/148_core_slice_first_mut/harness.rs",
+  "harness_sha256": "58500bc7d01c3e5322e8120e292463d46328955620944826990e20fe6f7c5fa4",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/148_core_slice_first_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 180,
+    "body_start_line": 178,
+    "item_sha256": "acca42d75b023fc555162973f3a3b5beaa11eb77d07e21b6405b09e18203d00b",
+    "signature_end_line": 178,
+    "signature_start_line": 178
+  },
+  "status": "verus_verified_modulo_reviewed_split_first_mut_and_verus_mut_slice_pattern_desugaring_boundary",
+  "target": "core::slice::first_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:178-180",
+      "source_sha256": "acca42d75b023fc555162973f3a3b5beaa11eb77d07e21b6405b09e18203d00b"
+    },
+    {
+      "edit": "Adapted the inherent mutable `[T]` receiver to an explicit `slice: &mut [T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:178",
+      "source_sha256": "acca42d75b023fc555162973f3a3b5beaa11eb77d07e21b6405b09e18203d00b"
+    },
+    {
+      "edit": "Lowered the unsupported Rust slice pattern `if let [first, ..] = self { Some(first) } else { None }` to the reviewed mutable split-first desugaring: `slice.len() != 0`, `slice.split_at_mut(1)`, and `&mut head[0]`.",
+      "kind": "verus_mut_slice_pattern_desugaring_reusing_reviewed_split_first_mut_boundary",
+      "source_lines": "core/src/slice/mod.rs:179",
+      "source_sha256": "acca42d75b023fc555162973f3a3b5beaa11eb77d07e21b6405b09e18203d00b"
+    },
+    {
+      "edit": "Added proof-only `lemma_split_at` assertions and a target-local sequence lemma connecting the singleton mutable head plus unchanged tail to the exact-vstd `old(slice)@.update(0, *final(ret.unwrap()))` postcondition.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/std_specs/slice.rs:first_mut exact-vstd contract",
+      "source_sha256": "7838f564b349372d5c8ae725de74f47ba9bd2c7967130ae1da19c3b701e8d526"
+    }
+  ]
+}

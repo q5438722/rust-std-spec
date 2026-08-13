@@ -1,0 +1,97 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "CapacitySpec::spec_capacity;vec_raw_parts_round_trip",
+      "rationale": "Generated raw-parts contract vocabulary is instantiated in the harness as target-local spec declarations; the public target body does not assume its postcondition.",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_manually_drop_boundary",
+      "name": "ManuallyDrop::new and Deref/DerefMut access to Vec methods",
+      "rationale": "Rust 1.96 wraps the moved Vec to prevent Drop before observing pointer, length, and capacity. The harness models only the no-drop wrapper and the preserved Vec storage view needed by the three returned fields.",
+      "source_lines": "core/src/mem/manually_drop.rs:184-185 and 273-278",
+      "status": "minimal_trusted_boundary_for_no_drop_wrapper_and_vec_accessors"
+    },
+    {
+      "kind": "source_backed_raw_pointer_capacity_boundary",
+      "name": "Vec::as_mut_ptr, Vec::len, Vec::capacity / RawVec::ptr and RawVec::capacity",
+      "rationale": "The target body observes the Vec allocation pointer, initialized length, and allocation capacity without changing the modeled sequence. The harness records only the source-backed RawVec pointer/provenance and capacity facts required for vec_raw_parts_round_trip.",
+      "source_lines": "alloc/src/vec/mod.rs:842-845, 2022-2026 and alloc/src/raw_vec/mod.rs:608-620",
+      "status": "minimal_trusted_boundary_for_raw_parts_pointer_len_and_capacity_observation"
+    }
+  ],
+  "direct_call_names": [
+    "ManuallyDrop::new",
+    "as_mut_ptr",
+    "capacity",
+    "len"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 flow `let mut me = ManuallyDrop::new(self); (me.as_mut_ptr(), me.len(), me.capacity())`. This is a B proof modulo named source-backed ManuallyDrop, Vec/RawVec raw-pointer, allocator/capacity, length, and generated raw-parts vocabulary boundaries, not an assume_specification or public-target external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/136_alloc_vec_Vec_into_raw_parts/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_manually_drop_raw_pointer_capacity_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "73e1cdd172063d94e4ee444da5a24df73c3a89e829f871f946a895f569edcfc0",
+  "target": "alloc::vec::Vec::into_raw_parts",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/136_alloc_vec_Vec_into_raw_parts/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/136_alloc_vec_Vec_into_raw_parts/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bcapacity\\s*\\(",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\bas_mut_ptr\\s*\\("
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

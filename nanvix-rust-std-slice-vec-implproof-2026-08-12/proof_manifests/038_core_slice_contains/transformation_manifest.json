@@ -1,0 +1,38 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/038_core_slice_contains/harness.rs",
+  "harness_sha256": "889d18a4e70e20b2fe35f54d3c0bc49a06daccda8f17201a6297df505af5fc3d",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/038_core_slice_contains/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 2594,
+    "body_start_line": 2592,
+    "item_sha256": "bdc2cbb4b13659e4a71267712a450a6458600c16646498ab7296e7fdacaca324",
+    "signature_end_line": 2592,
+    "signature_start_line": 2589
+  },
+  "status": "verus_verified_modulo_source_backed_slicecontains_specialization_boundary",
+  "target": "core::slice::contains",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body is the Rust 1.96 target delegation `cmp::SliceContains::slice_contains(x, self)`, adapted only by naming the receiver parameter `slice`.",
+      "kind": "verus_signature_and_receiver_adaptation",
+      "source_lines": "core/src/slice/mod.rs:2589-2594",
+      "source_sha256": "bdc2cbb4b13659e4a71267712a450a6458600c16646498ab7296e7fdacaca324"
+    },
+    {
+      "edit": "Modeled `core::slice::cmp::SliceContains::slice_contains` as a target-local trait/specialization boundary carrying only the generated contains relation. This covers the default PartialEq iterator path and primitive specializations without externalizing the public target.",
+      "kind": "source_backed_trait_specialization_boundary",
+      "source_lines": "core/src/slice/cmp.rs:398-455",
+      "source_sha256": "93c1ce5e4f77f85ae90db7d6681342445eed947a928def85a12a438765ecfe3a"
+    },
+    {
+      "edit": "Added the generated `slice_contains_value` / `partial_eq_observed` vocabulary as the Verus ensures clause on the target and the narrow trait/specialization boundary; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/specs/all_slice_specs.rs:687-710",
+      "source_sha256": "a0fab9b11562f51ba66aa30d496a750f79f0e0b691e4d3e75051a847547033f5"
+    }
+  ]
+}

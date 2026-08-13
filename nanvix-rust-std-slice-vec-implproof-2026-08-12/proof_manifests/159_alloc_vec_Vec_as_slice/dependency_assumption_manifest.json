@@ -1,0 +1,132 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::as_slice copied vstd Seq/View contract",
+      "rationale": "The harness preserves the exact existing-vstd postcondition: the returned shared slice views the Vec sequence.",
+      "source_lines": "frozen_inputs/vec/catalog/vec_spec_catalog.csv row for alloc::vec::Vec::as_slice and alloc/src/vec/mod.rs:1823-1842",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_contract_vocabulary",
+      "name": "CapacitySpec::spec_capacity; vec_start_ptr",
+      "rationale": "The public target calls the already reviewed `Vec::as_ptr` vocabulary, preserving the raw start-pointer relation without assuming the public target postcondition.",
+      "source_lines": "proof_harnesses/125_alloc_vec_Vec_as_ptr/harness.rs and alloc/src/vec/mod.rs:1974-1978",
+      "status": "reviewed_as_ptr_dependency_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_intrinsic_raw_pointer_boundary",
+      "name": "core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>",
+      "rationale": "The Rust 1.96 body constructs the shared slice with `&*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)`. The harness isolates only that intrinsic/raw shared-slice dereference, relating the result to the exact Vec view.",
+      "source_lines": "alloc/src/vec/mod.rs:1838-1841",
+      "status": "minimal_trusted_boundary_for_source_backed_intrinsic_raw_shared_slice_construction"
+    },
+    {
+      "kind": "source_backed_allocator_rawvec_layout_boundary",
+      "name": "Vec { buf, len } / RawVec allocator storage",
+      "rationale": "The target body reads `self.len` and obtains a raw pointer through `self.as_ptr`; allocator storage and pointer provenance remain behind the reviewed source-backed Vec/RawVec boundary.",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/src/vec/mod.rs:1823-1842",
+      "status": "minimal_trusted_boundary_for_private_allocator_storage_context"
+    }
+  ],
+  "direct_call_names": [
+    "as_ptr",
+    "rust_1_96_aggregate_raw_ptr_slice"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_ptr"
+  ],
+  "harness_sha256": "68088182da64689822b8e3449b1e28619d76c40b76a94636fe16063aee11d82b",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 data flow `self.as_ptr()`, `self.len`, then the unsafe aggregate_raw_ptr shared-slice construction, adapted only by target-local Vec/RawVec view vocabulary and a narrow source-backed intrinsic/raw-pointer boundary. This proves the exact existing-vstd contract modulo those reviewed/source-backed boundaries and does not assume the public target postcondition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 1978,
+      "disposition": "reviewed_as_ptr_rawvec_capacity_raw_pointer_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0",
+      "name": "Vec::as_ptr",
+      "public": true,
+      "signature_start_line": 1974,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/159_alloc_vec_Vec_as_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/159_alloc_vec_Vec_as_slice/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_as_ptr_and_source_backed_raw_pointer_cast_boundary_for_aggregate_raw_ptr_shared_slice",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "f88b7f2076ec783fa661d350464cb623d1fa17242d1c3ca10b55a12fbfd66b61",
+  "target": "alloc::vec::Vec::as_slice",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/159_alloc_vec_Vec_as_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bbuf\\b",
+        "RawVec<T, A>",
+        "self.len"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "aggregate_raw_ptr"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.as_ptr()",
+        "aggregate_raw_ptr::<*const [T], _, _>",
+        "raw shared slice dereference"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { &*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len) }"
+      ],
+      "present": true
+    }
+  }
+}

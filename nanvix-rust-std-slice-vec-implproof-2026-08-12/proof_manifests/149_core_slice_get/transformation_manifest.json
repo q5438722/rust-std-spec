@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/149_core_slice_get/harness.rs",
+  "harness_sha256": "945fa9b5bbfd563463e74deb3af95a33905675d752635de8b2965d89b54c6ada",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/149_core_slice_get/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 577,
+    "body_start_line": 575,
+    "item_sha256": "f9e71a7d0218566f3b21467e4f552e762ce8d7d4a49e2d879423cbc99b4604fe",
+    "signature_end_line": 575,
+    "signature_start_line": 572
+  },
+  "status": "verus_verified_modulo_source_backed_sliceindex_get_boundary",
+  "target": "core::slice::get",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body is the Rust 1.96 target body `index.get(self)`, adapted only to the explicit receiver parameter `slice`.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:572-577",
+      "source_sha256": "f9e71a7d0218566f3b21467e4f552e762ce8d7d4a49e2d879423cbc99b4604fe"
+    },
+    {
+      "edit": "Adapted the source `pub const fn` and `[const] SliceIndex<Self>` bound to a non-const Verus harness function over a target-local `SliceIndex<T: ?Sized>` trait with `Output: ?Sized`; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_trait_and_receiver_adaptation",
+      "source_lines": "core/src/slice/mod.rs:572-575",
+      "source_sha256": "f9e71a7d0218566f3b21467e4f552e762ce8d7d4a49e2d879423cbc99b4604fe"
+    },
+    {
+      "edit": "Preserved the exact-vstd target contract as the public `ret == spec_slice_get(slice, index)` postcondition and retained the `axiom_slice_get_usize` in-bounds/out-of-bounds facts for `usize` indexing.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/slice.rs:133-148",
+      "source_sha256": "6f837ba7ef3337aa16929597e913f4dc5112f12a44552166c7d2b3f6f0568eb3"
+    },
+    {
+      "edit": "Introduced a trait-associated `spec_get` view so Verus can prove the direct `index.get(slice)` delegation without a cyclic self-reference between the local trait contract and `spec_slice_get`; added the minimal `usize` `SliceIndex<[T]>` implementation needed by `axiom_slice_get_usize`.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/index.rs:163-172 and frozen_inputs/slice/vstd-baseline/slice.rs:140-148",
+      "source_sha256": "16c924deb46e5e027872853736f082abae1eb45f74e55935814a20979899a935"
+    }
+  ]
+}

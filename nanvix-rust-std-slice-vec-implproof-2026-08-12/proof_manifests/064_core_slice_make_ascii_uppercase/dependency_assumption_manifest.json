@@ -1,0 +1,97 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_definition_verified_in_harness",
+      "name": "ascii_upper_seq/ascii_upper_byte",
+      "rationale": "The generated contract's shared ASCII sequence relation is instantiated from the frozen shared vocabulary and discharged by the verified per-byte helper chain; this item no longer contributes a trusted implementation boundary.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1191-1234",
+      "status": "model_definition_verified_against_source_byte_helper"
+    },
+    {
+      "helper_excerpt_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/u8_ascii_uppercase_source_excerpt.rs",
+      "kind": "source_backed_primitive_helper_verified_in_harness",
+      "name": "u8::make_ascii_uppercase / u8::to_ascii_uppercase",
+      "rationale": "The harness now verifies the complete Rust helper chain locally: range-check lowering for is_ascii_lowercase, the exact XOR-mask expression from to_ascii_uppercase, and the final in-place assignment from make_ascii_uppercase. A bit-vector proof connects the source XOR-mask result to the arithmetic ascii_upper_byte contract.",
+      "source_lines": "library/core/src/num/mod.rs:579-580,681-683,758-760,888-890",
+      "status": "primitive_helper_chain_verified_in_harness"
+    }
+  ],
+  "direct_call_names": [
+    "len",
+    "u8::make_ascii_uppercase"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The harness preserves the Rust 1.96 target body shape: initial index, length-guarded while loop, mutable element borrow, per-byte ASCII upper-case mutator call, and index increment. The target and byte-helper chain contain no assume_specification or external_body. The only remaining adaptation is mechanical lowering of the u8 lowercase range pattern to comparisons.",
+  "private_helper_callee_closure": [
+    {
+      "helper_excerpt_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/u8_ascii_uppercase_source_excerpt.rs",
+      "name": "u8::make_ascii_uppercase",
+      "source_lines": "library/core/src/num/mod.rs:758-760",
+      "status": "verified_in_target_harness"
+    },
+    {
+      "helper_excerpt_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/u8_ascii_uppercase_source_excerpt.rs",
+      "name": "u8::to_ascii_uppercase",
+      "source_lines": "library/core/src/num/mod.rs:681-683",
+      "status": "verified_in_target_harness"
+    },
+    {
+      "helper_excerpt_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/u8_ascii_uppercase_source_excerpt.rs",
+      "name": "u8::is_ascii_lowercase",
+      "source_lines": "library/core/src/num/mod.rs:888-890",
+      "status": "verified_in_target_harness"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/064_core_slice_make_ascii_uppercase/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 60,
+    "stderr_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 8 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/064_core_slice_make_ascii_uppercase/harness.rs --crate-type=lib --no-verify",
+    "typecheck_stderr_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_verus_u8_range_pattern_desugaring",
+  "schema_version": 2,
+  "source_file_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea",
+  "source_item_sha256": "27e449dd46ebb3c67e4e390a7ea84e40a3065861456b65c55bee8f0bf208205f",
+  "target": "core::slice::make_ascii_uppercase",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

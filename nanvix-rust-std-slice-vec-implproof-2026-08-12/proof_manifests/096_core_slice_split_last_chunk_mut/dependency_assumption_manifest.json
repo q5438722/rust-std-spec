@@ -1,0 +1,128 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "array_mut_ref_view;array_value_view;slice_fixed_suffix",
+      "rationale": "The generated mutable fixed-suffix vocabulary is inlined as open spec definitions so Verus can check split_last_chunk_mut without assuming the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:913-935",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "existing_vstd_source_contract_boundary",
+      "name": "<[T]>::split_at_mut",
+      "rationale": "The Rust 1.96 target body calls safe split_at_mut(index) after checked_sub proves index = len - N. The harness uses the reviewed vstd mutable split view and final-frame facts at that in-bounds index while the exact-vstd implementation proof for split_at_mut remains a later obligation.",
+      "source_lines": "core/src/slice/mod.rs:482; core/src/slice/mod.rs:1947",
+      "status": "minimal_trusted_boundary_for_safe_mutable_slice_split_view_and_final_frame_facts"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "rust_1_96_split_last_chunk_mut_array_ref",
+      "rationale": "The public target is executable and keeps the Rust 1.96 checked_sub early-None and split_at_mut(index) structure. Only the final unsafe suffix conversion `unsafe { &mut *(last.as_mut_ptr().cast_array()) }` is isolated in a target-local boundary whose precondition is the proved suffix length N and whose postcondition relates the returned mutable array reference to that suffix view and final frame.",
+      "source_excerpt_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:487",
+      "source_sha256": "9b9156326fe8307c826a2e1599a682000caa3c60a78b9953c9e7b929dab147bd",
+      "status": "minimal_trusted_boundary_for_source_backed_mut_slice_suffix_array_ref_cast"
+    }
+  ],
+  "direct_call_names": [
+    "checked_sub",
+    "split_at_mut",
+    "rust_1_96_split_last_chunk_mut_array_ref"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The target function is executable and non-external: it preserves the Rust 1.96 `checked_sub(N)` early `None`, then `split_at_mut(index)`, then returns `(init, unsafe suffix mutable array reference)` through a named source-backed boundary. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/096_core_slice_split_last_chunk_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 120,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_vstd_split_at_mut_suffix_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "9b9156326fe8307c826a2e1599a682000caa3c60a78b9953c9e7b929dab147bd",
+  "target": "core::slice::split_last_chunk_mut",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/096_core_slice_split_last_chunk_mut/harness.rs --crate-type=lib --no-verify",
+    "duration_limit_seconds": 120,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/096_core_slice_split_last_chunk_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "last.as_mut_ptr().cast_array()"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { &mut *(last.as_mut_ptr().cast_array()) }"
+      ],
+      "present": true
+    }
+  }
+}

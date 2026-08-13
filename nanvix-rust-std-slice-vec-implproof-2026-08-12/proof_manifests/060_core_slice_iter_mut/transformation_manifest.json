@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/060_core_slice_iter_mut/harness.rs",
+  "harness_sha256": "0ded2315d33de6d10b3f357eaac2eb1af0b86488306907ff6b3140235e0ae64e",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/060_core_slice_iter_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1062,
+    "body_start_line": 1060,
+    "item_sha256": "4e6646d30b8a5a57aa136cc9ea393ce812936e6e5c2eb9fd4afc034eb8d5242c",
+    "signature_end_line": 1060,
+    "signature_start_line": 1060
+  },
+  "status": "verus_verified_modulo_private_helper_and_pointer_boundary",
+  "target": "core::slice::iter_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body is the Rust 1.96 target body `IterMut::new(slice)`, adapting only the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1060-1062",
+      "source_sha256": "4e6646d30b8a5a57aa136cc9ea393ce812936e6e5c2eb9fd4afc034eb8d5242c"
+    },
+    {
+      "edit": "Attached the generated iterator-view and final mutable-slice frame postconditions to the target function; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::iter_mut",
+      "source_sha256": "010730e1a90b247fbe1ecbef8e5a9cfc86e072e2ad5cbac516bd66c85c6bc648"
+    },
+    {
+      "edit": "Represented `IterMut` in the harness by its lifetime marker while assigning Rust's private `ptr: NonNull<T>` and `end_or_len: *mut T` fields, ZST length encoding, and pointer provenance to the `IterMut::new` boundary. The target body never inspects those fields.",
+      "kind": "unsupported_raw_pointer_representation_boundary",
+      "source_lines": "core/src/slice/iter.rs:194-205",
+      "source_sha256": "70eebe0bc70b285bfbe4c3075156a47d045292a75fe5f627ea260fcc7b22888c"
+    },
+    {
+      "edit": "Modeled the private callee `IterMut::new` as an external-body boundary with the exact source-backed postconditions needed by the target delegation: iterator source and remaining sequence equal the old slice, empty yielded prefix and remainder, forward direction, and no immediate mutation of the slice view.",
+      "kind": "trusted_private_helper_boundary",
+      "source_lines": "core/src/slice/iter.rs:219-246",
+      "source_sha256": "490c890320f085c32882421fc0f76cd5af9be1167310a1516a3825b35ae5b657"
+    }
+  ]
+}

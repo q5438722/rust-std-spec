@@ -1,0 +1,183 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "slice_reversed",
+      "rationale": "The harness instantiates the generated reverse relation as an open Seq transformer and attaches it to the executable public target without using assume_specification.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:292-294",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::as_mut_ptr_range",
+      "rationale": "The Rust 1.96 body first calls self.as_mut_ptr_range(). The harness reuses the reviewed pointer-range shape locally to obtain the start/end raw pointers while preserving the mutable-slice frame.",
+      "source_lines": "core/src/slice/mod.rs:836-841; proof_harnesses/020_core_slice_as_mut_ptr_range/harness.rs",
+      "status": "reviewed_dependency_reused_for_mut_pointer_range_and_final_frame_fact"
+    },
+    {
+      "kind": "source_backed_raw_pointer_boundary",
+      "name": "rust_1_96_mut_ptr_sub_reverse_back_start",
+      "rationale": "The source constructs the back half with end.sub(half_len). Verus does not model this raw one-past-end pointer subtraction/provenance arithmetic directly, so the harness isolates exactly that expression.",
+      "source_excerpt_relpath": "proof_harnesses/070_core_slice_reverse/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:993",
+      "source_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa",
+      "status": "minimal_trusted_boundary_until_raw_pointer_sub_provenance_is_modeled_by_verus"
+    },
+    {
+      "kind": "source_backed_raw_parts_boundary",
+      "name": "from_raw_parts_mut",
+      "rationale": "The two unsafe source calls to slice::from_raw_parts_mut build disjoint front/back half mutable slices from the range endpoints. The harness records their lengths and start-pointer facts, and separates the raw provenance/domain obligation from the public target body.",
+      "source_excerpt_relpath": "proof_harnesses/070_core_slice_reverse/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:992-993; core/src/slice/raw.rs:179-196",
+      "status": "minimal_trusted_boundary_for_raw_parts_mut_half_slice_construction"
+    },
+    {
+      "kind": "source_backed_private_helper_loop_boundary",
+      "name": "revswap / rust_1_96_mem_swap_reverse_pair / rust_1_96_revswap_loop_result",
+      "rationale": "The private helper remains executable: it checks both lengths, preserves the split_at_mut(n) reborrow point through a named no-mutation boundary, and runs the while i < n loop with the source mem::swap(&mut a[i], &mut b[n - 1 - i]) operation isolated per iteration. A proof-only bridge records the loop permutation result for the two half slices.",
+      "source_excerpt_relpath": "proof_harnesses/070_core_slice_reverse/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:1001-1018",
+      "source_sha256": "7b3fda04dbde5f0b75f9570f7909b7e94a550f05d14819e62c8113b8a3760c91",
+      "status": "minimal_trusted_boundary_for_private_revswap_loop_effect_until_mem_swap_loop_is_recursively_proved"
+    },
+    {
+      "kind": "source_backed_final_frame_bridge_boundary",
+      "name": "rust_1_96_reverse_raw_halves_bridge / rust_1_96_reverse_final_frame_bridge",
+      "rationale": "Rust mutates the original slice through raw-derived front/back half references. Verus does not track that aliasing/final-frame relation, so the harness uses named bridges to connect the source-backed raw half partition plus the verified revswap call to final(slice)@ == slice_reversed(old(slice)@). The bridge is not on the public target and the public target body remains executable.",
+      "source_excerpt_relpath": "proof_harnesses/070_core_slice_reverse/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:982-998",
+      "source_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa",
+      "status": "minimal_trusted_boundary_for_raw_half_aliasing_and_whole_slice_final_frame"
+    }
+  ],
+  "direct_call_names": [
+    "as_mut_ptr_range",
+    "from_raw_parts_mut",
+    "rust_1_96_mut_ptr_sub_reverse_back_start",
+    "revswap",
+    "rust_1_96_revswap_split_at_mut_exact",
+    "rust_1_96_mem_swap_reverse_pair"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_mut_ptr_range"
+  ],
+  "harness_sha256": "ea7ca3c30beef9ce58773b25dab78001ea8a3608d8e4a694eb98465160afd9db",
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public reverse target. It preserves the Rust 1.96 flow: compute half_len, destructure Range { start, end } from as_mut_ptr_range, construct front/back halves with from_raw_parts_mut(start, half_len) and from_raw_parts_mut(end.sub(half_len), half_len), then call revswap. The private revswap helper preserves the length checks, split_at_mut(n) reborrow point through a named boundary, and the while i < n loop with mem::swap(&mut a[i], &mut b[n - 1 - i]) isolated per iteration. The harness has no assume_specification and no public-target external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 1018,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "7b3fda04dbde5f0b75f9570f7909b7e94a550f05d14819e62c8113b8a3760c91",
+      "name": "revswap",
+      "public": false,
+      "signature_start_line": 1001,
+      "source_reference_path": "core/src/slice/mod.rs",
+      "disposition": "source_backed_private_helper_loop_preserved_with_mem_swap_and_final_frame_boundary"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/070_core_slice_reverse/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_stdout.txt",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 3 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/070_core_slice_reverse/harness.rs --no-verify --crate-type=lib",
+    "typecheck_exit_code_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_halves_revswap_loop_and_final_frame_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa",
+  "target": "core::slice::reverse",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/070_core_slice_reverse/harness.rs --no-verify --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/070_core_slice_reverse/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.as_mut_ptr_range()",
+        "slice::from_raw_parts_mut(start, half_len)",
+        "slice::from_raw_parts_mut(end.sub(half_len), half_len)",
+        "raw-derived half-slice final-frame bridge"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe raw half construction",
+        "mem::swap(&mut a[i], &mut b[n - 1 - i])"
+      ],
+      "present": true
+    }
+  }
+}

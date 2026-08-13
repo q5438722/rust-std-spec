@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter.rs",
+  "harness_relpath": "proof_harnesses/007_core_slice_RChunksExactMut_into_remainder/harness.rs",
+  "harness_sha256": "8c811ddd0da01731171f21a4dcdd1174fca1c504c4c73d0b34bf0666858f3ce7",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/007_core_slice_RChunksExactMut_into_remainder/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/iter.rs",
+  "source_span": {
+    "body_end_line": 2859,
+    "body_start_line": 2857,
+    "item_sha256": "e7afc872b12681ba54e0b518edd5b9d8e252d1866cb7a1524c6ae801db1b9c1e",
+    "signature_end_line": 2857,
+    "signature_start_line": 2857
+  },
+  "status": "verus_verified_modulo_private_representation_boundary",
+  "target": "core::slice::RChunksExactMut::into_remainder",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local RChunksExactMut representation from frozen Rust source lines 2830-2840 into the harness with field names, order, types, and privacy preserved; omitted only Rust stability/documentation attributes that Verus does not consume.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:2830-2840",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus method whose body is the source body `self.rem`; the signature drops Rust `const` for Verus compatibility and adds Verus return naming plus the generated contract's ensures clauses.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/iter.rs:2857-2859",
+      "source_sha256": "e7afc872b12681ba54e0b518edd5b9d8e252d1866cb7a1524c6ae801db1b9c1e"
+    },
+    {
+      "edit": "Defined a target-local closed `slice_iterator_view(RChunksExactMut)` representation from the extracted mutable remainder field so the generated helper vocabulary is no longer uninterpreted for this harness.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:2830-2840",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Added a narrowly named trusted proof lemma for `rem@.len() < chunk_size` because Verus rejects moving a mutable-reference field out of a datatype with a user-defined type invariant. The lemma is sourced to the constructor remainder computation and API documentation and does not assert the target postcondition.",
+      "kind": "trusted_private_representation_lemma",
+      "source_lines": "core/src/slice/iter.rs:2844-2848,2851-2853",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Inserted a ghost-only proof block that reveals the closed model relation and calls the private invariant lemma before returning `self.rem`; this has no executable control-flow, data-flow, or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:2857-2859",
+      "source_sha256": "e7afc872b12681ba54e0b518edd5b9d8e252d1866cb7a1524c6ae801db1b9c1e"
+    }
+  ]
+}

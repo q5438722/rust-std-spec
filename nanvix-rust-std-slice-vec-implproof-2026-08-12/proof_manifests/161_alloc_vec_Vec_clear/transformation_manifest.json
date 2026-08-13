@@ -1,0 +1,40 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/harness.rs",
+  "harness_sha256": "90beccc4844aeb4f7d3d0352039276ce2bf2459bdfc7498377b24e4e7dc690d7",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 3007,
+    "body_start_line": 2994,
+    "item_sha256": "d1e84ae8795bd399bd3a40128f9cae373e0b046264d744b7dc22e6f3c593c76c",
+    "signature_end_line": 2994,
+    "signature_start_line": 2994
+  },
+  "status": "verus_verified_modulo_reviewed_as_mut_slice_final_frame_source_backed_raw_pointer_cast_boundary_and_drop_in_place_boundary",
+  "target": "alloc::vec::Vec::clear",
+  "transformations": [
+    {
+      "kind": "target_local_vec_rawvec_view_model",
+      "rationale": "Introduced target-local Vec/RawVec/View vocabulary to expose the existing-vstd sequence contract while keeping the canonical source checkout untouched.",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/src/vec/mod.rs:2994-3007"
+    },
+    {
+      "kind": "reviewed_dependency_boundary",
+      "rationale": "Reused the reviewed `Vec::as_mut_slice` sequence/final-frame vocabulary instead of assuming the `clear` postcondition.",
+      "source_lines": "alloc/src/vec/mod.rs:1859-1878"
+    },
+    {
+      "kind": "verus_raw_pointer_coercion_boundary",
+      "rationale": "Lowered Verus-unsupported implicit `&mut [T]` to `*mut [T]` coercion into `rust_1_96_as_mut_slice_raw_ptr` as a source-backed boundary.",
+      "source_lines": "alloc/src/vec/mod.rs:2995"
+    },
+    {
+      "kind": "source_backed_drop_in_place_boundary",
+      "rationale": "Modeled `ptr::drop_in_place(elems)` as the only destructor/raw-pointer boundary after the verified `self.len = 0` commit.",
+      "source_lines": "alloc/src/vec/mod.rs:2997-3006"
+    }
+  ]
+}

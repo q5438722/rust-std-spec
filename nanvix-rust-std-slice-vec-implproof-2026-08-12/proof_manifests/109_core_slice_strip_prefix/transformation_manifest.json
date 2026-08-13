@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/109_core_slice_strip_prefix/harness.rs",
+  "harness_sha256": "48009eba102de71864a58cdafbbd8b487512c726d131be9512969850f65f3485",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/109_core_slice_strip_prefix/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 2696,
+    "body_start_line": 2685,
+    "item_sha256": "cfc16172d92c4c0822978d8c4fe04790a3a74a48caf9ee68198518b17e1c2500",
+    "signature_end_line": 2685,
+    "signature_start_line": 2682
+  },
+  "status": "verus_verified_modulo_source_backed_slice_pattern_as_slice_prefix_partial_eq_and_split_at_boundary",
+  "target": "core::slice::strip_prefix",
+  "transformations": [
+    {
+      "kind": "verus_signature_and_receiver_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body preserves the Rust 1.96 target shape: `let prefix = prefix.as_slice(); let n = prefix.len(); if n <= self.len() { let (head, tail) = self.split_at(n); if head == prefix { return Some(tail); } } None`, adapted only by naming the receiver parameter `slice` and using a local source-backed SlicePattern trait boundary.",
+      "source_lines": "core/src/slice/mod.rs:2682-2696",
+      "source_sha256": "cfc16172d92c4c0822978d8c4fe04790a3a74a48caf9ee68198518b17e1c2500"
+    },
+    {
+      "kind": "source_backed_slice_pattern_as_slice_boundary",
+      "edit": "Modeled `prefix.as_slice()` as the target-local `SlicePattern::as_slice` trait method whose postcondition is exactly `slice_pattern_view::<P, T>(prefix_pattern)`, preserving the generated contract vocabulary without assuming the public target.",
+      "source_lines": "core/src/slice/mod.rs:2687; frozen_inputs/slice/specs/slice_shared_vocabulary.rs:231-243",
+      "source_sha256": "86bf195e2caf95ee1674f248bc35cc88b0ecba022188ceb26e9836b783e4b1b6"
+    },
+    {
+      "kind": "source_backed_slice_partial_eq_prefix_boundary",
+      "edit": "Modeled the guarded comparison `head == prefix` as target-local `rust_1_96_head_eq_prefix`, carrying only the generated prefix relation after split_at establishes that `head` is the source prefix of length `n`. This records the frozen slice PartialEq / SlicePartialEq::equal_same_length implementation without externalizing the public target.",
+      "source_lines": "core/src/slice/mod.rs:2690-2692; core/src/slice/cmp.rs:15-141",
+      "source_sha256": "fed962fb3123b90acacffcecc954a472c0862c77338a56008cb63c1f89656ad5"
+    },
+    {
+      "kind": "source_backed_split_at_range_view_fact",
+      "edit": "Kept the body's `slice.split_at(n)` call executable and used `Seq::lemma_split_at` only to connect the returned tail to the generated remaining-subrange postcondition.",
+      "source_lines": "core/src/slice/mod.rs:2690; core/src/slice/mod.rs:1952-1957",
+      "source_sha256": "cfc16172d92c4c0822978d8c4fe04790a3a74a48caf9ee68198518b17e1c2500"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Added the generated `slice_strip_prefix_result`, `slice_pattern_view`, `slice_is_prefix`, and `partial_eq_observed` vocabulary as the Verus ensures clause on the executable target and the narrow source-backed boundaries; this records the contract under test and does not use assume_specification.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:194-243",
+      "source_sha256": "86bf195e2caf95ee1674f248bc35cc88b0ecba022188ceb26e9836b783e4b1b6"
+    }
+  ]
+}

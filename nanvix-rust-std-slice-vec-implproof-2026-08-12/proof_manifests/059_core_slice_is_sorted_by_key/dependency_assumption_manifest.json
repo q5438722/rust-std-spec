@@ -1,0 +1,113 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "fnmut_adjacent_key_outputs; fnmut_adjacent_key_trace_valid; partial_ord_leq_observed; slice_sorted_by_partial_key_result",
+      "rationale": "The generated postcondition is preserved exactly: the result is characterized by the source-order key-extraction trace and adjacent PartialOrd observations over slice@.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:466-510",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_iterator_fnmut_key_observation_boundary",
+      "name": "Iter::is_sorted_by_key over SliceReceiver::iter()",
+      "rationale": "The public harness keeps the Rust 1.96 call chain shape as an explicit receiver converted to an iterator followed by is_sorted_by_key(f). The target-local iterator method is the only external_body boundary; it represents the standard iterator traversal, FnMut key-call trace, and PartialOrd comparison result captured by the generated relation. The public target body is executable and is not external_body.",
+      "source_lines": "core/src/slice/mod.rs:4795-4801; core/src/iter/traits/iterator.rs:4123-4130",
+      "source_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978",
+      "status": "minimal_trusted_boundary_for_iterator_fnmut_key_observation_and_partialord_comparison"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "F: core::ops::FnMut(&'a T) -> K; K: core::cmp::PartialOrd",
+      "rationale": "The source signature permits a stateful key callback and PartialOrd comparisons. The proof preserves the callback trace and partial-order observation vocabulary rather than choosing concrete keys or strengthening source behavior.",
+      "source_lines": "core/src/slice/mod.rs:4795-4801",
+      "source_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978",
+      "status": "preserved_source_callback_and_partialord_effects_without_target_body_assumption"
+    }
+  ],
+  "direct_call_names": [
+    "iter",
+    "is_sorted_by_key"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public target function. The receiver is adapted to an explicit slice parameter, wrapped as SliceReceiver, and executed through the source-shaped iterator call chain `self_slice.iter().is_sorted_by_key(f)`. The generated slice_sorted_by_partial_key_result postcondition is preserved exactly. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body; the only external_body is the named iterator/FnMut key-observation boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 4801,
+      "disposition": "source_backed_iterator_fnmut_key_observation_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978",
+      "name": "self.iter().is_sorted_by_key(f) call chain",
+      "public": false,
+      "signature_start_line": 4795,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/059_core_slice_is_sorted_by_key/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/059_core_slice_is_sorted_by_key/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary_and_fnmut_key_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978",
+  "target": "core::slice::is_sorted_by_key",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/059_core_slice_is_sorted_by_key/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::ops::FnMut(&'a T) -> K key observation boundary",
+        "core::cmp::PartialOrd comparison observation boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

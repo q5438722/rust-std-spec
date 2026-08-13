@@ -1,0 +1,159 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_dedup_by_result",
+      "rationale": "The generated contract relation is preserved as the target postcondition vocabulary. The harness derives it through the named source-backed dedup_by raw-storage/callback boundary rather than leaving an assume_specification on the public target.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs and alloc/src/vec/mod.rs:2614-2740",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_vec_len_storage_boundary",
+      "name": "Vec::len, Vec::as_mut_ptr, and RawVec initialized sequence view",
+      "rationale": "Rust 1.96 records len and a start raw pointer before the duplicate scan. The harness models only the relation between the returned length, the minimal Vec sequence view, and source-backed raw storage/provenance exposure.",
+      "source_lines": "alloc/src/vec/mod.rs:2618-2627 and Vec/RawVec storage fields",
+      "status": "minimal_trusted_boundary_for_len_storage_and_start_pointer_view"
+    },
+    {
+      "kind": "source_backed_fnmut_callback_observation_boundary",
+      "name": "reversed FnMut(&mut T, &mut T)->bool duplicate observation",
+      "rationale": "dedup_by calls the user predicate with current and previous references in the documented reversed order. The harness keeps both scan loops and records only the observed duplicate booleans while preserving the callback token; it does not choose concrete callback behavior or strengthen source nondeterminism.",
+      "source_lines": "alloc/src/vec/mod.rs:2628-2637 and 2692-2698",
+      "status": "minimal_trusted_boundary_for_reversed_mutating_callback_observation"
+    },
+    {
+      "kind": "source_backed_raw_pointer_drop_copy_boundary",
+      "name": "ptr::drop_in_place, ptr::copy, and ptr::copy_nonoverlapping",
+      "rationale": "The critical section drops duplicate elements, copies kept elements into holes, and models the panic cleanup tail copy using raw pointers. The harness keeps the control flow and isolates only raw-pointer/provenance effects.",
+      "source_lines": "alloc/src/vec/mod.rs:2648-2730",
+      "status": "minimal_trusted_boundary_for_raw_pointer_drop_copy_and_move_effects"
+    },
+    {
+      "kind": "source_backed_fill_gap_set_len_boundary",
+      "name": "FillGapOnDrop cleanup, set_len, and mem::forget commit",
+      "rationale": "The harness records FillGapOnDrop read/write/original_len state, the cleanup-on-panic copy-tail/set_len intent, the successful set_len(gap.write), and final mem::forget(gap) commit. It isolates only the raw length/storage/provenance effect of set_len and guard cleanup.",
+      "source_lines": "alloc/src/vec/mod.rs:2640-2683 and 2733-2740",
+      "status": "minimal_trusted_boundary_for_guard_cleanup_and_len_commit"
+    }
+  ],
+  "direct_call_names": [
+    "add",
+    "as_mut_ptr",
+    "copy",
+    "copy_nonoverlapping",
+    "drop_in_place",
+    "forget",
+    "len",
+    "same_bucket",
+    "set_len",
+    "wrapping_sub"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_mut_ptr"
+  ],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 dedup_by flow with len/early return, first_duplicate_idx scan with reversed FnMut arguments, FillGapOnDrop read/write cleanup intent, first duplicate drop, gap raw-pointer drop/copy loop, final set_len(gap.write), and mem::forget(gap). This is a B proof modulo source-backed Vec storage/raw-pointer/provenance/allocator effects, FillGapOnDrop cleanup intent, set_len, and FnMut callback observation; it does not mark as_mut_ptr, ptr add/copy/drop, set_len, or allocator/provenance complete.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/127_alloc_vec_Vec_dedup_by/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_stdout.txt",
+    "stdout_sha256": "e0e6f01ab4fc353473644ed422eae4cba1663ceb4aba41c072e5e7253ac65bd6",
+    "summary": "verification results:: 4 verified, 0 errors",
+    "version_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_dedup_by_raw_pointer_fillgap_set_len_mem_forget_and_fnmut_reversed_callback_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "212e11a39e3300afff6e81d63ab12640261c138e740e533fbde8008b50cda2cc",
+  "target": "alloc::vec::Vec::dedup_by",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/127_alloc_vec_Vec_dedup_by/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bAllocator\\b",
+        "\\balloc",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.add\\s*\\(",
+        "\\bas_mut_ptr\\s*\\(",
+        "\\bcopy_nonoverlapping\\b",
+        "\\bdrop_in_place\\b",
+        "\\bptr::",
+        "\\bset_len\\b"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bCopy\\b",
+        "\\bFn(?:Once|Mut)?\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

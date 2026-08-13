@@ -1,0 +1,93 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_definition_verified_in_harness",
+      "name": "ascii_is_whitespace/ascii_trim_start_boundary/ascii_trim_start_index/ascii_trim_start_result",
+      "rationale": "The harness reuses the audited shared ASCII whitespace and trim-start vocabulary. The formerly external choose/index bridge is now proved in the harness by establishing uniqueness of ascii_trim_start_boundary and then applying the choose witness property; this item no longer contributes a trusted proof boundary.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1215-1265",
+      "status": "model_definition_and_choose_uniqueness_verified_in_harness"
+    },
+    {
+      "kind": "primitive_helper_boundary",
+      "name": "u8::is_ascii_whitespace",
+      "rationale": "The Rust target calls the primitive per-byte ASCII whitespace classifier. The harness preserves that observation through `byte_is_ascii_whitespace`, whose executable body matches the audited `ascii_is_whitespace` vocabulary, but does not recursively prove the primitive `u8` method body.",
+      "source_lines": "core/src/slice/ascii.rs:242 and frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1215-1222",
+      "status": "minimal_trusted_boundary_for_source_backed_byte_ascii_helper"
+    },
+    {
+      "kind": "verus_slice_pattern_desugaring",
+      "name": "trim_ascii_start leading first/rest split",
+      "rationale": "Verus does not support the source `[first, rest @ ..]` slice pattern directly, so the harness mechanically lowers it to the same nonempty leading-byte branch using `bytes.len()`, `bytes.split_at(1)`, and `&head[0]` before assigning `bytes = rest` or breaking.",
+      "source_lines": "core/src/slice/ascii.rs:241-246",
+      "status": "minimal_trusted_boundary_for_verus_slice_pattern_desugaring"
+    }
+  ],
+  "direct_call_names": [
+    "bytes.len",
+    "bytes.split_at",
+    "slice_index",
+    "u8::is_ascii_whitespace"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The harness preserves the Rust 1.96 target flow: initialize `bytes = slice`, repeatedly inspect the leading byte, shorten to the rest while it is ASCII whitespace, break on the first non-whitespace byte, and return `bytes`. The target body contains no assume_specification, --no-verify marker, or target-body external_body. lemma_ascii_trim_start_index_matches_boundary is now a verified proof, not an external body.",
+  "private_helper_callee_closure": [
+    {
+      "name": "u8::is_ascii_whitespace",
+      "source_lines": "core/src/slice/ascii.rs:242",
+      "status": "source_backed_primitive_helper_boundary"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/116_core_slice_trim_ascii_start/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/116_core_slice_trim_ascii_start/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/116_core_slice_trim_ascii_start/evidence/verus_stderr.txt",
+    "stderr_sha256": "36a03c431ce62f53e87bcab14a0c6cb685c6e3c9531cd96c2241f1cfe65fb738",
+    "stdout_relpath": "proof_harnesses/116_core_slice_trim_ascii_start/evidence/verus_stdout.txt",
+    "stdout_sha256": "378dbcf880a25b9df31b18292cb66dd61abafa07f801ce50b0c3a04782fc8701",
+    "summary": "verification results:: 6 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/116_core_slice_trim_ascii_start/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/116_core_slice_trim_ascii_start/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/116_core_slice_trim_ascii_start/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/116_core_slice_trim_ascii_start/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_byte_ascii_helper_and_verus_slice_pattern_desugaring_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea",
+  "source_item_sha256": "7ba3fc3f1435f90eaacea528726c4bac3aba3ac2811679fe61b51ea7ef440197",
+  "target": "core::slice::trim_ascii_start",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

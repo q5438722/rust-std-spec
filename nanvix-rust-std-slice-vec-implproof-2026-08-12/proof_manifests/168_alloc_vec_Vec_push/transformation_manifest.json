@@ -1,0 +1,35 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/168_alloc_vec_Vec_push/harness.rs",
+  "harness_sha256": "207c8f2c7707349cd45fbfe7d76400749daac33a03f945ed737d2f96dc62dd01",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/168_alloc_vec_Vec_push/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 1005,
+    "body_start_line": 1003,
+    "item_sha256": "006e192586e2af8b1c62b55f5cd21ef8b6462082a0638c7c87664df02a81d5de",
+    "signature_end_line": 1003,
+    "signature_start_line": 1003
+  },
+  "status": "verus_verified_modulo_reviewed_vec_push_mut_dependency_boundary",
+  "target": "alloc::vec::Vec::push",
+  "transformations": [
+    {
+      "kind": "target_local_vec_rawvec_view_model",
+      "rationale": "Introduced target-local Vec/RawVec/View vocabulary to expose the exact existing-vstd sequence contract while keeping canonical source checkouts untouched.",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/src/vec/mod.rs:1003-1005"
+    },
+    {
+      "kind": "reviewed_push_mut_dependency_boundary",
+      "rationale": "Kept the public wrapper executable as `let _ = self.push_mut(value);` and reused the earlier reviewed `alloc::vec::Vec::push_mut` implementation-proof boundary for the mutation effect.",
+      "source_lines": "alloc/src/vec/mod.rs:1003-1005; proof_harnesses/139_alloc_vec_Vec_push_mut/harness.rs"
+    },
+    {
+      "kind": "exact_vstd_postcondition_attachment",
+      "rationale": "Attached the exact copied vstd sequence-push postcondition to the executable public target method.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs row for alloc::vec::Vec::push"
+    }
+  ]
+}

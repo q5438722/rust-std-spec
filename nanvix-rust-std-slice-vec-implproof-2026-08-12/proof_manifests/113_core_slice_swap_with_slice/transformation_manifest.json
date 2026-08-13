@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/113_core_slice_swap_with_slice/harness.rs",
+  "harness_sha256": "1451eb97dc3022e1afd09538a613caef41307a7a424c32f68fa93e72b4bf9edf",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/113_core_slice_swap_with_slice/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4430,
+    "body_start_line": 4422,
+    "item_sha256": "679e07be477f68c32a5245c6034d010fdf73eb5bc7b68fc3fbfdefb56cdb515a",
+    "signature_end_line": 4422,
+    "signature_start_line": 4422
+  },
+  "status": "verus_verified_modulo_source_backed_swap_nonoverlapping_and_final_frame_boundary",
+  "target": "core::slice::swap_with_slice",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to explicit `slice: &mut [T]` and `other: &mut [T]` parameters and attaching the generated equal-length precondition and two-slice final-frame postcondition.",
+      "kind": "verus_signature_and_receiver_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4422-4430",
+      "source_sha256": "679e07be477f68c32a5245c6034d010fdf73eb5bc7b68fc3fbfdefb56cdb515a"
+    },
+    {
+      "edit": "Kept the Rust 1.96 equal-length assertion in the public target body as `assert!(slice.len() == other.len(), \"destination and source slices have different lengths\")`, lowered through a local helper whose precondition is discharged by the generated contract domain.",
+      "kind": "source_backed_panic_domain_lowering",
+      "source_lines": "core/src/slice/mod.rs:4423",
+      "source_sha256": "679e07be477f68c32a5245c6034d010fdf73eb5bc7b68fc3fbfdefb56cdb515a"
+    },
+    {
+      "edit": "Preserved both target-body `as_mut_ptr` calls. The target-local helper contains the Rust raw slice cast and records a start-pointer relation plus unchanged frame, reusing the reviewed mutable slice pointer boundary shape rather than assuming the target postcondition.",
+      "kind": "reviewed_generated_dependency_boundary_reused_locally",
+      "source_lines": "core/src/slice/mod.rs:4428; proof_harnesses/018_core_slice_as_mut_ptr/harness.rs",
+      "source_sha256": "679e07be477f68c32a5245c6034d010fdf73eb5bc7b68fc3fbfdefb56cdb515a"
+    },
+    {
+      "edit": "Isolated only the unsafe raw-pointer operation `core::ptr::swap_nonoverlapping(dst, src, count)` in the target-local `rust_1_96_ptr_swap_nonoverlapping` boundary. The public target computes `count` from `slice.len()` after the two pointer calls and passes that value to the boundary, preserving the Rust 1.96 `self.len()` count.",
+      "kind": "source_backed_raw_pointer_swap_nonoverlapping_boundary",
+      "source_lines": "core/src/slice/mod.rs:4426-4428",
+      "source_sha256": "679e07be477f68c32a5245c6034d010fdf73eb5bc7b68fc3fbfdefb56cdb515a"
+    },
+    {
+      "edit": "Added a named source-backed final-frame bridge connecting the two pre-call slice views, the two `as_mut_ptr` start-pointer facts, and the `self.len()` count to the generated final relation `final(slice)@ == old(other)@` and `final(other)@ == old(slice)@`. This bridge is private to the harness; the public target is not `external_body`.",
+      "kind": "source_backed_two_slice_final_frame_bridge",
+      "source_lines": "core/src/slice/mod.rs:4422-4430",
+      "source_sha256": "679e07be477f68c32a5245c6034d010fdf73eb5bc7b68fc3fbfdefb56cdb515a"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "fnmut_predicate_observed;slice_partitioned_by_predicate;slice_partition_point_result",
+      "rationale": "The harness instantiates the generated partition-point predicate vocabulary and attaches it to the executable public target without an assume_specification declaration.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:646-658",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_core_slice_binary_search_by_boundary",
+      "name": "rust_1_96_partition_point_binary_search_by_predicate / binary_search_by",
+      "rationale": "Rust 1.96 implements partition_point by delegating to self.binary_search_by(|x| if pred(x) { Less } else { Greater }). The harness reuses the already reviewed core::slice::binary_search_by dependency boundary and specializes its comparator result to the source predicate observation vocabulary.",
+      "source_lines": "core/src/slice/mod.rs:4857; core/src/slice/mod.rs:2970-3022",
+      "source_sha256": "8a7ce9ee452f424a23a87b3d92b45c675e3d2b4a27c219bfe45f14f1832a42b3",
+      "status": "reviewed_generated_dependency_boundary_reused_locally"
+    },
+    {
+      "kind": "source_backed_fnmut_predicate_observation_boundary",
+      "name": "rust_1_96_fnmut_predicate_observe",
+      "rationale": "The source closure invokes an arbitrary stateful FnMut predicate and maps true to Ordering::Less and false to Ordering::Greater. The harness records that effect with fnmut_predicate_observed rather than choosing concrete predicate results or strengthening callback behavior.",
+      "source_lines": "core/src/slice/mod.rs:4857",
+      "source_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066",
+      "status": "minimal_observation_boundary_for_fnmut_predicate_callback"
+    },
+    {
+      "kind": "source_backed_partition_point_result_bridge_boundary",
+      "name": "rust_1_96_partition_point_result_bridge",
+      "rationale": "The executable wrapper lowers unwrap_or_else(|i| i) to the equivalent Ok/Err match over the reviewed binary_search_by result. This proof-only bridge connects that index to the generated slice_partition_point_result predicate while preserving the relational source semantics.",
+      "source_lines": "core/src/slice/mod.rs:4857",
+      "source_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066",
+      "status": "minimal_result_bridge_for_generated_partition_point_contract"
+    }
+  ],
+  "direct_call_names": [
+    "binary_search_by",
+    "pred",
+    "unwrap_or_else"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::binary_search_by"
+  ],
+  "harness_sha256": "50a5f6f582b56b24260e7c77b04462998ade18d39367d583422b186bdcffe6cd",
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public Verus target for the Rust 1.96 wrapper self.binary_search_by(|x| if pred(x) { Less } else { Greater }).unwrap_or_else(|i| i). Because this Verus build does not support the captured mutable FnMut closure directly, the binary_search_by delegation is represented by a named source-backed dependency boundary that reuses the reviewed binary_search_by proof boundary and records only the predicate observation semantics. The unwrap_or_else identity fallback is lowered to an explicit Ok/Err match and discharged through a proof-only result bridge. The harness contains no assume_specification marker and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 3022,
+      "disposition": "reviewed_generated_dependency_boundary_reused_locally",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "8a7ce9ee452f424a23a87b3d92b45c675e3d2b4a27c219bfe45f14f1832a42b3",
+      "name": "core::slice::binary_search_by",
+      "public": true,
+      "signature_start_line": 2970,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/065_core_slice_partition_point/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/065_core_slice_partition_point/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_binary_search_by_fnmut_predicate_observation_and_result_bridge_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066",
+  "target": "core::slice::partition_point",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/065_core_slice_partition_point/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/065_core_slice_partition_point/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "FnMut predicate observation boundary",
+        "reviewed binary_search_by result boundary",
+        "partition_point result bridge boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

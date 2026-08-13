@@ -1,0 +1,106 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "The generic `R: OneSidedRange<usize>` input is represented by the target-local executable `OneSidedRangeSpec` model with `StartInclusive`, `End`, and `EndInclusive` cases, including the `checked_add(1)` overflow-to-None path.",
+      "boundary": "source_backed_one_sided_range_model",
+      "evidence": "The harness preserves the Rust `split_point_of(range)?` early-return flow and does not assume the target postcondition.",
+      "source_lines": "core/src/slice/mod.rs:86-94; core/src/slice/mod.rs:4976"
+    },
+    {
+      "assumption": "Verus rejects `mem::take(self)` on the mutable slice receiver in this proof setting, so the harness uses the reviewed executable swap-with-empty lowering for the same ownership transfer: initialize an empty mutable slice, `core::mem::swap` it with the receiver slot, and continue with the old inner mutable slice reference.",
+      "boundary": "vstd_core_mem_swap_for_mem_take_lowering",
+      "evidence": "The saved harness executes `core::mem::swap(slice_ref, &mut replacement)`, binds the old inner slice as `slice`, then executes the real direction-dependent `*slice_ref = back/front` reassignment; no target-body external_body, assume_specification, or --no-verify proof marker is present.",
+      "source_lines": "core/src/slice/mod.rs:4980"
+    },
+    {
+      "assumption": "The Verus harness uses the reviewed vstd `split_at_mut` view/final facts for the source `mem::take(self).split_at_mut(split_index)` split.",
+      "boundary": "vstd_mut_slice_split_at_contract_for_split_off_mut",
+      "evidence": "The harness proves `front@ + back@ == old(*self)@` and preserves the Rust `Direction::{Front,Back}` reassignment/return branch order.",
+      "source_lines": "core/src/slice/mod.rs:4980-4989"
+    },
+    {
+      "assumption": "The generated `slice_split_off_partition` vocabulary is the audited prefix/suffix partition helper and does not assume the target body. After removing the unsound `final(ret.unwrap())@` partition clause, Actual Verus discharges the None frame and the initial returned mutable-slice partition established by the executable body.",
+      "boundary": "source_backed_initial_return_mut_slice_partition",
+      "evidence": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_stdout.txt reports verification results:: 3 verified, 0 errors.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs; generated contract for <[T]>::split_off_mut"
+    }
+  ],
+  "direct_call_names": [
+    "core::mem::swap",
+    "slice.len",
+    "slice.split_at_mut",
+    "split_point_of"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The target body is executable Verus and is not externalized. The preserved flow is `split_point_of(range)?`, bounds check, swap-with-empty lowering of the `mem::take(self)` ownership transfer, `split_at_mut(split_index)`, and `Direction::{Front,Back}` receiver reassignment plus returned mutable slice. The corrected contract removes only the unsound `final(ret.unwrap())@` partition and preserves the None frame plus initial returned-region partition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 94,
+      "disposition": "source_backed_executable_range_model_in_harness",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "c0f5b0f8b5ea1ed78e1ad005851f3da7a581ac745e4d9026c7858ea618bacd60",
+      "name": "split_point_of",
+      "public": false,
+      "signature_start_line": 86,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/104_core_slice_split_off_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 3 verified, 0 errors; corrected contract preserves the None frame and initial returned mutable-slice partition"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_one_sided_range_mem_take_swap_lowering_and_vstd_split_at_mut_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46",
+  "spec_correction_relpath": "proof_manifests/104_core_slice_split_off_mut/spec_correction.json",
+  "spec_correction_status": "mirrored_to_active_module_artifacts",
+  "target": "core::slice::split_off_mut",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/104_core_slice_split_off_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/into_iter.rs",
+  "harness_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/harness.rs",
+  "harness_sha256": "377eae0a10950d2a16189d926004590dbb05f71c2524a139069f313870d97a2b",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/123_alloc_vec_IntoIter_as_slice/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/into_iter.rs",
+  "source_span": {
+    "body_end_line": 90,
+    "body_start_line": 88,
+    "item_sha256": "67c76644a8b9172e9112aa9eb6e3000069c672ec3095d86f5b8762ed410fa67b",
+    "signature_end_line": 88,
+    "signature_start_line": 88
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_len_boundary",
+  "target": "alloc::vec::IntoIter::as_slice",
+  "transformations": [
+    {
+      "kind": "verus_return_naming",
+      "rationale": "Adapted the Rust method signature to Verus named return syntax while preserving the generated `vec_into_iter_remaining` postcondition."
+    },
+    {
+      "kind": "source_backed_len_boundary",
+      "rationale": "Modeled the source `self.len()` operand as a narrow iterator-state length boundary relating the returned length to the generated remaining-view helper."
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "rationale": "Isolated only the Rust 1.96 raw immutable slice construction `slice::from_raw_parts(self.ptr.as_ptr(), self.len())` in a named external-body helper; the public target method remains executable and non-external-body."
+    }
+  ]
+}

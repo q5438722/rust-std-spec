@@ -1,0 +1,70 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "The target body calls the already-reviewed immutable split_first helper; this helper is materialized in the harness with the certified empty/nonempty first/tail relation and its narrow vstd split_at/index slice-pattern desugaring boundary.",
+      "boundary": "reviewed_split_first_helper_with_vstd_slice_pattern_desugaring",
+      "evidence": "proof_harnesses/088_core_slice_split_first/evidence/verus_stdout.txt records `verification results:: 1 verified, 0 errors`; the saved target harness calls split_first(*slice_ref), branches on None/Some, executes *slice_ref = rem, and returns Some(first).",
+      "source_lines": "core/src/slice/mod.rs:198-200,5012-5015"
+    },
+    {
+      "assumption": "The generated slice_split_off_first_result vocabulary is the audited first/tail relation source.len()!=0, value==source[0], and remaining==source.subrange(1, len); this helper does not assume the target postcondition.",
+      "boundary": "slice_split_off_first_result_contract_vocabulary",
+      "evidence": "The harness defines the same open spec helper and proves it from the reviewed split_first result before assigning the tail back into the slice reference.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:884-890"
+    }
+  ],
+  "direct_call_names": [
+    "split_first"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::split_first"
+  ],
+  "module": "slice",
+  "notes": "The target body is executable Verus and is not externalized. The only adaptations are the explicit receiver, removal of const, Verus return naming, and lowering Rust const-let-else syntax to a match over the same split_first result.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/100_core_slice_split_off_first/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/100_core_slice_split_off_first/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/100_core_slice_split_off_first/evidence/verus_stderr.txt",
+    "stdout_relpath": "proof_harnesses/100_core_slice_split_off_first/evidence/verus_stdout.txt",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/100_core_slice_split_off_first/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/100_core_slice_split_off_first/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/100_core_slice_split_off_first/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stdout_relpath": "proof_harnesses/100_core_slice_split_off_first/evidence/verus_typecheck_stdout.txt"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_split_first_and_verus_slice_pattern_desugaring_boundary",
+  "schema_version": 1,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "b373389fae9235ca313dc0a9cad7598affe7f1e8a19b13af7334c7ea7affd93d",
+  "target": "core::slice::split_off_first",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

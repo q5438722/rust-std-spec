@@ -1,0 +1,106 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_iterator_view;slice_iterator_well_formed;slice_predicate_split_view;fnmut_predicate_observed",
+      "rationale": "The generated reverse predicate split-limit vocabulary is inlined as open/closed spec definitions so Verus can check rsplitn without assuming the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:791-849",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_iterator_view_boundary",
+      "name": "RSplitN/GenericSplitN initial iterator state",
+      "rationale": "The public target is executable and keeps the Rust 1.96 delegation RSplitN::new(self.rsplit(pred), n), adapted only to the explicit receiver call RSplitN::new(rsplit(slice, pred), n). The harness reuses the reviewed rsplit constructor chain and adds the source-backed RSplitN::new body Self { inner: GenericSplitN { iter: s, count: n } }. The boundary is the shared iterator-view vocabulary relating that representation to slice_predicate_split_view with n as the split limit.",
+      "source_excerpt_relpath": "proof_harnesses/075_core_slice_rsplitn/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:2475; core/src/slice/iter.rs:414-416,943-945,1105-1108,1201-1212",
+      "source_sha256": "86062e6552f5f3f5acb7d888d78cb794de01f47658e9b5e83adee47a574766cd",
+      "status": "minimal_trusted_boundary_for_source_backed_reverse_predicate_split_limit_iterator_view"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "FnMut predicate observation",
+      "rationale": "The Rust constructors store but do not call the predicate. The generated contract records predicate-observation well-formedness with an uninterpreted observation relation; no target-body result is assumed.",
+      "status": "minimal_observation_boundary_for_uninvoked_fnmut_predicate"
+    }
+  ],
+  "direct_call_names": [
+    "rsplit",
+    "RSplitN::new",
+    "RSplit::new",
+    "Split::new"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::rsplit"
+  ],
+  "module": "slice",
+  "notes": "The target function is executable and non-external: it preserves Rust 1.96 RSplitN::new(self.rsplit(pred), n) as RSplitN::new(rsplit(slice, pred), n), verifies the reviewed rsplit constructor flow plus RSplitN::new -> GenericSplitN construction, and contains no assume_specification, --no-verify marker, or target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/075_core_slice_rsplitn/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 120,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_stdout.txt",
+    "stdout_sha256": "7b5e4fff93ae53089ff1e2be33e185bf9a66d29ecafabd0b6f458d69d7ab3e26",
+    "summary": "verification results:: 5 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/075_core_slice_rsplitn/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_rsplitn_constructor_iterator_view_boundary_and_fnmut_predicate_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "86062e6552f5f3f5acb7d888d78cb794de01f47658e9b5e83adee47a574766cd",
+  "target": "core::slice::rsplitn",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/075_core_slice_rsplitn/harness.rs --crate-type=lib --no-verify",
+    "duration_limit_seconds": 120,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/075_core_slice_rsplitn/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bFn(?:Once|Mut)?\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

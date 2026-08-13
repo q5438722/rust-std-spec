@@ -1,0 +1,103 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_instantiation",
+      "name": "ascii_eq_ignore_case/ascii_lower_byte",
+      "rationale": "The generated contract's shared ASCII relation is instantiated from the frozen shared vocabulary; this does not assume the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1187-1238",
+      "status": "minimal_trusted_boundary_for_shared_helper_vocabulary"
+    },
+    {
+      "kind": "private_helper_boundary",
+      "name": "eq_ignore_ascii_case_simple",
+      "rationale": "The target calls this private helper only after proving equal lengths. The helper body at core/src/slice/ascii.rs:83-100 is not verified in this target harness, so its source-backed relation to `ascii_eq_ignore_case` is recorded as a B boundary rather than target-body proof.",
+      "source_lines": "core/src/slice/ascii.rs:83-100",
+      "status": "minimal_trusted_boundary_for_private_ascii_helper"
+    },
+    {
+      "kind": "private_helper_boundary",
+      "name": "eq_ignore_ascii_case_chunks::<16>",
+      "rationale": "On the active x86_64+sse2 verification target, the Rust body may dispatch to this private helper after proving equal lengths and `len >= 16`. The helper body at core/src/slice/ascii.rs:113-159, including `eq_ignore_ascii_inner`, chunk iteration, and tail logic, is not verified in this target harness, so its source-backed relation to `ascii_eq_ignore_case` is recorded as a B boundary.",
+      "source_lines": "core/src/slice/ascii.rs:113-159",
+      "status": "minimal_trusted_boundary_for_private_ascii_helper"
+    },
+    {
+      "kind": "target_cfg_specialization",
+      "name": "x86_64+sse2 chunk branch",
+      "rationale": "The source cfg block is included because the active verification target reports both `target_arch=\"x86_64\"` and `target_feature=\"sse2\"`; this records target-platform selection rather than assuming any helper result.",
+      "source_lines": "core/src/slice/ascii.rs:65-75",
+      "status": "active_target_cfg_recorded"
+    }
+  ],
+  "direct_call_names": [
+    "eq_ignore_ascii_case_chunks",
+    "eq_ignore_ascii_case_simple",
+    "len"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The harness preserves the Rust 1.96 target control flow for the active x86_64+sse2 target: unequal-length early false, guarded chunk helper return, and simple-helper fallback. The target body contains no assume_specification, --no-verify, or target-body external_body. The proof is modulo narrowly named private helper boundaries.",
+  "private_helper_callee_closure": [
+    {
+      "name": "eq_ignore_ascii_case_simple",
+      "source_lines": "core/src/slice/ascii.rs:83-100",
+      "status": "source_backed_private_helper_boundary"
+    },
+    {
+      "name": "eq_ignore_ascii_case_chunks::<16>",
+      "source_lines": "core/src/slice/ascii.rs:113-159",
+      "status": "source_backed_private_helper_boundary"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/041_core_slice_eq_ignore_ascii_case/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 60,
+    "stderr_relpath": "proof_harnesses/041_core_slice_eq_ignore_ascii_case/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/041_core_slice_eq_ignore_ascii_case/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/041_core_slice_eq_ignore_ascii_case/harness.rs --crate-type=lib --no-verify",
+    "typecheck_stderr_relpath": "proof_harnesses/041_core_slice_eq_ignore_ascii_case/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/041_core_slice_eq_ignore_ascii_case/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_private_ascii_helper_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea",
+  "source_item_sha256": "c59a44eedf5be63e0c717c033a34687626e0746f84f17df116753330e0d70b1d",
+  "target": "core::slice::eq_ignore_ascii_case",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/053_core_slice_get_mut/harness.rs",
+  "harness_sha256": "5e3d402338b6ddae1c5a63ca63cb2f5744117e69bc24a44cc6af3e7a6d6bbefb",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/053_core_slice_get_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 604,
+    "body_start_line": 602,
+    "item_sha256": "003625b19b151e26497787859485cf0ed9d8f38382d73e69831cd5de64758914",
+    "signature_end_line": 602,
+    "signature_start_line": 599
+  },
+  "status": "verus_verified_modulo_source_backed_sliceindex_get_mut_boundary",
+  "target": "core::slice::get_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body is the Rust 1.96 target body `index.get_mut(self)`, adapted only by naming the receiver parameter `slice`.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:599-604",
+      "source_sha256": "003625b19b151e26497787859485cf0ed9d8f38382d73e69831cd5de64758914"
+    },
+    {
+      "edit": "Adapted the source `pub const fn` and `[const] SliceIndex<Self>` bound to a non-const Verus harness function over a target-local `SliceIndex<T>` trait; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_trait_and_receiver_adaptation",
+      "source_lines": "core/src/slice/mod.rs:599-603",
+      "source_sha256": "003625b19b151e26497787859485cf0ed9d8f38382d73e69831cd5de64758914"
+    },
+    {
+      "edit": "Modeled the Rust `core::slice::SliceIndex<[T]>::get_mut` trait method as a source-backed trait contract boundary carrying only the generated in-range and mutable-frame vocabulary required by the target contract. The target body still performs only the `index.get_mut(slice)` call.",
+      "kind": "source_backed_trait_method_boundary",
+      "source_lines": "core/src/slice/index.rs:163-176",
+      "source_sha256": "4ea4df7c0b008fffcf05bc82c48eb85eab850517aa078cce3dc292c25e0476d4"
+    },
+    {
+      "edit": "Added the generated `slice_index_in_range` / `slice_index_mut_frame` postcondition as the Verus ensures clause on the target and the narrow trait-method boundary; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/specs/generated_slice_specs.rs:1075-1086",
+      "source_sha256": "41421f57df7cb4f61d6bea7c800e58841f1a9d34d82f8f774eeb43af86a969be"
+    }
+  ]
+}

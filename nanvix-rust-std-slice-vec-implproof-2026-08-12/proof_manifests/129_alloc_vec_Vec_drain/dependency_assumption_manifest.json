@@ -1,0 +1,161 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_range_bounds_valid; vec_range_start; vec_range_end; vec_drain_created",
+      "rationale": "The generated RangeBounds and Drain-created relations are preserved as the target contract vocabulary. The harness derives the postcondition through a named source-backed construction boundary after executing the Rust body flow rather than leaving an assume_specification on the public target.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs and alloc/src/vec/mod.rs:2948-2976",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_target_dependency",
+      "name": "alloc::vec::Vec::as_ptr",
+      "rationale": "drain obtains the immutable start pointer through self.as_ptr() after shortening the Vec. The dependency is the reviewed B boundary for RawVec pointer/provenance exposure, not a new proof of RawVec internals.",
+      "source_lines": "alloc/src/vec/mod.rs:1938-1942 and proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_stdout.txt",
+      "status": "reviewed_dependency_boundary_reused"
+    },
+    {
+      "kind": "reviewed_generated_target_dependency",
+      "name": "alloc::vec::Vec::set_len",
+      "rationale": "drain leak-amplifies safety by shortening the Vec to start before constructing Drain. The dependency is the reviewed B boundary for Vec length/storage and unsafe precondition behavior.",
+      "source_lines": "alloc/src/vec/mod.rs:2187-2195 and proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_stdout.txt",
+      "status": "reviewed_dependency_boundary_reused"
+    },
+    {
+      "kind": "source_backed_range_bounds_resolution_boundary",
+      "name": "slice::range(range, ..len)",
+      "rationale": "Rust 1.96 normalizes the caller RangeBounds against the old vector length before shortening the Vec. The harness preserves that call and isolates only standard RangeBounds dispatch/bounds normalization.",
+      "source_lines": "alloc/src/vec/mod.rs:2962",
+      "status": "minimal_trusted_boundary_for_rangebounds_resolution"
+    },
+    {
+      "kind": "source_backed_raw_pointer_provenance_boundary",
+      "name": "self.as_ptr().add(start) and slice::from_raw_parts(..., end - start)",
+      "rationale": "Verus does not support raw pointer .add directly in verified code. The harness keeps the data flow and isolates only pointer addition and immutable raw-parts slice construction/provenance.",
+      "source_lines": "alloc/src/vec/mod.rs:2967",
+      "status": "minimal_trusted_boundary_for_raw_pointer_add_and_raw_parts_slice_view"
+    },
+    {
+      "kind": "source_backed_drain_iterator_lifetime_drop_state_boundary",
+      "name": "range_slice.iter(), NonNull::from(self), and Drain { tail_start, tail_len, iter, vec }",
+      "rationale": "The public target constructs the Drain fields after shortening the Vec. Iterator remaining state, Vec provenance token, lifetime tying, and later Drop tail restoration are opaque in this bounded harness.",
+      "source_lines": "alloc/src/vec/mod.rs:2968-2973 and alloc/src/vec/drain.rs",
+      "status": "minimal_trusted_boundary_for_drain_iterator_lifetime_and_drop_state"
+    }
+  ],
+  "direct_call_names": [
+    "add",
+    "as_ptr",
+    "from",
+    "from_raw_parts",
+    "iter",
+    "len",
+    "range",
+    "set_len"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_ptr",
+    "alloc::vec::Vec::set_len"
+  ],
+  "harness_sha256": "aa37b8273882c0389263805fa985ecdf8c6202c02eaa806b8387246214ecd0c9",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 drain flow with len, slice::range, unsafe set_len(start), immutable raw-parts construction from as_ptr()+start, range_slice.iter(), and Drain { tail_start, tail_len, iter, vec } construction. This is a B proof modulo source-backed RangeBounds/slice::range normalization, reviewed Vec::as_ptr and Vec::set_len effects, raw pointer add/from_raw_parts provenance, core slice iterator state, NonNull::from lifetime/provenance, and opaque Drain drop/restore semantics; it does not mark those dependencies recursively complete or assume the public target body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/129_alloc_vec_Vec_drain/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_drain_range_set_len_raw_parts_iterator_state_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "bb98ccb2d8f8a925970c71928abbfa1e9a0948d901534b23887b53c292d8a1e1",
+  "target": "alloc::vec::Vec::drain",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/129_alloc_vec_Vec_drain/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/129_alloc_vec_Vec_drain/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.add\\s*\\(",
+        "\\bNonNull\\b",
+        "\\bas_ptr\\s*\\(",
+        "\\bfrom_raw_parts",
+        "\\bptr::",
+        "\\bset_len\\b"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bRangeBounds\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

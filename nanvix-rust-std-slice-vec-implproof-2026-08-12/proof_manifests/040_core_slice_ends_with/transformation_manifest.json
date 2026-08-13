@@ -1,0 +1,38 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/040_core_slice_ends_with/harness.rs",
+  "harness_sha256": "8788c08b754af0082fa1f03b27805a4e7ab3d525c63a5dee277c7577d3ca3f4f",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/040_core_slice_ends_with/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 2656,
+    "body_start_line": 2653,
+    "item_sha256": "6a17b701400fc0fdbc72078c3d1aacb5815500e39b414cf67197241c67d8a286",
+    "signature_end_line": 2653,
+    "signature_start_line": 2650
+  },
+  "status": "verus_verified_modulo_source_backed_slice_partial_eq_suffix_boundary",
+  "target": "core::slice::ends_with",
+  "transformations": [
+    {
+      "kind": "verus_signature_and_receiver_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body preserves the Rust 1.96 target shape `let (m, n) = (self.len(), needle.len()); m >= n && needle == &self[m - n..]`, adapted only by naming the receiver parameter `slice` and isolating the suffix comparison as a named source-backed boundary.",
+      "source_lines": "core/src/slice/mod.rs:2650-2656",
+      "source_sha256": "6a17b701400fc0fdbc72078c3d1aacb5815500e39b414cf67197241c67d8a286"
+    },
+    {
+      "kind": "source_backed_slice_partial_eq_suffix_boundary",
+      "edit": "Modeled the second conjunct `needle == &slice[m - n..]` as target-local `rust_1_96_needle_eq_slice_suffix`, carrying only the generated suffix relation when the Rust length guard establishes `n <= m`. This records the frozen slice range expression plus the slice PartialEq / SlicePartialEq::equal_same_length implementation without externalizing the public target.",
+      "source_lines": "core/src/slice/mod.rs:2654-2655; core/src/slice/cmp.rs:15-141",
+      "source_sha256": "fed962fb3123b90acacffcecc954a472c0862c77338a56008cb63c1f89656ad5"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Added the generated `slice_is_suffix` / `partial_eq_observed` vocabulary as the Verus ensures clause on the target and the narrow suffix-comparison boundary; this records the contract under test and does not use assume_specification.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:194-229",
+      "source_sha256": "86bf195e2caf95ee1674f248bc35cc88b0ecba022188ceb26e9836b783e4b1b6"
+    }
+  ]
+}

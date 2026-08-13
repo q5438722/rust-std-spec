@@ -1,0 +1,123 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "slice_adjacent_pair_count; fnmut_adjacent_bool_outputs; fnmut_adjacent_bool_trace_valid; slice_sorted_by_bool_compare; slice_sorted_by_bool_compare_result",
+      "rationale": "The generated postcondition is preserved exactly: the result is characterized by the source-order adjacent comparator call trace over slice@.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:424-464",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_array_windows_iterator_view_boundary",
+      "name": "SliceReceiver::array_windows::<2>() over ArrayWindows { v }",
+      "rationale": "The harness preserves the Rust receiver-to-array-windows step with a target-local SliceReceiver wrapper, the extracted ArrayWindows private `v` field, and the real `ArrayWindows::new(slice) -> Self { v: slice }` constructor shape. The iterator view records the source slice, empty yielded prefix/remainder, remaining slice, chunk size 2, and forward direction.",
+      "source_lines": "core/src/slice/mod.rs:1646-1649; core/src/slice/iter.rs:2181-2189; core/src/slice/mod.rs:4775",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14",
+      "status": "source_backed_iterator_view_boundary"
+    },
+    {
+      "kind": "source_backed_iterator_all_fnmut_compare_observation_boundary",
+      "name": "ArrayWindows::all(compare)",
+      "rationale": "The target-local iterator `all` method is the only external_body boundary. It represents the Rust `Iterator::all` loop over consecutive `[a, b]` windows and the stateful `FnMut(&T, &T) -> bool` callback observations captured by the generated adjacent-bool trace relation. The public target body is executable and is not external_body.",
+      "source_lines": "core/src/slice/mod.rs:4771-4776; core/src/slice/iter/macros.rs:309-320",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14",
+      "status": "minimal_trusted_boundary_for_iterator_all_and_fnmut_bool_comparator_observation"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "F: core::ops::FnMut(&'a T, &'a T) -> bool",
+      "rationale": "The source signature permits a stateful adjacent-pair comparator. The proof preserves the callback trace rather than choosing concrete comparator results or strengthening source behavior.",
+      "source_lines": "core/src/slice/mod.rs:4771-4776",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14",
+      "status": "preserved_source_callback_effects_without_target_body_assumption"
+    }
+  ],
+  "direct_call_names": [
+    "array_windows",
+    "all",
+    "compare"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::array_windows"
+  ],
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public target function. The receiver is adapted to an explicit slice parameter, wrapped as SliceReceiver, and executed through `self_slice.array_windows::<2>().all(compare)` to model the source `self.array_windows().all(|[a, b]| compare(a, b))` shape. The generated slice_sorted_by_bool_compare_result postcondition is preserved exactly. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body; the only external_body is the named Iterator::all/FnMut comparator observation boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 4776,
+      "disposition": "source_backed_array_windows_iterator_all_fnmut_compare_observation_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14",
+      "name": "self.array_windows().all(|[a, b]| compare(a, b)) call chain",
+      "public": false,
+      "signature_start_line": 4771,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/058_core_slice_is_sorted_by/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_stdout.txt",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 3 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/058_core_slice_is_sorted_by/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary_array_windows_all_and_fnmut_compare_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14",
+  "target": "core::slice::is_sorted_by",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/058_core_slice_is_sorted_by/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/058_core_slice_is_sorted_by/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::ops::FnMut(&'a T, &'a T) -> bool comparator observation boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

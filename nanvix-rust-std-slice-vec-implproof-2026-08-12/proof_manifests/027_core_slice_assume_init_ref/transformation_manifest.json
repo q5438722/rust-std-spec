@@ -1,0 +1,43 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-adjacent/mem/maybe_uninit.rs",
+  "harness_relpath": "proof_harnesses/027_core_slice_assume_init_ref/harness.rs",
+  "harness_sha256": "f20b1cd7c9f6ab0d83cecc874d1c3045fd00d214c42a4ba5ef9ec563639eb001",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/027_core_slice_assume_init_ref/source_excerpt.rs",
+  "source_reference_path": "core/src/mem/maybe_uninit.rs",
+  "source_span": {
+    "body_end_line": 1514,
+    "body_start_line": 1508,
+    "item_sha256": "fdb02d51c886afa919c86bdca3a8a1fee74db6c50bef1f0df89364c1a468febd",
+    "signature_end_line": 1508,
+    "signature_start_line": 1508
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary",
+  "target": "core::slice::assume_init_ref",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[MaybeUninit<T>]` receiver to an explicit immutable `slice: &[MaybeUninit<T>]` parameter and naming the returned immutable slice.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1508-1514",
+      "source_sha256": "fdb02d51c886afa919c86bdca3a8a1fee74db6c50bef1f0df89364c1a468febd"
+    },
+    {
+      "edit": "Inlined the generated MaybeUninit relation helpers as specs so Verus can prove well-formed length facts without carrying the original assume_specification declaration.",
+      "kind": "target_local_shared_vocabulary_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1143-1185"
+    },
+    {
+      "edit": "Attached the generated assume_init_ref pre/postconditions to the executable target and source-backed raw-cast boundary; this records the contract under test and does not assume the public target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[MaybeUninit<T>]>::assume_init_ref",
+      "source_sha256": "ce537a3330cb60202a7edc706c4b5c2e719e2cb2f839c75e0bd47ab0289ad46e"
+    },
+    {
+      "edit": "Isolated the Rust body expression `unsafe { &*(self as *const Self as *const [T]) }` in the target-local external function `rust_1_96_assume_init_ref_raw_cast`, adapted only to the standalone `slice` receiver. The public target `assume_init_ref` is not external_body and calls only that boundary.",
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1508-1514",
+      "source_sha256": "fdb02d51c886afa919c86bdca3a8a1fee74db6c50bef1f0df89364c1a468febd"
+    }
+  ]
+}

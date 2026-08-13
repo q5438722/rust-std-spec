@@ -1,0 +1,14 @@
+{
+  "after_contract_text": "pub assume_specification<'a, T, F: core::ops::FnMut(&T, &T) -> bool>[ <[T]>::chunk_by_mut::<F> ]( slice: &'a mut [T], pred: F, ) -> (iter: core::slice::ChunkByMut<'a, T, F>) ensures slice_adjacent_chunk_view::<core::slice::ChunkByMut<'a, T, F>, F, T>( iter, old(slice)@, pred, ), ;",
+  "before_contract_text": "pub assume_specification<'a, T, F: core::ops::FnMut(&T, &T) -> bool>[ <[T]>::chunk_by_mut::<F> ]( slice: &'a mut [T], pred: F, ) -> (iter: core::slice::ChunkByMut<'a, T, F>) ensures slice_adjacent_chunk_view::<core::slice::ChunkByMut<'a, T, F>, F, T>( iter, old(slice)@, pred, ), final(slice)@ == old(slice)@, ;",
+  "not_mirrored_to_active_module_artifacts": true,
+  "rationale": "The unconditional unchanged-final-slice clause is not entailed by a Rust body that returns mutable adjacent-chunk iterator state over the original slice region. Removing that single frame clause preserves the constructor/source iterator-view facts while avoiding a false claim about mutable state owned by the returned iterator. Do not mirror this correction to active Slice/Vec artifacts until a corrected harness and independent review approve it.",
+  "schema_version": 1,
+  "source_evidence": [
+    "core/src/slice/mod.rs:1906-1911 target body: ChunkByMut::new(self, pred)",
+    "core/src/slice/iter.rs:3109-3118 constructor body: ChunkByMut { slice, predicate } storing a mutable slice in the lazy iterator",
+    "proof_harnesses/032_core_slice_chunk_by_mut/evidence/verus_stderr.txt rejects only final(slice)@ == old(slice)@"
+  ],
+  "status": "proposed_in_proof_workspace_not_mirrored",
+  "target": "core::slice::chunk_by_mut"
+}

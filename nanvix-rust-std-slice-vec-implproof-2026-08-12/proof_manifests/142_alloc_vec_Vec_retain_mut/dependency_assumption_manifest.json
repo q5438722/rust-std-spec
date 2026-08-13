@@ -1,0 +1,300 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_retain_mut_result",
+      "rationale": "The generated contract relation is preserved as the target postcondition vocabulary. The harness derives it through the named source-backed retain_mut raw-storage/callback boundary rather than leaving an assume_specification on the public target.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs:147 and alloc/src/vec/mod.rs:2477-2569",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_vec_len_storage_boundary",
+      "name": "Vec::len and RawVec initialized sequence view",
+      "rationale": "Rust 1.96 records original_len before the retain scan. The harness models only the relation between this returned length and the minimal Vec sequence view over local RawVec storage.",
+      "source_lines": "alloc/src/vec/mod.rs:2477-2484 and Vec len storage fields",
+      "status": "minimal_trusted_boundary_for_len_and_storage_view"
+    },
+    {
+      "kind": "source_backed_fnmut_callback_observation_boundary",
+      "name": "FnMut(&mut T)->bool retain predicate observation",
+      "rationale": "retain_mut calls the user predicate on each scanned mutable element. The harness records only the observed keep/drop booleans and preserves the callback token; it does not choose concrete callback behavior or strengthen source nondeterminism.",
+      "source_lines": "alloc/src/vec/mod.rs:2492-2501 and 2511-2524",
+      "status": "minimal_trusted_boundary_for_mutating_callback_observation"
+    },
+    {
+      "kind": "source_backed_unchecked_mut_boundary",
+      "name": "Vec::get_unchecked_mut / as_mut_ptr element access",
+      "rationale": "The public target preserves the first-kept prefix scan and critical-section element access. The harness isolates only the unsafe unchecked mutable access and raw pointer provenance needed to expose each element to the callback.",
+      "source_lines": "alloc/src/vec/mod.rs:2491-2494 and 2510-2512",
+      "status": "minimal_trusted_boundary_for_unchecked_mutable_access"
+    },
+    {
+      "kind": "source_backed_raw_pointer_drop_copy_boundary",
+      "name": "ptr::drop_in_place and ptr::copy_nonoverlapping",
+      "rationale": "The critical section drops removed elements and moves kept elements into holes using raw pointers. The harness keeps the drop/copy control flow and isolates only the raw-pointer/provenance effects.",
+      "source_lines": "alloc/src/vec/mod.rs:2505-2525",
+      "status": "minimal_trusted_boundary_for_raw_pointer_drop_and_move_effects"
+    },
+    {
+      "kind": "source_backed_panic_guard_set_len_boundary",
+      "name": "PanicGuard cleanup, set_len, and mem::forget commit",
+      "rationale": "The harness records PanicGuard read/write/original_len state, the cleanup-on-panic copy-tail/set_len intent, the successful set_len(g.write), and final mem::forget(g) commit. It isolates only the raw length/storage/provenance effect of set_len and guard cleanup.",
+      "source_lines": "alloc/src/vec/mod.rs:2485-2506 and 2528-2532",
+      "status": "minimal_trusted_boundary_for_guard_cleanup_and_len_commit"
+    }
+  ],
+  "direct_call_names": [
+    "add",
+    "as_mut_ptr",
+    "as_ptr",
+    "copy",
+    "copy_nonoverlapping",
+    "drop_in_place",
+    "f",
+    "forget",
+    "get_unchecked_mut",
+    "len",
+    "set_len",
+    "unlikely"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 retain_mut flow with original_len, empty return, first-kept prefix scan, PanicGuard state, raw-pointer drop/copy/set_len critical section, and final mem::forget commit. This is a B proof modulo source-backed Vec storage/raw-pointer/provenance/allocator effects, PanicGuard cleanup intent, and the FnMut callback observation; it does not mark get_unchecked_mut, ptr copy/drop, set_len, or allocator/provenance complete.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 280,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "ec8826fb8870295cfa2b70efb0feea906f476a7273ea5ee87a0226d73bf8e077",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 196,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 267,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "7abd9e69aa6e85637f3e664c98ae7ccbfeba055369ad21a982fcc6c6b1de389f",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 259,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 334,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "2a9459b97a149dc847059e2509b149c942f807059a52ff4f1f7a462056c9c2b8",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 325,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 432,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "092cfc26e103c665f44a61d0b7447e1e3587d1090063c5499e6a334c6d544e44",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 417,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 486,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "c007ca49e3c4c095fee71b9dfcdbee812720c75fcdfb6f1dbb2e7cf34269cdef",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 483,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 525,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "d3e842526f4d5794761d3602c1bf9f20acdadc644b4282f3eb7a00c5c4daa477",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 522,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 564,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "7bb04d415d561dc0f9a2ee0fa0d720db016e1ad0f0bd6f989a41632dbf3a055d",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 561,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 616,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "024372ad9e24ab2f3e4f00b14cecc3227f48b2e2f74a7e47330c84f5766907a3",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 613,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 652,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "60dbcfa4e7761ed1cada38a5810dc5e039d45a72fbb3e37e8ec0d82a9885de67",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 650,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 693,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "50725ed098c488660555fe7476fe165dee7e5edd56d50beb8981c44192e2a7c3",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 690,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 751,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "eee25338fe96371600869a7f5bd0f0613947aec6530e9933a950ca29fc924f1d",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 748,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 790,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "c81740f9f4a0141cff993ed633e95b4a2868e781c8c85d9d8bb661681e0ad706",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 787,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 829,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "bacc79633f2f6f9ed0731ae6307139d0f7f9d8222ecefe12aad1f7ead4c87bdf",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 826,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 1064,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "97f6beed3cc27ab6c2582edcb8191983b501c690aca347f1dc7763b03cbc2e52",
+      "name": "get_unchecked_mut",
+      "public": false,
+      "signature_start_line": 1061,
+      "source_reference_path": "core/src/slice/index.rs"
+    },
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    },
+    {
+      "body_end_line": 103,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/index.rs",
+      "item_sha256": "e0342511f475d27e1417989561616a8e95687c70e27bb138b32934f1ba53165d",
+      "name": "get_offset_len_mut_noubcheck",
+      "public": false,
+      "signature_start_line": 94,
+      "source_reference_path": "core/src/slice/index.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/142_alloc_vec_Vec_retain_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "7b5e4fff93ae53089ff1e2be33e185bf9a66d29ecafabd0b6f458d69d7ab3e26",
+    "summary": "verification results:: 5 verified, 0 errors",
+    "version_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_retain_mut_raw_pointer_panic_guard_set_len_mem_forget_and_fnmut_callback_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "4918d6ba6140f673b973a356595ef28095d00d481fd99720313b7842549349bb",
+  "target": "alloc::vec::Vec::retain_mut",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/142_alloc_vec_Vec_retain_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bAllocator\\b",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.add\\s*\\(",
+        "\\bas_mut_ptr\\s*\\(",
+        "\\bas_ptr\\s*\\(",
+        "\\bcopy_nonoverlapping\\b",
+        "\\bdrop_in_place\\b",
+        "\\bptr::",
+        "\\bset_len\\b"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bFn(?:Once|Mut)?\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

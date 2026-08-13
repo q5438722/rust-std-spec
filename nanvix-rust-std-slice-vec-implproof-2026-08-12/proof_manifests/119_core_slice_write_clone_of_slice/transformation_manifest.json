@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-adjacent/mem/maybe_uninit.rs",
+  "harness_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/harness.rs",
+  "harness_sha256": "00877b2fb5bd286a8b31093fc3549a5db5395a3a6bb4430743ea4db3421cb982",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/source_excerpt.rs",
+  "source_reference_path": "core/src/mem/maybe_uninit.rs",
+  "source_span": {
+    "body_end_line": 1249,
+    "body_start_line": 1225,
+    "item_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6",
+    "signature_end_line": 1225,
+    "signature_start_line": 1222
+  },
+  "status": "verus_verified_modulo_source_backed_maybeuninit_clone_write_loop_and_assume_init_mut_boundary",
+  "target": "core::slice::write_clone_of_slice",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function using explicit `slice: &mut [MaybeUninit<T>]` and `src: &[T]` parameters plus the generated ensures clauses. The public target is not external_body and contains no assume_specification.",
+      "kind": "receiver_signature_and_executable_body_adaptation",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1222-1249",
+      "source_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 length assertion and `let len = self.len(); let src = &src[..len];` equal-length source-prefix step through the harness-local `rust_1_96_equal_len_source_prefix` boundary.",
+      "kind": "source_prefix_adaptation",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1230-1236",
+      "source_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6"
+    },
+    {
+      "edit": "Preserved the Guard initialization counter, length-indexed clone/write loop, `guard.initialized += 1`, and final `forget(guard)` control flow. The harness narrows the per-iteration `guard.slice[i].write(src[i].clone())` operation to `rust_1_96_clone_write_at` because Verus does not model MaybeUninit slot initialization, unchecked slice indexing/provenance, or arbitrary Clone effects directly.",
+      "kind": "source_backed_clone_write_boundary",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1238-1245",
+      "source_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6"
+    },
+    {
+      "edit": "Reused the audited MaybeUninit relation vocabulary and the ordered `core::slice::assume_init_mut` dependency shape for the final initialized-storage cast. Proof-only loop invariants and the named loop-effect bridge expose the generated MaybeUninit written-from relation without changing executable control flow.",
+      "kind": "maybeuninit_vocabulary_and_dependency_reuse",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1247-1249; proof_harnesses/026_core_slice_assume_init_mut/harness.rs",
+      "source_sha256": "beb997b66dd7cca2818667bddfe1e1ade51676cdf0ea4f32cf6253af1c0234f4"
+    }
+  ]
+}

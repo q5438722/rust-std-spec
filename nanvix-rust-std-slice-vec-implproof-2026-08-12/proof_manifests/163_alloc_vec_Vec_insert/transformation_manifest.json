@@ -1,0 +1,35 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/163_alloc_vec_Vec_insert/harness.rs",
+  "harness_sha256": "0bbb85c5ba85e08c5bf43571baaa1dddf3a331378fbf88d900c96a76aa6933f5",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/163_alloc_vec_Vec_insert/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 2274,
+    "body_start_line": 2272,
+    "item_sha256": "cb8c65f2290ea70aeb94f6133ccc3eb3c07fb11219e3bf58907b6691c0fcceb9",
+    "signature_end_line": 2272,
+    "signature_start_line": 2272
+  },
+  "status": "verus_verified_modulo_reviewed_vec_insert_mut_dependency_boundary",
+  "target": "alloc::vec::Vec::insert",
+  "transformations": [
+    {
+      "kind": "target_local_vec_rawvec_view_model",
+      "rationale": "Introduced target-local Vec/RawVec/View vocabulary to expose the exact existing-vstd sequence contract while keeping canonical source checkouts untouched.",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/src/vec/mod.rs:2272-2274"
+    },
+    {
+      "kind": "reviewed_insert_mut_dependency_boundary",
+      "rationale": "Kept the public wrapper executable as `let _ = self.insert_mut(i, element);` and reused the earlier reviewed `alloc::vec::Vec::insert_mut` implementation-proof boundary for the mutation effect.",
+      "source_lines": "alloc/src/vec/mod.rs:2272-2274; proof_harnesses/133_alloc_vec_Vec_insert_mut/harness.rs"
+    },
+    {
+      "kind": "exact_vstd_postcondition_attachment",
+      "rationale": "Attached the exact copied vstd precondition and sequence-insert postcondition to the executable public target method.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs row for alloc::vec::Vec::insert"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/151_core_slice_iter/harness.rs",
+  "harness_sha256": "70b016928f5735875ee12e7c6c49d6f34a6449dc6d5987a97ad6a3247413d275",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/151_core_slice_iter/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1042,
+    "body_start_line": 1040,
+    "item_sha256": "ed92d2713fefdf67486ea1cb36c5c0626dd7c6496adace2c7876e62081feda37",
+    "signature_end_line": 1040,
+    "signature_start_line": 1040
+  },
+  "status": "verus_verified_modulo_private_helper_and_pointer_boundary",
+  "target": "core::slice::iter",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body is the Rust 1.96 target body `Iter::new(self)`, adapted only to the explicit receiver parameter `slice`.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1040-1042",
+      "source_sha256": "ed92d2713fefdf67486ea1cb36c5c0626dd7c6496adace2c7876e62081feda37"
+    },
+    {
+      "edit": "Modeled only the private source-backed constructor `Iter::new` as an external-body boundary carrying the exact iterator result facts; the public target body remains executable and non-external-body.",
+      "kind": "private_constructor_boundary",
+      "source_excerpt_relpath": "proof_harnesses/151_core_slice_iter/iter_new_source_excerpt.rs",
+      "source_lines": "core/src/slice/iter.rs:94-106",
+      "source_sha256": "61fc01798ccf604b20ff71d7c054a0e76cf0c2ca1ebc8f91bc9214ad899ccd1f"
+    },
+    {
+      "edit": "Preserved the exact-vstd `spec_slice_iter` / `IteratorSpec` postconditions, including remaining-sequence, decrease, and initial-value relation facts.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/std_specs/slice.rs:140-155",
+      "source_sha256": "864b63b736fe2c66ffb5baa0f5b7b6c4c27e7c92e27bd57d05d9aee16488cdc3"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/057_core_slice_is_sorted/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/057_core_slice_is_sorted/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4749,
+    "body_start_line": 4731,
+    "item_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c",
+    "signature_end_line": 4731,
+    "signature_start_line": 4728
+  },
+  "status": "verus_verified_modulo_source_backed_windows_slice_range_and_partialord_observation_boundary",
+  "target": "core::slice::is_sorted",
+  "transformations": [
+    {
+      "kind": "receiver_signature_and_contract_attachment",
+      "edit": "Replaced the seed string recorder with an executable Verus function `is_sorted(slice)` carrying the generated `ret <==> slice_sorted_by_partial_ord(slice@)` postcondition; adapted only the Rust receiver to an explicit slice parameter.",
+      "source_lines": "core/src/slice/mod.rs:4728-4749",
+      "source_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c"
+    },
+    {
+      "kind": "source_flow_preservation",
+      "edit": "Preserved CHUNK_SIZE=33, the short-slice `windows(2).all` branch, the overlapping chunk loop, the chunk `windows(2).fold(true, |acc, w| acc & (w[0] <= w[1]))` false return, `i += CHUNK_SIZE - 1`, and final suffix `windows(2).all`.",
+      "source_lines": "core/src/slice/mod.rs:4739-4749",
+      "source_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c"
+    },
+    {
+      "kind": "source_backed_boundary_instantiation",
+      "edit": "Instantiated narrow target-local boundaries for windows traversal/fold, slice range/suffix views, overlapping chunk composition, and PartialOrd observations; the public target body itself is not external_body and no assume_specification is present.",
+      "source_lines": "core/src/slice/mod.rs:4739-4749; core/src/slice/mod.rs:1115-1118; core/src/slice/iter.rs:1331-1340; frozen_inputs/slice/specs/slice_shared_vocabulary.rs:385-421",
+      "source_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c"
+    }
+  ],
+  "harness_sha256": "2279c79e6beb87cbbb1d37139a15cf6f0de0ed74d7f2e6885b817faf28e5f3c3"
+}

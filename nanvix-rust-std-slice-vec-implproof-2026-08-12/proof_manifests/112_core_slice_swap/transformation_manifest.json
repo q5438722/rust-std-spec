@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/112_core_slice_swap/harness.rs",
+  "harness_sha256": "ca568fceee534b9f33ee9bedc13802b84a6d5cd9c84ed0c757bd259d3c1f4713",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/112_core_slice_swap/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 917,
+    "body_start_line": 905,
+    "item_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da",
+    "signature_end_line": 905,
+    "signature_start_line": 905
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_swap_boundary",
+  "target": "core::slice::swap",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter and preserving the recorded bounds preconditions.",
+      "kind": "verus_signature_and_receiver_adaptation",
+      "source_lines": "core/src/slice/mod.rs:905-917",
+      "source_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da"
+    },
+    {
+      "edit": "Kept the Rust 1.96 body shape as two target-body raw pointer values `pa` and `pb` followed by the unsafe swap call. Because this Verus build rejects Rust raw-borrow syntax in non-external target bodies, the exact `&raw mut slice[index]` expression is isolated in `rust_1_96_raw_mut_element_ptr`, which preserves the slice frame and records the target-local `slice_mut_element_ptr` relation.",
+      "kind": "source_backed_raw_borrow_boundary",
+      "source_lines": "core/src/slice/mod.rs:908-909",
+      "source_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da"
+    },
+    {
+      "edit": "Isolated only the unsafe raw-pointer operation `core::ptr::swap(pa, pb)` in the target-local `rust_1_96_ptr_swap` boundary. The public target is not `external_body`; it passes the two source-backed element pointers to this boundary and proves the generated `slice_swapped` postcondition from the boundary contract.",
+      "kind": "source_backed_raw_pointer_swap_boundary",
+      "source_lines": "core/src/slice/mod.rs:914-916",
+      "source_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da"
+    },
+    {
+      "edit": "Attached the generated `slice_swapped(old(slice)@, a as int, b as int)` postcondition and the recorded bounds to the executable public target, reusing the audited shared helper vocabulary without `assume_specification`.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:305-307; generated contract for <[T]>::swap",
+      "source_sha256": "86bf195e2caf95ee1674f248bc35cc88b0ecba022188ceb26e9836b783e4b1b6"
+    }
+  ]
+}

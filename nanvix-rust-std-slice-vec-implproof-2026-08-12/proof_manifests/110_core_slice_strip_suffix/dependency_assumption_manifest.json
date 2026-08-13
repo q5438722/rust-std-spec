@@ -1,0 +1,140 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_slice_pattern_as_slice_boundary",
+      "name": "SlicePattern::as_slice / suffix_pattern.as_slice()",
+      "rationale": "The Rust 1.96 target body first lowers the generic SlicePattern argument to a slice. The harness keeps this operation as a target-local trait boundary whose postcondition is exactly the generated `slice_pattern_view` vocabulary; the public target body itself is not externalized.",
+      "source_lines": "core/src/slice/mod.rs:2723; generated contract vocabulary frozen_inputs/slice/specs/slice_shared_vocabulary.rs:231-243",
+      "source_sha256": "517595475ca76b58663611a50c279eec8e61de8b766685bd38c81d915dba7dfe",
+      "status": "minimal_trusted_boundary_until_slice_pattern_trait_is_recursively_proved"
+    },
+    {
+      "kind": "source_backed_slice_partial_eq_suffix_boundary",
+      "name": "rust_1_96_tail_eq_suffix / tail == suffix",
+      "rationale": "After the Rust length guard and split_at(len - n), the body compares the suffix-length tail slice with the SlicePattern slice. The harness verifies the guard and split range facts and records only the source-backed slice PartialEq / SlicePartialEq::equal_same_length comparison semantics as a trusted boundary.",
+      "source_lines": "core/src/slice/mod.rs:2727-2729; core/src/slice/cmp.rs:15-141",
+      "source_sha256": "fed962fb3123b90acacffcecc954a472c0862c77338a56008cb63c1f89656ad5",
+      "status": "minimal_trusted_boundary_until_slice_partial_eq_and_range_indexing_are_recursively_proved"
+    },
+    {
+      "kind": "source_backed_split_at_range_view_boundary",
+      "name": "slice.split_at(len - n) / Seq::lemma_split_at range view",
+      "rationale": "The executable body uses Rust's split_at(len - n) after proving n <= len; Verus/vstd supplies the range-view facts used to connect head and tail to the generated remaining-prefix postcondition.",
+      "source_lines": "core/src/slice/mod.rs:2727; core/src/slice/mod.rs:1952-1957",
+      "source_sha256": "517595475ca76b58663611a50c279eec8e61de8b766685bd38c81d915dba7dfe",
+      "status": "source_backed_boundary_until_split_at_contract_is_recursively_proved"
+    },
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "partial_eq_observed; slice_is_suffix; slice_pattern_view; slice_strip_suffix_result",
+      "rationale": "The harness attaches the generated strip_suffix result vocabulary to the executable public target and the narrow source-backed boundaries without using assume_specification.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "as_slice",
+    "len",
+    "split_at",
+    "rust_1_96_tail_eq_suffix"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 structure: lower SlicePattern::as_slice, compute (len, n), guard on n <= len, split with split_at(len - n), compare tail == suffix, and return Some(head) or None. The proof is B, verified modulo the named SlicePattern::as_slice, slice PartialEq suffix-comparison, and split_at/range-view boundaries. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body; the only external_body is the named tail/suffix comparison boundary, while SlicePattern::as_slice is a local trait boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 30,
+      "disposition": "source_backed_slice_partialeq_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/cmp.rs",
+      "item_sha256": "a0a6b9b40f78f88a7a1988e0563a8e2df074d63320f9f6a8b40cc910bcb22fec",
+      "name": "impl<T, U> PartialEq<[U]> for [T]::eq",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "core/src/slice/cmp.rs"
+    },
+    {
+      "body_end_line": 141,
+      "disposition": "source_backed_slicepartialeq_equal_same_length_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/cmp.rs",
+      "item_sha256": "2e5d18da29909c25d7ea6c311f29007776dd072493d5f3f0ca43b9f5fc054933",
+      "name": "SlicePartialEq::equal_same_length generic implementation",
+      "public": false,
+      "signature_start_line": 109,
+      "source_reference_path": "core/src/slice/cmp.rs"
+    },
+    {
+      "body_end_line": 160,
+      "disposition": "source_backed_bytewise_slicepartialeq_specialization_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/cmp.rs",
+      "item_sha256": "51bba5790a44e6efba859bb8a4bdf55d31d1df0ab0c10e3a8909eb8b77fecc3b",
+      "name": "SlicePartialEq bytewise specialization",
+      "public": false,
+      "signature_start_line": 147,
+      "source_reference_path": "core/src/slice/cmp.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/110_core_slice_strip_suffix/harness.rs --crate-type=lib --triggers-mode silent",
+    "exit_code_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/110_core_slice_strip_suffix/harness.rs --no-verify --crate-type=lib",
+    "typecheck_exit_code_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_slice_pattern_as_slice_suffix_partial_eq_and_split_at_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "517595475ca76b58663611a50c279eec8e61de8b766685bd38c81d915dba7dfe",
+  "target": "core::slice::strip_suffix",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/110_core_slice_strip_suffix/harness.rs --no-verify --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/110_core_slice_strip_suffix/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::slice::SlicePattern::as_slice boundary",
+        "core::slice::cmp::PartialEq<[T]> / SlicePartialEq suffix comparison boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

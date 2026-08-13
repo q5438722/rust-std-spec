@@ -1,0 +1,131 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "reviewed_exact_vstd_contract_vocabulary",
+      "name": "copy_from_slice_domain; final(dst)@ == src@",
+      "rationale": "The harness preserves the exact-vstd baseline shape: destination and source lengths are equal before the call and the final destination sequence equals the source sequence.",
+      "source_lines": "frozen_inputs/slice/catalog/slice_spec_catalog.csv row for core::slice::copy_from_slice and core/src/slice/mod.rs:4320-4326",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_private_helper_flow",
+      "name": "copy_from_slice_impl",
+      "rationale": "The public target delegates to an executable private helper that keeps the Rust 1.96 length check and unsafe pointer-copy block; the public target is not external_body.",
+      "source_lines": "core/src/slice/mod.rs:5561-5586",
+      "status": "private_helper_flow_preserved"
+    },
+    {
+      "kind": "source_backed_panic_boundary",
+      "name": "len_mismatch_fail",
+      "rationale": "The exact-vstd equal-length precondition excludes the panic path. The harness still records the cold len_mismatch_fail branch as a diverging source-backed boundary for the non-contract path.",
+      "source_lines": "core/src/slice/mod.rs:5567-5577",
+      "status": "panic_path_excluded_by_precondition"
+    },
+    {
+      "kind": "source_backed_raw_pointer_or_provenance_boundary",
+      "name": "src.as_ptr(); dest.as_mut_ptr(); ptr::copy_nonoverlapping",
+      "rationale": "Verus cannot derive mutable-slice sequence updates from raw pointers directly. The harness preserves the pointer operation order and isolates only the source-backed copy_nonoverlapping destination-write effect establishing final(dst)@ == src@.",
+      "source_lines": "core/src/slice/mod.rs:5580-5584",
+      "status": "minimal_trusted_boundary_for_raw_pointer_copy_effect"
+    }
+  ],
+  "direct_call_names": [
+    "copy_from_slice_impl",
+    "len_mismatch_fail",
+    "rust_1_96_slice_as_ptr",
+    "rust_1_96_slice_as_mut_ptr",
+    "ptr::copy_nonoverlapping"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The public target body is executable and non-external-body. It preserves the Rust 1.96 wrapper delegation to copy_from_slice_impl, keeps the helper length-mismatch panic branch, and reaches the raw ptr::copy_nonoverlapping operation under the exact-vstd equal-length precondition. The proof is B modulo named source-backed boundaries for panic divergence, slice pointer exposure, and the raw copy destination-write effect; it does not assume the public target postcondition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 5586,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "f6421a6d2b9b519752cb29c6e2e5bdc74ca2d1c8d6099c4ca6a2aaf5ad178016",
+      "name": "copy_from_slice_impl",
+      "public": false,
+      "signature_start_line": 5561,
+      "source_reference_path": "core/src/slice/mod.rs"
+    },
+    {
+      "body_end_line": 5574,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "23a458ad2b27f957aa3930a3c5513bbfc7c6d96aa72461ac3af5868f2715d03a",
+      "name": "len_mismatch_fail",
+      "public": false,
+      "signature_start_line": 5567,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/145_core_slice_copy_from_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "version_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_copy_from_slice_impl_len_mismatch_and_copy_nonoverlapping_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "a2d7c011586a2f326d530336974e386d41263495754e7a17271f3023a5a2dba5",
+  "target": "core::slice::copy_from_slice",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/145_core_slice_copy_from_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/145_core_slice_copy_from_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "len_mismatch_fail",
+        "length does not match"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "as_ptr",
+        "as_mut_ptr",
+        "copy_nonoverlapping"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bCopy\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

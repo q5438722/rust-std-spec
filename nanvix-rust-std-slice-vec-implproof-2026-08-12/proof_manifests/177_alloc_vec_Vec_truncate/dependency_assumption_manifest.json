@@ -1,0 +1,122 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::truncate copied vstd prefix/no-op contract",
+      "rationale": "The public target verifies the exact existing-vstd postconditions: truncating to a length within the old initialized sequence yields the old prefix, while a requested length larger than the old length leaves the Vec sequence unchanged.",
+      "source_lines": "frozen_inputs/vec/specs/existing_vstd_vec_specs.rs row for alloc::vec::Vec::truncate and alloc/src/vec/mod.rs:1786-1806",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_raw_pointer_tail_slice_boundary",
+      "name": "as_mut_ptr/add/slice_from_raw_parts_mut tail",
+      "rationale": "Rust 1.96 constructs a raw mutable slice for the initialized tail starting at `len`. The harness keeps the pointer construction order executable and isolates only the raw pointer/provenance slice construction.",
+      "source_lines": "alloc/src/vec/mod.rs:1797-1802",
+      "status": "minimal_trusted_boundary_for_raw_tail_slice_construction"
+    },
+    {
+      "kind": "source_backed_raw_storage_drop_boundary",
+      "name": "self.len = len followed by ptr::drop_in_place",
+      "rationale": "Rust 1.96 writes the shorter length before dropping the old tail to avoid double-drop on panic. The harness keeps that order executable and uses a source-backed proof boundary only for the raw tail drop/length-commit effect that connects the final Vec view to the old prefix.",
+      "source_lines": "alloc/src/vec/mod.rs:1791-1804",
+      "status": "minimal_trusted_boundary_for_tail_drop_and_unsafe_vec_length_commit"
+    }
+  ],
+  "direct_call_names": [
+    "add",
+    "as_mut_ptr",
+    "drop_in_place",
+    "slice_from_raw_parts_mut"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_mut_ptr"
+  ],
+  "harness_sha256": "b3cb13a79d8f0525482d2cb16959587e5547f7d4b2e14ed097be51e9ee3348ed",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 truncate flow: unsafe early return when len exceeds self.len, remaining_len computation, slice_from_raw_parts_mut(self.as_mut_ptr().add(len), remaining_len), self.len = len, and drop_in_place of the old tail. The harness contains no assume_specification.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 1806,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "truncate raw tail drop sequence",
+      "public": true,
+      "signature_start_line": 1786,
+      "source_reference_path": "alloc/src/vec/mod.rs",
+      "status": "source_backed_raw_pointer_tail_drop_and_length_commit_boundary"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/177_alloc_vec_Vec_truncate/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/177_alloc_vec_Vec_truncate/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_truncate_raw_pointer_tail_drop_and_length_commit_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "313c80370f5440fac3c71d476b84509e66203aaf878ed6677a5f8831823c475c",
+  "target": "alloc::vec::Vec::truncate",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/177_alloc_vec_Vec_truncate/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/177_alloc_vec_Vec_truncate/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.add\\s*\\(",
+        "\\bas_mut_ptr\\s*\\(",
+        "\\bdrop_in_place\\b",
+        "\\bptr::",
+        "\\bslice_from_raw_parts"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

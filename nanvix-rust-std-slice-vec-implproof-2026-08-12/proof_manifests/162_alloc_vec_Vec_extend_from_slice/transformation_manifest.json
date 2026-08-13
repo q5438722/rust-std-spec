@@ -1,0 +1,40 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/harness.rs",
+  "harness_sha256": "dfe29662830f7ef4ad8254d628afcf166bdeee44d726523b1e0579669cbd4b71",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 3527,
+    "body_start_line": 3525,
+    "item_sha256": "aac946f78f45041c7f02c37ffee06b8701714905b4a0f34bbe80e0e0a98c2e4c",
+    "signature_end_line": 3525,
+    "signature_start_line": 3525
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary_and_private_spec_extend_clone_boundary",
+  "target": "alloc::vec::Vec::extend_from_slice",
+  "transformations": [
+    {
+      "kind": "target_local_vec_rawvec_view_model",
+      "rationale": "Introduced target-local Vec/RawVec/View vocabulary to expose the exact existing-vstd sequence contract while keeping canonical source checkouts untouched.",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/src/vec/mod.rs:3525-3527"
+    },
+    {
+      "kind": "source_backed_slice_iterator_view_boundary",
+      "rationale": "Modeled only the `other.iter()` source/remaining sequence via SliceReceiver/SliceIter so the public call still uses `self.spec_extend(other.iter())` data flow.",
+      "source_lines": "core/src/slice/mod.rs:1040-1042"
+    },
+    {
+      "kind": "source_backed_private_spec_extend_clone_boundary",
+      "rationale": "Modeled the private SpecExtend specialization/clone machinery as the minimal source-backed boundary that appends cloned iterator elements and preserves the old Vec prefix.",
+      "source_lines": "alloc/src/vec/spec_extend.rs:9-57"
+    },
+    {
+      "kind": "exact_vstd_postcondition_attachment",
+      "rationale": "Attached the exact copied vstd length/prefix/cloned-suffix postcondition to the executable public target method.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs:163-176"
+    }
+  ]
+}

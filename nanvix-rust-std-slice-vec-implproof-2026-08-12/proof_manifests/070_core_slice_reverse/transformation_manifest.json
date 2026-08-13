@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/070_core_slice_reverse/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/070_core_slice_reverse/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1019,
+    "body_start_line": 978,
+    "item_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa",
+    "signature_end_line": 978,
+    "signature_start_line": 978
+  },
+  "status": "verus_verified_modulo_source_backed_raw_halves_revswap_loop_and_final_frame_boundary",
+  "target": "core::slice::reverse",
+  "transformations": [
+    {
+      "kind": "receiver_signature_and_contract_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus function using an explicit `slice: &mut [T]` receiver parameter, named public target, and the generated `final(slice)@ == slice_reversed(old(slice)@)` ensures clause.",
+      "source_lines": "core/src/slice/mod.rs:978-1019",
+      "source_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa"
+    },
+    {
+      "kind": "source_flow_preservation",
+      "edit": "Preserved the target flow `half_len = self.len() / 2`, `Range { start, end } = self.as_mut_ptr_range()`, raw front/back half construction with `from_raw_parts_mut(start, half_len)` and `from_raw_parts_mut(end.sub(half_len), half_len)`, and the final `revswap(front_half, back_half, half_len)` call.",
+      "source_lines": "core/src/slice/mod.rs:982-998",
+      "source_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa"
+    },
+    {
+      "kind": "reviewed_dependency_boundary_reuse",
+      "edit": "Reused the reviewed `core::slice::as_mut_ptr_range` pointer-range/final-frame shape locally instead of re-proving raw start/end pointer provenance.",
+      "source_lines": "core/src/slice/mod.rs:836-841; proof_harnesses/020_core_slice_as_mut_ptr_range/harness.rs",
+      "source_sha256": "55220e2d82364704a997a82d83801dc9c3b9cd696b3bfa33155b979609448b31"
+    },
+    {
+      "kind": "source_backed_raw_parts_and_pointer_sub_boundary",
+      "edit": "Isolated the unsafe raw half construction operations `from_raw_parts_mut` and `end.sub(half_len)` as named boundaries with local length/start-pointer facts.",
+      "source_lines": "core/src/slice/mod.rs:990-995; core/src/slice/raw.rs:179-196",
+      "source_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa"
+    },
+    {
+      "kind": "private_helper_loop_preservation",
+      "edit": "Kept the private `revswap` helper executable with length checks, the `split_at_mut(n)` reborrow point isolated as a no-mutation boundary, and the `while i < n` loop that performs the source `mem::swap(&mut a[i], &mut b[n - 1 - i])` operation through a per-iteration boundary.",
+      "source_lines": "core/src/slice/mod.rs:1001-1018",
+      "source_sha256": "7b3fda04dbde5f0b75f9570f7909b7e94a550f05d14819e62c8113b8a3760c91"
+    },
+    {
+      "kind": "source_backed_final_frame_bridge",
+      "edit": "Added named raw-half partition, revswap loop-result, and whole-slice final-frame bridges to connect the source raw-derived half-slice mutations back to the generated reverse postcondition without making the public target external.",
+      "source_lines": "core/src/slice/mod.rs:982-1018",
+      "source_sha256": "8714817de9e03b3187234c7a4f67e3149ae347e13887d05a1693f375a084b5aa"
+    }
+  ],
+  "harness_sha256": "ea7ca3c30beef9ce58773b25dab78001ea8a3608d8e4a694eb98465160afd9db"
+}

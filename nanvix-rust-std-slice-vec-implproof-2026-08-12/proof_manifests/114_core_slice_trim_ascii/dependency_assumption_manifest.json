@@ -1,0 +1,143 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::trim_ascii_start",
+      "rationale": "The Rust 1.96 target begins with `self.trim_ascii_start()`. The harness preserves that call as a local executable dependency using the already reviewed trim-start loop, ASCII whitespace vocabulary, choose-index boundary lemma, primitive byte-helper boundary, and leading slice-pattern desugaring.",
+      "source_lines": "core/src/slice/ascii.rs:237-249; proof_harnesses/116_core_slice_trim_ascii_start/harness.rs",
+      "source_sha256": "7ba3fc3f1435f90eaacea528726c4bac3aba3ac2811679fe61b51ea7ef440197",
+      "status": "reviewed_dependency_reused_for_leading_ascii_trim_fact"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::trim_ascii_end",
+      "rationale": "After the leading trim, the Rust 1.96 target calls `.trim_ascii_end()`. The harness preserves that call as a local executable dependency using the already reviewed trim-end loop, ASCII whitespace vocabulary, choose-index boundary lemma, primitive byte-helper boundary, and trailing slice-pattern desugaring.",
+      "source_lines": "core/src/slice/ascii.rs:266-278; proof_harnesses/115_core_slice_trim_ascii_end/harness.rs",
+      "source_sha256": "68e32185388f1041ca1b0731847a298f3216158d80a664301c19ce74d930a94b",
+      "status": "reviewed_dependency_reused_for_trailing_ascii_trim_fact"
+    },
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "ascii_is_whitespace; ascii_trim_start_boundary; ascii_trim_end_boundary; ascii_trim_start_index; ascii_trim_end_index; ascii_trim_start_result; ascii_trim_end_result; ascii_trim_source_body_result",
+      "rationale": "The executable target verifies the project-local source-body composition contract from the reviewed start/end vocabulary without assume_specification and without externalizing the target body.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs ASCII trim vocabulary",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "applied_contract_repair",
+      "name": "ascii_trim_source_body_result project-local contract repair",
+      "rationale": "The project-local generated contract now uses `ascii_trim_source_body_result`, computing the trim-end index on the suffix produced by `ascii_trim_start_index(seq)`, which matches the Rust body `self.trim_ascii_start().trim_ascii_end()` including nonempty all-whitespace inputs.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs; core/src/slice/ascii.rs:296-298",
+      "status": "project_local_contract_repair_applied"
+    }
+  ],
+  "direct_call_names": [
+    "trim_ascii_start",
+    "trim_ascii_end"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::trim_ascii_start",
+    "core::slice::trim_ascii_end"
+  ],
+  "harness_sha256": "aa90382292f6ff9fa97c7001540a0cf03599ba6494067817f54d45c53a844cf4",
+  "module": "slice",
+  "notes": "The public target is executable and non-external. It preserves `self.trim_ascii_start().trim_ascii_end()` through reviewed start/end dependencies and verifies `ascii_trim_source_body_result` with Verus `8 verified, 0 errors`; the project-local generated contract now uses that source-body composition relation.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 249,
+      "disposition": "reviewed_generated_dependency_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+      "item_sha256": "7ba3fc3f1435f90eaacea528726c4bac3aba3ac2811679fe61b51ea7ef440197",
+      "name": "core::slice::trim_ascii_start",
+      "public": true,
+      "signature_start_line": 237,
+      "source_reference_path": "core/src/slice/ascii.rs"
+    },
+    {
+      "body_end_line": 278,
+      "disposition": "reviewed_generated_dependency_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+      "item_sha256": "68e32185388f1041ca1b0731847a298f3216158d80a664301c19ce74d930a94b",
+      "name": "core::slice::trim_ascii_end",
+      "public": true,
+      "signature_start_line": 266,
+      "source_reference_path": "core/src/slice/ascii.rs"
+    },
+    {
+      "disposition": "source_backed_primitive_helper_boundary",
+      "name": "u8::is_ascii_whitespace",
+      "source_lines": "core/src/slice/ascii.rs:242 and 271"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/114_core_slice_trim_ascii/harness.rs --crate-type=lib --triggers-mode silent",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_stdout.txt",
+    "stdout_sha256": "dd7509bc0ac9ff84e95879625b1a17c7d40dfe5edc4f7507088ca2bf1b7f3da3",
+    "summary": "verification results:: 8 verified, 0 errors; executable Rust 1.96 trim_ascii body verifies against the project-local source-body composition contract",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/114_core_slice_trim_ascii/harness.rs --no-verify --crate-type=lib",
+    "typecheck_exit_code_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_trim_ascii_start_end_source_body_composition_byte_ascii_helper_and_verus_slice_pattern_desugaring_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea",
+  "source_item_sha256": "fffd32312dbd4f30bf1104a918ca697fe2f8902d346c2718c334a880bd0bf95d",
+  "spec_correction_relpath": "proof_manifests/114_core_slice_trim_ascii/spec_correction.json",
+  "spec_correction_status": "applied_in_project_local_artifacts",
+  "target": "core::slice::trim_ascii",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/114_core_slice_trim_ascii/harness.rs --no-verify --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "reviewed core::slice::trim_ascii_start dependency",
+        "reviewed core::slice::trim_ascii_end dependency"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

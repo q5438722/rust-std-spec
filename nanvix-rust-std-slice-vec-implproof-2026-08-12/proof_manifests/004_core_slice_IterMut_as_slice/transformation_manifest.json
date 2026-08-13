@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter.rs",
+  "harness_relpath": "proof_harnesses/004_core_slice_IterMut_as_slice/harness.rs",
+  "harness_sha256": "18dcd7dc4a7d68a795afbdf55d6caa2e8442601fab7adced26d2bf27dded0660",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/004_core_slice_IterMut_as_slice/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/iter.rs",
+  "source_span": {
+    "body_end_line": 315,
+    "body_start_line": 313,
+    "item_sha256": "67a00e272341651d663752530cdf83c3452a9c73f109a1773e24422d675e8a3a",
+    "signature_end_line": 313,
+    "signature_start_line": 313
+  },
+  "status": "verus_verified_modulo_private_helper_and_pointer_boundary",
+  "target": "core::slice::IterMut::as_slice",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local IterMut representation from frozen Rust source lines 194-205 into the harness with field names, order, and privacy preserved.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:194-205",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Replaced the unsupported Rust 1.96 `core::ptr::NonNull<T>` field type with a target-local opaque `NonNull<T>` stand-in. The target body does not inspect this field; all pointer/provenance behavior is confined to the trusted `make_slice` boundary.",
+      "kind": "unsupported_type_boundary",
+      "source_lines": "core/src/slice/iter.rs:199",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus method whose body is the source body `self.make_slice()`; the only target-signature changes are Verus lifetime naming, return naming, and the generated contract's ensures clause.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/iter.rs:313-315",
+      "source_sha256": "67a00e272341651d663752530cdf83c3452a9c73f109a1773e24422d675e8a3a"
+    },
+    {
+      "edit": "Represented the private macro-expanded helper `make_slice` as an external-body boundary with the exact postcondition needed by the target call. Its pointer arithmetic, `len!` macro expansion, and `from_raw_parts` unsafe preconditions remain trusted rather than hidden inside the target body.",
+      "kind": "trusted_private_helper_boundary",
+      "source_lines": "core/src/slice/iter/macros.rs:89-94",
+      "source_sha256": "cc38ccdf2c0bd93a0206f4274d948fe31db3526c86fd6186ce865da371ed4733"
+    }
+  ]
+}

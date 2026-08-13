@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/drain.rs",
+  "harness_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/harness.rs",
+  "harness_sha256": "0281338cd6a423d3e5a97a63c8171f97da56009e0613905e22b85d69bb60d89a",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/121_alloc_vec_Drain_as_slice/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/drain.rs",
+  "source_span": {
+    "body_end_line": 58,
+    "body_start_line": 56,
+    "item_sha256": "499a0275b9e12deee5d729b3178413319b23ffd95be4e479468c2b244c9fb8d9",
+    "signature_end_line": 56,
+    "signature_start_line": 56
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "alloc::vec::Drain::as_slice",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local Drain representation from frozen Rust source lines 21-33 into the harness with the source field order preserved, including the `iter: slice::Iter<'a, T>` field used by the target body.",
+      "kind": "source_context_extraction",
+      "source_lines": "alloc/src/vec/drain.rs:21-33",
+      "source_sha256": "a0db920c6c7282cc331ab7ef87973336f72a9317f710015494a85fe70c23ab44"
+    },
+    {
+      "edit": "Represented the allocator, Vec, and NonNull storage fields with target-local opaque stand-ins because `as_slice` does not inspect them; the executable target data flow uses only `self.iter`.",
+      "kind": "opaque_uninspected_field_model",
+      "source_lines": "alloc/src/vec/drain.rs:24-32",
+      "source_sha256": "a0db920c6c7282cc331ab7ef87973336f72a9317f710015494a85fe70c23ab44"
+    },
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus method whose body delegates through the Rust source expression `self.iter.as_slice()`; the only target-signature changes are Verus return naming/lifetime and the generated contract's ensures clause.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "alloc/src/vec/drain.rs:56-58",
+      "source_sha256": "499a0275b9e12deee5d729b3178413319b23ffd95be4e479468c2b244c9fb8d9"
+    },
+    {
+      "edit": "Instantiated `vec_drain_remaining` as a closed spec relation over `slice::slice_iterator_view(&drain.iter).remaining`, so the target postcondition follows from the delegated iterator-view relation instead of being assumed directly.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "alloc/src/vec/drain.rs:31 and core/src/slice/iter.rs:137-139",
+      "source_sha256": "499a0275b9e12deee5d729b3178413319b23ffd95be4e479468c2b244c9fb8d9"
+    }
+  ]
+}

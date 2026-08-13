@@ -1,0 +1,47 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/harness.rs",
+  "harness_sha256": "7e91cc1701cbbd544268cf22ebf6f70117b7330eb8e625572a790aa320579089",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 1942,
+    "body_start_line": 1938,
+    "item_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0",
+    "signature_end_line": 1938,
+    "signature_start_line": 1938
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_allocator_rawvec_boundary",
+  "target": "alloc::vec::Vec::as_ptr",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable inherent `Vec<T, A>::as_ptr` method, adapting only the return to Verus named-return syntax while preserving the Rust 1.96 body expression `self.buf.ptr()`.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "alloc/src/vec/mod.rs:1938-1942",
+      "source_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0"
+    },
+    {
+      "edit": "Extracted the target-local `Vec { buf, len }`, `RawVec { inner, _marker }`, and `RawVecInner` context needed for the source call chain `self.buf.ptr()` without changing the public target body.",
+      "kind": "source_backed_private_representation_context",
+      "rawvec_struct_sha256": "080bd3671c58fc5ab28e1c6a20943fd136214a3c5d9778e4e06c8ebfa7227ab2",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/raw_vec/mod.rs:73-75",
+      "source_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0"
+    },
+    {
+      "edit": "Attached the generated `vec_start_ptr(vec@, vec.spec_capacity(), ptr)` postcondition to the non-external public target method.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for alloc::vec::Vec::as_ptr",
+      "source_sha256": "72024b74be292753071948ec22dfd14c05502873830efec479a8310b91be4352"
+    },
+    {
+      "edit": "Modeled only the allocator/raw-pointer/provenance semantics and immutable pointer exposure of the private RawVec pointer chain as named target-local boundaries: `RawVec::ptr` preserves the source body `self.inner.ptr::<T>()` and delegates to the raw pointer boundary for `RawVecInner::ptr`.",
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "rawvec_inner_ptr_sha256": "53ccbc825ad13d0775e9d66d64e5a2477e25254e1f15eb6eed5354bbbcacb8b1",
+      "rawvec_ptr_sha256": "caab2568794e74d7c4eef35c9a46cf09599a47bb0cf74fec8f69cc7c5ea3d68d",
+      "source_lines": "alloc/raw_vec/mod.rs:295-297 and alloc/raw_vec/mod.rs:608-610",
+      "source_sha256": "caab2568794e74d7c4eef35c9a46cf09599a47bb0cf74fec8f69cc7c5ea3d68d"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/032_core_slice_chunk_by_mut/harness.rs",
+  "harness_sha256": "daaa606f6b00f9af96f88a7d9948eb946d31e544dd970f246f13987f005a8fe4",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/032_core_slice_chunk_by_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1911,
+    "body_start_line": 1909,
+    "item_sha256": "f47865a3fb1f3957ce9cd1692b23765a8d17f2712c5e4fbb88635d4e4eaeb159",
+    "signature_end_line": 1909,
+    "signature_start_line": 1906
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::chunk_by_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:1906-1911",
+      "source_sha256": "f47865a3fb1f3957ce9cd1692b23765a8d17f2712c5e4fbb88635d4e4eaeb159"
+    },
+    {
+      "edit": "Extracted the target-local ChunkByMut representation with private `slice` and `predicate` fields, preserving field names, order, types, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:3109-3112",
+      "source_sha256": "8fd6be95ffd9c3cc599eaebf37e2d1cf00a807a72392f96ef20dbdca3f0a933d"
+    },
+    {
+      "edit": "Included ChunkByMut::new with the real Rust body `ChunkByMut { slice, predicate }` so the target call is checked rather than trusted.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:3115-3118",
+      "source_sha256": "df62c8ff9d65d9275fc1bb96342641708d61c6a19d3d6e9a00c3ea12a12c7456"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter and named return for Verus; the executable target body remains the single call `ChunkByMut::new(slice, pred)`.",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1906-1911",
+      "source_sha256": "f47865a3fb1f3957ce9cd1692b23765a8d17f2712c5e4fbb88635d4e4eaeb159"
+    },
+    {
+      "edit": "Preserved the Rust callback bound `F: FnMut(&T, &T) -> bool`; the harness never invokes the callback in the constructor proof and uses only the audited `fnmut_adjacent_predicate_observed` vocabulary.",
+      "kind": "callback_signature_preservation",
+      "source_lines": "core/src/slice/mod.rs:1906-1911",
+      "source_sha256": "f47865a3fb1f3957ce9cd1692b23765a8d17f2712c5e4fbb88635d4e4eaeb159"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper and open adjacent-chunk helper from the extracted mutable initial iterator state to expose old source, remaining, empty yielded prefix/remainder, zero chunk size, forward direction, and predicate-observation lawfulness.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:3109-3118 and frozen_inputs/slice/specs/all_slice_specs.rs:1284-1297,1344-1367",
+      "source_sha256": "8fd6be95ffd9c3cc599eaebf37e2d1cf00a807a72392f96ef20dbdca3f0a933d"
+    },
+    {
+      "edit": "Revealed the closed iterator-view definition in a ghost proof block and added a trigger to the local predicate-observation quantifier; these are proof-only annotations with no executable data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/all_slice_specs.rs:1344-1367",
+      "source_sha256": "8fd6be95ffd9c3cc599eaebf37e2d1cf00a807a72392f96ef20dbdca3f0a933d"
+    },
+    {
+      "edit": "Actual Verus verifies the executable source-backed harness after the repaired generated contract removed the unsound final(slice)@ == old(slice)@ frame.",
+      "kind": "actual_verus_proof_after_contract_repair",
+      "source_lines": "core/src/slice/iter.rs:3109-3118; generated contract for <[T]>::chunk_by_mut",
+      "source_sha256": "8fd6be95ffd9c3cc599eaebf37e2d1cf00a807a72392f96ef20dbdca3f0a933d"
+    }
+  ]
+}

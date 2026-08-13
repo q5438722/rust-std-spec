@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/037_core_slice_clone_from_slice/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/037_core_slice_clone_from_slice/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4259,
+    "body_start_line": 4257,
+    "item_sha256": "0dfc2e8b8b0a5319d883279e62986e9055b56d6ac6ba773cc4f6b9887423819b",
+    "signature_end_line": 4257,
+    "signature_start_line": 4254
+  },
+  "status": "verus_verified_modulo_source_backed_clone_specialization_boundary",
+  "target": "core::slice::clone_from_slice",
+  "transformations": [
+    {
+      "kind": "verus_harness_materialization",
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "source_lines": "core/src/slice/mod.rs:4254-4259",
+      "source_sha256": "0dfc2e8b8b0a5319d883279e62986e9055b56d6ac6ba773cc4f6b9887423819b"
+    },
+    {
+      "kind": "receiver_signature_adaptation",
+      "edit": "Adapted the inherent mutable slice receiver to an explicit dst: &mut [T] parameter; the executable target body remains the single call spec_clone_from(dst, src).",
+      "source_lines": "core/src/slice/mod.rs:4254-4259",
+      "source_sha256": "0dfc2e8b8b0a5319d883279e62986e9055b56d6ac6ba773cc4f6b9887423819b"
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "edit": "Introduced a named target-local boundary for CloneFromSpec::spec_clone_from, covering the default Clone/Destruct loop and TrivialClone specialization rather than externalizing the public target.",
+      "source_lines": "core/src/slice/mod.rs:5588-5628",
+      "source_sha256": "e01e5bc013b67ba86d792f958b64c1fd27627b822084edb3a1264b8470765b03"
+    },
+    {
+      "kind": "source_backed_copy_path_boundary",
+      "edit": "Recorded the TrivialClone copy path through copy_from_slice_impl as part of the private helper boundary; equal-length behavior is supplied by the generated precondition.",
+      "source_lines": "core/src/slice/mod.rs:5556-5586,5623-5628",
+      "source_sha256": "f6421a6d2b9b519752cb29c6e2e5bdc74ca2d1c8d6099c4ca6a2aaf5ad178016"
+    },
+    {
+      "kind": "trait_effect_preservation",
+      "edit": "Preserved the source Clone dispatch surface in the Verus signature and recorded Destruct/drop effects in the private specialization boundary.",
+      "source_lines": "core/src/slice/mod.rs:4254-4259,5588-5628",
+      "source_sha256": "0dfc2e8b8b0a5319d883279e62986e9055b56d6ac6ba773cc4f6b9887423819b"
+    },
+    {
+      "kind": "source_backed_model_instantiation",
+      "edit": "Defined the local slice_cloned_from vocabulary as sequence equality for the generated clone-from-slice postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/all_slice_specs.rs helper vocabulary for slice_cloned_from",
+      "source_sha256": "a0fab9b11562f51ba66aa30d496a750f79f0e0b691e4d3e75051a847547033f5"
+    }
+  ],
+  "harness_sha256": "94a201ee94858e5282b71a1539e8dc882a3bcde08ae65572c8ab7281a3c0f0fd"
+}

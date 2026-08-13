@@ -1,0 +1,79 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "Verus does not support Rust mutable slice patterns, so the harness reuses the already-reviewed split_last_mut desugaring boundary: the nonempty branch uses split_at_mut(slice.len() - 1) and &mut tail[0] to represent `if let [.., last] = self { Some(last) } else { None }`.",
+      "boundary": "reviewed_split_last_mut_vstd_slice_pattern_desugaring",
+      "evidence": "proof_harnesses/097_core_slice_split_last_mut/evidence/verus_stdout.txt and proof_harnesses/153_core_slice_last_mut/evidence/verus_stdout.txt both record successful Verus runs for the split_at_mut/index/final-frame shape.",
+      "source_lines": "core/src/slice/mod.rs:262-264,304-306"
+    }
+  ],
+  "direct_call_names": [
+    "slice.len",
+    "slice.split_at_mut",
+    "slice_index_mut"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::split_last_mut"
+  ],
+  "module": "slice",
+  "notes": "The public target body is executable Verus and is not externalized. It preserves the Rust 1.96 `if let [.., last] = self { Some(last) } else { None }` flow via the reviewed mutable split_last_mut slice-pattern desugaring, then proves the exact-vstd empty/nonempty mutable last-element update contract without assuming the target postcondition.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/153_core_slice_last_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_split_last_mut_and_verus_mut_slice_pattern_desugaring_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "9cc6fb48c09b16ab3bd758b27666b2f815f072148ec53e86e3e8a17531d23ad6",
+  "target": "core::slice::last_mut",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/153_core_slice_last_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/153_core_slice_last_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

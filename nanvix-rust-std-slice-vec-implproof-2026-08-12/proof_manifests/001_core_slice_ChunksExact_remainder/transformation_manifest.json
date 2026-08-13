@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter.rs",
+  "harness_relpath": "proof_harnesses/001_core_slice_ChunksExact_remainder/harness.rs",
+  "harness_sha256": "734f2d04127c72ddced390dc78d2332566bc6d6e42cd346aa809653ad1d9f01f",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/001_core_slice_ChunksExact_remainder/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/iter.rs",
+  "source_span": {
+    "body_end_line": 1880,
+    "body_start_line": 1878,
+    "item_sha256": "52c87daecc8119b00040a9a13d3d339571ba252c96f64bb463cfe834699e7bd0",
+    "signature_end_line": 1878,
+    "signature_start_line": 1878
+  },
+  "status": "verus_verified_modulo_private_representation_boundary",
+  "target": "core::slice::ChunksExact::remainder",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local ChunksExact representation from frozen Rust source lines 1843-1847 into the harness with field names, order, types, and privacy preserved; omitted only Rust stability/documentation attributes that Verus does not consume.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:1843-1847",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus method whose body is the source body `self.rem`; the only signature changes are Verus return naming and the generated contract's ensures clauses.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/iter.rs:1878-1880",
+      "source_sha256": "52c87daecc8119b00040a9a13d3d339571ba252c96f64bb463cfe834699e7bd0"
+    },
+    {
+      "edit": "Defined a target-local closed `slice_iterator_view(&ChunksExact)` representation from the extracted private fields so the generated helper vocabulary is no longer uninterpreted for this harness.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:1843-1847",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Added the private type invariant `rem@.len() < chunk_size` from the Rust constructor remainder computation and API documentation; the target body proof uses this invariant but does not assume the target postcondition.",
+      "kind": "private_representation_invariant",
+      "source_lines": "core/src/slice/iter.rs:1851-1856,1859-1861",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Inserted a ghost-only proof block that reveals the closed model relation and imports the type invariant before returning `self.rem`; this has no executable control-flow, data-flow, or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:1878-1880",
+      "source_sha256": "52c87daecc8119b00040a9a13d3d339571ba252c96f64bb463cfe834699e7bd0"
+    }
+  ]
+}

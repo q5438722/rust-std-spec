@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/058_core_slice_is_sorted_by/harness.rs",
+  "harness_sha256": "87b2a597bb7b6a23357762ac5cac670b98a7f2918183afe11c72dd49742c75fb",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/058_core_slice_is_sorted_by/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4776,
+    "body_start_line": 4774,
+    "item_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14",
+    "signature_end_line": 4774,
+    "signature_start_line": 4771
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary_array_windows_all_and_fnmut_compare_observation_boundary",
+  "target": "core::slice::is_sorted_by",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function using an explicit `slice: &[T]` receiver parameter, named return, and the source `F: FnMut(&T, &T) -> bool` bound.",
+      "kind": "receiver_signature_and_executable_body_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4771-4776",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 source flow as explicit receiver construction, `array_windows::<2>()`, and iterator `all` with the comparator callback carried into the iterator boundary.",
+      "kind": "source_flow_preservation",
+      "source_lines": "core/src/slice/mod.rs:4771-4776",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14"
+    },
+    {
+      "edit": "Extracted the target-local `ArrayWindows { v }` representation and `ArrayWindows::new(slice) -> Self { v: slice }` constructor shape used by `array_windows`.",
+      "kind": "array_windows_source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:2181-2189",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Isolated only `Iterator::all` traversal over adjacent two-element array windows plus the stateful `FnMut(&T, &T) -> bool` comparator observation trace in the target-local `ArrayWindows::all` external_body boundary; the public target is not external_body and does not assume the target postcondition.",
+      "kind": "source_backed_iterator_all_fnmut_boundary",
+      "source_lines": "core/src/slice/mod.rs:4775; core/src/slice/iter/macros.rs:309-320",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14"
+    },
+    {
+      "edit": "Instantiated the generated `slice_sorted_by_bool_compare_result` vocabulary and its adjacent-pair/FnMut bool trace helpers from the frozen shared slice vocabulary.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:424-464",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10"
+    },
+    {
+      "edit": "Added closed spec views for the target-local receiver and array-window iterator wrappers and revealed them only in ghost proof blocks; these annotations have no executable control-flow or data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/mod.rs:4775; core/src/slice/iter.rs:2181-2189",
+      "source_sha256": "1cb452749dadbe91c21b3c460fa9ef9e84b17ffef85eb59c88b3e350f63e8d14"
+    }
+  ]
+}

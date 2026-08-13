@@ -1,0 +1,129 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "partial_ord_leq_observed; axiom_partial_ord_leq_observed_transitive; slice_sorted_by_partial_ord",
+      "rationale": "The generated postcondition is preserved exactly: ret is equivalent to the frozen PartialOrd sortedness observation relation over slice@.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:385-421",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_windows_partialord_observation_boundary",
+      "name": "windows(2).all and windows(2).fold(true, |acc, w| acc & (w[0] <= w[1]))",
+      "rationale": "The target harness preserves the Rust 1.96 short-slice, chunk, and suffix windows traversal call sites. The Windows::all/fold methods are the narrow source-backed boundary that observes adjacent PartialOrd comparisons and relates them to the generated sortedness vocabulary; the public target body is not external_body.",
+      "source_lines": "core/src/slice/mod.rs:4739-4749; core/src/slice/mod.rs:1115-1118; core/src/slice/iter.rs:1331-1340",
+      "source_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c",
+      "status": "minimal_trusted_boundary_for_windows_traversal_and_partialord_observation"
+    },
+    {
+      "kind": "source_backed_slice_range_and_overlap_boundary",
+      "name": "&self[i..i + CHUNK_SIZE], i += CHUNK_SIZE - 1, and &self[i..]",
+      "rationale": "The executable target keeps CHUNK_SIZE=33, the overlapping chunk loop, and final suffix flow. The range/suffix helpers and proof lemmas expose only the source-backed slice views and overlap composition needed to connect checked chunks and the suffix to the whole-slice sortedness relation.",
+      "source_lines": "core/src/slice/mod.rs:4739-4749",
+      "source_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c",
+      "status": "minimal_trusted_boundary_for_slicing_indexing_and_overlap_composition"
+    }
+  ],
+  "direct_call_names": [
+    "all",
+    "fold",
+    "len",
+    "windows"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::windows"
+  ],
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public target function preserving Rust 1.96 `is_sorted`: CHUNK_SIZE=33, the short `windows(2).all` branch, overlapping chunk loop, chunk `windows(2).fold(true, |acc, w| acc & (w[0] <= w[1]))` false return, `i += CHUNK_SIZE - 1`, and final suffix `windows(2).all`. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 4749,
+      "disposition": "source_backed_windows_slice_range_and_partialord_observation_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c",
+      "name": "core::slice::is_sorted chunked windows flow",
+      "public": true,
+      "signature_start_line": 4728,
+      "source_reference_path": "core/src/slice/mod.rs"
+    },
+    {
+      "disposition": "source_backed_windows_iterator_boundary",
+      "name": "core::slice::windows(2) traversal",
+      "source_lines": "core/src/slice/mod.rs:1115-1118; core/src/slice/iter.rs:1331-1340",
+      "status": "used_only_for_target-local windows all/fold observations"
+    },
+    {
+      "disposition": "generated_contract_vocabulary_boundary",
+      "frozen_relpath": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs",
+      "item_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10",
+      "name": "partial_ord_leq_observed and slice_sorted_by_partial_ord",
+      "source_reference_path": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/057_core_slice_is_sorted/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_stdout.txt",
+    "stdout_sha256": "e0e6f01ab4fc353473644ed422eae4cba1663ceb4aba41c072e5e7253ac65bd6",
+    "summary": "verification results:: 4 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/057_core_slice_is_sorted/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_windows_slice_range_and_partialord_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "f315baaa4bc7221b1d8d58ef5b31157ff6437b40bc738df8cadce0dcc07ff61c",
+  "target": "core::slice::is_sorted",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/057_core_slice_is_sorted/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/057_core_slice_is_sorted/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::cmp::PartialOrd comparison observation boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

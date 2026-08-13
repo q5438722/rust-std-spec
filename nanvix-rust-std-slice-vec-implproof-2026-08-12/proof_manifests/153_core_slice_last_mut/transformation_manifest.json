@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/153_core_slice_last_mut/harness.rs",
+  "harness_sha256": "d76dadb2e59baf051f3a9f9bcabf0062a0fc9d67bddff035b831fe295e236f9a",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/153_core_slice_last_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 306,
+    "body_start_line": 304,
+    "item_sha256": "9cc6fb48c09b16ab3bd758b27666b2f815f072148ec53e86e3e8a17531d23ad6",
+    "signature_end_line": 304,
+    "signature_start_line": 304
+  },
+  "status": "verus_verified_modulo_reviewed_split_last_mut_and_verus_mut_slice_pattern_desugaring_boundary",
+  "target": "core::slice::last_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:304-306",
+      "source_sha256": "9cc6fb48c09b16ab3bd758b27666b2f815f072148ec53e86e3e8a17531d23ad6"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:304",
+      "source_sha256": "9cc6fb48c09b16ab3bd758b27666b2f815f072148ec53e86e3e8a17531d23ad6"
+    },
+    {
+      "edit": "Lowered the unsupported Rust mutable slice pattern `if let [.., last] = self { Some(last) } else { None }` to the reviewed mutable split-last desugaring: `slice.len() != 0`, `slice.split_at_mut(slice.len() - 1)`, and `&mut tail[0]`.",
+      "kind": "verus_mut_slice_pattern_desugaring_reusing_reviewed_split_last_mut_boundary",
+      "source_lines": "core/src/slice/mod.rs:305",
+      "source_sha256": "9cc6fb48c09b16ab3bd758b27666b2f815f072148ec53e86e3e8a17531d23ad6"
+    },
+    {
+      "edit": "Added proof-only split_at_mut view assertions and a sequence-update equality connecting the returned mutable last element to the exact-vstd final-frame postcondition; these annotations do not change executable control flow or data flow.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/std_specs/slice.rs exact-vstd last_mut contract",
+      "source_sha256": "7838f564b349372d5c8ae725de74f47ba9bd2c7967130ae1da19c3b701e8d526"
+    }
+  ]
+}

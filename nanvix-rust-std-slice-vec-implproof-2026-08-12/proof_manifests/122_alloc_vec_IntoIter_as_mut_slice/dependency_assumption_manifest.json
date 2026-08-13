@@ -1,0 +1,104 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "vec_into_iter_remaining_mut",
+      "rationale": "The generated shared helper remains the contract vocabulary for the remaining mutable slice. The harness relates the private raw-slice callee and returned slice to this helper without assuming the public target body.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_private_callee_boundary",
+      "name": "IntoIter::as_raw_mut_slice",
+      "rationale": "The Rust 1.96 public target calls the private helper exactly once. The harness keeps the private helper source shape `ptr::slice_from_raw_parts_mut(self.ptr.as_ptr(), self.len())` behind a narrow external-body contract that preserves the IntoIter remaining view and exposes the raw mutable slice view.",
+      "source_lines": "alloc/src/vec/into_iter.rs:117-119",
+      "status": "minimal_trusted_boundary_until_private_raw_slice_pointer_proof_is_discharged"
+    },
+    {
+      "kind": "source_backed_unsafe_boundary",
+      "name": "unsafe { &mut *self.as_raw_mut_slice() }",
+      "rationale": "The only unsafe operation in the public Rust 1.96 body is the raw mutable slice dereference. The harness isolates just that dereference in `rust_1_96_raw_mut_slice_deref`, relating the returned mutable slice view to the private raw-slice view.",
+      "source_lines": "alloc/src/vec/into_iter.rs:106-108",
+      "status": "source_backed_raw_mut_slice_deref_boundary"
+    },
+    {
+      "kind": "unsupported_type_boundary",
+      "name": "core::ptr::NonNull<T> and allocator storage",
+      "rationale": "The target body reads only `self.ptr` through the private callee and does not inspect allocation ownership fields. The harness preserves the extracted field names/order with opaque stand-ins and assigns pointer/provenance facts to the named private raw-slice boundary.",
+      "source_lines": "alloc/src/vec/into_iter.rs:45-60",
+      "status": "tool_model_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "as_raw_mut_slice",
+    "rust_1_96_raw_mut_slice_deref"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: it evaluates the adapted Rust flow `let raw = self.as_raw_mut_slice(); unsafe { rust_1_96_raw_mut_slice_deref(raw) }`. This is a B proof modulo the named source-backed private-callee/raw-pointer boundaries, not an assume_specification or a public-target external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 119,
+      "disposition": "source_backed_private_callee_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/into_iter.rs",
+      "item_sha256": "33a516ec8398c7ec560e73fcc5da49001a25c6b4d5737514507b40e53f96868a",
+      "name": "as_raw_mut_slice",
+      "public": false,
+      "signature_start_line": 117,
+      "source_reference_path": "alloc/src/vec/into_iter.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary_and_raw_mut_slice_deref_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "87132ec3ed996091ac45b47649a288e812d40345076f9ff7f0771fb7ca51e1df",
+  "source_item_sha256": "d37c9626fa2c73748fd0635410768e7139bfd271e847da808eea70504debe146",
+  "target": "alloc::vec::IntoIter::as_mut_slice",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

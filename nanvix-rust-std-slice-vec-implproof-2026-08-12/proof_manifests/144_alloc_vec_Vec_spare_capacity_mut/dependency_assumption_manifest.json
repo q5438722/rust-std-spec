@@ -1,0 +1,122 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "reviewed_generated_contract_vocabulary",
+      "name": "CapacitySpec::spec_capacity;vec_spare_capacity_relation",
+      "rationale": "The harness preserves the generated contract shape: returned spare storage length plus the old Vec length equals old capacity, the returned MaybeUninit slice satisfies vec_spare_capacity_relation, and the Vec logical view is framed.",
+      "source_lines": "frozen_inputs/vec/catalog/vec_spec_catalog.csv row for alloc::vec::Vec::spare_capacity_mut and alloc/src/vec/mod.rs:3221-3231",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_dependency_boundary",
+      "name": "Vec::as_mut_ptr",
+      "rationale": "The generated Vec::as_mut_ptr target has earlier reviewed B evidence and is reused here as an explicit method boundary rather than re-proved inside spare_capacity_mut.",
+      "source_lines": "proof_harnesses/124_alloc_vec_Vec_as_mut_ptr/harness.rs",
+      "status": "reviewed_dependency_boundary"
+    },
+    {
+      "kind": "source_backed_allocator_rawvec_capacity_boundary",
+      "name": "RawVec::capacity and Vec len <= capacity",
+      "rationale": "The target keeps the Rust 1.96 capacity subtraction. The harness trusts only the source-backed RawVec capacity observation and Vec allocation invariant needed to make self.buf.capacity() - self.len defined.",
+      "source_lines": "alloc/src/vec/mod.rs:3226-3229 and alloc/raw_vec capacity definitions",
+      "status": "minimal_trusted_boundary_for_allocator_capacity_and_len_capacity_domain"
+    },
+    {
+      "kind": "source_backed_raw_pointer_or_provenance_boundary",
+      "name": "as_mut_ptr().add(self.len) as *mut MaybeUninit<T>",
+      "rationale": "Verus cannot reason directly about the standard raw-pointer add/cast sequence here. The harness exposes local raw-pointer wrappers while preserving the source operation order and the MaybeUninit spare-storage view.",
+      "source_lines": "alloc/src/vec/mod.rs:3226-3229",
+      "status": "minimal_trusted_boundary_for_raw_pointer_add_cast_and_maybeuninit_provenance"
+    },
+    {
+      "kind": "source_backed_mut_raw_parts_boundary",
+      "name": "slice::from_raw_parts_mut",
+      "rationale": "The target keeps the Rust 1.96 mutable raw-parts construction over the spare MaybeUninit storage. The boundary carries only the raw-slice domain, returned slice length, vec_spare_capacity_relation, and Vec final-frame facts needed by the generated contract.",
+      "source_lines": "alloc/src/vec/mod.rs:3225-3229 and core/src/slice/raw.rs from_raw_parts_mut",
+      "status": "minimal_trusted_boundary_for_maybeuninit_mut_raw_parts_reconstruction"
+    }
+  ],
+  "direct_call_names": [
+    "as_mut_ptr",
+    "add",
+    "capacity",
+    "from_raw_parts_mut"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_mut_ptr"
+  ],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 spare_capacity_mut flow: self.as_mut_ptr().add(self.len), self.buf.capacity() - self.len, and slice::from_raw_parts_mut over MaybeUninit<T> spare storage. The proof is B modulo named, source-backed boundaries for the reviewed as_mut_ptr dependency, RawVec capacity/len domain, raw-pointer add/cast provenance, and MaybeUninit mutable raw-parts reconstruction; it does not assume the public target postcondition.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 3 verified, 0 errors",
+    "version_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_as_mut_ptr_rawvec_capacity_raw_pointer_maybeuninit_spare_slice_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "4afbe28230aa6dd0b41e9c23a5090e23f337024acf96d26bd4eef42b0e497d46",
+  "target": "alloc::vec::Vec::spare_capacity_mut",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/144_alloc_vec_Vec_spare_capacity_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bbuf\\b",
+        "\\bcapacity\\s*\\(",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [
+        "\\bMaybeUninit\\b",
+        "\\bspare_capacity"
+      ],
+      "present": true
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.add\\s*\\(",
+        "\\bas_mut_ptr\\s*\\(",
+        "\\bfrom_raw_parts"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_trait_method_boundary",
+      "name": "core::slice::SliceIndex<[T]>::get",
+      "rationale": "The Rust 1.96 target body is exactly the delegation `index.get(self)`. The harness verifies that delegation against a narrow local SliceIndex contract exposing the exact-vstd `spec_slice_get` result relation; it does not externalize or assume the public target body.",
+      "source_lines": "core/src/slice/index.rs:163-172",
+      "source_sha256": "16c924deb46e5e027872853736f082abae1eb45f74e55935814a20979899a935",
+      "status": "minimal_trusted_boundary_until_sliceindex_impls_are_recursively_proved"
+    },
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "spec_slice_get; axiom_slice_get_usize",
+      "rationale": "The exact-vstd contract states that `<[T]>::get::<I>` returns `spec_slice_get(slice, i)`, with `axiom_slice_get_usize` giving the concrete `usize` in-bounds Some and out-of-bounds None facts. The harness attaches this vocabulary to the executable target without using a target-body assumption.",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/slice.rs:133-148",
+      "status": "copied_exact_vstd_baseline_contract"
+    }
+  ],
+  "direct_call_names": [
+    "get"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 delegation `index.get(self)`, adapted only to the explicit Verus receiver `slice`. The proof is B, verified modulo the source-backed SliceIndex::get trait-method boundary and exact-vstd spec_slice_get vocabulary. The harness contains no target-body external_body and no assume-spec declaration.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/149_core_slice_get/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "version_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_sliceindex_get_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "f9e71a7d0218566f3b21467e4f552e762ce8d7d4a49e2d879423cbc99b4604fe",
+  "target": "core::slice::get",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/149_core_slice_get/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/149_core_slice_get/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::slice::SliceIndex<[T]>::get trait-method boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

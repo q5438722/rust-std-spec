@@ -1,0 +1,105 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "CapacitySpec::spec_capacity;vec_start_ptr",
+      "rationale": "The generated contract uses audited shared capacity and start-pointer vocabulary. The executable public target calls the Rust body `self.buf.ptr()` and does not assume the target postcondition.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_allocator_rawvec_layout_boundary",
+      "name": "Vec { buf, len } / RawVec { inner, _marker }",
+      "rationale": "The public target body reads the private `buf` field and delegates to `RawVec::ptr`. The harness extracts only the private representation needed for that call chain from the frozen Rust 1.96 source.",
+      "rawvec_struct_sha256": "080bd3671c58fc5ab28e1c6a20943fd136214a3c5d9778e4e06c8ebfa7227ab2",
+      "source_excerpt_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/raw_vec/mod.rs:73-75",
+      "source_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0",
+      "status": "minimal_trusted_boundary_for_private_allocator_storage_context"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "RawVec::ptr / RawVecInner::ptr",
+      "rationale": "The public target is executable and non-external-body. It preserves the Rust 1.96 expression `self.buf.ptr()`. The private `RawVec::ptr` boundary contains the source-backed delegation `self.inner.ptr::<T>()`, while the raw allocation pointer/provenance semantics and immutable pointer exposure of `RawVecInner::ptr` remain the named boundary from alloc/raw_vec.",
+      "rawvec_inner_ptr_sha256": "53ccbc825ad13d0775e9d66d64e5a2477e25254e1f15eb6eed5354bbbcacb8b1",
+      "rawvec_ptr_sha256": "caab2568794e74d7c4eef35c9a46cf09599a47bb0cf74fec8f69cc7c5ea3d68d",
+      "source_excerpt_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/source_excerpt.rs",
+      "source_lines": "alloc/raw_vec/mod.rs:295-297 and alloc/raw_vec/mod.rs:608-610",
+      "source_sha256": "caab2568794e74d7c4eef35c9a46cf09599a47bb0cf74fec8f69cc7c5ea3d68d",
+      "status": "minimal_trusted_boundary_for_source_backed_allocator_raw_pointer_provenance_semantics"
+    }
+  ],
+  "direct_call_names": [
+    "RawVec::ptr",
+    "RawVecInner::ptr"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: it keeps the Rust 1.96 body `self.buf.ptr()` under the generated `vec_start_ptr(vec@, vec.spec_capacity(), ptr)` postcondition. This is a B proof modulo the source-backed RawVec allocator/raw-pointer/provenance boundary, not an assume_specification or a public-target external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/125_alloc_vec_Vec_as_ptr/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_allocator_rawvec_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0",
+  "target": "alloc::vec::Vec::as_ptr",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/125_alloc_vec_Vec_as_ptr/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/125_alloc_vec_Vec_as_ptr/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bbuf\\b",
+        "RawVec<T, A>",
+        "RawVecInner<A>"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\bptr\\s*\\(",
+        "self.buf.ptr()",
+        "self.inner.ptr::<T>()"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/145_core_slice_copy_from_slice/harness.rs",
+  "harness_sha256": "e489aa7ebd058b39361017c638fcde61af9982ff4d39b86b4530964cfb8cb6bf",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/145_core_slice_copy_from_slice/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4326,
+    "body_start_line": 4323,
+    "item_sha256": "a2d7c011586a2f326d530336974e386d41263495754e7a17271f3023a5a2dba5",
+    "signature_end_line": 4323,
+    "signature_start_line": 4320
+  },
+  "status": "verus_verified_modulo_source_backed_copy_from_slice_impl_len_mismatch_and_copy_nonoverlapping_boundary",
+  "target": "core::slice::copy_from_slice",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus harness for the public wrapper, adapting only the receiver/const syntax to a target-local function accepted by Verus.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4320-4326",
+      "source_sha256": "a2d7c011586a2f326d530336974e386d41263495754e7a17271f3023a5a2dba5"
+    },
+    {
+      "edit": "Kept the Rust 1.96 wrapper flow unsafe { copy_from_slice_impl(self, src) } and the private helper flow through the len_mismatch_fail branch plus ptr::copy_nonoverlapping(src.as_ptr(), dest.as_mut_ptr(), dest.len()).",
+      "kind": "source_body_flow_preservation",
+      "source_lines": "core/src/slice/mod.rs:4324-4325 and 5561-5586",
+      "source_sha256": "a2d7c011586a2f326d530336974e386d41263495754e7a17271f3023a5a2dba5"
+    },
+    {
+      "edit": "Attached the exact-vstd equal-length precondition and final(dst)@ == src@ postcondition to the non-external public target and discharged it through the executable private helper.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen exact-vstd contract for core::slice::copy_from_slice",
+      "source_sha256": "4cd95bb81326bfb3bd30024cb21f2180a01ba6cbfaf8677dc6076b17cf075a36"
+    },
+    {
+      "edit": "Modeled only source-backed panic divergence, slice pointer exposure, and the unsafe copy_nonoverlapping destination-write effect needed to connect the raw pointer copy to final(dst)@ == src@.",
+      "kind": "source_backed_boundary_model",
+      "source_lines": "core/src/slice/mod.rs:5567-5584",
+      "source_sha256": "f6421a6d2b9b519752cb29c6e2e5bdc74ca2d1c8d6099c4ca6a2aaf5ad178016"
+    }
+  ]
+}

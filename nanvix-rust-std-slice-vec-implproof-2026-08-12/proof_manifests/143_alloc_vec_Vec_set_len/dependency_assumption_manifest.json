@@ -1,0 +1,121 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "CapacitySpec::spec_capacity;vec_set_len_domain;vec_set_len_result",
+      "rationale": "The generated contract vocabulary is preserved as the target pre/postcondition shape. The public target body derives the length postcondition from the Rust 1.96 len assignment and exposes vec_set_len_result only as the raw-length relation for this unsafe operation.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs:66-75 and alloc/src/vec/mod.rs:2187-2195",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_allocator_capacity_boundary",
+      "name": "Vec::capacity / RawVec capacity",
+      "rationale": "Rust 1.96 checks the new raw length against self.capacity() before writing len. The harness models only the source-backed relation between Vec::capacity and RawVec capacity storage.",
+      "source_lines": "alloc/src/vec/mod.rs:2192, alloc/src/vec/mod.rs:3022-3028, and alloc/src/raw_vec/mod.rs:618-620",
+      "status": "minimal_trusted_boundary_for_allocator_capacity_observation"
+    },
+    {
+      "kind": "source_backed_unsafe_precondition_boundary",
+      "name": "ub_checks::assert_unsafe_precondition!(new_len <= capacity)",
+      "rationale": "The public target keeps the unsafe precondition check before the raw length write. The harness records exactly the checked predicate new_len <= capacity and does not turn the target into an assume_specification.",
+      "source_lines": "alloc/src/vec/mod.rs:2188-2193",
+      "status": "minimal_trusted_boundary_for_unsafe_precondition_check"
+    },
+    {
+      "kind": "source_backed_raw_length_storage_boundary",
+      "name": "self.len = new_len",
+      "rationale": "The target body performs the same raw length assignment as Rust 1.96. The harness models only the Vec sequence length induced by the raw len field; element initialization/provenance remains outside this bounded proof.",
+      "source_lines": "alloc/src/vec/mod.rs:2195 and Vec len storage field",
+      "status": "minimal_trusted_boundary_for_raw_length_commit"
+    }
+  ],
+  "direct_call_names": [
+    "assert_unsafe_precondition!",
+    "capacity"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 flow `let capacity = self.capacity(); ub_checks::assert_unsafe_precondition(new_len <= capacity); self.len = new_len`, adapted only by naming the macro predicate as a target-local helper function. This is a B proof modulo source-backed allocator/capacity observation, raw Vec length/view modeling, and the unsafe-precondition check; it does not mark allocator/provenance or arbitrary initialized storage complete.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 620,
+      "disposition": "source_backed_allocator_capacity_observation_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f008da15a61b6a40bc7e607ae5dea2847854b915e60345c9d0546c8459787254",
+      "name": "capacity",
+      "public": false,
+      "signature_start_line": 618,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/143_alloc_vec_Vec_set_len/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_stdout.txt",
+    "stdout_sha256": "e0e6f01ab4fc353473644ed422eae4cba1663ceb4aba41c072e5e7253ac65bd6",
+    "summary": "verification results:: 4 verified, 0 errors",
+    "version_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_set_len_allocator_capacity_raw_length_and_unsafe_precondition_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "d38f2af683a66c0b8b52346907d857f4f6aebe7f28155d46ee9e615c230b98cb",
+  "target": "alloc::vec::Vec::set_len",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/143_alloc_vec_Vec_set_len/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/143_alloc_vec_Vec_set_len/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bcapacity\\s*\\(",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "\\bassert_unsafe_precondition!",
+        "\\bub_checks::"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "raw Vec len field assignment",
+        "\\bset_len\\b"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s+fn\\b",
+        "assert_unsafe_precondition!"
+      ],
+      "present": true
+    }
+  }
+}

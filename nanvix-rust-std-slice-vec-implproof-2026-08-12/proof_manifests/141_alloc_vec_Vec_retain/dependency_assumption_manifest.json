@@ -1,0 +1,107 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_retain_result",
+      "rationale": "The generated contract relation is preserved as the target postcondition vocabulary. The harness derives it through the reviewed retain_mut dependency plus a named read-only-to-mutable callback bridge rather than leaving an assume_specification on the public target.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs and alloc/src/vec/mod.rs:2451-2456",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_target_dependency",
+      "name": "alloc::vec::Vec::retain_mut",
+      "rationale": "Rust 1.96 retain is a public wrapper around retain_mut with the read-only predicate adapter. The callee implementation-proof boundary is the reviewed B disposition for retain_mut, not a new proof of its raw-pointer PanicGuard internals.",
+      "source_lines": "alloc/src/vec/mod.rs:2477-2569 and proof_harnesses/142_alloc_vec_Vec_retain_mut/evidence/verus_stdout.txt",
+      "status": "reviewed_dependency_boundary_reused"
+    },
+    {
+      "kind": "verus_fnmut_readonly_closure_lowering_boundary",
+      "name": "rust_1_96_retain_delegate for `self.retain_mut(|elem| f(elem))`",
+      "rationale": "This Verus build rejects the direct closure because it captures a mutable FnMut callback. The public target remains non-external and executable; only the unsupported closure adapter/delegation to the reviewed retain_mut relation is isolated as a named source-backed boundary.",
+      "source_excerpt_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/mod.rs:2454-2456",
+      "source_sha256": "540fdc2fe9d77c2299dfdb8c7c4cd4cead9183e95cba156f4ee96908d4dc3223",
+      "status": "minimal_verus_closure_lowering_boundary_for_fnmut_readonly_delegation"
+    },
+    {
+      "kind": "source_backed_readonly_to_mut_callback_bridge",
+      "name": "FnMut(&T)->bool callback bridge for `|elem| f(elem)`",
+      "rationale": "The target wrapper passes a mutable-element closure that only exposes each element through the read-only predicate f. The harness names that callback token only to expose the reviewed retain_mut relation to Verus, then bridges it to vec_retain_result without assuming the public target postcondition directly.",
+      "source_lines": "alloc/src/vec/mod.rs:2454-2456",
+      "status": "minimal_trusted_boundary_for_fnmut_readonly_callback_bridge"
+    }
+  ],
+  "direct_call_names": [
+    "f",
+    "retain_mut"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::retain_mut"
+  ],
+  "harness_sha256": "1b0ce28ede169ac9a313867f0ecdc2863ce7653998bfa60068799e68ae1d825b",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 wrapper semantics by delegating the unsupported Verus closure shape `self.retain_mut(|elem| f(elem))` to the reviewed retain_mut relation under a named read-only-to-mutable callback token. This is a B proof modulo the reviewed retain_mut dependency boundary, Verus FnMut(&T)->bool closure-lowering boundary, and result bridge; it does not mark retain_mut internals, arbitrary callback behavior, or the generated public target postcondition as assumed.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/141_alloc_vec_Vec_retain/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_retain_mut_dependency_fnmut_readonly_callback_closure_lowering_and_result_bridge_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "540fdc2fe9d77c2299dfdb8c7c4cd4cead9183e95cba156f4ee96908d4dc3223",
+  "target": "alloc::vec::Vec::retain",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/141_alloc_vec_Vec_retain/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/141_alloc_vec_Vec_retain/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "reviewed retain_mut dependency boundary",
+        "FnMut(&T)->bool read-only callback closure-lowering boundary",
+        "read-only-to-mutable predicate result bridge"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

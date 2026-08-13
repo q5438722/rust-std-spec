@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/094_core_slice_split_last/harness.rs",
+  "harness_sha256": "946e1f8eed02921188eddb633515cbb3d2149050122e666e5928940371860075",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/094_core_slice_split_last/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 242,
+    "body_start_line": 240,
+    "item_sha256": "494ab97059b11f5875c876637025f3dd9db9d65354600d4e1769556847dac13a",
+    "signature_end_line": 240,
+    "signature_start_line": 240
+  },
+  "status": "verus_verified_modulo_verus_slice_pattern_desugaring_boundary",
+  "target": "core::slice::split_last",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:240-242",
+      "source_sha256": "494ab97059b11f5875c876637025f3dd9db9d65354600d4e1769556847dac13a"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:240",
+      "source_sha256": "494ab97059b11f5875c876637025f3dd9db9d65354600d4e1769556847dac13a"
+    },
+    {
+      "edit": "Lowered the unsupported Rust slice pattern `if let [init @ .., last] = self` to the mechanically equivalent nonempty branch `slice.len() != 0`, `slice.split_at(slice.len() - 1)`, and `&tail[0]`; this preserves the init-prefix/last-element data flow of the Rust body while using Verus-supported syntax.",
+      "kind": "verus_slice_pattern_desugaring",
+      "source_lines": "core/src/slice/mod.rs:241",
+      "source_sha256": "494ab97059b11f5875c876637025f3dd9db9d65354600d4e1769556847dac13a"
+    },
+    {
+      "edit": "Added proof-only `lemma_split_at` and view equality assertions connecting the desugared init/tail views to the generated `slice@[(slice@.len() - 1) as int]` and `slice@.subrange(0, slice@.len() - 1)` contract; these annotations do not change executable control flow or data flow.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/generated_slice_specs.rs:4695-4709",
+      "source_sha256": "04bdf1c492a96233f8d4c791fd55cbea26ef0dab484a2c96c46ea6b15266d818"
+    }
+  ]
+}

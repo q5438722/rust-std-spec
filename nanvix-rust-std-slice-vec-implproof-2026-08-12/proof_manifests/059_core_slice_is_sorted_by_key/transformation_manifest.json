@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/harness.rs",
+  "harness_sha256": "ac8c683e861585b076f51aca5024d6f074e050c0b387c536495e254d52b2d731",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/059_core_slice_is_sorted_by_key/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4801,
+    "body_start_line": 4799,
+    "item_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978",
+    "signature_end_line": 4799,
+    "signature_start_line": 4795
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary_and_fnmut_key_observation_boundary",
+  "target": "core::slice::is_sorted_by_key",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function using an explicit `slice: &[T]` receiver parameter, named return, and the source `F: FnMut(&T) -> K` / `K: PartialOrd` bounds.",
+      "kind": "receiver_signature_and_executable_body_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4795-4801",
+      "source_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978"
+    },
+    {
+      "edit": "Represented the Rust `self.iter().is_sorted_by_key(f)` chain as `self_slice.iter().is_sorted_by_key(f)` over a target-local SliceReceiver/Iter wrapper, because Verus cannot directly verify the standard slice iterator internals in this harness.",
+      "kind": "iterator_method_syntax_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4799-4801",
+      "source_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978"
+    },
+    {
+      "edit": "Isolated only the standard iterator traversal, FnMut key-observation trace, and PartialOrd comparison behavior in the target-local `Iter::is_sorted_by_key` external_body boundary; the public target is not external_body and does not assume the target postcondition.",
+      "kind": "source_backed_iterator_fnmut_boundary",
+      "source_lines": "core/src/slice/mod.rs:4799-4801; core/src/iter/traits/iterator.rs:4123-4130",
+      "source_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978"
+    },
+    {
+      "edit": "Instantiated the generated `slice_sorted_by_partial_key_result` vocabulary and its FnMut-adjacent-key/PartialOrd helper definitions from the frozen shared slice vocabulary.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:466-510",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10"
+    },
+    {
+      "edit": "Added closed spec views for the target-local receiver and iterator wrappers and revealed them only in ghost proof blocks; these annotations have no executable control-flow or data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/mod.rs:4799-4801",
+      "source_sha256": "e3b02a9c38338889be9bba5f3eacb2c6f20766070881944f14b52cbefaf41978"
+    }
+  ]
+}

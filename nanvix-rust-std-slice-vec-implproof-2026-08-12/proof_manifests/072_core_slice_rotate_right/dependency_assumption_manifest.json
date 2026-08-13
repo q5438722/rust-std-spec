@@ -1,0 +1,165 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "slice_rotated_right",
+      "rationale": "The harness instantiates the generated right-rotation relation as an open Seq transformer and attaches it to the executable public target without assume_specification.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:300",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_panic_domain_lowering",
+      "name": "assert!(k <= self.len())",
+      "rationale": "The generated contract requires k within the slice length, so the Rust panic branch is outside the verified contract domain. The harness preserves the source assertion shape with a local macro that calls an executable helper requiring the bound.",
+      "source_excerpt_relpath": "proof_harnesses/072_core_slice_rotate_right/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3931",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d",
+      "status": "source_bound_checked_in_verified_code_under_contract_precondition"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::as_mut_ptr",
+      "rationale": "The Rust 1.96 body stores `let p = self.as_mut_ptr()`. The harness reuses the reviewed mutable start-pointer/final-frame shape locally to avoid re-proving raw slice pointer provenance.",
+      "source_lines": "core/src/slice/mod.rs:777-781; proof_harnesses/018_core_slice_as_mut_ptr/harness.rs",
+      "status": "reviewed_dependency_reused_for_mut_start_pointer_and_final_frame_fact"
+    },
+    {
+      "kind": "source_backed_raw_pointer_boundary",
+      "name": "rust_1_96_rotate_right_ptr_rotate",
+      "rationale": "Verus does not support raw `p.add(mid)` in verified code, so the harness isolates exactly the source expression `rotate::ptr_rotate(mid, p.add(mid), k)` in a named private boundary.",
+      "source_excerpt_relpath": "proof_harnesses/072_core_slice_rotate_right/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3937-3939; core/src/slice/rotate.rs",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d",
+      "status": "minimal_trusted_boundary_until_raw_pointer_add_and_ptr_rotate_are_modeled_by_verus"
+    },
+    {
+      "kind": "source_backed_final_frame_bridge_boundary",
+      "name": "rust_1_96_rotate_right_final_frame_bridge",
+      "rationale": "Rust mutates the original slice through the raw pointer rotation primitive. Verus does not track that raw-pointer aliasing effect, so this named bridge connects the preserved source call, start pointer, and length arithmetic to the generated right-rotation postcondition. The bridge is not on the public target and the public target body remains executable.",
+      "source_excerpt_relpath": "proof_harnesses/072_core_slice_rotate_right/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3931-3939",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d",
+      "status": "minimal_trusted_boundary_for_raw_pointer_rotation_effect_and_whole_slice_final_frame"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_assert",
+    "as_mut_ptr",
+    "rust_1_96_rotate_right_ptr_rotate",
+    "rotate::ptr_rotate",
+    "rust_1_96_rotate_right_final_frame_bridge"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_mut_ptr"
+  ],
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public rotate_right target. It preserves the Rust 1.96 flow: assertion of k <= len through a source-shaped verified helper, mid = len - k, p = as_mut_ptr, and the unsafe ptr_rotate(mid, p.add(mid), k) expression isolated in a named private boundary. The harness has no assume_specification and no public-target external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    }
+  ],
+  "proof_status": "actual_verus_verified_modulo_source_backed_rotate_right_ptr_rotate_and_final_frame_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d",
+  "target": "core::slice::rotate_right",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "assert!(k <= self.len()) verified under generated precondition"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.as_mut_ptr()",
+        "p.add(mid)",
+        "rotate::ptr_rotate(mid, p.add(mid), k)",
+        "raw-pointer rotation final-frame bridge"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe rotate::ptr_rotate(mid, p.add(mid), k)"
+      ],
+      "present": true
+    }
+  },
+  "abcd_status": "B",
+  "harness_sha256": "be3c00c9329302c5cccd9346b72cdcac1356fae064f84599268574f4e966018b",
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/072_core_slice_rotate_right/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/072_core_slice_rotate_right/harness.rs --no-verify --crate-type=lib",
+    "typecheck_exit_code_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/072_core_slice_rotate_right/harness.rs --no-verify --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/072_core_slice_rotate_right/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/066_core_slice_rchunks/harness.rs",
+  "harness_sha256": "22c16e30bdd088401dea486f1db02a14d8b168f6b29f94f6d99b97c10956f01b",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/066_core_slice_rchunks/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1689,
+    "body_start_line": 1686,
+    "item_sha256": "b9b3dcbff1d8e2bf876c0c0525c3ba2b65d44b886640c210c255b801e83d00d5",
+    "signature_end_line": 1686,
+    "signature_start_line": 1686
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::rchunks",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local RChunks representation with private `v` and `chunk_size` fields, preserving field names, order, types, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:2311-2314",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Included RChunks::new with the real Rust body `Self { v: slice, chunk_size: size }` so the target call is verified rather than trusted.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:2316-2320",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and named return for Verus; the executable body remains assert then RChunks::new(slice, chunk_size).",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1686-1689",
+      "source_sha256": "b9b3dcbff1d8e2bf876c0c0525c3ba2b65d44b886640c210c255b801e83d00d5"
+    },
+    {
+      "edit": "Adapted the Rust `pub const fn` target item to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1686",
+      "source_sha256": "b9b3dcbff1d8e2bf876c0c0525c3ba2b65d44b886640c210c255b801e83d00d5"
+    },
+    {
+      "edit": "Adapted the private Rust `pub(super) const fn` constructor to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/iter.rs:2318",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Converted Rust `assert!(chunk_size != 0, ...)` to Verus `assert(chunk_size != 0)` under the same generated precondition; no control-flow path is removed.",
+      "kind": "verus_assert_macro_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1687",
+      "source_sha256": "b9b3dcbff1d8e2bf876c0c0525c3ba2b65d44b886640c210c255b801e83d00d5"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper from the extracted `v` and `chunk_size` fields to expose source, remaining, empty yielded prefix/remainder, requested chunk size, and reverse direction.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:2311-2314",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Revealed the closed iterator-view definition in ghost proof blocks; this has no executable data-flow or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:2318-2320",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/100_core_slice_split_off_first/harness.rs",
+  "harness_sha256": "bd2318bc9b070a26464e13046631165bdfe9a37254c77d944cdb9edb0ae893a1",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/100_core_slice_split_off_first/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 5015,
+    "body_start_line": 5010,
+    "item_sha256": "b373389fae9235ca313dc0a9cad7598affe7f1e8a19b13af7334c7ea7affd93d",
+    "signature_end_line": 5010,
+    "signature_start_line": 5010
+  },
+  "status": "verus_verified_modulo_reviewed_split_first_and_verus_slice_pattern_desugaring_boundary",
+  "target": "core::slice::split_off_first",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:5010-5015",
+      "source_sha256": "b373389fae9235ca313dc0a9cad7598affe7f1e8a19b13af7334c7ea7affd93d"
+    },
+    {
+      "edit": "Adapted the inherent immutable `[T]` receiver to an explicit `slice_ref: &mut &[T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:5010",
+      "source_sha256": "b373389fae9235ca313dc0a9cad7598affe7f1e8a19b13af7334c7ea7affd93d"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 data flow by calling `split_first(*slice_ref)`, returning `None` for the empty branch, and in the nonempty branch executing `*slice_ref = rem` before returning `Some(first)`.",
+      "kind": "split_first_call_and_tail_reassignment_preserved",
+      "source_lines": "core/src/slice/mod.rs:5012-5015",
+      "source_sha256": "b373389fae9235ca313dc0a9cad7598affe7f1e8a19b13af7334c7ea7affd93d"
+    },
+    {
+      "edit": "Reused the reviewed immutable `split_first` helper proof; its only semantic boundary is the already-recorded vstd `split_at(1)` plus index slice-pattern desugaring used for the helper body.",
+      "kind": "reviewed_split_first_helper_reuse",
+      "source_lines": "core/src/slice/mod.rs:198-200",
+      "source_sha256": "c8c87480788024ae6b8f7abc667e8911dcb4430f989b2cb4900c3bac6257f65b"
+    },
+    {
+      "edit": "Added proof-only view assertions connecting the reviewed `split_first` result to `slice_split_off_first_result` and the final slice-reference value.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:884-890",
+      "source_sha256": "04bdf1c492a96233f8d4c791fd55cbea26ef0dab484a2c96c46ea6b15266d818"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/039_core_slice_element_offset/harness.rs",
+  "harness_sha256": "3a98fb6059a983a769d9ad033a5deac6df9376fe37cb6a51cd0d91c7d8d880fe",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/039_core_slice_element_offset/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 5277,
+    "body_start_line": 5260,
+    "item_sha256": "2e1c40be6fe7b5b51032b7132000aa531f27957039e0545dee3811b6d36ad61a",
+    "signature_end_line": 5260,
+    "signature_start_line": 5260
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_from_ref_addr_wrapping_alignment_division_zst_panic_pointer_domain_bridge_boundary",
+  "target": "core::slice::element_offset",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &[T]` argument and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:5260-5277",
+      "source_sha256": "2e1c40be6fe7b5b51032b7132000aa531f27957039e0545dee3811b6d36ad61a"
+    },
+    {
+      "edit": "Attached the generated `slice_element_offset_option_result(slice@, element, ret)` postcondition directly to the executable public target.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::element_offset",
+      "source_sha256": "6cb1971fc22b193456b858636b8e9d6ed1874cc9b7b9352f94eea2cf2a66960b"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 branch/data flow: ZST panic handling, self.as_ptr().addr(), ptr::from_ref(element).addr(), wrapping_sub byte offset, is_multiple_of(size_of::<T>()) alignment check, division by size_of::<T>(), and in-bounds Some(offset)/None.",
+      "kind": "rust_control_flow_preserved",
+      "source_lines": "core/src/slice/mod.rs:5261-5276",
+      "source_sha256": "2e1c40be6fe7b5b51032b7132000aa531f27957039e0545dee3811b6d36ad61a"
+    },
+    {
+      "edit": "Reused the reviewed as_ptr boundary locally and isolated only the layout panic, pointer-address/provenance observations, wrapping/alignment/division arithmetic, and generated pointer-domain result bridge that Verus cannot derive from a pure Seq view.",
+      "kind": "source_backed_pointer_domain_boundary",
+      "source_lines": "core/src/slice/mod.rs:5261-5276 and core/src/slice/mod.rs:726-728",
+      "source_sha256": "2e1c40be6fe7b5b51032b7132000aa531f27957039e0545dee3811b6d36ad61a"
+    }
+  ]
+}

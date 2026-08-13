@@ -1,0 +1,107 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_dedup_by_key_result",
+      "rationale": "The generated contract relation is preserved as the target postcondition vocabulary. The harness derives it through the reviewed dedup_by dependency plus a named key-callback/PartialEq bridge rather than leaving an assume_specification on the public target.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs and alloc/src/vec/mod.rs:2587-2593",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_target_dependency",
+      "name": "alloc::vec::Vec::dedup_by",
+      "rationale": "Rust 1.96 dedup_by_key is a public wrapper around dedup_by using the key-equality predicate. The callee implementation-proof boundary is the reviewed B disposition for dedup_by, not a new proof of its raw-pointer FillGapOnDrop internals.",
+      "source_lines": "alloc/src/vec/mod.rs:2614-2740 and proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_stdout.txt",
+      "status": "reviewed_dependency_boundary_reused"
+    },
+    {
+      "kind": "verus_fnmut_key_equality_closure_lowering_boundary",
+      "name": "rust_1_96_dedup_by_key_delegate for `self.dedup_by(|a, b| key(a) == key(b))`",
+      "rationale": "This Verus build rejects closures that capture a mutable FnMut key callback. The public target remains non-external and executable; only the unsupported closure adapter/delegation to the reviewed dedup_by relation is isolated as a named source-backed boundary.",
+      "source_excerpt_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/mod.rs:2591-2593",
+      "source_sha256": "88ba485c5727a354c6bb20cbb9e2d74ec616bbf48eebcd39ffda297225fcc49f",
+      "status": "minimal_verus_closure_lowering_boundary_for_fnmut_key_partial_eq_delegation"
+    },
+    {
+      "kind": "source_backed_key_partial_eq_callback_bridge",
+      "name": "key-equality callback observation for `|a, b| key(a) == key(b)`",
+      "rationale": "The target wrapper passes a PartialEq comparison of two key-callback results to dedup_by. The harness names that callback token only to expose the reviewed dedup_by relation to Verus, then bridges it to vec_dedup_by_key_result without assuming the public target postcondition directly.",
+      "source_lines": "alloc/src/vec/mod.rs:2591-2593",
+      "status": "minimal_trusted_boundary_for_fnmut_key_partial_eq_callback_bridge"
+    }
+  ],
+  "direct_call_names": [
+    "dedup_by",
+    "key"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::dedup_by"
+  ],
+  "harness_sha256": "e5bef5d552a14157ca780a5052365fefa7cd339467dbdaa8a5b8a2fcc6988917",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 wrapper semantics by delegating the unsupported Verus closure shape `self.dedup_by(|a, b| key(a) == key(b))` to the reviewed dedup_by relation under a named key-equality callback token. This is a B proof modulo the reviewed dedup_by dependency boundary, Verus FnMut key/PartialEq closure-lowering boundary, and key-callback result bridge; it does not mark dedup_by internals, arbitrary key-callback behavior, or the generated public target postcondition as assumed.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/128_alloc_vec_Vec_dedup_by_key/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_dedup_by_dependency_fnmut_key_partial_eq_callback_closure_lowering_and_result_bridge_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "88ba485c5727a354c6bb20cbb9e2d74ec616bbf48eebcd39ffda297225fcc49f",
+  "target": "alloc::vec::Vec::dedup_by_key",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/128_alloc_vec_Vec_dedup_by_key/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/128_alloc_vec_Vec_dedup_by_key/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "reviewed dedup_by dependency boundary",
+        "FnMut key equality callback closure-lowering boundary",
+        "PartialEq key-result bridge"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

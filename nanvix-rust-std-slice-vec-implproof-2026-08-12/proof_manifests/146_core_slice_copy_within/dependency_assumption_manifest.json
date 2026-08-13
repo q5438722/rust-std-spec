@@ -1,0 +1,144 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "reviewed_exact_vstd_contract_vocabulary",
+      "name": "copy_within_domain; copy_within_result; slice_range_valid",
+      "rationale": "The harness preserves the exact-vstd baseline precondition shape: the resolved source range is valid for the old slice length, the destination plus count fits in the slice, and the final slice sequence is copy_within_result over the old slice.",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/std_specs/slice.rs:220-259 and core/src/slice/mod.rs:4354-4370",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_range_validation_boundary",
+      "name": "slice::range(src, ..self.len())",
+      "rationale": "Rust 1.96 resolves RangeBounds through slice::range before computing the copy count. The harness keeps that call in the target body and isolates only the source-backed mapping from RangeBounds to start/end indices plus the range-validity arithmetic needed by the exact-vstd contract.",
+      "source_lines": "core/src/slice/mod.rs:4360-4362",
+      "status": "minimal_trusted_boundary_for_rangebounds_resolution"
+    },
+    {
+      "kind": "source_backed_panic_boundary",
+      "name": "dest is out of bounds assert",
+      "rationale": "The exact-vstd destination-fit precondition excludes the assert panic path. The executable harness still keeps the destination bounds branch and records the divergent assert path as a source-backed boundary for non-contract executions.",
+      "source_lines": "core/src/slice/mod.rs:4363",
+      "status": "panic_path_excluded_by_precondition"
+    },
+    {
+      "kind": "source_backed_raw_pointer_or_provenance_boundary",
+      "name": "self.as_mut_ptr(); ptr.add(src_start); ptr.add(dest); ptr::copy",
+      "rationale": "Verus cannot derive mutable-slice sequence updates from overlapping raw pointer copies directly. The target body preserves the same-loan as_mut_ptr, both pointer additions, and ptr::copy operation order; only pointer provenance and the overlapping-copy slice effect are isolated.",
+      "source_lines": "core/src/slice/mod.rs:4366-4369",
+      "status": "minimal_trusted_boundary_for_raw_pointer_overlapping_copy_effect"
+    }
+  ],
+  "direct_call_names": [
+    "slice::range",
+    "rust_1_96_copy_within_dest_assert_failed",
+    "rust_1_96_slice_as_mut_ptr",
+    "MutPtr::add",
+    "ptr::copy",
+    "rust_1_96_overlapping_ptr_copy_establishes_slice"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_mut_ptr"
+  ],
+  "module": "slice",
+  "notes": "The public target body is executable and non-external-body. It preserves the Rust 1.96 copy_within flow through range resolution, count computation, destination assert, same-loan as_mut_ptr, source/destination ptr.add, and overlapping ptr::copy. The proof is B modulo named source-backed boundaries for RangeBounds normalization, assert divergence, pointer provenance, and raw overlapping-copy effect; it does not assume the public target postcondition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/146_core_slice_copy_within/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "version_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_copy_within_range_assert_as_mut_ptr_add_and_overlapping_copy_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "80a6582a6702b0a09aae49f2a9f63f1880cc44162858be6d57b095be42b8eeec",
+  "target": "core::slice::copy_within",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/146_core_slice_copy_within/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/146_core_slice_copy_within/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "assert!",
+        "dest is out of bounds"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "as_mut_ptr",
+        "ptr.add",
+        "ptr::copy"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bCopy\\b",
+        "\\bRangeBounds\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

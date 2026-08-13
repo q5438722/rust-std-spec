@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+  "harness_relpath": "proof_harnesses/042_core_slice_escape_ascii/harness.rs",
+  "harness_sha256": "34394040e1cb303e60d24e7f74af46cfc08baec5633cf854bdb8445cc98f04e7",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/042_core_slice_escape_ascii/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/ascii.rs",
+  "source_span": {
+    "body_end_line": 220,
+    "body_start_line": 218,
+    "item_sha256": "1d3eb16392be78fd1bea2c10485a13dfa460260673d0c270ee1216b1381302c5",
+    "signature_end_line": 218,
+    "signature_start_line": 218
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::escape_ascii",
+  "transformations": [
+    {
+      "edit": "Adapted the inherent `[u8]` receiver to an explicit `slice: &[u8]` parameter and named return for Verus; the executable target body remains the EscapeAscii constructor over the result of iterating the slice and applying EscapeByte.",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:218-220",
+      "source_sha256": "1d3eb16392be78fd1bea2c10485a13dfa460260673d0c270ee1216b1381302c5"
+    },
+    {
+      "edit": "Represented the source `self.iter().flat_map(EscapeByte)` call chain as `slice_iter(slice).flat_map(EscapeByte)` because Verus cannot use the inherent slice iterator internals directly; the helper bodies construct only source-backed iterator/adaptor state and preserve call order.",
+      "kind": "iterator_method_syntax_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:219",
+      "source_sha256": "1d3eb16392be78fd1bea2c10485a13dfa460260673d0c270ee1216b1381302c5"
+    },
+    {
+      "edit": "Extracted the EscapeByte marker and EscapeAscii private `inner` field shape; the harness uses a target-local FlatMapEscapeAscii view that records the source slice needed by the generated `slice_iterator_view` contract without assuming the target postcondition.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/ascii.rs:301-317",
+      "source_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea"
+    },
+    {
+      "edit": "Instantiated the generated ASCII escape vocabulary from the frozen shared definitions of `ascii_lower_hex_digit`, `ascii_escape_byte`, and `ascii_escape_seq`.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1284-1321",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10"
+    },
+    {
+      "edit": "Defined closed spec views for the harness-local iterator/adaptor state and revealed them only in ghost proof blocks; these annotations have no executable control-flow or data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/ascii.rs:219,315-317",
+      "source_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea"
+    }
+  ]
+}

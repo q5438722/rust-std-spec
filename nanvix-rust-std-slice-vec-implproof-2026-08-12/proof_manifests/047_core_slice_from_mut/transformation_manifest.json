@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/raw.rs",
+  "harness_relpath": "proof_harnesses/047_core_slice_from_mut/harness.rs",
+  "harness_sha256": "d567e471ad0120f734126d09b1532b7ba37f1ff982ba6a65419aeae533457ddd",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/047_core_slice_from_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/raw.rs",
+  "source_span": {
+    "body_end_line": 213,
+    "body_start_line": 211,
+    "item_sha256": "9dccff9babfff3c297268487fbf17b0a6ca139a9d1de3ef5c1163f9995eb7235",
+    "signature_end_line": 211,
+    "signature_start_line": 211
+  },
+  "status": "verus_verified_modulo_source_backed_array_from_mut_boundary",
+  "target": "core::slice::from_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body is the Rust 1.96 target body `array::from_mut(s)`.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/raw.rs:211-213",
+      "source_sha256": "9dccff9babfff3c297268487fbf17b0a6ca139a9d1de3ef5c1163f9995eb7235"
+    },
+    {
+      "edit": "Adapted the source `pub const fn` to a non-const Verus harness function with explicit lifetime and named return; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/raw.rs:211",
+      "source_sha256": "9dccff9babfff3c297268487fbf17b0a6ca139a9d1de3ef5c1163f9995eb7235"
+    },
+    {
+      "edit": "Modeled the public callee `core::array::from_mut` and the Rust array-to-slice unsizing coercion as a single source-backed external-body boundary returning the slice view promised by the generated contract. The target body still performs only the `array::from_mut(s)` call.",
+      "kind": "source_backed_public_helper_and_unsize_boundary",
+      "source_lines": "core/src/array/mod.rs:174-177 plus implicit `&mut [T; 1]` to `&mut [T]` coercion at core/src/slice/raw.rs:212",
+      "source_sha256": "557605d2b9fe70d8f06e0ef29f7cd7dc71a38328bbf23ff93315c2769ede6cd7"
+    },
+    {
+      "edit": "Added the generated `old`/`final` mutable-slice postcondition as the Verus ensures clause on the target and the narrow callee boundary; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/specs/generated_slice_specs.rs:2127-2135",
+      "source_sha256": "13c99ca2f302ab55cf72b32fca1acbe59e533db2d3c4efc74e611c8e60d9a3ed"
+    }
+  ]
+}

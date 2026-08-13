@@ -1,0 +1,68 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/034_core_slice_chunks_exact/harness.rs",
+  "harness_sha256": "0d2a242fcfc97369dc9cc0bc8dc255386f06e1e6e71dbd4c096130b9cd026b57",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/034_core_slice_chunks_exact/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1245,
+    "body_start_line": 1242,
+    "item_sha256": "132676baf914451c91eb2dcc3d571294fcb65fbb0e486670e7dbffb21acd7682",
+    "signature_end_line": 1242,
+    "signature_start_line": 1242
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary_and_split_boundary",
+  "target": "core::slice::chunks_exact",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local ChunksExact representation with private `v`, `rem`, and `chunk_size` fields, preserving field names, order, types, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:1843-1847",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Included ChunksExact::new with the real Rust body order: `let rem = slice.len() % chunk_size; let fst_len = slice.len() - rem; let (fst, snd) = ...; Self { v: fst, rem: snd, chunk_size }`.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:1849-1857",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the helper's `unsafe { slice.split_at_unchecked(fst_len) }` to the reviewed vstd `slice.split_at(fst_len)` contract after proving `fst_len <= slice.len()`; this exposes the same prefix/suffix data flow at the valid index and is recorded as a minimal split boundary.",
+      "kind": "unsafe_split_primitive_boundary_adaptation",
+      "source_lines": "core/src/slice/iter.rs:1854-1855",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and named return for Verus; the executable target body remains assert then ChunksExact::new(slice, chunk_size).",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1242-1245",
+      "source_sha256": "132676baf914451c91eb2dcc3d571294fcb65fbb0e486670e7dbffb21acd7682"
+    },
+    {
+      "edit": "Converted Rust `assert!(chunk_size != 0, ...)` to Verus `assert(chunk_size != 0)` under the same generated precondition; no control-flow path is removed.",
+      "kind": "verus_assert_macro_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1243",
+      "source_sha256": "132676baf914451c91eb2dcc3d571294fcb65fbb0e486670e7dbffb21acd7682"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper from the extracted `v`, `rem`, and `chunk_size` fields to expose source as `v + rem`, remaining as `v`, empty yielded prefix, suffix remainder, requested chunk size, and forward direction.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:1843-1847",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Inlined the generated shared vocabulary predicates `slice_iterator_well_formed` and `slice_chunk_partition` so Verus can check the exact postcondition against the source-backed iterator view.",
+      "kind": "shared_vocabulary_extraction",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:791-821",
+      "source_sha256": "source-backed frozen generated vocabulary"
+    },
+    {
+      "edit": "Added proof-only arithmetic, sequence-split, and reveal annotations to discharge `rem < chunk_size`, divisibility of the first partition, and prefix/suffix recomposition; these have no executable data-flow or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:1851-1857",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "after_contract_text": "pub assume_specification<'a, T, R: core::ops::OneSidedRange<usize>>[ <[T]>::split_off_mut::<R> ]( slice_ref: &mut &'a mut [T], range: R, ) -> (ret: Option<&'a mut [T]>) ensures ret.is_none() ==> (*final(slice_ref))@ == (*old(slice_ref))@, ret.is_some() ==> slice_split_off_partition::<T>( (*old(slice_ref))@, (*final(slice_ref))@, ret.unwrap()@, ), ;",
+  "before_contract_text": "pub assume_specification<'a, T, R: core::ops::OneSidedRange<usize>>[ <[T]>::split_off_mut::<R> ]( slice_ref: &mut &'a mut [T], range: R, ) -> (ret: Option<&'a mut [T]>) ensures ret.is_none() ==> (*final(slice_ref))@ == (*old(slice_ref))@, ret.is_some() ==> slice_split_off_partition::<T>( (*old(slice_ref))@, (*final(slice_ref))@, ret.unwrap()@, ), ret.is_some() ==> slice_split_off_partition::<T>( (*old(slice_ref))@, (*final(slice_ref))@, final(ret.unwrap())@, ), ;",
+  "not_mirrored_to_active_module_artifacts": false,
+  "rationale": "The generated `final(ret.unwrap())@` partition clause overstates what a function returning a mutable slice can guarantee: the returned mutable region may be modified independently, so its final element values are not constrained to remain an old-source prefix or suffix. Removing that single final-return partition preserves the None frame and initial returned-region partition established by the executable Rust body; this correction is now mirrored into the active Slice/Vec proof and catalog artifacts.",
+  "schema_version": 1,
+  "source_evidence": [
+    "core/src/slice/mod.rs:4972-4991 target body: split_point_of(range)?, bounds check, mem::take(self).split_at_mut(split_index), Direction reassignment and returned mutable slice",
+    "proof_harnesses/104_core_slice_split_off_mut/evidence/verus_stdout.txt reports verification results:: 3 verified, 0 errors after removing only the final(ret.unwrap())@ partition clause"
+  ],
+  "status": "mirrored_to_active_module_artifacts",
+  "target": "core::slice::split_off_mut"
+}

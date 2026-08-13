@@ -1,0 +1,95 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_vec_last_mut_boundary",
+      "name": "Vec::last_mut through slice DerefMut",
+      "rationale": "Rust 1.96 first borrows the last mutable element with `self.last_mut()?`. The harness models only the empty-Vec None case and the non-empty relation between the original Vec prefix, borrowed last element, and final Vec view after the predicate mutates that borrowed element.",
+      "source_lines": "alloc/src/vec/mod.rs:2844 and core/src/slice/mod.rs last_mut behavior",
+      "status": "minimal_trusted_boundary_for_last_mut_effect_only"
+    },
+    {
+      "kind": "source_backed_fnonce_predicate_observation_boundary",
+      "name": "FnOnce(&mut T) predicate observation on the last element",
+      "rationale": "The target body calls the user predicate exactly once on the borrowed last element. The harness records only the observed boolean and final value of that borrowed element; it does not strengthen the predicate relation or assume the target postcondition.",
+      "source_lines": "alloc/src/vec/mod.rs:2845",
+      "status": "minimal_trusted_boundary_for_callback_observation"
+    },
+    {
+      "kind": "source_backed_vec_pop_boundary",
+      "name": "Vec::pop tail removal after true predicate",
+      "rationale": "Rust 1.96 calls `self.pop()` only on the true predicate branch. The harness models only the source-backed empty/non-empty pop effects needed after the last-element predicate observation and does not mark alloc::vec::Vec::pop complete.",
+      "source_lines": "alloc/src/vec/mod.rs:2845 and 2816-2826",
+      "status": "minimal_trusted_boundary_for_pop_effect_only"
+    }
+  ],
+  "direct_call_names": [
+    "FnOnce",
+    "last_mut",
+    "pop",
+    "predicate"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "private_helper_callee_closure": [],
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 flow `let last = self.last_mut()?; if predicate(last) { self.pop() } else { None }`, adapted only to an explicit match and a named FnOnce observation boundary. This is a B proof modulo source-backed last_mut/pop effects and the callback observation; it does not claim core::slice::last_mut or alloc::vec::Vec::pop complete.",
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/138_alloc_vec_Vec_pop_if/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_last_mut_pop_and_fnonce_predicate_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "b806e75114ce9beed4d79d88159d2c39f067af6db3209e37d0cc3e551968b9e3",
+  "target": "alloc::vec::Vec::pop_if",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/138_alloc_vec_Vec_pop_if/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/138_alloc_vec_Vec_pop_if/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bFn(?:Once|Mut)?\\b"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/152_core_slice_last/harness.rs",
+  "harness_sha256": "5050cedb10c13e8cbf5042eef013a4a3d55e51f2dc7829e415471c97bce6f80e",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/152_core_slice_last/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 283,
+    "body_start_line": 281,
+    "item_sha256": "f1246fd95d78a6272bd35954b283765660c90b041fd31d41891264a19a3e4bdd",
+    "signature_end_line": 281,
+    "signature_start_line": 281
+  },
+  "status": "verus_verified_modulo_reviewed_split_last_and_verus_slice_pattern_desugaring_boundary",
+  "target": "core::slice::last",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:281-283",
+      "source_sha256": "f1246fd95d78a6272bd35954b283765660c90b041fd31d41891264a19a3e4bdd"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:281",
+      "source_sha256": "f1246fd95d78a6272bd35954b283765660c90b041fd31d41891264a19a3e4bdd"
+    },
+    {
+      "edit": "Lowered the unsupported Rust slice pattern `if let [.., last] = self { Some(last) } else { None }` to the reviewed immutable split-last desugaring: `slice.len() != 0`, `slice.split_at(slice.len() - 1)`, and `&tail[0]`.",
+      "kind": "verus_slice_pattern_desugaring_reusing_reviewed_split_last_boundary",
+      "source_lines": "core/src/slice/mod.rs:282",
+      "source_sha256": "f1246fd95d78a6272bd35954b283765660c90b041fd31d41891264a19a3e4bdd"
+    },
+    {
+      "edit": "Added proof-only `lemma_split_at` and equality assertions connecting the desugared singleton tail view to the exact-vstd `slice@.last()` postcondition; these annotations do not change executable control flow or data flow.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/std_specs/slice.rs:172-176",
+      "source_sha256": "7838f564b349372d5c8ae725de74f47ba9bd2c7967130ae1da19c3b701e8d526"
+    }
+  ]
+}

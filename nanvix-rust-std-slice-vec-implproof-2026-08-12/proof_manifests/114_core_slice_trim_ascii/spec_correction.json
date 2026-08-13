@@ -1,0 +1,11 @@
+{
+  "applied_contract": "ascii_trim_source_body_result(slice@, ret)",
+  "applied_contract_sha256": "8e7cdf58b97c864e0d24e23c1447dd1cd56beb7afe891f3791e7826f8a4f4e2d",
+  "generated_contract": "ascii_trim_result(slice@, ret)",
+  "issue": "The generated relation combines independent `ascii_trim_start_index(seq)` and `ascii_trim_end_index(seq)` with `start <= end`. For any nonempty all-ASCII-whitespace input, the reviewed start boundary chooses `start == seq.len()` while the reviewed end boundary chooses `end == 0`, so the relation rejects the Rust body result `[]`.",
+  "proposed_relation": "ascii_trim_source_body_result(seq, ret), where the end index is computed on `seq.subrange(ascii_trim_start_index(seq), seq.len())` to match `self.trim_ascii_start().trim_ascii_end()`.",
+  "schema_version": 1,
+  "status": "applied_in_project_local_artifacts",
+  "target": "core::slice::trim_ascii",
+  "verified_evidence": "proof_harnesses/114_core_slice_trim_ascii/evidence/verus_stdout.txt"
+}

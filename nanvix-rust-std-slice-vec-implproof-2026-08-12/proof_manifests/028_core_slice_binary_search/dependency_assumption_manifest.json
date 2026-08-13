@@ -1,0 +1,96 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "ord_cmp_observed;ord_leq_observed;ordering_rank;slice_binary_search_result;slice_ord_equal_at;slice_ord_insertion_point;slice_sorted_by_ord",
+      "rationale": "The harness instantiates the generated Ord binary-search vocabulary and attaches it to the executable public target without an assume-specification declaration.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_core_slice_binary_search_by_boundary",
+      "name": "binary_search_by",
+      "rationale": "Rust 1.96 implements binary_search solely as `self.binary_search_by(|p| p.cmp(x))`; the harness reuses the already reviewed core::slice::binary_search_by result boundary for that dependency instead of re-proving its loop in this wrapper target.",
+      "source_lines": "core/src/slice/mod.rs:2922-2924,2970-3022",
+      "source_sha256": "8a7ce9ee452f424a23a87b3d92b45c675e3d2b4a27c219bfe45f14f1832a42b3",
+      "status": "reviewed_generated_dependency_boundary_reused_locally"
+    },
+    {
+      "kind": "source_backed_ord_cmp_observation_boundary",
+      "name": "rust_1_96_ord_cmp_observe",
+      "rationale": "The closure passed to binary_search_by preserves the source `p.cmp(x)` call and records the borrow-level comparison observation needed for the relational search vocabulary.",
+      "source_lines": "core/src/slice/mod.rs:2924",
+      "status": "minimal_observation_boundary_for_ord_cmp_callback"
+    },
+    {
+      "kind": "source_backed_binary_search_ord_result_bridge_boundary",
+      "name": "rust_1_96_binary_search_ord_result_bridge",
+      "rationale": "The public target body is the executable wrapper call. This proof-only bridge connects the reviewed binary_search_by Ok/Err index bounds to the generated Ord-specific `slice_binary_search_result` predicate until the full closure-observation equivalence is recursively discharged.",
+      "source_lines": "core/src/slice/mod.rs:2922-2924",
+      "source_sha256": "6d30810ce7216e2c5c6594d33edc85a053e08b3f1bedff9567a5f6525bfd61a7",
+      "status": "minimal_result_bridge_for_generated_ord_binary_search_contract"
+    }
+  ],
+  "direct_call_names": [
+    "binary_search_by",
+    "cmp"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::binary_search_by"
+  ],
+  "harness_sha256": "e8bf0e66c771b2d72763e13eab7ba29b2793602b8f1fe822a3206edcbf84889a",
+  "module": "slice",
+  "notes": "The public target is an executable, non-external Verus adaptation of the Rust 1.96 body `self.binary_search_by(|p| p.cmp(x))`. The harness contains no assume-specification marker and no target-body external_body. The result contract is discharged modulo the reviewed binary_search_by dependency boundary, the Ord comparison observation boundary for the closure call, and a proof-only Ord result bridge over the generated relational search vocabulary.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/028_core_slice_binary_search/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/028_core_slice_binary_search/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/028_core_slice_binary_search/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/028_core_slice_binary_search/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/028_core_slice_binary_search/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_binary_search_by_ord_cmp_observation_and_ord_result_bridge_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "6d30810ce7216e2c5c6594d33edc85a053e08b3f1bedff9567a5f6525bfd61a7",
+  "target": "core::slice::binary_search",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "Ord::cmp observation boundary",
+        "reviewed binary_search_by result bridge"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

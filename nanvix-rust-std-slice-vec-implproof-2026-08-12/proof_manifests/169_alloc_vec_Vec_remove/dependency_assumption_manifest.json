@@ -1,0 +1,126 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::remove copied vstd sequence-remove contract",
+      "rationale": "The public target verifies the exact existing-vstd precondition `i < old(vec).len()` and postconditions `element == old(vec)[i as int]` plus `final(vec)@ == old(vec)@.remove(i as int)`; the harness represents the element lookup through the target-local Vec sequence view.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs:220-229 and alloc/src/vec/mod.rs:2367-2380",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_dependency_boundary",
+      "name": "Vec::try_remove",
+      "rationale": "Rust 1.96 implements stable `Vec::remove` as a wrapper over unstable `Vec::try_remove`; `try_remove` is outside the 180 stable target set, so the harness proves the wrapper and names the source-backed unstable dependency for the sequence-remove effect.",
+      "source_lines": "alloc/src/vec/mod.rs:2376-2378 and alloc/src/vec/mod.rs:2403-2424; frozen_inputs/vec/inventory/vec_unstable_exclusions.csv row for alloc::vec::Vec::try_remove",
+      "status": "source_backed_unstable_dependency_boundary"
+    },
+    {
+      "kind": "unreachable_panic_boundary",
+      "name": "remove assert_failed panic arm",
+      "rationale": "The copied vstd precondition `i < old(vec).len()` makes the `None => assert_failed(...)` branch unreachable after the `try_remove` result contract.",
+      "source_lines": "alloc/src/vec/mod.rs:2368-2378",
+      "status": "unreachable_under_verified_precondition"
+    }
+  ],
+  "direct_call_names": [
+    "try_remove",
+    "rust_1_96_remove_assert_failed"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "d251d21f40d868c275645b8eda627c40dcd1c270b39a3df2a267009bfdeddd93",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 `match self.try_remove(i)` wrapper flow, adapted only to the exact existing-vstd parameter name `i` and to target-local field access in the unreachable panic arm. The harness contains no assume_specification.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 2424,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "try_remove",
+      "public": true,
+      "signature_start_line": 2403,
+      "source_reference_path": "alloc/src/vec/mod.rs",
+      "status": "unstable_excluded_from_180_stable_target_set_source_backed_dependency"
+    },
+    {
+      "body_end_line": 2374,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "853b6f514ba15ad11b9b8aea42f2fbde823bc59cc11fbd7183265806ece3ca4c",
+      "name": "assert_failed",
+      "public": false,
+      "signature_start_line": 2372,
+      "source_reference_path": "alloc/src/vec/mod.rs",
+      "status": "unreachable_panic_arm_under_precondition"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/169_alloc_vec_Vec_remove/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/169_alloc_vec_Vec_remove/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_try_remove_dependency_and_unreachable_panic_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "26e35fd4f7dc7706abc1b2b1c43c40292645cf9bd7dc9a127f897931fed3d522",
+  "target": "alloc::vec::Vec::remove",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/169_alloc_vec_Vec_remove/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/169_alloc_vec_Vec_remove/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "unreachable remove assert_failed panic arm"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "source-backed unstable Vec::try_remove dependency boundary"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "source-backed unstable Vec::try_remove dependency boundary"
+      ],
+      "present": true
+    }
+  }
+}

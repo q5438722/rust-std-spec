@@ -1,0 +1,36 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/052_core_slice_get_disjoint_unchecked_mut/harness.rs",
+  "harness_sha256": "558100ddbe9bf845a7930db89da18b1fcf6291aa9d39045c434e33552512c594",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/052_core_slice_get_disjoint_unchecked_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 5166,
+    "body_start_line": 5148,
+    "item_sha256": "fadb1cf499d963bdf8603a8901d68a9dc03c5ce7ebf3f084ce0fe58348b65be2",
+    "signature_end_line": 5148,
+    "signature_start_line": 5142
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_maybe_uninit_trait_clone_unchecked_index_boundary",
+  "target": "core::slice::get_disjoint_unchecked_mut",
+  "transformations": [
+    {
+      "kind": "receiver_adaptation",
+      "rationale": "Adapted the inherent `&mut self` receiver to the explicit harness receiver `slice: &mut [T]`; no target semantics were changed."
+    },
+    {
+      "kind": "source_backed_raw_pointer_token_boundary",
+      "rationale": "Represented Rust's `let slice: *mut [T] = self` raw-provenance step with `rust_1_96_slice_receiver_to_raw`, preserving the non-mutating frame fact while avoiding direct Verus raw slice-pointer modeling."
+    },
+    {
+      "kind": "source_backed_maybe_uninit_token_boundary",
+      "rationale": "Represented the `MaybeUninit<[&mut I::Output; N]>::uninit()` and `arr.as_mut_ptr()` setup with local token boundaries because Verus does not model MaybeUninit raw storage for mutable-reference arrays directly."
+    },
+    {
+      "kind": "source_backed_unsafe_loop_boundary",
+      "rationale": "Isolated the unsafe source loop over `0..N`, unchecked index cloning, unchecked mutable slice indexing, raw `cast/add/write`, and final `arr.assume_init()` in one named boundary guarded by the generated disjoint/in-bounds precondition."
+    }
+  ]
+}

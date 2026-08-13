@@ -1,0 +1,92 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_index_in_range;slice_index_mut_frame",
+      "rationale": "Generated unchecked mutable-index vocabulary is attached to the executable public target as the documented unsafe precondition and final mutable-slice frame. It is instantiated as target-local uninterpreted contract vocabulary and is not used through an assume_specification.",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_sliceindex_get_unchecked_mut_boundary",
+      "name": "rust_1_96_sliceindex_get_unchecked_mut_ref",
+      "rationale": "The public target preserves the Rust 1.96 unsafe data flow `unsafe { &mut *index.get_unchecked_mut(self) }` through one target-local boundary for `SliceIndex::get_unchecked_mut` returning a raw mutable output pointer and the immediate dereference. The frozen trait safety contract states implementations must ensure a safe mutable reference result when called with a safe mutable slice domain.",
+      "source_excerpt_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/index.rs:145-186 and core/src/slice/mod.rs:687-692",
+      "source_sha256": "feb16246768c2ac347ede8b95039570e3fddfb54257e2f8abadf710ff1c139e1",
+      "status": "minimal_trusted_boundary_for_source_backed_mutable_sliceindex_raw_pointer_result_and_deref"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_sliceindex_get_unchecked_mut_ref"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The public target function is executable and non-external: it carries the generated `slice_index_in_range(old(slice)@, index)` precondition and `slice_index_mut_frame(old(slice)@, index, final(slice)@)` postcondition, calls only the source-backed SliceIndex::get_unchecked_mut raw-pointer/deref boundary, and contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/055_core_slice_get_unchecked_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_sliceindex_get_unchecked_mut_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "feb16246768c2ac347ede8b95039570e3fddfb54257e2f8abadf710ff1c139e1",
+  "target": "core::slice::get_unchecked_mut",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/055_core_slice_get_unchecked_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/055_core_slice_get_unchecked_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "SliceIndex::get_unchecked_mut returns *mut Self::Output",
+        "&mut *index.get_unchecked_mut(self)"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "SliceIndex::get_unchecked_mut"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe fn get_unchecked_mut",
+        "unsafe { &mut *index.get_unchecked_mut(self) }"
+      ],
+      "present": true
+    }
+  }
+}

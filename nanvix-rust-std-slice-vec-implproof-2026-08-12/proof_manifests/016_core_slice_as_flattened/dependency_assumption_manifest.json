@@ -1,0 +1,168 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "array_value_view;flatten_array_chunks",
+      "rationale": "The generated fixed-array flattening vocabulary is inlined as open spec definitions so Verus checks `ret@ == flatten_array_chunks(slice@)` without assuming the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:921-944",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "generated_target_dependency",
+      "name": "core::slice::as_ptr",
+      "rationale": "The Rust 1.96 body calls `self.as_ptr()` before `cast()`. The harness reuses the reviewed immutable as_ptr pointer-start pattern through a local executable wrapper producing `slice_start_ptr(slice@, ptr)`.",
+      "source_lines": "core/src/slice/mod.rs:5445-5455; proof_harnesses/021_core_slice_as_ptr/harness.rs",
+      "status": "reviewed_dependency_reused_for_pointer_start_fact"
+    },
+    {
+      "kind": "generated_target_dependency",
+      "name": "core::slice::from_raw_parts",
+      "rationale": "The Rust 1.96 body finishes with `from_raw_parts(self.as_ptr().cast(), len)`. The harness reuses the reviewed immutable raw-parts domain shape and specializes the returned slice relation to the flattened element source.",
+      "source_lines": "core/src/slice/mod.rs:5445-5455; core/src/slice/raw.rs:124-141; proof_harnesses/048_core_slice_from_raw_parts/harness.rs",
+      "status": "reviewed_dependency_pattern_reused_for_raw_parts_domain"
+    },
+    {
+      "kind": "source_backed_layout_query_boundary",
+      "name": "T::IS_ZST",
+      "rationale": "Rust 1.96 branches on the type layout query before choosing checked or unchecked multiplication. The harness preserves the branch and trusts only the source-backed layout-query result.",
+      "source_excerpt_relpath": "proof_harnesses/016_core_slice_as_flattened/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5446",
+      "source_sha256": "794295913933cd7019fdede0d3d701032f47d8c79b723ecff88f404d9a1cabff",
+      "status": "minimal_trusted_boundary_for_type_layout_query"
+    },
+    {
+      "kind": "source_backed_intrinsic_and_panic_boundary",
+      "name": "checked_mul().expect(\"slice len overflow\") and unchecked_mul",
+      "rationale": "The public target body keeps the ZST checked-multiply panic path and the non-ZST unchecked multiplication path. The boundary is limited to the source-backed arithmetic facts needed to establish `len == self.len() * N`.",
+      "source_excerpt_relpath": "proof_harnesses/016_core_slice_as_flattened/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5446-5451",
+      "source_sha256": "794295913933cd7019fdede0d3d701032f47d8c79b723ecff88f404d9a1cabff",
+      "status": "minimal_trusted_boundary_for_overflow_panic_and_unchecked_arithmetic"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "rust_1_96_array_ptr_cast",
+      "rationale": "Verus cannot prove Rust raw-pointer provenance for `self.as_ptr().cast()` directly. The boundary body is the source-backed array-to-element raw-pointer conversion and only links the reviewed slice-start pointer plus length multiplication fact to the flattened element source and raw-domain facts.",
+      "source_excerpt_relpath": "proof_harnesses/016_core_slice_as_flattened/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5454",
+      "source_sha256": "794295913933cd7019fdede0d3d701032f47d8c79b723ecff88f404d9a1cabff",
+      "status": "minimal_trusted_boundary_for_source_backed_ptr_cast_to_flat_slice"
+    },
+    {
+      "kind": "source_backed_raw_parts_provenance_boundary",
+      "name": "rust_1_96_from_raw_parts_flat",
+      "rationale": "The public target body calls a local `from_raw_parts` wrapper after the source-backed pointer cast. The only isolated operation is the immutable raw slice construction over `T`, whose contract relates the returned slice view to the flattened element source.",
+      "source_excerpt_relpath": "proof_harnesses/016_core_slice_as_flattened/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5454; core/src/slice/raw.rs:124-141",
+      "source_sha256": "794295913933cd7019fdede0d3d701032f47d8c79b723ecff88f404d9a1cabff",
+      "status": "minimal_trusted_boundary_for_source_backed_flat_slice_raw_parts"
+    }
+  ],
+  "direct_call_names": [
+    "T::IS_ZST",
+    "as_ptr",
+    "checked_mul",
+    "expect",
+    "from_raw_parts",
+    "len",
+    "ptr.cast",
+    "unchecked_mul"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_ptr",
+    "core::slice::from_raw_parts"
+  ],
+  "harness_sha256": "c1cd0d38a0bbb7eb54ae8e1f9e79c6bcefc0f918cf7074b2380ecf45e2197624",
+  "module": "slice",
+  "notes": "The public target function is executable and non-external: it records `slice@`, computes `len` through the Rust 1.96 ZST checked-multiply panic path or non-ZST unchecked multiplication path, obtains `slice.as_ptr()`, performs the source-backed `ptr.cast()` boundary, then calls `from_raw_parts(flat_ptr, len)`. The harness contains no proof-by-assumption marker, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/016_core_slice_as_flattened/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/016_core_slice_as_flattened/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/016_core_slice_as_flattened/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/016_core_slice_as_flattened/evidence/verus_stdout.txt",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 3 verified, 0 errors",
+    "version_relpath": "proof_harnesses/016_core_slice_as_flattened/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_slice_flattened_raw_parts_intrinsic_panic_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "794295913933cd7019fdede0d3d701032f47d8c79b723ecff88f404d9a1cabff",
+  "target": "core::slice::as_flattened",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "T::IS_ZST",
+        "\\bunchecked_"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bexpect\\s*\\("
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.cast\\s*\\(",
+        "\\bas_ptr\\s*\\(",
+        "\\bfrom_raw_parts"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  }
+}

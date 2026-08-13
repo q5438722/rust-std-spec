@@ -1,0 +1,63 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+  "harness_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/harness.rs",
+  "harness_sha256": "656df44cf7bdbb0c0e7e7ef09f309cae168cd70c08742ee99d8c9926a6ebc897",
+  "helper_source_excerpts": [
+    {
+      "relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/u8_ascii_uppercase_source_excerpt.rs",
+      "sha256": "335534189b6f9e832dec3afd1e53b710714e995ea73a5ba5f7050dc243dfa30f",
+      "source_lines": "library/core/src/num/mod.rs:579-580,681-683,758-760,888-890"
+    }
+  ],
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/064_core_slice_make_ascii_uppercase/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/ascii.rs",
+  "source_span": {
+    "body_end_line": 181,
+    "body_start_line": 173,
+    "item_sha256": "27e449dd46ebb3c67e4e390a7ea84e40a3065861456b65c55bee8f0bf208205f",
+    "signature_end_line": 173,
+    "signature_start_line": 173
+  },
+  "status": "verus_verified_modulo_verus_u8_range_pattern_desugaring",
+  "target": "core::slice::make_ascii_uppercase",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function using an explicit `slice: &mut [u8]` receiver parameter and named post-state; the Rust loop's `let mut i = 0`, `while i < self.len()`, mutable element borrow, byte mutator call, and `i += 1` data flow are preserved.",
+      "kind": "receiver_signature_and_executable_body_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:173-181",
+      "source_sha256": "27e449dd46ebb3c67e4e390a7ea84e40a3065861456b65c55bee8f0bf208205f"
+    },
+    {
+      "edit": "Adapted the Rust `pub const fn` item to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:173",
+      "source_sha256": "27e449dd46ebb3c67e4e390a7ea84e40a3065861456b65c55bee8f0bf208205f"
+    },
+    {
+      "edit": "Lowered primitive method syntax to a target-local but fully verified helper chain preserving Rust's is_ascii_lowercase, XOR-mask to_ascii_uppercase, and in-place make_ascii_uppercase data flow. Only the unsupported u8 range pattern is represented by equivalent comparisons.",
+      "kind": "primitive_method_chain_verified_in_harness",
+      "source_lines": "core/src/slice/ascii.rs:177-178; library/core/src/num/mod.rs:681-683,758-760,888-890",
+      "source_sha256": "335534189b6f9e832dec3afd1e53b710714e995ea73a5ba5f7050dc243dfa30f"
+    },
+    {
+      "edit": "Instantiated the generated shared ASCII vocabulary with the frozen definitions of `ascii_is_lowercase`, `ascii_upper_byte`, and `ascii_upper_seq`; added `#![auto]` only as Verus quantifier-trigger annotations.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1191-1234",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10"
+    },
+    {
+      "edit": "Added proof-only loop invariant clauses and the Verus termination measure `slice.len() - i` to expose the prefix-uppercased/suffix-unchanged relation and prove termination; these annotations do not alter executable loop behavior.",
+      "kind": "proof_only_loop_annotation",
+      "source_lines": "core/src/slice/ascii.rs:175-180",
+      "source_sha256": "27e449dd46ebb3c67e4e390a7ea84e40a3065861456b65c55bee8f0bf208205f"
+    },
+    {
+      "edit": "Added a bit-vector proof that for ASCII lowercase bytes toggling case bit 0x20 is equal to subtracting 0x20, and that XOR with zero leaves other bytes unchanged.",
+      "kind": "source_bitmask_to_spec_equivalence_proof",
+      "source_lines": "library/core/src/num/mod.rs:681-683",
+      "source_sha256": "335534189b6f9e832dec3afd1e53b710714e995ea73a5ba5f7050dc243dfa30f"
+    }
+  ]
+}

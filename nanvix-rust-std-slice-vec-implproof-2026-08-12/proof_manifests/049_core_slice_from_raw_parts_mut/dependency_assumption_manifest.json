@@ -1,0 +1,95 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "SliceRawDomain;SliceRawMutability;slice_raw_mut_domain;slice_raw_domain_valid;slice_raw_domain_valid_for;slice_start_mut_ptr;slice_from_raw_parts_mut_result",
+      "rationale": "The generated mutable raw-domain vocabulary is instantiated in the harness as target-local spec definitions. It captures the documented non-null, alignment, one-allocation, initialized-memory, exclusive-aliasing, and isize-size preconditions without assuming the target postcondition directly.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:962-1040",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "rust_1_96_from_raw_parts_mut_ub_checked_raw_slice",
+      "rationale": "The public target is executable and calls a target-local boundary for the Rust 1.96 unsafe block. The boundary is guarded by the generated mutable raw-domain precondition corresponding to the source `ub_checks::assert_unsafe_precondition!` and contains the source-backed raw mutable slice construction `unsafe { &mut *core::ptr::slice_from_raw_parts_mut(data, len) }`, which Verus does not model directly.",
+      "source_excerpt_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/raw.rs:179-196",
+      "source_sha256": "b19fba4b6bde2fc2195bda8acded38ced9f42f1eb67c475260a1e84a9c667093",
+      "status": "minimal_trusted_boundary_for_source_backed_from_raw_parts_mut_ub_precondition_and_raw_pointer_provenance_semantics"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_from_raw_parts_mut_ub_checked_raw_slice"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The public target function is executable and non-external: it preserves the Rust 1.96 unsafe mutable raw-parts construction through one target-local source-backed UB-precondition/raw-pointer/provenance boundary. The harness has no proof-by-assumption contract marker and no externalized public target body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/049_core_slice_from_raw_parts_mut/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_ub_precondition_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "0914968067f7e2bc798680c1edd72bcb032a9fd44ebb2b6fbc082a3a2b16941f",
+  "source_item_sha256": "b19fba4b6bde2fc2195bda8acded38ced9f42f1eb67c475260a1e84a9c667093",
+  "target": "core::slice::from_raw_parts_mut",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/049_core_slice_from_raw_parts_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/049_core_slice_from_raw_parts_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "ub_checks::assert_unsafe_precondition!",
+        "size_of::<T>()",
+        "align_of::<T>()"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "core::ptr::slice_from_raw_parts_mut(data, len)",
+        "&mut *raw_slice_pointer"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe fn from_raw_parts_mut",
+        "unsafe { &mut *core::ptr::slice_from_raw_parts_mut(data, len) }"
+      ],
+      "present": true
+    }
+  }
+}

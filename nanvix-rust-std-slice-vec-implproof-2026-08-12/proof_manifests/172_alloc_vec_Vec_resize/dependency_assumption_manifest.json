@@ -1,0 +1,144 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::resize copied vstd cloned sequence contract",
+      "rationale": "The public target verifies the exact existing-vstd resize postconditions: truncation returns the old prefix, while growth preserves the old prefix, sets the final sequence length to the requested length, and relates each appended element to the input value with Verus's `cloned::<T>` relation.",
+      "source_lines": "frozen_inputs/vec/specs/existing_vstd_vec_specs.rs:135-147 and alloc/src/vec/mod.rs:3491-3499",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_vec_len_boundary",
+      "name": "Vec::len",
+      "rationale": "Rust 1.96 stores `let len = self.len();` before branching. The harness keeps that executable call and maps it to a local spec-length observation used by the copied vstd `old(vec).len()` contract shape.",
+      "source_lines": "alloc/src/vec/mod.rs:3022-3028 and 3492",
+      "status": "minimal_trusted_boundary_for_len_observation"
+    },
+    {
+      "kind": "source_backed_vec_truncate_boundary",
+      "name": "Vec::truncate prefix effect",
+      "rationale": "The target calls `self.truncate(new_len)` exactly on the non-growing branch. The harness models only the source-backed prefix/no-op effect needed for the exact existing-vstd shrink postcondition.",
+      "source_lines": "alloc/src/vec/mod.rs:1786-1806 and 3496-3498",
+      "status": "minimal_trusted_boundary_for_truncate_effect_only"
+    },
+    {
+      "kind": "source_backed_extend_with_clone_write_boundary",
+      "name": "Vec::extend_with",
+      "rationale": "The target grow branch delegates to private `extend_with(new_len - len, value)`. The harness isolates that private helper's reserve/raw-pointer/set-len/write loop and Clone behavior as the source-backed effect that appends exactly `n` elements, preserves the old initialized prefix, and relates appended elements to `value` with `cloned::<T>`.",
+      "source_lines": "alloc/src/vec/mod.rs:3617-3643 and 3494-3495",
+      "status": "minimal_trusted_boundary_for_extend_with_clone_write_effect_only"
+    }
+  ],
+  "direct_call_names": [
+    "extend_with",
+    "len",
+    "truncate"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "a96ca14d3135a96d9bc4f2fe5ccb7ba7ed2d15110e4ee7ab6c086311bf2b4c87",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 flow `let len = self.len(); if new_len > len { self.extend_with(new_len - len, value) } else { self.truncate(new_len); }`, adapted only by a local `when_used_as_spec` model for the copied vstd `old(vec).len()` postcondition shape. The harness contains no assume_specification.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 3028,
+      "disposition": "source_backed_len_observation_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::len",
+      "public": true,
+      "signature_start_line": 3022,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 1806,
+      "disposition": "source_backed_truncate_prefix_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::truncate",
+      "public": true,
+      "signature_start_line": 1786,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 3643,
+      "disposition": "source_backed_extend_with_clone_write_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::extend_with",
+      "public": false,
+      "signature_start_line": 3617,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/172_alloc_vec_Vec_resize/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/172_alloc_vec_Vec_resize/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_resize_len_truncate_extend_with_clone_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "a3210d36b66d7e2b3fcd63b8034af51d1f9255427f09a0345208d1608a125618",
+  "target": "alloc::vec::Vec::resize",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/172_alloc_vec_Vec_resize/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "Vec::extend_with calls reserve before writing clones"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "Vec::extend_with uses as_mut_ptr().add and ptr::write"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "T: Clone behavior represented by cloned::<T>"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "Vec::extend_with unsafe raw-pointer write loop"
+      ],
+      "present": true
+    }
+  }
+}

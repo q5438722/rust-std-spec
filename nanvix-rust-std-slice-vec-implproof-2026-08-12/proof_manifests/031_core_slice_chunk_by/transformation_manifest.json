@@ -1,0 +1,62 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/031_core_slice_chunk_by/harness.rs",
+  "harness_sha256": "79536e82b63e35ab61b084acb1763d180f0f810b453e8173d45782a61dd0d6f8",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/031_core_slice_chunk_by/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1869,
+    "body_start_line": 1867,
+    "item_sha256": "30a1242feee61b528b84b6f4e21d833956abebb2b1beeab123da4b9cdcb354ec",
+    "signature_end_line": 1867,
+    "signature_start_line": 1864
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::chunk_by",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:1864-1869",
+      "source_sha256": "30a1242feee61b528b84b6f4e21d833956abebb2b1beeab123da4b9cdcb354ec"
+    },
+    {
+      "edit": "Extracted the target-local ChunkBy representation with private `slice` and `predicate` fields, preserving field names, order, types, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:3015-3018",
+      "source_sha256": "2ab8d75ed317fa8351c9bca384d3555e4d96b1f345e781ecb0c40d44a527d768"
+    },
+    {
+      "edit": "Included ChunkBy::new with the real Rust body `ChunkBy { slice, predicate }` so the target call is verified rather than trusted.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:3022-3024",
+      "source_sha256": "b4468cbe662bb76d13efaf2deae4877c2afa9d112bf23367530ff93b003731ed"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and named return for Verus; the executable body remains the single call `ChunkBy::new(slice, pred)`.",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1864-1869",
+      "source_sha256": "30a1242feee61b528b84b6f4e21d833956abebb2b1beeab123da4b9cdcb354ec"
+    },
+    {
+      "edit": "Preserved the Rust callback bound `F: FnMut(&T, &T) -> bool`; the harness never invokes the callback in the constructor proof and uses only the audited `fnmut_adjacent_predicate_observed` vocabulary.",
+      "kind": "callback_signature_preservation",
+      "source_lines": "core/src/slice/mod.rs:1864-1869",
+      "source_sha256": "30a1242feee61b528b84b6f4e21d833956abebb2b1beeab123da4b9cdcb354ec"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper and open adjacent-chunk helper from the extracted initial iterator state to expose source, remaining, empty yielded prefix/remainder, zero chunk size, forward direction, and predicate-observation lawfulness.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:3015-3018 and frozen_inputs/slice/specs/all_slice_specs.rs:1284-1297,1344-1367",
+      "source_sha256": "2ab8d75ed317fa8351c9bca384d3555e4d96b1f345e781ecb0c40d44a527d768"
+    },
+    {
+      "edit": "Revealed the closed iterator-view definition in ghost proof blocks and added a trigger to the local predicate-observation quantifier; these are proof-only annotations with no executable data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/all_slice_specs.rs:1344-1367",
+      "source_sha256": "2ab8d75ed317fa8351c9bca384d3555e4d96b1f345e781ecb0c40d44a527d768"
+    }
+  ]
+}

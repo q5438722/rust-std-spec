@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/131_alloc_vec_Vec_extract_if/harness.rs",
+  "harness_sha256": "f4ef24e22c5f48e6ea548f67cb2b07e6e38bd174614c1e3c0b6c604ad0a76f2f",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/131_alloc_vec_Vec_extract_if/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 4180,
+    "body_start_line": 4178,
+    "item_sha256": "5595a6134c0c7591aa806ba37cad0fa913be6fddb6f9baf51ff5ca8db32025b0",
+    "signature_end_line": 4178,
+    "signature_start_line": 4174
+  },
+  "status": "verus_verified_modulo_source_backed_extract_if_private_constructor_range_set_len_and_iterator_state_boundary",
+  "target": "alloc::vec::Vec::extract_if",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable inherent `Vec<T, A>::extract_if` method, adapting the Rust elided return lifetime to an explicit Verus lifetime while preserving the generated RangeBounds precondition and `vec_extract_if_created` postcondition.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "alloc/src/vec/mod.rs:4174-4180",
+      "source_sha256": "5595a6134c0c7591aa806ba37cad0fa913be6fddb6f9baf51ff5ca8db32025b0"
+    },
+    {
+      "edit": "Extracted target-local `Vec { buf, len }`, `RawVec`, View, RangeBounds helper vocabulary, and `ExtractIf { vec, idx, end, del, old_len, pred }` field context from the frozen Rust 1.96 source shape.",
+      "kind": "source_backed_vec_extract_if_context",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and alloc/src/vec/extract_if.rs:21-38",
+      "source_sha256": "5595a6134c0c7591aa806ba37cad0fa913be6fddb6f9baf51ff5ca8db32025b0"
+    },
+    {
+      "edit": "Preserved the public target body as the single source delegation `ExtractIf::new(self, filter, range)`; the private constructor body keeps `old_len = vec.len()`, `slice::range(range, ..old_len)`, leak-amplification `vec.set_len(0)`, and the field initializer as the named source-backed boundary.",
+      "kind": "source_backed_private_constructor_boundary",
+      "source_lines": "alloc/src/vec/mod.rs:4179 and alloc/src/vec/extract_if.rs:40-50",
+      "source_sha256": "5595a6134c0c7591aa806ba37cad0fa913be6fddb6f9baf51ff5ca8db32025b0"
+    },
+    {
+      "edit": "Recorded that `ExtractIf` stores the mutable Vec borrow and FnMut predicate while future iteration, drop hole-filling, and lifetime/drop-state behavior remain behind the generated iterator-adaptor relation instead of being strengthened into a unique final sequence.",
+      "kind": "source_backed_iterator_lifetime_drop_state_boundary",
+      "source_lines": "alloc/src/vec/extract_if.rs:21-123",
+      "source_sha256": "5595a6134c0c7591aa806ba37cad0fa913be6fddb6f9baf51ff5ca8db32025b0"
+    }
+  ]
+}

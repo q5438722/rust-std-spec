@@ -1,0 +1,135 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "array_value_view;flatten_array_chunks;slice_array_chunks_partition",
+      "rationale": "The generated mutable chunks-and-remainder vocabulary is instantiated locally as open spec definitions so Verus checks the old-view partition and final mutable frame without assuming the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:937-952",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::split_at_mut_unchecked",
+      "rationale": "The Rust 1.96 body calls unsafe split_at_mut_unchecked at the rounded-down length. The harness reuses the reviewed split_at_mut_unchecked old-prefix/old-suffix and final-frame relation after proving the rounded-down index is in range.",
+      "source_lines": "core/src/slice/mod.rs:1557-1559; proof_harnesses/086_core_slice_split_at_mut_unchecked/harness.rs",
+      "status": "reviewed_dependency_reused_for_unchecked_mut_split_view_and_final_frame_fact"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::as_chunks_unchecked_mut",
+      "rationale": "The Rust 1.96 body converts the multiple-of-N prefix with unsafe as_chunks_unchecked_mut. The harness reuses the verified mutable array-chunk old-view and final-frame shape after proving the prefix length is divisible by N.",
+      "source_lines": "core/src/slice/mod.rs:1560-1561; proof_harnesses/015_core_slice_as_chunks_unchecked_mut/harness.rs",
+      "status": "reviewed_dependency_reused_for_mutable_array_chunk_view_and_final_frame_fact"
+    },
+    {
+      "kind": "panic_or_bounds",
+      "name": "assert!(N != 0)",
+      "rationale": "The generated precondition N != 0 makes the Rust assertion pass; the Verus harness keeps the assertion and uses div/mod lemmas to prove the source rounded-down length and remainder bounds.",
+      "source_excerpt_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:1553-1556",
+      "source_sha256": "53fb689ca4c691d2e432cbea572e07fcc1c5cd487734c27f9d0b82841f5b7ae8",
+      "status": "discharged_by_target_precondition_and_arithmetic_proof"
+    }
+  ],
+  "direct_call_names": [
+    "as_chunks_unchecked_mut",
+    "assert!",
+    "len",
+    "split_at_mut_unchecked"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_chunks_unchecked_mut",
+    "core::slice::split_at_mut_unchecked"
+  ],
+  "module": "slice",
+  "notes": "The target function is executable and non-external: it asserts N != 0, computes len_rounded_down = slice.len() / N * N, calls unsafe split_at_mut_unchecked(len_rounded_down), calls unsafe as_chunks_unchecked_mut on the multiple-of-N prefix, and returns (array_slice, remainder). The proof is modulo the reviewed dependency contracts for split_at_mut_unchecked and as_chunks_unchecked_mut; it contains no assume_specification and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/013_core_slice_as_chunks_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 120,
+    "exit_code_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/013_core_slice_as_chunks_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu",
+    "version_relpath": "proof_harnesses/013_core_slice_as_chunks_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_split_at_mut_unchecked_final_frame_and_as_chunks_unchecked_mut_array_chunk_final_frame_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "53fb689ca4c691d2e432cbea572e07fcc1c5cd487734c27f9d0b82841f5b7ae8",
+  "target": "core::slice::as_chunks_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bassert(?:_eq|_ne)?!"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "reviewed unsafe <[T]>::split_at_mut_unchecked final-frame relation",
+        "reviewed unsafe <[T]>::as_chunks_unchecked_mut mutable array-chunk conversion"
+      ],
+      "present": true
+    }
+  }
+}

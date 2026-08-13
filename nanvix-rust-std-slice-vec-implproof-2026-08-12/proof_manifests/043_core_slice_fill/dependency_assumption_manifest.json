@@ -1,0 +1,125 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "slice_filled_with_clone; cloned<T>",
+      "rationale": "The generated contract states that every final element is a clone-observation of the input value and preserves the slice length; the harness attaches this vocabulary to the target and helper boundary without using assume_specification.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:274-290",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_trait_specialization_boundary",
+      "name": "specialize::SpecFill::spec_fill",
+      "rationale": "The public Rust 1.96 target body is exactly the delegation specialize::SpecFill::spec_fill(self, value), adapted only to the explicit Verus receiver slice. The helper boundary covers the source-backed default Clone loop, TrivialClone path, and primitive write_bytes specializations until those private specialization bodies are recursively proved.",
+      "source_lines": "core/src/slice/specialize.rs:4-73",
+      "source_sha256": "261d34c381bd3e2c8f0f8602fd2afe11fc2531d70b4a2a514dd176a69933b0ac",
+      "status": "minimal_trusted_boundary_for_specfill_specialization_and_clone_effects"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "T: Clone",
+      "rationale": "The source signature requires Clone, and the generated relation deliberately preserves clone-observation semantics rather than choosing a concrete unique output for arbitrary T.",
+      "source_lines": "core/src/slice/mod.rs:4166-4171; core/src/slice/specialize.rs:8-17",
+      "status": "preserved_source_trait_effects_without_target_body_assumption"
+    }
+  ],
+  "direct_call_names": [
+    "spec_fill"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 single delegation specialize::SpecFill::spec_fill(self, value), adapted only to the explicit Verus receiver parameter slice. The public target is executable and verified; SpecFill specialization dispatch and Clone effects are recorded as a source-backed helper boundary. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body; the only external_body is the named concrete [T] SpecFill boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 17,
+      "disposition": "source_backed_default_clone_specfill_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/specialize.rs",
+      "name": "SpecFill::spec_fill default Clone implementation",
+      "public": false,
+      "signature_start_line": 8,
+      "source_reference_path": "core/src/slice/specialize.rs"
+    },
+    {
+      "body_end_line": 28,
+      "disposition": "source_backed_trivialclone_specfill_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/specialize.rs",
+      "name": "SpecFill::spec_fill TrivialClone implementation",
+      "public": false,
+      "signature_start_line": 20,
+      "source_reference_path": "core/src/slice/specialize.rs"
+    },
+    {
+      "body_end_line": 73,
+      "disposition": "source_backed_primitive_specfill_write_bytes_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/specialize.rs",
+      "name": "SpecFill primitive write_bytes/int specializations",
+      "public": false,
+      "signature_start_line": 30,
+      "source_reference_path": "core/src/slice/specialize.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/043_core_slice_fill/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_stderr.txt",
+    "stderr_sha256": "fc974f18f0867ec2980a99213876634551b17fdacb663cdc22e9ca75a2ec29dd",
+    "stdout_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/043_core_slice_fill/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_specfill_clone_specialization_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "e9949b7e821e39d687514cd4b39f23b69157d7ef6c845f36b8c95f1864a553d8",
+  "target": "core::slice::fill",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/043_core_slice_fill/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/043_core_slice_fill/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::clone::Clone and specialize::SpecFill::spec_fill specialization boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

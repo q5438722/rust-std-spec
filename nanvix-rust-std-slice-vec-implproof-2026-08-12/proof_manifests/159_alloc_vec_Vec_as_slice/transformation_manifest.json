@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/harness.rs",
+  "harness_sha256": "68088182da64689822b8e3449b1e28619d76c40b76a94636fe16063aee11d82b",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/159_alloc_vec_Vec_as_slice/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 1842,
+    "body_start_line": 1823,
+    "item_sha256": "f88b7f2076ec783fa661d350464cb623d1fa17242d1c3ca10b55a12fbfd66b61",
+    "signature_end_line": 1823,
+    "signature_start_line": 1823
+  },
+  "status": "verus_verified_modulo_reviewed_as_ptr_and_source_backed_raw_pointer_cast_boundary_for_aggregate_raw_ptr_shared_slice",
+  "target": "alloc::vec::Vec::as_slice",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable inherent `Vec<T, A>::as_slice` method, adapting the `const fn` source signature to Verus named-return/lifetime syntax while preserving the Rust 1.96 data flow through `self.as_ptr()`, `self.len`, and the unsafe aggregate_raw_ptr shared-slice construction.",
+      "kind": "verus_signature_and_body_adaptation",
+      "source_lines": "alloc/src/vec/mod.rs:1823-1842",
+      "source_sha256": "f88b7f2076ec783fa661d350464cb623d1fa17242d1c3ca10b55a12fbfd66b61"
+    },
+    {
+      "edit": "Reused the reviewed `Vec::as_ptr` vocabulary (`CapacitySpec::spec_capacity` and `vec_start_ptr`) for the raw immutable start-pointer relation instead of assuming the public target postcondition.",
+      "kind": "reviewed_dependency_vocabulary_reuse",
+      "source_lines": "alloc/src/vec/mod.rs:1974 and proof_harnesses/125_alloc_vec_Vec_as_ptr/harness.rs",
+      "source_sha256": "e6b5492a6b90f7571c01f4c66c9ca718c2b65c5537bc2a4e9d72e607936f93e0"
+    },
+    {
+      "edit": "Modeled only the source-backed intrinsic/raw-pointer/unsafe boundary for `&*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)`, carrying the exact copied vstd postcondition `slice@ == vec@`.",
+      "kind": "source_backed_intrinsic_raw_shared_slice_boundary",
+      "source_lines": "alloc/src/vec/mod.rs:1838-1841",
+      "source_sha256": "f88b7f2076ec783fa661d350464cb623d1fa17242d1c3ca10b55a12fbfd66b61"
+    },
+    {
+      "edit": "Public target remains non-external-body and contains no `assume_specification` marker.",
+      "kind": "proof_harness_hygiene",
+      "source_lines": "proof_harnesses/159_alloc_vec_Vec_as_slice/harness.rs",
+      "source_sha256": "68088182da64689822b8e3449b1e28619d76c40b76a94636fe16063aee11d82b"
+    }
+  ]
+}

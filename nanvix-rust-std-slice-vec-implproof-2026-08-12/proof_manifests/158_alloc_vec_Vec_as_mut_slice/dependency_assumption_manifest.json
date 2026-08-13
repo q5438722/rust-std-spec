@@ -1,0 +1,132 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::as_mut_slice copied vstd Seq/View contract",
+      "rationale": "The harness preserves the exact existing-vstd postconditions: the returned mutable slice initially views old(vec), and the final returned slice view is the final Vec view.",
+      "source_lines": "frozen_inputs/vec/catalog/vec_spec_catalog.csv row for alloc::vec::Vec::as_mut_slice and alloc/src/vec/mod.rs:1859-1878",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_contract_vocabulary",
+      "name": "CapacitySpec::spec_capacity; vec_start_mut_ptr",
+      "rationale": "The public target calls the already reviewed `Vec::as_mut_ptr` vocabulary, preserving the raw start-pointer relation without assuming the public target's postcondition.",
+      "source_lines": "proof_harnesses/124_alloc_vec_Vec_as_mut_ptr/harness.rs and alloc/src/vec/mod.rs:2022-2026",
+      "status": "reviewed_as_mut_ptr_dependency_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_intrinsic_raw_pointer_boundary",
+      "name": "core::intrinsics::aggregate_raw_ptr::<*mut [T], _, _>",
+      "rationale": "The Rust 1.96 body constructs the mutable slice with `&mut *core::intrinsics::aggregate_raw_ptr::<*mut [T], _, _>(self.as_mut_ptr(), self.len)`. The harness isolates only that intrinsic/raw mutable-slice dereference, relating the result to the exact old Vec view and final-frame postcondition.",
+      "source_lines": "alloc/src/vec/mod.rs:1873-1877",
+      "status": "minimal_trusted_boundary_for_source_backed_intrinsic_raw_mut_slice_construction"
+    },
+    {
+      "kind": "source_backed_allocator_rawvec_layout_boundary",
+      "name": "Vec { buf, len } / RawVec allocator storage",
+      "rationale": "The target body reads `self.len` and obtains a raw pointer through `self.as_mut_ptr`; allocator storage and pointer provenance remain behind the reviewed source-backed Vec/RawVec boundary.",
+      "source_lines": "alloc/src/vec/mod.rs:438-441, alloc/raw_vec/mod.rs:73-75, and alloc/src/vec/mod.rs:1859-1878",
+      "status": "minimal_trusted_boundary_for_private_allocator_storage_context"
+    }
+  ],
+  "direct_call_names": [
+    "as_mut_ptr",
+    "rust_1_96_aggregate_raw_ptr_mut_slice"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_mut_ptr"
+  ],
+  "harness_sha256": "6971a9d0f1585d313e42fb5efa6c3fdeedb5a3dc8231987b66f10c229c0ac7de",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 data flow `self.as_mut_ptr()`, `self.len`, then the unsafe aggregate_raw_ptr mutable-slice construction, adapted only by target-local Vec/RawVec view vocabulary and a narrow source-backed intrinsic/raw-pointer/final-frame boundary. This proves the exact existing-vstd contract modulo those reviewed/source-backed boundaries and does not assume the public target postcondition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 2026,
+      "disposition": "reviewed_as_mut_ptr_rawvec_capacity_raw_pointer_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "56c46d9ef725e15cd271f3f23002feff485277b74e9e73f1bf9b87663be0718b",
+      "name": "Vec::as_mut_ptr",
+      "public": true,
+      "signature_start_line": 2022,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/158_alloc_vec_Vec_as_mut_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/158_alloc_vec_Vec_as_mut_slice/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_as_mut_ptr_and_source_backed_raw_pointer_cast_boundary_for_aggregate_raw_ptr_mut_slice_final_frame",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "9e8c08a1429efd4843901f4acd702e6b4fea2a039c00ee3d8e52c0422918a310",
+  "target": "alloc::vec::Vec::as_mut_slice",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/158_alloc_vec_Vec_as_mut_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bbuf\\b",
+        "RawVec<T, A>",
+        "self.len"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [
+        "aggregate_raw_ptr"
+      ],
+      "present": true
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.as_mut_ptr()",
+        "aggregate_raw_ptr::<*mut [T], _, _>",
+        "raw mutable slice dereference"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { &mut *core::intrinsics::aggregate_raw_ptr::<*mut [T], _, _>(self.as_mut_ptr(), self.len) }"
+      ],
+      "present": true
+    }
+  }
+}

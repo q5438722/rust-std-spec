@@ -1,0 +1,15 @@
+{
+  "after_contract_text": "pub assume_specification<'a, T>[ <[T]>::chunks_exact_mut ]( slice: &'a mut [T], chunk_size: usize, ) -> (iter: core::slice::ChunksExactMut<'a, T>) requires chunk_size != 0, ensures slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).source == old(slice)@, slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).yielded_prefix.len() == 0, slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).chunk_size == chunk_size as int, !slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).reverse, slice_chunk_partition::<T>(slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter)), ;",
+  "before_contract_text": "pub assume_specification<'a, T>[ <[T]>::chunks_exact_mut ]( slice: &'a mut [T], chunk_size: usize, ) -> (iter: core::slice::ChunksExactMut<'a, T>) requires chunk_size != 0, ensures slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).source == old(slice)@, slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).yielded_prefix.len() == 0, slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).chunk_size == chunk_size as int, !slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter).reverse, slice_chunk_partition::<T>(slice_iterator_view::<core::slice::ChunksExactMut<'a, T>, T>(iter)), final(slice)@ == old(slice)@, ;",
+  "not_mirrored_to_active_module_artifacts": true,
+  "rationale": "The unconditional unchanged-final-slice clause is not entailed by a Rust body that returns mutable iterator state over split pieces of the original slice. Removing that single frame clause preserves the constructor/source iterator-view facts while avoiding a false claim about future mutations through returned mutable state. Do not mirror this correction to active Slice/Vec artifacts until a corrected harness and independent review approve it.",
+  "schema_version": 1,
+  "source_evidence": [
+    "core/src/slice/mod.rs:1290-1293 target body: assert then ChunksExactMut::new(self, chunk_size)",
+    "core/src/slice/iter.rs:2028-2033 constructor body: rem, fst_len, split_at_mut_unchecked, Self { v: fst, rem: snd, chunk_size, _marker: PhantomData }",
+    "reviewed vstd split_at_mut contract exposes final(slice)@ == final(prefix)@ + final(remainder)@ for mutable split parts",
+    "proof_harnesses/035_core_slice_chunks_exact_mut/evidence/verus_stderr.txt rejects only final(slice)@ == old(slice)@"
+  ],
+  "status": "proposed_in_proof_workspace_not_mirrored",
+  "target": "core::slice::chunks_exact_mut"
+}

@@ -1,0 +1,25 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/harness.rs",
+  "harness_sha256": "a96ca14d3135a96d9bc4f2fe5ccb7ba7ed2d15110e4ee7ab6c086311bf2b4c87",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/172_alloc_vec_Vec_resize/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 3499,
+    "body_start_line": 3491,
+    "item_sha256": "a3210d36b66d7e2b3fcd63b8034af51d1f9255427f09a0345208d1608a125618",
+    "signature_end_line": 3491,
+    "signature_start_line": 3491
+  },
+  "status": "verus_verified_modulo_source_backed_vec_resize_len_truncate_extend_with_clone_boundary",
+  "target": "alloc::vec::Vec::resize",
+  "transformations": [
+    "lowered inherent Rust method to target-local Verus model with explicit Vec receiver",
+    "preserved public target body `let len = self.len(); if new_len > len { self.extend_with(new_len - len, value) } else { self.truncate(new_len); }`",
+    "used `when_used_as_spec` on the local executable `len` helper so the public ensures keep the copied vstd `old(vec).len()` shape",
+    "isolated source-backed Vec::len, Vec::truncate, and private Vec::extend_with clone/write effects as helper boundaries",
+    "kept public target executable and non-external-body"
+  ]
+}

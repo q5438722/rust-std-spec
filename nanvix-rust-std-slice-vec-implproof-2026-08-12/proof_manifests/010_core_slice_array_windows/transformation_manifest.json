@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/010_core_slice_array_windows/harness.rs",
+  "harness_sha256": "48a14000ab9706935c19f0b0a668ed8990997684d246d82d8664d07b757dbdb4",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/010_core_slice_array_windows/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1649,
+    "body_start_line": 1646,
+    "item_sha256": "cb847876b5acfbc5b4dc0965b2f5e056bdd76de3517d4dc348c0f54d3d28bd54",
+    "signature_end_line": 1646,
+    "signature_start_line": 1646
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::array_windows",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local ArrayWindows representation with the private `v` field, preserving field name, order, type, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:2181-2183",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Included ArrayWindows::new with the real Rust body `Self { v: slice }` so the target call is verified rather than trusted.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:2185-2189",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and named return for Verus; the executable body remains assert then ArrayWindows::new(slice).",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1646-1649",
+      "source_sha256": "cb847876b5acfbc5b4dc0965b2f5e056bdd76de3517d4dc348c0f54d3d28bd54"
+    },
+    {
+      "edit": "Converted Rust `assert!(N != 0, ...)` to Verus `assert(N != 0)` under the same generated precondition; no control-flow path is removed.",
+      "kind": "verus_assert_macro_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1647",
+      "source_sha256": "cb847876b5acfbc5b4dc0965b2f5e056bdd76de3517d4dc348c0f54d3d28bd54"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper from the extracted `v` field to expose source, remaining, empty yielded prefix/remainder, chunk size N, and forward direction.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:2181-2183",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Revealed the closed iterator-view definition in ghost proof blocks; this has no executable data-flow or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:2187-2189",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    }
+  ]
+}

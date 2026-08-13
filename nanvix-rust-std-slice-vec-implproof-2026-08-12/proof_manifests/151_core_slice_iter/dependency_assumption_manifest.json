@@ -1,0 +1,107 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "trusted_private_helper_boundary",
+      "name": "Iter::new",
+      "rationale": "The Rust 1.96 target body is exactly the delegation `Iter::new(self)`. The harness verifies that delegation against a narrow exact-vstd iterator contract while leaving the constructor's `NonNull::from_ref`, pointer addition, ZST `without_provenance`, and unsafe raw-pointer representation to a separate source-backed boundary.",
+      "source_excerpt_relpath": "proof_harnesses/151_core_slice_iter/iter_new_source_excerpt.rs",
+      "source_lines": "core/src/slice/iter.rs:94-106",
+      "source_sha256": "61fc01798ccf604b20ff71d7c054a0e76cf0c2ca1ebc8f91bc9214ad899ccd1f",
+      "status": "minimal_trusted_boundary_until_iter_constructor_pointer_proof_is_discharged"
+    },
+    {
+      "kind": "unsupported_type_boundary",
+      "name": "core::ptr::NonNull<T> and raw `end_or_len` iterator representation",
+      "rationale": "Rust stores `Iter` as a start pointer and an end pointer or ZST length. The public `iter` body only delegates to `Iter::new`, so the harness uses an opaque lifetime-marker representation and confines pointer/provenance obligations to the constructor boundary.",
+      "source_lines": "core/src/slice/iter.rs:69-79,96-105",
+      "source_sha256": "61fc01798ccf604b20ff71d7c054a0e76cf0c2ca1ebc8f91bc9214ad899ccd1f",
+      "status": "tool_model_boundary"
+    },
+    {
+      "kind": "shared_model_helper",
+      "name": "spec_slice_iter and IteratorSpec::{remaining,decrease,initial_value_relation}",
+      "rationale": "The private constructor boundary relates the returned iterator to the exact-vstd iterator vocabulary; the public target postcondition is not assumed directly.",
+      "status": "exact_vstd_iterator_contract_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "Iter::new"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 delegation `Iter::new(self)`, adapted only to `Iter::new(slice)` for an explicit Verus receiver. The proof is B, verified modulo the source-backed private constructor/raw-pointer representation boundary. The harness contains no assume_specification, no --no-verify marker, and no public target external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 106,
+      "disposition": "trusted_private_helper_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter.rs",
+      "item_sha256": "61fc01798ccf604b20ff71d7c054a0e76cf0c2ca1ebc8f91bc9214ad899ccd1f",
+      "name": "Iter::new",
+      "public": false,
+      "signature_start_line": 96,
+      "source_reference_path": "core/src/slice/iter.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/151_core_slice_iter/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_private_helper_and_pointer_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "ed92d2713fefdf67486ea1cb36c5c0626dd7c6496adace2c7876e62081feda37",
+  "target": "core::slice::iter",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/151_core_slice_iter/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/151_core_slice_iter/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "Iter::new uses NonNull::from_ref, ptr.as_ptr().add(len), and without_provenance(len)"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "Iter::new unsafe block constructing raw iterator endpoints"
+      ],
+      "present": true
+    }
+  }
+}

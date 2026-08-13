@@ -1,0 +1,96 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_dedup_partial_eq_result",
+      "rationale": "The generated contract relation is preserved as the target postcondition vocabulary. The harness derives it through the reviewed dedup_by dependency plus the named PartialEq equality-callback bridge rather than leaving an assume_specification on the public target.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs and alloc/src/vec/mod.rs:3663-3665",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_generated_target_dependency",
+      "name": "alloc::vec::Vec::dedup_by",
+      "rationale": "Rust 1.96 dedup is a public wrapper around dedup_by with the equality predicate. The callee implementation-proof boundary is the reviewed B disposition for dedup_by, not a new proof of its raw-pointer FillGapOnDrop internals.",
+      "source_lines": "alloc/src/vec/mod.rs:2614-2740 and proof_harnesses/127_alloc_vec_Vec_dedup_by/evidence/verus_stdout.txt",
+      "status": "reviewed_dependency_boundary_reused"
+    },
+    {
+      "kind": "source_backed_partial_eq_callback_bridge",
+      "name": "PartialEq equality callback observation for `|a, b| a == b`",
+      "rationale": "The target wrapper passes the PartialEq predicate to dedup_by. The harness names the closure only to expose the callee relation to Verus, then bridges the dedup_by callback relation to vec_dedup_partial_eq_result without assuming the public target postcondition directly.",
+      "source_lines": "alloc/src/vec/mod.rs:3663-3665",
+      "status": "minimal_trusted_boundary_for_partial_eq_callback_bridge"
+    }
+  ],
+  "direct_call_names": [
+    "dedup_by"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::dedup_by"
+  ],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 wrapper semantics by calling dedup_by with the PartialEq callback `a == b`. This is a B proof modulo the reviewed dedup_by dependency boundary and the PartialEq equality-callback observation/bridge; it does not mark dedup_by internals, PartialEq semantics for arbitrary callbacks, or the generated public target postcondition as assumed.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/126_alloc_vec_Vec_dedup/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_dedup_by_dependency_and_partial_eq_callback_observation_bridge_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "f9d207cd4e2bf7bc27ee990bdeed6506fd0918a24cec45d2d76f470c6a0eab96",
+  "target": "alloc::vec::Vec::dedup",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/126_alloc_vec_Vec_dedup/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/126_alloc_vec_Vec_dedup/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bPartialEq\\b",
+        "\\bFnMut\\b",
+        "\\|a: &mut T, b: &mut T\\|"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

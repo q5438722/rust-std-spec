@@ -1,0 +1,112 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_swapped",
+      "rationale": "Generated contract uses the audited Seq update transformer for the two-index swap postcondition. The harness proves the public target against this vocabulary and does not assume the public target postcondition.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_raw_borrow_boundary",
+      "name": "rust_1_96_raw_mut_element_ptr",
+      "rationale": "Rust 1.96 creates `pa` and `pb` with `&raw mut self[a]` and `&raw mut self[b]`. This Verus build rejects raw-borrow syntax in non-external target bodies, so the harness isolates exactly the indexed raw-borrow expression in a target-local boundary that preserves the mutable-slice frame and records the source-backed pointer relation.",
+      "source_excerpt_relpath": "proof_harnesses/112_core_slice_swap/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:908-909",
+      "source_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da",
+      "status": "minimal_trusted_boundary_until_raw_borrow_element_pointer_creation_is_supported_by_verus"
+    },
+    {
+      "kind": "source_backed_raw_pointer_swap_boundary",
+      "name": "rust_1_96_ptr_swap",
+      "rationale": "The target-local boundary contains only the Rust unsafe operation `core::ptr::swap(pa, pb)` over the two source-backed element pointers. The public `swap` target is executable and non-external, creates the two pointer values through the raw-borrow boundary, calls this raw-pointer swap boundary, and obtains the generated `slice_swapped` frame relation.",
+      "source_excerpt_relpath": "proof_harnesses/112_core_slice_swap/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:914-916",
+      "source_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da",
+      "status": "minimal_trusted_boundary_until_core_ptr_swap_on_indexed_slice_element_pointers_is_recursively_proved"
+    },
+    {
+      "kind": "target_local_pointer_vocabulary",
+      "name": "slice_mut_element_ptr",
+      "rationale": "The uninterpreted pointer relation connects each raw element pointer returned by `rust_1_96_raw_mut_element_ptr` to the pre-swap slice view and index so the swap boundary is not stated for arbitrary raw pointers.",
+      "status": "target_local_boundary_vocabulary"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_raw_mut_element_ptr",
+    "rust_1_96_ptr_swap"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body is a non-external executable wrapper that preserves the Rust 1.96 sequence: derive `pa` from `slice[a]`, derive `pb` from `slice[b]`, then perform `ptr::swap(pa, pb)` inside the named unsafe/raw-pointer boundary. The harness has no assume_specification and no --no-verify marker.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/112_core_slice_swap/harness.rs --crate-type=lib --triggers-mode silent",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/112_core_slice_swap/harness.rs --no-verify --crate-type=lib",
+    "typecheck_exit_code_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_swap_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "c3f8424d1011b9a80d253d3b0b7f467d6f7a747890ca31eb841f3232d5da29da",
+  "target": "core::slice::swap",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/112_core_slice_swap/harness.rs --no-verify --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/112_core_slice_swap/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "&raw mut self[a]",
+        "&raw mut self[b]",
+        "ptr::swap(pa, pb)"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { ptr::swap(pa, pb) }"
+      ],
+      "present": true
+    }
+  }
+}

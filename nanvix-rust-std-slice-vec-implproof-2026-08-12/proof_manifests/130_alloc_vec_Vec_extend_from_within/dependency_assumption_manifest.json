@@ -1,0 +1,239 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "vec_range_bounds_valid;vec_range_start;vec_range_end;vec_extend_from_within_result",
+      "rationale": "The generated contract uses the audited Vec RangeBounds vocabulary and cloned suffix relation from vec_shared_vocabulary.rs. The executable public target proves against that vocabulary and does not assume the target postcondition directly.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_range_bounds_resolution_boundary",
+      "name": "slice::range / RangeBounds<usize> / Vec::len",
+      "rationale": "The harness preserves the source call `slice::range(src, ..self.len())`. The target-local `SourceRange` carries the original RangeBounds value through the resolved range so the generated RangeBounds helper semantics remain attached to `src`; the standard-library RangeBounds trait dispatch, bound normalization, and the Vec length/view bridge are the named trusted boundary.",
+      "source_excerpt_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/mod.rs:3556-3561",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc",
+      "status": "minimal_trusted_boundary_for_source_backed_slice_range_resolution_and_trait_semantics"
+    },
+    {
+      "kind": "source_backed_allocator_reserve_boundary",
+      "name": "Vec::reserve",
+      "rationale": "The public target executes the source call `self.reserve(range.len())`. Allocation growth, RawVec capacity management, and OOM behavior remain outside this bounded proof; the boundary guarantees the initialized sequence view is preserved before the subsequent unsafe extension helper.",
+      "source_excerpt_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/mod.rs:3561 and alloc/src/raw_vec/mod.rs:655-678",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc",
+      "status": "minimal_trusted_boundary_for_allocator_capacity_reservation_semantics"
+    },
+    {
+      "kind": "source_backed_unsafe_private_helper_boundary",
+      "name": "ExtendFromWithinSpec::spec_extend_from_within",
+      "rationale": "The public target preserves the source unsafe block and call to `self.spec_extend_from_within(range)`. The private default Clone path and TrivialClone specialization, including split spare storage, unchecked source indexing, per-element clone/write, copy_nonoverlapping, and len updates, are isolated as the named unsafe/private-helper boundary supplying the generated `vec_extend_from_within_result` relation.",
+      "source_excerpt_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/source_excerpt.rs",
+      "source_lines": "alloc/src/vec/mod.rs:3693-3742",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc",
+      "status": "minimal_trusted_boundary_for_source_backed_unsafe_clone_copy_extension_semantics"
+    }
+  ],
+  "direct_call_names": [
+    "len",
+    "slice::range",
+    "reserve",
+    "spec_extend_from_within"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: it keeps the Rust 1.96 body shape `let range = slice::range(src, ..self.len()); self.reserve(range.len()); unsafe { self.spec_extend_from_within(range); }` under the generated `vec_extend_from_within_result(old(vec)@, src, final(vec)@)` postcondition. This is a B proof modulo the source-backed RangeBounds/slice::range resolution, Vec::reserve allocator/capacity, Vec::len view bridge, and unsafe private `spec_extend_from_within` clone/copy helper boundaries; it is not an assume_specification or public-target external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    },
+    {
+      "body_end_line": 678,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f24944881cfcfc8d1785c944b22ed6a185a735e3281e5e2e47c36d73b7ffbb61",
+      "name": "reserve",
+      "public": false,
+      "signature_start_line": 655,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 3714,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "f6407825fb1d052b78e971203cf1993d93bc8d85a6c1ab31ba36dd877354f7df",
+      "name": "spec_extend_from_within",
+      "public": false,
+      "signature_start_line": 3693,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 3713,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "693f25a2ddbac2d7f64f7c0d124f620ba2c5c20166b133e7afc543ee648b7f5c",
+      "name": "spec_extend_from_within",
+      "public": false,
+      "signature_start_line": 3698,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 3742,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "ae0f270a505ea068eaf202335f5aeaeb344544152169af8f07497f672b396bb2",
+      "name": "spec_extend_from_within",
+      "public": false,
+      "signature_start_line": 3718,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 892,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "90247dad9d8c610c8c854d9359f06dc9fd91efe5e7740a213edf0b321390c4cd",
+      "name": "handle_error",
+      "public": false,
+      "signature_start_line": 887,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 768,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "59dc400d1a950f2c6dc5d6f89871d1ef1ef2a1a3e63869e9146ed24a3210443f",
+      "name": "needs_to_grow",
+      "public": false,
+      "signature_start_line": 766,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 671,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "fa3490a7b4f7178c641ee7bfd611a71dec104a37467ccb4ae32b4d865d07d81e",
+      "name": "do_reserve_and_handle",
+      "public": false,
+      "signature_start_line": 661,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 3317,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "item_sha256": "965a017204e249de47582f7a75c249c83d4f53e90d2c06b22125a4cc001ea907",
+      "name": "split_at_spare_mut_with_len",
+      "public": false,
+      "signature_start_line": 3296,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 29,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f40b8804f653b12b9065b086860e94646e97d7069b6708897f81d1326af7d225",
+      "name": "capacity_overflow",
+      "public": false,
+      "signature_start_line": 27,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 620,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f008da15a61b6a40bc7e607ae5dea2847854b915e60345c9d0546c8459787254",
+      "name": "capacity",
+      "public": false,
+      "signature_start_line": 618,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/130_alloc_vec_Vec_extend_from_within/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_slice_range_reserve_and_spec_extend_from_within_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc",
+  "target": "alloc::vec::Vec::extend_from_within",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/130_alloc_vec_Vec_extend_from_within/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\breserve",
+        "Vec::reserve",
+        "RawVec capacity growth"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [
+        "MaybeUninit::write in private spec_extend_from_within default helper"
+      ],
+      "present": true
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "slice::range validates bounds before unsafe indexing"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "copy_nonoverlapping in TrivialClone private helper"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "\\bRangeBounds\\b",
+        "Clone/TrivialClone specialization"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{",
+        "unsafe fn spec_extend_from_within"
+      ],
+      "present": true
+    }
+  }
+}

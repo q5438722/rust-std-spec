@@ -1,0 +1,81 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_public_helper_and_unsize_boundary",
+      "name": "core::array::from_mut plus array-to-slice unsizing",
+      "rationale": "The Rust 1.96 target body is exactly `array::from_mut(s)`, whose source body constructs `&mut [T; 1]` by a raw-pointer cast before the slice function's return type coerces it to `&mut [T]`. The harness verifies the target call against a narrow boundary that exposes only the singleton mutable-slice view and final-frame relation required by the generated contract; it does not externalize or assume the target body.",
+      "source_excerpt_relpath": "proof_harnesses/047_core_slice_from_mut/array_from_mut_source_excerpt.rs",
+      "source_lines": "core/src/array/mod.rs:174-177 and core/src/slice/raw.rs:212",
+      "source_sha256": "557605d2b9fe70d8f06e0ef29f7cd7dc71a38328bbf23ff93315c2769ede6cd7",
+      "status": "minimal_trusted_boundary_until_array_from_mut_pointer_cast_is_recursively_proved"
+    },
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "singleton mutable slice old/final view",
+      "rationale": "The generated contract relates the returned mutable slice to the old and final value of the input reference using Verus sequence and final-state vocabulary. The harness attaches that contract to the target and the callee boundary without using assume_specification.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "array::from_mut"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 delegation `array::from_mut(s)`. The proof is B, verified modulo the public array helper's raw-pointer cast and the implicit array-to-slice coercion boundary. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/047_core_slice_from_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 60,
+    "stderr_relpath": "proof_harnesses/047_core_slice_from_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/047_core_slice_from_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/047_core_slice_from_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_stderr_relpath": "proof_harnesses/047_core_slice_from_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/047_core_slice_from_mut/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_array_from_mut_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "0914968067f7e2bc798680c1edd72bcb032a9fd44ebb2b6fbc082a3a2b16941f",
+  "source_item_sha256": "9dccff9babfff3c297268487fbf17b0a6ca139a9d1de3ef5c1163f9995eb7235",
+  "target": "core::slice::from_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "core::array::from_mut raw-pointer cast boundary"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "core::array::from_mut unsafe cast boundary"
+      ],
+      "present": true
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+  "harness_relpath": "proof_harnesses/041_core_slice_eq_ignore_ascii_case/harness.rs",
+  "harness_sha256": "4129c4da006d47f2d1e4d5dd71ec01f4df2f5c13fbc8b582b0bc3d5c04a2723d",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/041_core_slice_eq_ignore_ascii_case/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/ascii.rs",
+  "source_span": {
+    "body_end_line": 78,
+    "body_start_line": 60,
+    "item_sha256": "c59a44eedf5be63e0c717c033a34687626e0746f84f17df116753330e0d70b1d",
+    "signature_end_line": 60,
+    "signature_start_line": 60
+  },
+  "status": "verus_verified_modulo_private_ascii_helper_boundary",
+  "target": "core::slice::eq_ignore_ascii_case",
+  "transformations": [
+    {
+      "edit": "Adapted the inherent `[u8]` receiver to an explicit `slice: &[u8]` parameter and named return for Verus; the executable target body preserves the initial unequal-length return, the SSE2 chunk dispatch, and the simple-helper fallback.",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:60-78",
+      "source_sha256": "c59a44eedf5be63e0c717c033a34687626e0746f84f17df116753330e0d70b1d"
+    },
+    {
+      "edit": "Specialized the source `#[cfg(all(target_arch = \"x86_64\", target_feature = \"sse2\"))]` block to the active verification target, whose rustc cfg reports `target_arch=\"x86_64\"` and `target_feature=\"sse2\"`; the block's `CHUNK_SIZE = 16`, length guard, and early return are preserved.",
+      "kind": "target_cfg_specialization",
+      "source_lines": "core/src/slice/ascii.rs:65-75",
+      "source_sha256": "c59a44eedf5be63e0c717c033a34687626e0746f84f17df116753330e0d70b1d"
+    },
+    {
+      "edit": "Instantiated the generated shared ASCII vocabulary with the frozen source-backed definitions of `ascii_is_uppercase`, `ascii_lower_byte`, and `ascii_eq_ignore_case`; added `#![auto]` only as a Verus quantifier-trigger annotation.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1187-1238",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10"
+    },
+    {
+      "edit": "Declared `eq_ignore_ascii_case_simple` as a narrowly named private-helper boundary with the source-backed postcondition `ret <==> ascii_eq_ignore_case(slice@, other@)` under the equal-length precondition required by the target body; the target body itself is not external.",
+      "kind": "private_helper_boundary",
+      "source_lines": "core/src/slice/ascii.rs:83-100",
+      "source_sha256": "3d7fb861339b730fa20c2c2bfcefe1341480ce8992378fea10158d64bb2e2ccc"
+    },
+    {
+      "edit": "Declared `eq_ignore_ascii_case_chunks::<N>` as a narrowly named private-helper boundary with the same source-backed postcondition under the source invariants `N > 0`, equal lengths, and `slice.len() >= N`; this boundary includes the helper-local `eq_ignore_ascii_inner` and tail logic rather than the target body.",
+      "kind": "private_helper_boundary",
+      "source_lines": "core/src/slice/ascii.rs:113-159",
+      "source_sha256": "431fd9fa7a045d22aa84416272df9129e80d6adbdb99d0b72cc4e00440bbfb41"
+    },
+    {
+      "edit": "Added proof-only assertions that the unequal-length early return falsifies `ascii_eq_ignore_case`; this has no executable control-flow or data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/ascii.rs:61-63",
+      "source_sha256": "c59a44eedf5be63e0c717c033a34687626e0746f84f17df116753330e0d70b1d"
+    }
+  ]
+}

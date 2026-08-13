@@ -1,0 +1,79 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "Verus does not support Rust slice patterns, so the harness reuses the already-reviewed immutable split_first desugaring boundary: the nonempty branch uses split_at(1) and &head[0] to represent `if let [first, ..] = self { Some(first) } else { None }`.",
+      "boundary": "reviewed_split_first_vstd_slice_pattern_desugaring",
+      "evidence": "proof_harnesses/088_core_slice_split_first/evidence/verus_stdout.txt records `verification results:: 1 verified, 0 errors`; proof_harnesses/147_core_slice_first/evidence/verus_stdout.txt records the same split_at/index view shape for first.",
+      "source_lines": "core/src/slice/mod.rs:155-157,198-200"
+    }
+  ],
+  "direct_call_names": [
+    "slice.len",
+    "slice.split_at",
+    "slice_index"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::split_first"
+  ],
+  "module": "slice",
+  "notes": "The public target body is executable Verus and is not externalized. It preserves the Rust 1.96 `if let [first, ..] = self { Some(first) } else { None }` flow via the reviewed split_first slice-pattern desugaring, then proves the exact-vstd empty/nonempty first-element contract without assuming the target postcondition.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/147_core_slice_first/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_split_first_and_verus_slice_pattern_desugaring_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "7761aa6f658ec92f2d144741f2022cf409365957b0e1487d24bbdf15d2b9151d",
+  "target": "core::slice::first",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/147_core_slice_first/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/147_core_slice_first/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

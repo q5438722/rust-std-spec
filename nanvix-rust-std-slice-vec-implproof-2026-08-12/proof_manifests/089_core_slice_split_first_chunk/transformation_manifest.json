@@ -1,0 +1,45 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/089_core_slice_split_first_chunk/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/089_core_slice_split_first_chunk/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 393,
+    "body_start_line": 387,
+    "item_sha256": "76fb30ed3b07745c4987878944bf246f16b12ffb2debdd3ee01c7c86901b752e",
+    "signature_end_line": 387,
+    "signature_start_line": 387
+  },
+  "status": "verus_verified_modulo_reviewed_split_at_checked_and_source_backed_raw_pointer_cast_boundary_and_array_ref_boundary",
+  "target": "core::slice::split_first_chunk",
+  "transformations": [
+    {
+      "kind": "verus_signature_adaptation",
+      "edit": "Replaced the seed-only contract/body string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &[T]` argument and naming the return.",
+      "source_lines": "core/src/slice/mod.rs:387-393",
+      "source_sha256": "76fb30ed3b07745c4987878944bf246f16b12ffb2debdd3ee01c7c86901b752e"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Attached the generated split_first_chunk prefix/tail Option postcondition directly to the executable target; this records the contract under test and does not assume the target body.",
+      "source_lines": "frozen generated contract for <[T]>::split_first_chunk::<N>",
+      "source_sha256": "500abe0847534b4e27605de98cdfeec52bc53ad86d1632b9d33b8371c88bdb4a"
+    },
+    {
+      "kind": "rust_control_flow_preserved",
+      "edit": "Preserved the Rust 1.96 flow: `let Some((first, tail)) = self.split_at_checked(N) else { return None }; Some((unsafe { &*(first.as_ptr().cast_array()) }, tail))`, with only receiver/signature adaptation.",
+      "source_lines": "core/src/slice/mod.rs:388-392",
+      "source_sha256": "76fb30ed3b07745c4987878944bf246f16b12ffb2debdd3ee01c7c86901b752e"
+    },
+    {
+      "kind": "reviewed_dependency_and_raw_pointer_boundaries",
+      "edit": "Reused the reviewed split_at_checked relation for the prefix/tail facts, then isolated only the Verus-unsupported first.as_ptr(), ptr.cast_array(), and unsafe array-reference dereference as source-backed local boundaries following the first_chunk/as_array pattern.",
+      "source_lines": "core/src/slice/mod.rs:388-392; proof_harnesses/084_core_slice_split_at_checked/harness.rs; proof_harnesses/045_core_slice_first_chunk/harness.rs",
+      "source_sha256": "76fb30ed3b07745c4987878944bf246f16b12ffb2debdd3ee01c7c86901b752e"
+    }
+  ],
+  "harness_sha256": "7a8a6678f69aac9b683c395181e1cd25bfe66877dbe045cec99f8b6caa82899d",
+  "proof_evidence_relpath": "proof_harnesses/089_core_slice_split_first_chunk/evidence/verus_stdout.txt"
+}

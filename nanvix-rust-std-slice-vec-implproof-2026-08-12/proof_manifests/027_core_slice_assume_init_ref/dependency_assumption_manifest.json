@@ -1,0 +1,94 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "MaybeUninitSliceRelation;maybe_uninit_seq_relation;maybe_uninit_all_initialized;maybe_uninit_relation_well_formed",
+      "rationale": "The generated MaybeUninit raw-storage vocabulary is instantiated in the harness as target-local spec definitions, with only uninterpreted per-slot initialization/value projections and no assumption of the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1143-1185",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "rust_1_96_assume_init_ref_raw_cast",
+      "rationale": "The public target keeps an executable body that calls a target-local boundary whose body is exactly Rust 1.96 `unsafe { &*(self as *const Self as *const [T]) }`, adapted only from the inherent receiver to `slice as *const [MaybeUninit<T>] as *const [T]`. The boundary models the MaybeUninit initialized-storage-to-immutable-slice view relation and length preservation that Verus does not model directly.",
+      "source_excerpt_relpath": "proof_harnesses/027_core_slice_assume_init_ref/source_excerpt.rs",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1508-1514",
+      "source_sha256": "fdb02d51c886afa919c86bdca3a8a1fee74db6c50bef1f0df89364c1a468febd",
+      "status": "minimal_trusted_boundary_for_source_backed_maybeuninit_ref_raw_pointer_cast_semantics"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_assume_init_ref_raw_cast"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The public target function is executable and non-external: it preserves the Rust 1.96 unsafe raw slice cast through one target-local source-backed boundary. The harness has no assume_specification and no externalized public target body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/027_core_slice_assume_init_ref/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd1152779de3a6bc96b29997e8a95d3beb9ff1018f99223b429ed0df66baa8ef",
+  "source_item_sha256": "fdb02d51c886afa919c86bdca3a8a1fee74db6c50bef1f0df89364c1a468febd",
+  "target": "core::slice::assume_init_ref",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/027_core_slice_assume_init_ref/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/027_core_slice_assume_init_ref/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [
+        "MaybeUninit",
+        "assume_init_ref initialized-storage relation"
+      ],
+      "present": true
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self as *const Self as *const [T]",
+        "slice as *const [MaybeUninit<T>] as *const [T]"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe fn assume_init_ref",
+        "unsafe { &*(...) }"
+      ],
+      "present": true
+    }
+  }
+}

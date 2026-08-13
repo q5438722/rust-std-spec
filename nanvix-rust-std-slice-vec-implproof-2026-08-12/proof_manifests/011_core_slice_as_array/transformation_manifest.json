@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/011_core_slice_as_array/harness.rs",
+  "harness_sha256": "4762d0618c99a34046a52c49382b377daccc58c72dc69b1bfe255d855bcb69d2",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/011_core_slice_as_array/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 860,
+    "body_start_line": 850,
+    "item_sha256": "efbfcb6441f004405e90bfcd0530b077ad2ce4f32d957ddff3107b2a9b669545",
+    "signature_end_line": 850,
+    "signature_start_line": 850
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_array_ref_boundary",
+  "target": "core::slice::as_array",
+  "transformations": [
+    {
+      "edit": "Replaced the seed-only contract/body string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &[T]` argument and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:850-860",
+      "source_sha256": "efbfcb6441f004405e90bfcd0530b077ad2ce4f32d957ddff3107b2a9b669545"
+    },
+    {
+      "edit": "Attached the generated `len == N`/`Some`/`None` postconditions and the `array_ref_view(ret.unwrap()) == slice@` relation directly to the executable target; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::as_array::<N>",
+      "source_sha256": "43ae96c3a5731bdbf4f558db7acc6e0b60408c243442e031dc06c69caf810bdf"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 branch flow: `if self.len() == N`, then `as_ptr`, pointer `cast_array`, unsafe array-reference cast, `Some(me)`, and else `None`; the implicit receiver is the only source syntax adaptation.",
+      "kind": "rust_control_flow_preserved",
+      "source_lines": "core/src/slice/mod.rs:851-859",
+      "source_sha256": "efbfcb6441f004405e90bfcd0530b077ad2ce4f32d957ddff3107b2a9b669545"
+    },
+    {
+      "edit": "Reused the already verified `core::slice::as_ptr` dependency shape through a local executable `as_ptr` wrapper with `slice_start_ptr`, and isolated only Verus-unsupported `ptr.cast_array()` plus `unsafe { &*ptr }` as named source-backed raw-pointer/array-reference boundaries.",
+      "kind": "source_backed_raw_pointer_array_ref_boundaries",
+      "source_lines": "core/src/slice/mod.rs:852-856",
+      "source_sha256": "efbfcb6441f004405e90bfcd0530b077ad2ce4f32d957ddff3107b2a9b669545"
+    }
+  ]
+}

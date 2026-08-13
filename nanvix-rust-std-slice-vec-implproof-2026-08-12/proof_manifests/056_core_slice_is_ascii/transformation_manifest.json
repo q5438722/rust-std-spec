@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/ascii.rs",
+  "harness_relpath": "proof_harnesses/056_core_slice_is_ascii/harness.rs",
+  "harness_sha256": "1f49c250fc43ac94eb59e2d52e2ea6e46844cebef2c62ffe832371f564bc2f53",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/056_core_slice_is_ascii/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/ascii.rs",
+  "source_span": {
+    "body_end_line": 20,
+    "body_start_line": 18,
+    "item_sha256": "005d9271af4c5322c1e5b50e48a1bd6a1d364367072e3fe1870a6aa0f0a1b492",
+    "signature_end_line": 18,
+    "signature_start_line": 18
+  },
+  "status": "verus_verified_modulo_private_ascii_helper_boundary",
+  "target": "core::slice::is_ascii",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose body preserves the Rust 1.96 target body as the single delegation `is_ascii(self)`, adapted only by naming the receiver parameter `slice` and disambiguating the private helper as `private_is_ascii(slice)` in the harness namespace.",
+      "kind": "receiver_signature_and_namespace_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:18-20",
+      "source_sha256": "005d9271af4c5322c1e5b50e48a1bd6a1d364367072e3fe1870a6aa0f0a1b492"
+    },
+    {
+      "edit": "Adapted the Rust `pub const fn` wrapper to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/ascii.rs:18",
+      "source_sha256": "005d9271af4c5322c1e5b50e48a1bd6a1d364367072e3fe1870a6aa0f0a1b492"
+    },
+    {
+      "edit": "Instantiated the generated shared ASCII vocabulary with the frozen definitions of `ascii_is_byte` and `ascii_all`; added `#![auto]` only as a Verus quantifier-trigger annotation.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1211-1226",
+      "source_sha256": "b52188e07a0f8009485746bdcdeb3f7c4b55ecc3631678d455d02b4741f27f10"
+    },
+    {
+      "edit": "Declared the private `is_ascii` callee as a narrowly named source-backed boundary for the active x86_64+sse2 Rust helper body. This boundary covers the helper's `const_eval_select` runtime branch, small-slice word loop, remainder iterator check, and SSE2 helper dispatch; the public target wrapper body itself is not external.",
+      "kind": "private_helper_boundary",
+      "source_lines": "core/src/slice/ascii.rs:541-607",
+      "source_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea"
+    },
+    {
+      "edit": "Specialized the private-helper boundary to the active verification target after `rustc --print cfg` reported `target_arch=\"x86_64\"` and `target_feature=\"sse2\"`; cfg-excluded non-SSE2 and loongarch helper bodies remain source-indexed but are not claimed in this harness.",
+      "kind": "target_cfg_specialization",
+      "source_lines": "core/src/slice/ascii.rs:440-651",
+      "source_sha256": "e98bab9c6bddec3faca332ae836218d3219f7c6ff1b8f307d9ba0cbcceb09fea"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "vec_resize_with_result",
+      "rationale": "The generated contract's relation is preserved as the target postcondition vocabulary. The harness instantiates it from the source-backed grow path and does not assume the target postcondition directly.",
+      "source_lines": "frozen_inputs/vec/specs/vec_shared_vocabulary.rs:145 and alloc/src/vec/mod.rs:3145-3150",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_vec_len_boundary",
+      "name": "Vec::len",
+      "rationale": "Rust 1.96 stores `let len = self.len();` before the branch. The harness models only the source-backed relation between this returned usize and the pre-state Vec sequence length.",
+      "source_lines": "alloc/src/vec/mod.rs:3022-3028 and 3145",
+      "status": "minimal_trusted_boundary_for_len_observation"
+    },
+    {
+      "kind": "source_backed_vec_truncate_boundary",
+      "name": "Vec::truncate prefix effect",
+      "rationale": "The target calls `self.truncate(new_len)` exactly on the non-growing branch. The harness preserves the generated truncate-prefix branch by modeling only the source-backed prefix effect needed for `new_len <= old(vec)@.len()`.",
+      "source_lines": "alloc/src/vec/mod.rs:1786-1806 and 3148-3150",
+      "status": "minimal_trusted_boundary_for_truncate_effect_only"
+    },
+    {
+      "kind": "source_backed_repeat_with_take_boundary",
+      "name": "iter::repeat_with(f).take(new_len - len)",
+      "rationale": "The target grow branch constructs a TrustedLen iterator by moving the zero-argument FnMut callback into `repeat_with` and taking exactly `new_len - len` outputs. The harness keeps this call-chain shape with explicit local wrapper structs only to expose the callback token and take count to Verus.",
+      "source_lines": "alloc/src/vec/mod.rs:3147",
+      "status": "minimal_trusted_boundary_for_iterator_wrapper_shape"
+    },
+    {
+      "kind": "source_backed_extend_trusted_boundary",
+      "name": "Vec::extend_trusted over repeat_with/take",
+      "rationale": "Rust 1.96 delegates the grow branch to private `extend_trusted`, whose TrustedLen loop writes each produced element and increments Vec length. The harness models only the resulting extension relation for the exact repeat_with/take count.",
+      "source_lines": "alloc/src/vec/mod.rs:4014-4043 and 3147",
+      "status": "minimal_trusted_boundary_for_extend_trusted_effect_only"
+    },
+    {
+      "kind": "source_backed_zero_arg_fnmut_callback_boundary",
+      "name": "zero-argument FnMut output trace",
+      "rationale": "The grow branch obtains appended elements by repeatedly calling the user callback through `repeat_with`. The harness records only the ordered callback-output trace; it does not choose concrete callback values or strengthen source nondeterminism.",
+      "source_lines": "alloc/src/vec/mod.rs:3147 and extend_trusted iterator.for_each at 4027-4033",
+      "status": "minimal_trusted_boundary_for_callback_output_observation"
+    }
+  ],
+  "direct_call_names": [
+    "extend_trusted",
+    "len",
+    "repeat_with",
+    "take",
+    "truncate"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body: the harness keeps the Rust 1.96 flow `let len = self.len(); if new_len > len { self.extend_trusted(iter::repeat_with(f).take(new_len - len)); } else { self.truncate(new_len); }`, adapted only by naming the repeat_with/take iterator value before the extend_trusted call. This is a B proof modulo source-backed len/truncate/extend_trusted/repeat_with/take effects and the zero-arg FnMut callback-output observation; it does not mark Vec::truncate, Vec::extend_trusted, or core iterator adapters complete.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 3028,
+      "disposition": "source_backed_len_observation_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::len",
+      "public": true,
+      "signature_start_line": 3022,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 1806,
+      "disposition": "source_backed_truncate_prefix_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::truncate",
+      "public": true,
+      "signature_start_line": 1786,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 4043,
+      "disposition": "source_backed_extend_trusted_repeat_with_take_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::extend_trusted",
+      "public": false,
+      "signature_start_line": 4014,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/140_alloc_vec_Vec_resize_with/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_stdout.txt",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 3 verified, 0 errors",
+    "version_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_resize_with_len_truncate_extend_trusted_repeat_with_take_and_zero_arg_fnmut_callback_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "7da0ce9c77eee1999e5df23636944c2bb9f79d4aa5f95743aa968431af1e6672",
+  "target": "alloc::vec::Vec::resize_with",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/140_alloc_vec_Vec_resize_with/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/140_alloc_vec_Vec_resize_with/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::ops::FnMut() -> T callback output observation boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

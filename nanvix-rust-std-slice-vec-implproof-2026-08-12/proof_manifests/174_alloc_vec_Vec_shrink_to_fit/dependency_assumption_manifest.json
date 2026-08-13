@@ -1,0 +1,133 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::shrink_to_fit copied vstd capacity contract",
+      "rationale": "The public target verifies the exact existing-vstd postconditions: the initialized sequence view is unchanged, final capacity is at least the old initialized length, and final capacity is no larger than the old capacity.",
+      "source_lines": "frozen_inputs/vec/specs/existing_vstd_vec_specs.rs row for alloc::vec::Vec::shrink_to_fit and alloc/src/vec/mod.rs:1604-1611",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_vec_capacity_len_boundary",
+      "name": "Vec::capacity and Vec len/capacity invariant",
+      "rationale": "Rust 1.96 branches on `self.capacity() > self.len`. The harness uses the source-backed Vec capacity observation and invariant that initialized length does not exceed allocation capacity, which discharges the no-op branch and RawVec shrink precondition.",
+      "source_lines": "alloc/src/vec/mod.rs:1446-1448 and 1608",
+      "status": "minimal_trusted_boundary_for_capacity_observation_and_len_capacity_invariant"
+    },
+    {
+      "kind": "source_backed_rawvec_shrink_boundary",
+      "name": "RawVec::shrink_to_fit",
+      "rationale": "The target delegates allocator shrink behavior to RawVec. The harness isolates only RawVec's source-backed precondition that the requested cap is no larger than current capacity, preservation of initialized prefixes up to the requested cap, and final capacity bounds needed by the exact existing-vstd postconditions.",
+      "source_lines": "alloc/src/raw_vec/mod.rs:399-402, 742-749, and 813-817",
+      "status": "minimal_trusted_boundary_for_allocator_shrink_capacity_bounds_and_initialized_prefix_preservation"
+    }
+  ],
+  "direct_call_names": [
+    "capacity",
+    "shrink_to_fit"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 branch `if self.capacity() > self.len { self.buf.shrink_to_fit(self.len); }`. The harness contains no assume_specification.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 1448,
+      "disposition": "source_backed_capacity_observation_and_len_capacity_invariant_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "name": "Vec::capacity",
+      "public": true,
+      "signature_start_line": 1446,
+      "source_reference_path": "alloc/src/vec/mod.rs"
+    },
+    {
+      "body_end_line": 402,
+      "disposition": "source_backed_rawvec_allocator_shrink_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "name": "RawVec::shrink_to_fit",
+      "public": false,
+      "signature_start_line": 399,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 749,
+      "disposition": "source_backed_rawvec_inner_allocator_shrink_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "name": "RawVecInner::shrink_to_fit",
+      "public": false,
+      "signature_start_line": 745,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    }
+  ],
+  "proof_status": "actual_verus_verified_modulo_source_backed_vec_shrink_to_fit_capacity_observation_and_rawvec_shrink_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "9b2f2ef8804e02014cec67c1389ce9ed4519412a851c3de1737975efebb56646",
+  "target": "alloc::vec::Vec::shrink_to_fit",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bbuf\\b",
+        "\\bcapacity\\s*\\(",
+        "\\bshrink",
+        "RawVec shrink allocator/capacity boundary"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  },
+  "abcd_status": "B",
+  "harness_sha256": "ac256c40a4c2c4d648fa9b07e0f15024fe13b02792086a3f44096ac0ca617427",
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/174_alloc_vec_Vec_shrink_to_fit/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

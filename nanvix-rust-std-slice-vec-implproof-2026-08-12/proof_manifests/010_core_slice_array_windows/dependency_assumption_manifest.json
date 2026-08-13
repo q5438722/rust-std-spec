@@ -1,0 +1,80 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_instantiation",
+      "name": "slice_iterator_view::<ArrayWindows<'a, T, N>, T>",
+      "rationale": "The generated contract's shared iterator-view helper is instantiated as a closed spec over the extracted ArrayWindows private `v` field; this does not assume the target postcondition.",
+      "source_lines": "core/src/slice/iter.rs:2181-2183",
+      "status": "minimal_trusted_boundary_for_shared_helper_representation"
+    },
+    {
+      "kind": "private_helper_verified_in_harness",
+      "name": "ArrayWindows::new",
+      "rationale": "The private constructor called by the target body is included with its real Rust body `Self { v: slice }` and is verified before the target call.",
+      "source_lines": "core/src/slice/iter.rs:2185-2189",
+      "status": "verified_from_extracted_private_helper_body_in_same_harness"
+    },
+    {
+      "kind": "panic_or_bounds",
+      "name": "assert!(N != 0)",
+      "rationale": "The generated precondition `N != 0` makes the Rust assert pass; the Verus harness keeps the assertion as a proof assertion.",
+      "source_lines": "core/src/slice/mod.rs:1646-1648",
+      "status": "discharged_by_target_precondition"
+    }
+  ],
+  "direct_call_names": [
+    "assert!",
+    "new"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 assert followed by ArrayWindows::new(slice). The proof is modulo the source-backed iterator-view vocabulary boundary, not an assume_specification or target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/010_core_slice_array_windows/harness.rs --crate-type=lib",
+    "stderr_relpath": "proof_harnesses/010_core_slice_array_windows/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/010_core_slice_array_windows/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "cb847876b5acfbc5b4dc0965b2f5e056bdd76de3517d4dc348c0f54d3d28bd54",
+  "target": "core::slice::array_windows",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bassert(?:_eq|_ne)?!"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

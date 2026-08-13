@@ -1,0 +1,77 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "Verus rejects core::mem::replace without an assume_specification, so the harness uses the standard executable swap-with-empty lowering for the exact Rust expression mem::replace(self, &mut []): initialize an empty mutable slice, core::mem::swap it with the receiver slot, then continue with the old inner slice reference.",
+      "boundary": "vstd_core_mem_swap_for_mem_replace_lowering",
+      "evidence": "The saved harness executes core::mem::swap(slice_ref, &mut replacement), binds the old inner slice as slice, and later executes *slice_ref = rem; no target-body external_body, assume_specification, or --no-verify proof marker is present.",
+      "source_lines": "core/src/slice/mod.rs:5038"
+    },
+    {
+      "assumption": "The Verus harness lowers the split_first_mut empty/nonempty branch to slice.len() != 0, split_at_mut(1), and &mut head[0], matching the already-reviewed mutable slice-pattern decomposition.",
+      "boundary": "vstd_mut_slice_split_at_index_contract_for_split_first_mut_desugaring",
+      "evidence": "The saved verified harness preserves the first/rem branch shape after the replacement step, assigns *slice_ref = rem, and returns Some(first).",
+      "source_lines": "core/src/slice/mod.rs:5038-5040"
+    },
+    {
+      "assumption": "The generated slice_split_off_first_result vocabulary is the audited first/tail relation source.len()!=0, value==source[0], and remaining==source.subrange(1, len); this helper does not assume the target postcondition.",
+      "boundary": "slice_split_off_first_result_contract_vocabulary",
+      "evidence": "The harness defines the same open spec helper and proves it from the executable split_at_mut head/rem views.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:884-890"
+    }
+  ],
+  "direct_call_names": [
+    "core::mem::swap",
+    "slice.len",
+    "slice.split_at_mut",
+    "slice_index_mut"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The target body is executable Verus and is not externalized. The only adaptations are the lifetime-preserving swap-with-empty lowering for unsupported mem::replace(self, &mut []) and the standard split_first_mut first/tail mutable slice desugaring.",
+  "private_helper_callee_closure": [],
+  "proof_status": "actual_verus_verified_modulo_mem_replace_swap_lowering_and_verus_mut_slice_pattern_desugaring_boundary",
+  "schema_version": 1,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "bd916b533cd3fed622062b911bb1ad18889d4240f66d45311415d0673e52c374",
+  "target": "core::slice::split_off_first_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  },
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/101_core_slice_split_off_first_mut/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/101_core_slice_split_off_first_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/101_core_slice_split_off_first_mut/evidence/verus_stderr.txt",
+    "stdout_relpath": "proof_harnesses/101_core_slice_split_off_first_mut/evidence/verus_stdout.txt",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/101_core_slice_split_off_first_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/101_core_slice_split_off_first_mut/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/101_core_slice_split_off_first_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stdout_relpath": "proof_harnesses/101_core_slice_split_off_first_mut/evidence/verus_typecheck_stdout.txt"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/065_core_slice_partition_point/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/065_core_slice_partition_point/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4859,
+    "body_start_line": 4857,
+    "item_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066",
+    "signature_end_line": 4857,
+    "signature_start_line": 4854
+  },
+  "status": "verus_verified_modulo_reviewed_binary_search_by_fnmut_predicate_observation_and_result_bridge_boundary",
+  "target": "core::slice::partition_point",
+  "transformations": [
+    {
+      "kind": "receiver_signature_and_executable_body_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus function using an explicit `slice: &[T]` receiver parameter, named return, and the source `P: FnMut(&T) -> bool` bound.",
+      "source_lines": "core/src/slice/mod.rs:4854-4859",
+      "source_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066"
+    },
+    {
+      "kind": "source_flow_preservation",
+      "edit": "Preserved the Rust 1.96 source flow as binary_search_by over the predicate-to-Ordering adapter, followed by the unwrap_or_else identity fallback lowered to an explicit Ok/Err match.",
+      "source_lines": "core/src/slice/mod.rs:4857",
+      "source_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066"
+    },
+    {
+      "kind": "reviewed_dependency_boundary_reuse",
+      "edit": "Reused the reviewed `core::slice::binary_search_by` implementation-proof boundary for the source delegation rather than re-proving the binary-search loop in this target.",
+      "source_lines": "core/src/slice/mod.rs:2970-3022",
+      "source_sha256": "8a7ce9ee452f424a23a87b3d92b45c675e3d2b4a27c219bfe45f14f1832a42b3"
+    },
+    {
+      "kind": "source_backed_fnmut_predicate_observation_boundary",
+      "edit": "Modeled only the closure call `pred(x)` with a named FnMut predicate observation boundary over the generated `fnmut_predicate_observed` vocabulary.",
+      "source_lines": "core/src/slice/mod.rs:4857; frozen_inputs/slice/specs/slice_shared_vocabulary.rs:646-658",
+      "source_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066"
+    },
+    {
+      "kind": "source_backed_result_bridge_boundary",
+      "edit": "Added a proof-only result bridge from the reviewed binary_search_by Ok/Err result and unwrap_or_else index to `slice_partition_point_result(slice@, pred, index)`.",
+      "source_lines": "core/src/slice/mod.rs:4857",
+      "source_sha256": "989bce474e90ae13596dd90fece85ddea4a8f612de8833a19f06e60087c06066"
+    }
+  ],
+  "harness_sha256": "50a5f6f582b56b24260e7c77b04462998ade18d39367d583422b186bdcffe6cd"
+}

@@ -1,0 +1,88 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "trusted_private_helper_boundary",
+      "name": "IterMut::make_slice",
+      "rationale": "The target body calls the private macro-expanded helper exactly once. The harness verifies the target call against a narrow external-body helper contract while leaving the helper's raw pointer arithmetic, `len!` macro behavior, and `from_raw_parts` safety preconditions to a separate helper proof/boundary.",
+      "source_lines": "core/src/slice/iter/macros.rs:89-94",
+      "status": "minimal_trusted_boundary_until_make_slice_pointer_proof_is_discharged"
+    },
+    {
+      "kind": "unsupported_type_boundary",
+      "name": "core::ptr::NonNull<T>",
+      "rationale": "The local Verus tool rejected Rust 1.96 `NonNull<T>` external type specification due trait-bound mismatch in the preceding paired Iter harness. Because target `as_slice` only calls `make_slice`, the field is represented by a target-local opaque stand-in and all pointer/provenance obligations are assigned to the `make_slice` boundary.",
+      "source_lines": "core/src/slice/iter.rs:199",
+      "status": "tool_model_boundary"
+    },
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_iterator_view::<&IterMut<'a, T>, T>",
+      "rationale": "The private helper boundary relates its return value to the existing generated shared iterator view; the target body/postcondition is not assumed directly.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "make_slice"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Callee closure is narrowed to the single discharged private helper call `make_slice`; no generated target dependency is used.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 94,
+      "disposition": "trusted_private_helper_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "cc38ccdf2c0bd93a0206f4274d948fe31db3526c86fd6186ce865da371ed4733",
+      "name": "make_slice",
+      "public": false,
+      "signature_start_line": 89,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/004_core_slice_IterMut_as_slice/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 60,
+    "stderr_relpath": "proof_harnesses/004_core_slice_IterMut_as_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/004_core_slice_IterMut_as_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "verus_version": "0.2026.07.21.1beb0fa.dirty; toolchain 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_private_helper_and_pointer_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3",
+  "source_item_sha256": "67a00e272341651d663752530cdf83c3452a9c73f109a1773e24422d675e8a3a",
+  "target": "core::slice::IterMut::as_slice",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

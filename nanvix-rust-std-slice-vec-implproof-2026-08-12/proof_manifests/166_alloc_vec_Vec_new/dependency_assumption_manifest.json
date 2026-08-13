@@ -1,0 +1,97 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_rawvec_new_allocator_storage_boundary",
+      "name": "RawVec::new()",
+      "rationale": "The Rust 1.96 public body constructs the buffer through RawVec::new(); the target-local private helper models only this allocator-storage construction and carries no logical postcondition used beyond allowing the executable constructor call.",
+      "source_lines": "alloc/src/vec/mod.rs:463-465",
+      "status": "minimal_trusted_boundary_for_allocator_storage_constructor"
+    },
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec View empty sequence relation",
+      "rationale": "The harness preserves the exact existing-vstd Vec::new postcondition `v@ == Seq::<T>::empty()` by tying the local Vec view to the len field; the public body sets len to 0.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs:100 and alloc/src/vec/mod.rs:463-465",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "RawVec::new"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 body `Vec { buf: RawVec::new(), len: 0 }` against a target-local Vec sequence view and proves the exact existing-vstd postcondition `v@ == Seq::<T>::empty()` without assume_specification. The private RawVec::new helper is isolated as the source-backed allocator-storage boundary.",
+  "private_helper_callee_closure": [],
+  "proof_status": "actual_verus_verified_modulo_source_backed_rawvec_new_allocator_storage_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "68ca2b0c9bd7cda598fb7cfd7ecf49aa22aa4c194ddcf3d572842920a7092bc2",
+  "target": "alloc::vec::Vec::new",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bRawVec\\b",
+        "RawVec::new",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  },
+  "abcd_status": "B",
+  "harness_sha256": "426f13420a69801c9192b3559a3826f0611fdee11a2111be62507f64e44186fb",
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/166_alloc_vec_Vec_new/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/166_alloc_vec_Vec_new/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "typecheck_stderr_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/166_alloc_vec_Vec_new/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/166_alloc_vec_Vec_new/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

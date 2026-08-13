@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/009_core_slice_align_to_mut/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/009_core_slice_align_to_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4605,
+    "body_start_line": 4564,
+    "item_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+    "signature_end_line": 4564,
+    "signature_start_line": 4564
+  },
+  "status": "verus_verified_modulo_source_backed_align_offset_offsets_mut_raw_parts_provenance_split_at_mut_and_final_frame_boundary",
+  "target": "core::slice::align_to_mut",
+  "transformations": [
+    {
+      "kind": "verus_signature_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` mutable receiver to an explicit `slice: &mut [T]` parameter, naming the return, and preserving the unsafe public target signature.",
+      "source_lines": "core/src/slice/mod.rs:4564-4605",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Attached the generated `slice_align_to_domain(old(slice)@)` precondition and `slice_align_to_mut_result(old(slice)@, ret.0@, ret.1@, ret.2@, final(ret.0)@, final(ret.1)@, final(ret.2)@, final(slice)@)` postcondition to the executable target; no assume_specification or target-body external_body is used.",
+      "source_lines": "frozen generated contract for <[T]>::align_to_mut::<U>",
+      "source_sha256": "d3f3080fe88dd4be74e095f3d06df2b686c52dd000e8bba962feaa71695cd330"
+    },
+    {
+      "kind": "source_flow_preserved",
+      "edit": "Preserved the Rust 1.96 branch structure: `U::IS_ZST || T::IS_ZST` early return, `self.as_ptr()`, `ptr::align_offset`, `offset > self.len()` fallback, and the aligned split/raw-parts branch. The mutable split, private offsets helper, rest length/as_mut_ptr capture, from_raw_parts_mut construction, provenance/aliasing facts, and final-frame bridge are isolated in one named source-backed boundary because Rust borrow checking prevents exposing `final(slice)` while returned sub-slices borrow it.",
+      "source_lines": "core/src/slice/mod.rs:4566-4604",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27"
+    },
+    {
+      "kind": "source_backed_align_offset_offsets_mut_raw_parts_provenance_split_at_mut_final_frame_boundary",
+      "edit": "Isolated only source-backed boundaries for layout/ZST queries, slice start pointer extraction, `ptr::align_offset`, private `align_to_offsets`, `split_at_mut`, mutable raw-parts/provenance/aliasing construction, and the proof bridge from Rust final-frame facts to the generated `slice_align_to_mut_result` vocabulary.",
+      "source_lines": "core/src/slice/mod.rs:4433-4458,4564-4605",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27"
+    }
+  ],
+  "harness_sha256": "6813b147c2e3302edd6078b983d302a6ec084130b6e19dca36dc5a09ef6b1333"
+}

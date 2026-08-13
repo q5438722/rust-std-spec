@@ -1,0 +1,86 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "rust_1_96_slice_as_mut_ptr_cast",
+      "rationale": "The Rust 1.96 target body is the raw slice-pointer cast `self as *mut [T] as *mut T`. Verus rejects that expression when it appears directly in the non-external target body as an unsupported implicit pointer dereference, so the harness isolates exactly that cast in a target-local external boundary whose body is the same Rust cast and whose contract relates the returned pointer to the generated `slice_start_mut_ptr` vocabulary while preserving the mutable-slice frame.",
+      "source_excerpt_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:757-759",
+      "source_sha256": "99e25e7a86cc5c6b6b7557a4e100daf10a6be356072e931c8a093b6c6198dd9c",
+      "status": "minimal_trusted_boundary_until_slice_raw_start_pointer_cast_is_modeled_by_verus"
+    },
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_start_mut_ptr",
+      "rationale": "The raw-cast boundary instantiates the generated pointer-start vocabulary; the target function is executable, is not external_body, and does not contain assume_specification or a direct assumption of the target postcondition.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_slice_as_mut_ptr_cast"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body is a non-external executable call to the target-local boundary whose body is the Rust 1.96 expression `self as *mut [T] as *mut T`. The saved actual Verus run records a B disposition modulo that narrow source-backed raw-pointer/provenance boundary; the harness has no assume_specification and no --no-verify marker.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/019_core_slice_as_mut_ptr/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "version_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "99e25e7a86cc5c6b6b7557a4e100daf10a6be356072e931c8a093b6c6198dd9c",
+  "target": "core::slice::as_mut_ptr",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/019_core_slice_as_mut_ptr/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/019_core_slice_as_mut_ptr/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self as *mut [T] as *mut T"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

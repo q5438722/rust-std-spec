@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/022_core_slice_as_ptr_range/harness.rs",
+  "harness_sha256": "660cd02e9dd5168b9a82971f61f1850c92573a4b221ef16331646740d2a85cba",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/022_core_slice_as_ptr_range/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 814,
+    "body_start_line": 793,
+    "item_sha256": "b42ea830188debee4c9145f4e52e8a270861f5c3845a4f1c4a50e006987ed5d7",
+    "signature_end_line": 793,
+    "signature_start_line": 793
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_raw_pointer_add_range_boundary",
+  "target": "core::slice::as_ptr_range",
+  "transformations": [
+    {
+      "edit": "Replaced the seed-only contract/body string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &[T]` argument and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:793-814",
+      "source_sha256": "b42ea830188debee4c9145f4e52e8a270861f5c3845a4f1c4a50e006987ed5d7"
+    },
+    {
+      "edit": "Attached the generated immutable pointer-range postcondition `slice_ptr_range_starts_at_slice(slice@, range)` directly to the executable target.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::as_ptr_range",
+      "source_sha256": "2bb2f31be87ccb793fb77b630b4b57ca59c5d534fd90d38b858122dee6212434"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 target flow: `let start = self.as_ptr();`, `let end = unsafe { start.add(self.len()) };`, and `start..end`; the implicit receiver is the only source syntax adaptation.",
+      "kind": "rust_control_flow_preserved",
+      "source_lines": "core/src/slice/mod.rs:794-813",
+      "source_sha256": "b42ea830188debee4c9145f4e52e8a270861f5c3845a4f1c4a50e006987ed5d7"
+    },
+    {
+      "edit": "Reused the already verified `core::slice::as_ptr` dependency shape through a local executable `as_ptr` wrapper with `slice_start_ptr`, and isolated only the unsafe raw-pointer `start.add(self.len())` end computation as a named source-backed provenance/range boundary.",
+      "kind": "source_backed_raw_pointer_add_boundary",
+      "source_lines": "core/src/slice/mod.rs:794-813",
+      "source_sha256": "b42ea830188debee4c9145f4e52e8a270861f5c3845a4f1c4a50e006987ed5d7"
+    }
+  ]
+}

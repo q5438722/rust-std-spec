@@ -1,0 +1,32 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/into_iter.rs",
+  "harness_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/harness.rs",
+  "harness_sha256": "0c43a21ed7ed5e86a9b7c144c41b086bdd64cd33b38a4db1d9cd1355ea822b60",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/122_alloc_vec_IntoIter_as_mut_slice/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/into_iter.rs",
+  "source_span": {
+    "body_end_line": 108,
+    "body_start_line": 106,
+    "item_sha256": "d37c9626fa2c73748fd0635410768e7139bfd271e847da808eea70504debe146",
+    "signature_end_line": 106,
+    "signature_start_line": 106
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary_and_raw_mut_slice_deref_boundary",
+  "target": "alloc::vec::IntoIter::as_mut_slice",
+  "transformations": [
+    {
+      "kind": "verus_return_naming",
+      "rationale": "Adapted the Rust method signature to Verus named return syntax while preserving the generated `vec_into_iter_remaining_mut` postcondition."
+    },
+    {
+      "kind": "source_backed_private_callee_boundary",
+      "rationale": "Modeled the private `as_raw_mut_slice` callee as a narrow target-local boundary carrying the raw mutable slice view relation to `vec_into_iter_remaining_mut`."
+    },
+    {
+      "kind": "source_backed_unsafe_boundary",
+      "rationale": "Isolated only the Rust 1.96 raw slice dereference `&mut *...` in a named external-body helper; the public target method is executable and not external-body."
+    }
+  ]
+}

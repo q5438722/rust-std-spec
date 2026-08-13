@@ -1,0 +1,134 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::extend_from_slice copied vstd cloned sequence-extension contract",
+      "rationale": "The public target verifies the exact existing-vstd length/prefix/cloned-suffix postcondition for `Vec::extend_from_slice`.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs:163-176 and alloc/src/vec/mod.rs:3525-3527",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_iterator_view_boundary",
+      "name": "other.iter() slice iterator source view",
+      "rationale": "Rust 1.96 calls `other.iter()` before `spec_extend`; the harness models only the iterator's remaining/source sequence as `other@`, matching the already reviewed slice-iterator vocabulary.",
+      "source_lines": "core/src/slice/mod.rs:1040-1042; proof_harnesses/151_core_slice_iter/harness.rs",
+      "source_sha256": "ed92d2713fefdf67486ea1cb36c5c0626dd7c6496adace2c7876e62081feda37",
+      "status": "minimal_trusted_boundary_for_slice_iter_view"
+    },
+    {
+      "kind": "source_backed_private_spec_extend_clone_boundary",
+      "name": "SpecExtend<&T, slice::Iter<T>>::spec_extend cloned forwarding",
+      "rationale": "The private `spec_extend` specialization/clone machinery is source-backed by alloc/src/vec/spec_extend.rs. The harness trusts only that private helper's effect: appending a cloned view of the iterator while preserving the old Vec prefix.",
+      "source_lines": "alloc/src/vec/spec_extend.rs:9-57",
+      "status": "minimal_trusted_boundary_for_private_spec_extend_clone_semantics"
+    }
+  ],
+  "direct_call_names": [
+    "iter",
+    "spec_extend"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "dfe29662830f7ef4ad8254d628afcf166bdeee44d726523b1e0579669cbd4b71",
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 `self.spec_extend(other.iter())` data flow, with a target-local SliceReceiver exposing the source-backed slice iterator view and a private SpecExtend boundary carrying exactly the existing-vstd cloned sequence-extension postcondition. The harness contains no assume_specification.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 1042,
+      "disposition": "source_backed_slice_iterator_view_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "ed92d2713fefdf67486ea1cb36c5c0626dd7c6496adace2c7876e62081feda37",
+      "name": "core::slice::iter",
+      "public": true,
+      "signature_start_line": 1040,
+      "source_reference_path": "core/src/slice/mod.rs"
+    },
+    {
+      "body_end_line": 20,
+      "disposition": "source_indexed_private_spec_extend_default_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/spec_extend.rs",
+      "item_sha256": "f52d0b013972f7fbdba3b8f522b891b35f9fd9d67cf12c8dbbd72964615277c0",
+      "name": "SpecExtend<T, I>::spec_extend default extension path",
+      "public": false,
+      "signature_start_line": 10,
+      "source_reference_path": "alloc/src/vec/spec_extend.rs"
+    },
+    {
+      "body_end_line": 47,
+      "disposition": "source_backed_private_clone_forwarding_boundary",
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/spec_extend.rs",
+      "item_sha256": "751bfed09ac88c5771b73f59365a6f8060360b8cb872b20a47d84d1cc2f68e92",
+      "name": "SpecExtend<&T, I>::spec_extend cloned forwarding",
+      "public": false,
+      "signature_start_line": 40,
+      "source_reference_path": "alloc/src/vec/spec_extend.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/162_alloc_vec_Vec_extend_from_slice/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/162_alloc_vec_Vec_extend_from_slice/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary_and_private_spec_extend_clone_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "aac946f78f45041c7f02c37ffee06b8701714905b4a0f34bbe80e0e0a98c2e4c",
+  "target": "alloc::vec::Vec::extend_from_slice",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/162_alloc_vec_Vec_extend_from_slice/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/162_alloc_vec_Vec_extend_from_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "private SpecExtend specialization and cloned iterator forwarding"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

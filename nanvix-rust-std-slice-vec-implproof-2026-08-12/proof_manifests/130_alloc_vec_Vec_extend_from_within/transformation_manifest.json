@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+  "harness_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/harness.rs",
+  "harness_sha256": "6c6c719c37330a1d9e36e7ea823b3ef174276455eb957ceb836798a2262da6ff",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/130_alloc_vec_Vec_extend_from_within/source_excerpt.rs",
+  "source_reference_path": "alloc/src/vec/mod.rs",
+  "source_span": {
+    "body_end_line": 3568,
+    "body_start_line": 3559,
+    "item_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc",
+    "signature_end_line": 3559,
+    "signature_start_line": 3556
+  },
+  "status": "verus_verified_modulo_source_backed_slice_range_reserve_and_spec_extend_from_within_boundary",
+  "target": "alloc::vec::Vec::extend_from_within",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable inherent `Vec<T, A>::extend_from_within` method, adapting the Rust generic where-clause to Verus syntax and attaching the generated RangeBounds precondition and `vec_extend_from_within_result` postcondition.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "alloc/src/vec/mod.rs:3556-3568",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc"
+    },
+    {
+      "edit": "Extracted target-local `Vec { buf, len }`, `RawVec`, View, capacity, and generated Vec range/extension helper vocabulary sufficient for the source call chain without changing the public target body.",
+      "kind": "source_backed_vec_context",
+      "source_lines": "alloc/src/vec/mod.rs:438-441 and frozen Vec shared vocabulary",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc"
+    },
+    {
+      "edit": "Modeled `slice::range(src, ..self.len())` as a target-local source range that preserves the original RangeBounds input for the generated helper vocabulary while treating standard RangeBounds dispatch and bound normalization as the named boundary.",
+      "kind": "source_backed_range_bounds_resolution_boundary",
+      "source_lines": "alloc/src/vec/mod.rs:3560",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc"
+    },
+    {
+      "edit": "Preserved the public source call `self.reserve(range.len())` and isolated allocator/capacity growth behind a boundary that preserves the initialized sequence before extension.",
+      "kind": "source_backed_allocator_reserve_boundary",
+      "source_lines": "alloc/src/vec/mod.rs:3561 and alloc/src/raw_vec/mod.rs:655-678",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc"
+    },
+    {
+      "edit": "Preserved the public unsafe block and call `self.spec_extend_from_within(range)`, with the private Clone/default and TrivialClone unsafe extension implementations modeled as the named source-backed boundary supplying `vec_extend_from_within_result`.",
+      "kind": "source_backed_unsafe_private_helper_boundary",
+      "source_lines": "alloc/src/vec/mod.rs:3563-3567 and alloc/src/vec/mod.rs:3693-3742",
+      "source_sha256": "0c19911f3d3d8d69a9eafd73ca4cf5377b9a677d19acc9f3697486a60de509cc"
+    }
+  ]
+}

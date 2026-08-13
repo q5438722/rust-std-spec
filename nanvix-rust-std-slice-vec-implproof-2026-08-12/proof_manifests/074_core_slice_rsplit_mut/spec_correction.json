@@ -1,0 +1,15 @@
+{
+  "after_contract_text": "pub assume_specification<'a, T, F: core::ops::FnMut(&T) -> bool>[ <[T]>::rsplit_mut::<F> ]( slice: &'a mut [T], pred: F, ) -> (iter: core::slice::RSplitMut<'a, T, F>) ensures slice_predicate_split_view::<core::slice::RSplitMut<'a, T, F>, F, T>( iter, old(slice)@, pred, false, true, 0, ), ;",
+  "before_contract_text": "pub assume_specification<'a, T, F: core::ops::FnMut(&T) -> bool>[ <[T]>::rsplit_mut::<F> ]( slice: &'a mut [T], pred: F, ) -> (iter: core::slice::RSplitMut<'a, T, F>) ensures slice_predicate_split_view::<core::slice::RSplitMut<'a, T, F>, F, T>( iter, old(slice)@, pred, false, true, 0, ), final(slice)@ == old(slice)@, ;",
+  "not_mirrored_to_active_module_artifacts": true,
+  "rationale": "The unconditional unchanged-final-slice clause is not entailed by a Rust body that returns RSplitMut iterator state owning the original mutable slice region. Removing that single frame clause would preserve the constructor/source iterator-view facts while avoiding a false claim about mutable state held by the returned iterator. Do not mirror this correction to active Slice/Vec artifacts until a corrected harness and independent review approve it.",
+  "schema_version": 1,
+  "source_evidence": [
+    "core/src/slice/mod.rs:2388-2393 target body: RSplitMut::new(self, pred)",
+    "core/src/slice/iter.rs:1038-1042 constructor body: Self { inner: SplitMut::new(slice, pred) }",
+    "core/src/slice/iter.rs:687-691 constructor body: Self { v: slice, pred, finished: false } storing a mutable slice in the lazy iterator",
+    "proof_harnesses/074_core_slice_rsplit_mut/evidence/verus_stderr.txt rejects final(slice)@ == old(slice)@"
+  ],
+  "status": "proposed_in_proof_workspace_not_mirrored",
+  "target": "core::slice::rsplit_mut"
+}

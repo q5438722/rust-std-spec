@@ -1,0 +1,125 @@
+{
+  "schema_version": 2,
+  "target": "alloc::vec::Vec::clear",
+  "module": "vec",
+  "abcd_status": "B",
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "d1e84ae8795bd399bd3a40128f9cae373e0b046264d744b7dc22e6f3c593c76c",
+  "harness_sha256": "90beccc4844aeb4f7d3d0352039276ce2bf2459bdfc7498377b24e4e7dc690d7",
+  "proof_status": "actual_verus_verified_modulo_reviewed_as_mut_slice_final_frame_source_backed_raw_pointer_cast_boundary_and_drop_in_place_boundary",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 flow `let elems: *mut [T] = self.as_mut_slice(); unsafe { self.len = 0; ptr::drop_in_place(elems); }`, with Verus syntax adaptation only for the implicit mutable-slice-to-raw-slice-pointer coercion. This proves the exact existing-vstd empty-Vec postcondition modulo the reviewed Vec::as_mut_slice sequence/final-frame vocabulary and narrow source-backed raw-pointer/drop_in_place/unsafe boundaries.",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::clear copied vstd Seq/View contract",
+      "rationale": "The harness preserves the exact existing-vstd postcondition `final(vec).view() == Seq::<T>::empty()` for `Vec::clear`.",
+      "source_lines": "frozen_inputs/vec/catalog/vec_spec_catalog.csv row for alloc::vec::Vec::clear and alloc/src/vec/mod.rs:2994-3007",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "reviewed_existing_vstd_dependency_vocabulary",
+      "name": "Vec::as_mut_slice copied vstd sequence/final-frame contract",
+      "rationale": "The target reuses the already reviewed `as_mut_slice` vocabulary: the returned mutable slice initially views old(vec), and the final returned slice view is the final Vec view.",
+      "source_lines": "proof_harnesses/158_alloc_vec_Vec_as_mut_slice/harness.rs and alloc/src/vec/mod.rs:1859-1878",
+      "status": "reviewed_as_mut_slice_dependency_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_raw_pointer_cast_boundary",
+      "name": "implicit &mut [T] to *mut [T] coercion",
+      "rationale": "Rust 1.96 implicitly coerces the result of `self.as_mut_slice()` into `let elems: *mut [T]`; this Verus build rejects that implicit pointer dereference, so the harness isolates only that source-backed coercion in `rust_1_96_as_mut_slice_raw_ptr`.",
+      "source_lines": "alloc/src/vec/mod.rs:2995",
+      "status": "minimal_trusted_boundary_for_implicit_raw_mut_slice_pointer_coercion"
+    },
+    {
+      "kind": "source_backed_drop_in_place_boundary",
+      "name": "ptr::drop_in_place(elems)",
+      "rationale": "The Rust body resets `self.len` before dropping through the raw slice pointer. The harness verifies the visible empty-sequence result from the length commit and trusts only the source-backed destructor/raw-pointer effect of `drop_in_place`.",
+      "source_lines": "alloc/src/vec/mod.rs:2997-3006",
+      "status": "minimal_trusted_boundary_for_raw_slice_drop_after_len_reset"
+    }
+  ],
+  "direct_call_names": [
+    "as_mut_slice",
+    "rust_1_96_as_mut_slice_raw_ptr",
+    "drop_in_place"
+  ],
+  "generated_target_dependency_candidates": [],
+  "private_helper_callee_closure": [
+    {
+      "name": "Vec::as_mut_slice",
+      "public": true,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/mod.rs",
+      "source_reference_path": "alloc/src/vec/mod.rs",
+      "signature_start_line": 1859,
+      "body_end_line": 1878,
+      "item_sha256": "9e8c08a1429efd4843901f4acd702e6b4fea2a039c00ee3d8e52c0422918a310",
+      "disposition": "reviewed_as_mut_slice_sequence_final_frame_boundary"
+    }
+  ],
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "present": false,
+      "matched_patterns": []
+    },
+    "intrinsic": {
+      "present": false,
+      "matched_patterns": []
+    },
+    "maybe_uninit": {
+      "present": false,
+      "matched_patterns": []
+    },
+    "panic_or_bounds": {
+      "present": false,
+      "matched_patterns": []
+    },
+    "raw_pointer_or_provenance": {
+      "present": true,
+      "matched_patterns": [
+        "let elems: *mut [T] = self.as_mut_slice()",
+        "rust_1_96_as_mut_slice_raw_ptr",
+        "ptr::drop_in_place(elems)"
+      ]
+    },
+    "trait_or_callback": {
+      "present": false,
+      "matched_patterns": []
+    },
+    "unsafe": {
+      "present": true,
+      "matched_patterns": [
+        "unsafe { self.len = 0; ptr::drop_in_place(elems); }"
+      ]
+    }
+  },
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/161_alloc_vec_Vec_clear/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stdout_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/161_alloc_vec_Vec_clear/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stdout_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "stderr_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/161_alloc_vec_Vec_clear/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stdout_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stderr_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/161_alloc_vec_Vec_clear/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  }
+}

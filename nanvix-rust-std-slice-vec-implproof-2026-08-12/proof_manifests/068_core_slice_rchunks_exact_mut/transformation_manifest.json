@@ -1,0 +1,92 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/068_core_slice_rchunks_exact_mut/harness.rs",
+  "harness_sha256": "ca672a73ddd677099dee142d136d19a51d72d77c4d103c1c9e708c408ceeb444",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/068_core_slice_rchunks_exact_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1827,
+    "body_start_line": 1824,
+    "item_sha256": "136eb718ea6f19d2f05c0c4156515e5c635705da0ca17efbf6c8f04e56cc81f6",
+    "signature_end_line": 1824,
+    "signature_start_line": 1824
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::rchunks_exact_mut",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local RChunksExactMut representation with private `v`, `rem`, and `chunk_size` fields, preserving field names, order, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:2830-2840",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Represented the Rust `v: *mut [T]` storage as a mutable-slice sequence view in the harness so the generated iterator-view vocabulary can mention the remaining exact chunk region; raw pointer provenance and aliasing remain an explicit boundary.",
+      "kind": "raw_pointer_representation_boundary",
+      "source_lines": "core/src/slice/iter.rs:2831-2838",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Included RChunksExactMut::new with the real Rust body order: `let rem = slice.len() % chunk_size; let (fst, snd) = ...; Self { v: snd, rem: fst, chunk_size }`.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:2844-2848",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the helper's `unsafe { slice.split_at_mut_unchecked(rem) }` to the reviewed vstd `slice.split_at_mut(rem)` contract after proving `rem <= slice.len()`; this exposes the same prefix/suffix data flow at the valid index and is recorded as a minimal split boundary.",
+      "kind": "unsafe_split_primitive_boundary_adaptation",
+      "source_lines": "core/src/slice/iter.rs:2846-2848",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter and named return for Verus; the executable target body remains assert then RChunksExactMut::new(slice, chunk_size).",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1824-1827",
+      "source_sha256": "136eb718ea6f19d2f05c0c4156515e5c635705da0ca17efbf6c8f04e56cc81f6"
+    },
+    {
+      "edit": "Adapted the Rust `pub const fn` target item to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1824",
+      "source_sha256": "136eb718ea6f19d2f05c0c4156515e5c635705da0ca17efbf6c8f04e56cc81f6"
+    },
+    {
+      "edit": "Adapted the private Rust `pub(super) const fn` constructor to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/iter.rs:2844",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Converted Rust `assert!(chunk_size != 0, ...)` to Verus `assert(chunk_size != 0)` under the same generated precondition; no control-flow path is removed.",
+      "kind": "verus_assert_macro_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1825",
+      "source_sha256": "136eb718ea6f19d2f05c0c4156515e5c635705da0ca17efbf6c8f04e56cc81f6"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper from the extracted `rem`, `v`, and `chunk_size` fields to expose source as `rem + v`, remaining as `v`, empty yielded prefix, prefix remainder, requested chunk size, and reverse direction.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:2830-2848",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Inlined the generated shared vocabulary predicates `slice_iterator_well_formed` and `slice_chunk_partition` so Verus can check the reverse-partition postcondition against the source-backed iterator view.",
+      "kind": "shared_vocabulary_extraction",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:791-821",
+      "source_sha256": "source-backed frozen generated vocabulary"
+    },
+    {
+      "edit": "Added proof-only arithmetic, sequence-split, and reveal annotations to discharge `rem < chunk_size`, divisibility of the suffix partition, and prefix/suffix recomposition; these have no executable data-flow or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:2844-2848",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Actual Verus verifies the executable source-backed harness after the repaired generated contract removed the unsound final(slice)@ == old(slice)@ frame.",
+      "kind": "actual_verus_proof_after_contract_repair",
+      "source_lines": "core/src/slice/iter.rs:2847-2848; vstd/std_specs/slice.rs:203 split_at_mut contract",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    }
+  ]
+}

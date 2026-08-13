@@ -1,0 +1,159 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "reviewed_dependency_boundary",
+      "name": "Vec::as_ptr",
+      "rationale": "The generated Vec::as_ptr target has earlier reviewed B evidence and is reused here as an explicit method boundary for the Rust 1.96 pop read pointer.",
+      "source_lines": "proof_harnesses/125_alloc_vec_Vec_as_ptr/harness.rs and alloc/src/vec/mod.rs:2824",
+      "status": "reviewed_dependency_boundary"
+    },
+    {
+      "kind": "source_backed_allocator_capacity_boundary",
+      "name": "Vec::capacity / RawVec::capacity / assert_unchecked domain",
+      "rationale": "The target keeps the Rust 1.96 capacity observation and assert_unchecked after decrementing len; the harness trusts only the source-backed Vec invariant that initialized len remains within allocated capacity.",
+      "source_lines": "alloc/src/vec/mod.rs:2822-2824 and alloc/src/raw_vec/mod.rs:618-620",
+      "status": "minimal_trusted_boundary_for_allocator_capacity_domain"
+    },
+    {
+      "kind": "source_backed_raw_pointer_or_provenance_boundary",
+      "name": "as_ptr().add(len) and ptr::read",
+      "rationale": "Verus cannot reason directly about the standard raw-pointer add/provenance/read operation. The harness preserves the source operation order and exposes only the read value from the old logical last element.",
+      "source_lines": "alloc/src/vec/mod.rs:2824 and core/src/ptr/mod.rs:1682-1698",
+      "status": "minimal_trusted_boundary_for_raw_pointer_add_and_read"
+    },
+    {
+      "kind": "exact_vstd_contract_vocabulary",
+      "name": "Vec::pop empty/nonempty Seq/View relation",
+      "rationale": "The harness preserves the exact existing-vstd empty/nonempty postcondition against a target-local Vec view whose initialized sequence is indexed by the len field.",
+      "source_lines": "frozen_inputs/vec/vstd-baseline/std_specs/vec.rs pop row and alloc/src/vec/mod.rs:2816-2826",
+      "status": "existing_vstd_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "capacity",
+    "as_ptr",
+    "add",
+    "assert_unchecked",
+    "ptr::read"
+  ],
+  "generated_target_dependency_candidates": [
+    "alloc::vec::Vec::as_ptr"
+  ],
+  "module": "vec",
+  "notes": "The public target method is executable and non-external-body. It preserves the Rust 1.96 pop flow: empty branch returns None; nonempty branch decrements len, checks the decremented len against capacity, reads from as_ptr().add(len), and returns Some(read_value). The proof is B modulo the reviewed Vec::as_ptr dependency plus named source-backed allocator-capacity, raw-pointer add/provenance, and unsafe ptr::read boundaries; it does not assume the public target postcondition.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 620,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-adjacent/raw_vec/mod.rs",
+      "item_sha256": "f008da15a61b6a40bc7e607ae5dea2847854b915e60345c9d0546c8459787254",
+      "name": "capacity",
+      "public": false,
+      "signature_start_line": 618,
+      "source_reference_path": "alloc/src/raw_vec/mod.rs"
+    },
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/167_alloc_vec_Vec_pop/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_stdout.txt",
+    "stdout_sha256": "378dbcf880a25b9df31b18292cb66dd61abafa07f801ce50b0c3a04782fc8701",
+    "summary": "verification results:: 6 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/167_alloc_vec_Vec_pop/harness.rs --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "typecheck_stderr_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_reviewed_as_ptr_allocator_capacity_raw_pointer_add_and_ptr_read_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd69f6ef4cf398ff6665c5f3ea428b652755d0e0aea004402e076f6af6a56400",
+  "source_item_sha256": "10b844ff4ce79b3395079cef34fd3168cc5b8972bebd01afb6a39e9af9574b34",
+  "target": "alloc::vec::Vec::pop",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/167_alloc_vec_Vec_pop/harness.rs --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/167_alloc_vec_Vec_pop/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [
+        "\\bcapacity\\s*\\(",
+        "vec_storage_context"
+      ],
+      "present": true
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\.add\\s*\\(",
+        "\\bas_ptr\\s*\\(",
+        "\\bptr::"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "\\bunsafe\\s*\\{"
+      ],
+      "present": true
+    }
+  },
+  "harness_sha256": "b1c930e288c6879db662976e47908379a3f13fa0df59dcb6f52cc497b0741b4a"
+}

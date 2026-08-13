@@ -1,0 +1,110 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_trait_specialization_boundary",
+      "name": "core::slice::cmp::SliceContains::slice_contains",
+      "rationale": "The Rust 1.96 target body is exactly the delegation `cmp::SliceContains::slice_contains(x, self)`. The harness verifies that public delegation against a narrow trait/specialization contract exposing only the generated contains result; it does not externalize or assume the target body.",
+      "source_lines": "core/src/slice/cmp.rs:398-455",
+      "source_sha256": "93c1ce5e4f77f85ae90db7d6681342445eed947a928def85a12a438765ecfe3a",
+      "status": "minimal_trusted_boundary_until_slicecontains_specializations_are_recursively_proved"
+    },
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "partial_eq_observed; slice_contains_value",
+      "rationale": "The generated contract relates the returned bool to observed PartialEq membership in the slice view. The harness attaches that vocabulary to the target and trait/specialization boundary without using assume_specification.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "slice_contains"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 delegation `cmp::SliceContains::slice_contains(x, self)`, adapted only to the explicit Verus receiver parameter `slice`. The proof is B, verified modulo the source-backed SliceContains default PartialEq implementation and primitive specializations in cmp.rs. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body; the only external_body is the named trait/specialization boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 408,
+      "disposition": "source_backed_default_partialeq_slicecontains_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/cmp.rs",
+      "item_sha256": "ae28c198bfb16fed8e8cd97b58e3dcb48755cffaf270df039b95194ae89ef243",
+      "name": "SliceContains::slice_contains default PartialEq impl",
+      "public": false,
+      "signature_start_line": 402,
+      "source_reference_path": "core/src/slice/cmp.rs"
+    },
+    {
+      "body_end_line": 455,
+      "disposition": "source_backed_primitive_slicecontains_specialization_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/cmp.rs",
+      "item_sha256": "93c1ce5e4f77f85ae90db7d6681342445eed947a928def85a12a438765ecfe3a",
+      "name": "SliceContains primitive specializations",
+      "public": false,
+      "signature_start_line": 398,
+      "source_reference_path": "core/src/slice/cmp.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/038_core_slice_contains/harness.rs --crate-type=lib --triggers-mode silent",
+    "exit_code_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/038_core_slice_contains/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_version.txt",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_slicecontains_specialization_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "bdc2cbb4b13659e4a71267712a450a6458600c16646498ab7296e7fdacaca324",
+  "target": "core::slice::contains",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/038_core_slice_contains/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/038_core_slice_contains/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::slice::cmp::SliceContains::slice_contains trait/specialization boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "The Verus harness lowers Rust's unsupported slice pattern `[init @ .., last]` to the standard init/last decomposition using `split_at(slice.len() - 1)` and `&tail[0]`; the trusted interface is limited to the vstd slice view facts for valid `split_at` and indexing.",
+      "boundary": "vstd_slice_split_at_index_contract_for_slice_pattern_desugaring",
+      "evidence": "The saved verified harness preserves the Rust init/last branch shape with `slice.len() != 0`, `slice.split_at(slice.len() - 1)`, and `&tail[0]`; no target-body external_body, assume_specification, or --no-verify proof marker is present.",
+      "source_lines": "core/src/slice/mod.rs:240-242"
+    }
+  ],
+  "direct_call_names": [
+    "slice.len",
+    "slice.split_at",
+    "slice_index"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Callee closure is source-indexed and conservative for Rust method dispatch; every listed item is source-backed by frozen line/hash metadata.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/094_core_slice_split_last/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/094_core_slice_split_last/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/094_core_slice_split_last/evidence/verus_stderr.txt",
+    "stdout_relpath": "proof_harnesses/094_core_slice_split_last/evidence/verus_stdout.txt",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/094_core_slice_split_last/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/094_core_slice_split_last/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/094_core_slice_split_last/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stdout_relpath": "proof_harnesses/094_core_slice_split_last/evidence/verus_typecheck_stdout.txt"
+  },
+  "proof_status": "actual_verus_verified_modulo_verus_slice_pattern_desugaring_boundary",
+  "schema_version": 1,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "494ab97059b11f5875c876637025f3dd9db9d65354600d4e1769556847dac13a",
+  "target": "core::slice::split_last",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

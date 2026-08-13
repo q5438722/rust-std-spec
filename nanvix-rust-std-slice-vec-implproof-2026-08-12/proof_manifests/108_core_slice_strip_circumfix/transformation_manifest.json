@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/108_core_slice_strip_circumfix/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/108_core_slice_strip_circumfix/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 2764,
+    "body_start_line": 2762,
+    "item_sha256": "fe5c9c316e6874a5d08bcb30fbae3ff7c6441e3c725b6b64b15cf5bac2daf953",
+    "signature_end_line": 2762,
+    "signature_start_line": 2757
+  },
+  "status": "verus_verified_modulo_reviewed_strip_prefix_and_strip_suffix_dependencies_and_slice_pattern_partial_eq_boundaries",
+  "target": "core::slice::strip_circumfix",
+  "transformations": [
+    {
+      "kind": "verus_signature_receiver_and_try_lowering_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus public target. The target preserves the Rust 1.96 body `self.strip_prefix(prefix)?.strip_suffix(suffix)` as an explicit `let Some(stripped) = strip_prefix(slice, prefix) else { return None; }; strip_suffix(stripped, suffix)` early-return lowering with only the receiver named `slice`.",
+      "source_lines": "core/src/slice/mod.rs:2757-2764",
+      "source_sha256": "fe5c9c316e6874a5d08bcb30fbae3ff7c6441e3c725b6b64b15cf5bac2daf953"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "edit": "Instantiated reviewed strip_prefix and strip_suffix contracts locally so the public target calls the same prefix-removal and suffix-removal relations rather than assuming the circumfix postcondition.",
+      "source_lines": "core/src/slice/mod.rs:2682-2696; core/src/slice/mod.rs:2718-2732; proof_harnesses/109_core_slice_strip_prefix/harness.rs; proof_harnesses/110_core_slice_strip_suffix/harness.rs",
+      "source_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5"
+    },
+    {
+      "kind": "source_backed_slice_pattern_and_partialeq_boundaries",
+      "edit": "Reused the sibling SlicePattern::as_slice, slice PartialEq prefix/suffix comparison, and split_at/range-view facts as narrow target-local boundaries; the public strip_circumfix target is not external_body.",
+      "source_lines": "core/src/slice/mod.rs:2687,2690-2692,2723,2727-2729; core/src/slice/cmp.rs:15-141",
+      "source_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Attached the generated `slice_strip_circumfix_result`, `slice_strip_prefix_result`, `slice_strip_suffix_result`, `slice_is_prefix`, `slice_is_suffix`, and `slice_pattern_view` vocabulary and proved the prefix-then-suffix subrange composition for the executable target.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:219-272",
+      "source_sha256": "86bf195e2caf95ee1674f248bc35cc88b0ecba022188ceb26e9836b783e4b1b6"
+    }
+  ],
+  "harness_sha256": "aa9e9e3f00f83bbb3b65e42075d4b6e96b5f4e4e64f36333606a04d0f2d167dc"
+}

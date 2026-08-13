@@ -1,0 +1,87 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_instantiation",
+      "name": "slice_iterator_view::<Windows<'a, T>, T>",
+      "rationale": "The generated contract's shared iterator-view helper is instantiated as a closed spec over the extracted Windows private `v` and source-backed NonZero `size` fields; this does not assume the target postcondition.",
+      "source_lines": "core/src/slice/iter.rs:1331-1334",
+      "status": "minimal_trusted_boundary_for_shared_helper_representation"
+    },
+    {
+      "kind": "private_helper_verified_in_harness",
+      "name": "Windows::new",
+      "rationale": "The private constructor called by the target body is included with its real Rust body `Self { v: slice, size }` and is verified before the target call.",
+      "source_lines": "core/src/slice/iter.rs:1336-1340",
+      "status": "verified_from_extracted_private_helper_body_in_same_harness"
+    },
+    {
+      "kind": "panic_or_bounds",
+      "name": "NonZero::new(size).expect(\"window size must be non-zero\")",
+      "rationale": "The generated precondition `size != 0` makes the Rust NonZero construction succeed; the harness keeps the source body shape through local NonZero::new and expect models that expose only the nonzero value fact needed by Windows::new.",
+      "source_lines": "core/src/slice/mod.rs:1115-1117",
+      "status": "discharged_by_target_precondition"
+    }
+  ],
+  "direct_call_names": [
+    "expect",
+    "new"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 flow `let size = NonZero::new(size).expect(\"window size must be non-zero\"); Windows::new(slice, size)` after adapting the inherent receiver to an explicit Verus parameter. The proof is modulo the source-backed iterator-view vocabulary boundary, not an assume_specification or target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/118_core_slice_windows/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/118_core_slice_windows/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/118_core_slice_windows/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/118_core_slice_windows/evidence/verus_stdout.txt",
+    "stdout_sha256": "e0e6f01ab4fc353473644ed422eae4cba1663ceb4aba41c072e5e7253ac65bd6",
+    "summary": "verification results:: 4 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/118_core_slice_windows/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/118_core_slice_windows/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/118_core_slice_windows/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/118_core_slice_windows/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "ed931884cc8fb0445669da6f6430711f8fcb0484ef814f865ce6502806ea4666",
+  "target": "core::slice::windows",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bexpect\\s*\\("
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-adjacent/mem/maybe_uninit.rs",
+  "harness_relpath": "proof_harnesses/120_core_slice_write_copy_of_slice/harness.rs",
+  "harness_sha256": "7b842adb5499e28015d104493b5447ae88585398fe00284229b62c5ee1104e25",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/120_core_slice_write_copy_of_slice/source_excerpt.rs",
+  "source_reference_path": "core/src/mem/maybe_uninit.rs",
+  "source_span": {
+    "body_end_line": 1173,
+    "body_start_line": 1165,
+    "item_sha256": "ead2525c17edd52087da54aca316368bd080821aab7238723509ed8dca91ed53",
+    "signature_end_line": 1165,
+    "signature_start_line": 1162
+  },
+  "status": "verus_verified_modulo_source_backed_maybeuninit_transmute_copy_from_slice_and_assume_init_mut_boundary",
+  "target": "core::slice::write_copy_of_slice",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function using explicit `slice: &mut [MaybeUninit<T>]` and `src: &[T]` parameters plus the generated ensures clauses. The public target is not external_body and contains no assume_specification.",
+      "kind": "receiver_signature_and_executable_body_adaptation",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1162-1173",
+      "source_sha256": "ead2525c17edd52087da54aca316368bd080821aab7238723509ed8dca91ed53"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 `let uninit_src: &[MaybeUninit<T>] = unsafe { super::transmute(src) };` same-layout conversion through the harness-local `rust_1_96_same_layout_transmute_src` boundary because Verus does not model this generic slice-layout transmute directly.",
+      "kind": "source_backed_same_layout_transmute_boundary",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1167",
+      "source_sha256": "ead2525c17edd52087da54aca316368bd080821aab7238723509ed8dca91ed53"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 `self.copy_from_slice(uninit_src);` step through the harness-local `rust_1_96_copy_from_slice` boundary, carrying only the equal-length MaybeUninit copy effect needed by the generated written-from relation.",
+      "kind": "source_backed_copy_from_slice_boundary",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1169",
+      "source_sha256": "ead2525c17edd52087da54aca316368bd080821aab7238723509ed8dca91ed53"
+    },
+    {
+      "edit": "Reused the audited MaybeUninit relation vocabulary and the ordered `core::slice::assume_init_mut` dependency shape for the final initialized-storage cast.",
+      "kind": "maybeuninit_vocabulary_and_dependency_reuse",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1172-1173; proof_harnesses/026_core_slice_assume_init_mut/harness.rs",
+      "source_sha256": "beb997b66dd7cca2818667bddfe1e1ade51676cdf0ea4f32cf6253af1c0234f4"
+    }
+  ]
+}

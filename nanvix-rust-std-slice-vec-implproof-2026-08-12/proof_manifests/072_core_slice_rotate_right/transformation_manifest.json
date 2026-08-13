@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/072_core_slice_rotate_right/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/072_core_slice_rotate_right/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 3940,
+    "body_start_line": 3930,
+    "item_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d",
+    "signature_end_line": 3930,
+    "signature_start_line": 3930
+  },
+  "status": "verus_verified_modulo_source_backed_rotate_right_ptr_rotate_and_final_frame_boundary",
+  "target": "core::slice::rotate_right",
+  "transformations": [
+    {
+      "kind": "receiver_signature_and_contract_adaptation",
+      "edit": "Replaced the seed string recorder with an executable Verus function using an explicit `slice: &mut [T]` receiver parameter, named public target, and the generated `k <= old(slice)@.len()` / `final(slice)@ == slice_rotated_right(old(slice)@, k as int)` contract.",
+      "source_lines": "core/src/slice/mod.rs:3930-3940",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d"
+    },
+    {
+      "kind": "source_flow_preservation",
+      "edit": "Preserved the target flow: `assert!(k <= self.len())` is represented by a local source-shaped macro that calls an executable precondition helper, then `mid = self.len() - k`, `p = self.as_mut_ptr()` is represented by the reviewed `as_mut_ptr` dependency boundary, and the unsafe rotation call is preserved in `rust_1_96_rotate_right_ptr_rotate` as `rotate::ptr_rotate(mid, p.add(mid), k)`.",
+      "source_lines": "core/src/slice/mod.rs:3931-3939",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d"
+    },
+    {
+      "kind": "reviewed_dependency_boundary_reuse",
+      "edit": "Reused the reviewed `core::slice::as_mut_ptr` start-pointer/final-frame shape locally instead of re-proving the raw slice-to-element pointer cast.",
+      "source_lines": "core/src/slice/mod.rs:777-781; proof_harnesses/018_core_slice_as_mut_ptr/harness.rs",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d"
+    },
+    {
+      "kind": "source_backed_raw_pointer_rotation_boundary",
+      "edit": "Isolated only the unsupported raw pointer `p.add(mid)` plus `rotate::ptr_rotate(mid, p.add(mid), k)` call in a named private boundary; the public target is not external_body.",
+      "source_lines": "core/src/slice/mod.rs:3937-3939; core/src/slice/rotate.rs",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d"
+    },
+    {
+      "kind": "source_backed_final_frame_bridge",
+      "edit": "Added a named bridge from the source-backed ptr_rotate effect and preserved start pointer/length arithmetic to the generated `slice_rotated_right` postcondition without making the public target external.",
+      "source_lines": "core/src/slice/mod.rs:3931-3939",
+      "source_sha256": "d3996c05273d83acdb957fc526a9fdd3d1245ac6c2f43a452b323380fad3500d"
+    }
+  ],
+  "harness_sha256": "be3c00c9329302c5cccd9346b72cdcac1356fae064f84599268574f4e966018b"
+}

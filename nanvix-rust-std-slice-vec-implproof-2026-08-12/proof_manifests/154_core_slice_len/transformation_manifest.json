@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/154_core_slice_len/harness.rs",
+  "harness_sha256": "c868b3893ac4e99b3c31cace119c7e377ce0a84486a557ac70c00e34985b10be",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/154_core_slice_len/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 118,
+    "body_start_line": 116,
+    "item_sha256": "f020cc6bc61b6583630cc4eece93c8a4baf5c3a74c08569d270a0ca28a9a81b1",
+    "signature_end_line": 116,
+    "signature_start_line": 116
+  },
+  "status": "verus_verified_modulo_source_backed_ptr_metadata_raw_pointer_boundary",
+  "target": "core::slice::len",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function whose public body is the Rust 1.96 target expression `ptr::metadata(self)`, adapted only to call the source-backed explicit-receiver helper `core::ptr::metadata(slice)`.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:116-118",
+      "source_sha256": "f020cc6bc61b6583630cc4eece93c8a4baf5c3a74c08569d270a0ca28a9a81b1"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter, removed `const`, and named the return value for Verus; no public target postcondition is assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:116",
+      "source_sha256": "f020cc6bc61b6583630cc4eece93c8a4baf5c3a74c08569d270a0ca28a9a81b1"
+    },
+    {
+      "edit": "Modeled only the source-backed raw-pointer metadata operation as a narrow `#[verifier::external_body]` boundary whose executable body remains `core::ptr::metadata(slice)` and whose contract ties the returned metadata length to `spec_slice_len(slice)`.",
+      "kind": "source_backed_ptr_metadata_boundary",
+      "source_lines": "core/src/slice/mod.rs:117 and core/src/ptr/metadata.rs:100",
+      "source_sha256": "f020cc6bc61b6583630cc4eece93c8a4baf5c3a74c08569d270a0ca28a9a81b1"
+    },
+    {
+      "edit": "Preserved the exact-vstd len contract by carrying `spec_slice_len` and `axiom_spec_len`, with `axiom_spec_len` tying `spec_slice_len(slice)` to `slice@.len()`.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen_inputs/slice/vstd-baseline/slice.rs:71-85",
+      "source_sha256": "6f837ba7ef3337aa16929597e913f4dc5112f12a44552166c7d2b3f6f0568eb3"
+    }
+  ]
+}
