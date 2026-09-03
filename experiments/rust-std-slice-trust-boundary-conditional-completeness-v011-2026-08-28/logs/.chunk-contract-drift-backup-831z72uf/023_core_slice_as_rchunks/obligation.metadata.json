@@ -1,0 +1,364 @@
+{
+  "active_contract_sha256": "1b3b024fdbd8f22771d68cefc3082062544ac60b7d7ac07fda1c14cab04ab3ca",
+  "active_contract_text": "pub assume_specification<T, const N: usize>[ <[T]>::as_rchunks::<N> ]( slice: &[T], ) -> (ret: (&[T], &[[T; N]])) requires N != 0, ensures slice_array_rchunks_partition::<T, N>(slice@, ret.0@, ret.1@), ret.1@.len() == slice@.len() / (N as nat), ret.0@.len() == slice@.len() % (N as nat), ret.0@ == slice@.subrange(0, ret.0@.len() as int), forall|chunk: int| 0 <= chunk < ret.1@.len() ==> array_value_view::<T, N>(ret.1@[chunk]) == slice@.subrange(ret.0@.len() as int + chunk * (N as int), ret.0@.len() as int + (chunk + 1) * (N as int)), ;",
+  "boundary_fields": [
+    {
+      "role": "input_memory",
+      "selector": "b_input_allocation",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:726-728",
+        "021_core_slice_as_ptr",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_memory",
+      "selector": "b_input_address",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:726-728",
+        "021_core_slice_as_ptr",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_provenance",
+      "selector": "b_input_provenance",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:726-728",
+        "021_core_slice_as_ptr",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_layout",
+      "selector": "b_element_size",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_layout",
+      "selector": "b_element_alignment",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_memory",
+      "selector": "b_allocation_base",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_memory",
+      "selector": "b_allocation_bytes",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_memory",
+      "selector": "b_one_allocation",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_initialization",
+      "selector": "b_initialized",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_layout",
+      "selector": "b_isize_max",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_layout",
+      "selector": "b_address_space_limit",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    },
+    {
+      "role": "input_provenance",
+      "selector": "b_borrow_identity",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/raw.rs:80-141",
+        "core/src/slice/mod.rs:1443-1451"
+      ],
+      "trust_site_ids": [
+        "TS-023-D002"
+      ]
+    }
+  ],
+  "boundary_scope": {
+    "admitted_trust_site_ids": [
+      "TS-023-D002"
+    ],
+    "all_audited_trust_site_ids": [
+      "TS-023-D001",
+      "TS-023-D002",
+      "TS-023-D003",
+      "TS-023-D004",
+      "TS-023-E001"
+    ],
+    "context_only_trust_site_ids": [
+      "TS-023-D001",
+      "TS-023-D004"
+    ],
+    "excluded_observations": [
+      "returned references and ranges",
+      "chunk or remainder values",
+      "final storage or final view",
+      "answer encodings",
+      "partial or complete execution traces"
+    ],
+    "excluded_retained_trust_site_ids": [
+      "TS-023-D003",
+      "TS-023-E001"
+    ],
+    "narrower_than_target": true,
+    "shared_observations": [
+      "b_input_allocation",
+      "b_input_address",
+      "b_input_provenance",
+      "b_element_size",
+      "b_element_alignment",
+      "b_allocation_base",
+      "b_allocation_bytes",
+      "b_one_allocation",
+      "b_initialized",
+      "b_isize_max",
+      "b_address_space_limit",
+      "b_borrow_identity"
+    ],
+    "source_backed_replacement_ids": []
+  },
+  "contract_translation": {
+    "active_conjuncts": [
+      "ActivePartitionConjunct",
+      "ActiveChunksLengthConjunct",
+      "ActiveRemainderLengthConjunct",
+      "ActiveInitialChunkSubrangesConjunct",
+      "ActiveInitialRemainderSubrangeConjunct"
+    ],
+    "front_rear_policy": "front remainder, rear chunks",
+    "source_flow": [
+      "assert N != 0",
+      "compute quotient, remainder, and exact split index",
+      "derive front and rear source ranges",
+      "compose 014_core_slice_as_chunks_unchecked",
+      "preserve the immutable receiver"
+    ]
+  },
+  "declared_functions": [],
+  "domain": {
+    "chunk_size": "arbitrary positive mathematical integer",
+    "empty_and_zst": "aligned non-null dangling pointers are permitted when the byte span is zero",
+    "length": "arbitrary nonnegative mathematical integer",
+    "memory": "non-null aligned pointer, valid type layout, isize-fit and no-wrap byte span, one allocation for every nonempty byte span"
+  },
+  "equivalence_kind": "exact",
+  "equivalence_scope": "principal return and every modeled final-state observation",
+  "expected_solver_result": "unsat",
+  "input_order": "23",
+  "obligation_purpose": "completeness-modulo-reviewed-equivalence",
+  "principal_observations": [
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_chunks_ref",
+      "sort": "Reference"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_chunks_len",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_chunks_source",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_chunks_start",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_chunks_width",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_remainder_ref",
+      "sort": "Reference"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_remainder_len",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_remainder_source",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_remainder_start",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_sequence",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_slice_len",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_allocation",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_address",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_provenance",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_borrow_identity",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_one_allocation",
+      "sort": "Bool"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_initialized",
+      "sort": "Bool"
+    }
+  ],
+  "rejected_retained_contract_sha256": "e2267d28d210517821bbafb80115b79374ff4925b5096b1b27fb466f399a2cec",
+  "rejected_retained_contract_text": "pub assume_specification<T, const N: usize>[ <[T]>::as_rchunks::<N> ]( slice: &[T], ) -> (ret: (&[T], &[[T; N]])) requires N != 0, ensures slice_array_rchunks_partition::<T, N>(slice@, ret.0@, ret.1@), ;",
+  "schema_version": 3,
+  "source_backed_replacements": [
+    {
+      "operation": "compose the checked lower array-chunk transition without placing its returned view in Boundary_T",
+      "replacement_id": "SRC-23-LOWER-014_core_slice_as_chunks_unchecked",
+      "replaces_trust_site_ids": [
+        "TS-023-D003",
+        "TS-023-E001"
+      ],
+      "source_citations": [
+        "014_core_slice_as_chunks_unchecked",
+        "core/src/slice/mod.rs:1338-1349"
+      ],
+      "symbols": [
+        "LowerAsChunksUncheckedTransition"
+      ]
+    }
+  ],
+  "source_transition_definitions": [
+    "SplitFrontRearProjection",
+    "LowerAsChunksUncheckedTransition",
+    "ImmutableFinalStateProjection"
+  ],
+  "target": "core::slice::as_rchunks",
+  "target_definition": "TargetDefinition_T",
+  "theorem_variables": {
+    "boundary": "b",
+    "input": "x",
+    "output1": "y1",
+    "output2": "y2",
+    "state1": "s1",
+    "state2": "s2"
+  }
+}

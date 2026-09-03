@@ -1,0 +1,78 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_trait_method_boundary",
+      "name": "core::slice::SliceIndex<[T]>::get_mut",
+      "rationale": "The Rust 1.96 target body is exactly the delegation `index.get_mut(self)`. The harness verifies that delegation against a narrow trait-method contract exposing only the generated in-range and mutable-frame facts; it does not externalize or assume the target body.",
+      "source_lines": "core/src/slice/index.rs:163-176",
+      "source_sha256": "4ea4df7c0b008fffcf05bc82c48eb85eab850517aa078cce3dc292c25e0476d4",
+      "status": "minimal_trusted_boundary_until_sliceindex_impls_are_recursively_proved"
+    },
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "slice_index_in_range; slice_index_mut_frame",
+      "rationale": "The generated contract relates the old slice view, index value, and final mutable-slice frame using audited shared SliceIndex vocabulary. The harness attaches that vocabulary to the target and trait-method boundary without using assume_specification.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    }
+  ],
+  "direct_call_names": [
+    "get_mut"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 delegation `index.get_mut(self)`. The proof is B, verified modulo the source-backed SliceIndex::get_mut trait-method boundary and generated SliceIndex vocabulary. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/053_core_slice_get_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 60,
+    "stderr_relpath": "proof_harnesses/053_core_slice_get_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/053_core_slice_get_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/053_core_slice_get_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_stderr_relpath": "proof_harnesses/053_core_slice_get_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/053_core_slice_get_mut/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_sliceindex_get_mut_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "003625b19b151e26497787859485cf0ed9d8f38382d73e69831cd5de64758914",
+  "target": "core::slice::get_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "core::slice::SliceIndex<[T]>::get_mut trait-method boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

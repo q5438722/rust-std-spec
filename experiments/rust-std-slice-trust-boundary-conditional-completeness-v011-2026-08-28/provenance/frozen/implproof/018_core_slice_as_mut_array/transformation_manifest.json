@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/018_core_slice_as_mut_array/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/018_core_slice_as_mut_array/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 879,
+    "body_start_line": 869,
+    "item_sha256": "d2208668f0b01536cedf4b43a19beca6d879c2dca9e7fb2ba16b10a8110d0529",
+    "signature_end_line": 869,
+    "signature_start_line": 869
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_mut_array_ref_final_frame_boundary",
+  "target": "core::slice::as_mut_array",
+  "transformations": [
+    {
+      "kind": "verus_signature_adaptation",
+      "edit": "Replaced the seed-only contract/body string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &mut [T]` argument and naming the return.",
+      "source_lines": "core/src/slice/mod.rs:869-879",
+      "source_sha256": "d2208668f0b01536cedf4b43a19beca6d879c2dca9e7fb2ba16b10a8110d0529"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Attached the generated mutable array postconditions directly to the executable target: the `old(slice)@.len() == N` Some branch, old array-reference view, final-frame relation to `*final(ret.unwrap())`, and the None branch frame preservation.",
+      "source_lines": "frozen generated contract for <[T]>::as_mut_array::<N>",
+      "source_sha256": "1ac5b31b2e71effad4bc9503263318d0fe4c53b2aff998e13f2fe9faccab72c4"
+    },
+    {
+      "kind": "rust_control_flow_preserved",
+      "edit": "Preserved the Rust 1.96 branch flow: `if self.len() == N`, then `as_mut_ptr`, pointer `cast_array`, unsafe mutable array-reference cast, `Some(me)`, and else `None`; the implicit receiver is the only source syntax adaptation.",
+      "source_lines": "core/src/slice/mod.rs:870-878",
+      "source_sha256": "d2208668f0b01536cedf4b43a19beca6d879c2dca9e7fb2ba16b10a8110d0529"
+    },
+    {
+      "kind": "source_backed_mut_raw_pointer_array_ref_boundaries",
+      "edit": "Reused the already verified `core::slice::as_mut_ptr` dependency shape through a local executable `as_mut_ptr` wrapper with `slice_start_mut_ptr`, and isolated only Verus-unsupported `ptr.cast_array()` plus `unsafe { &mut *ptr }` as named source-backed raw-pointer/provenance and mutable array-reference final-frame boundaries.",
+      "source_lines": "core/src/slice/mod.rs:871-875",
+      "source_sha256": "d2208668f0b01536cedf4b43a19beca6d879c2dca9e7fb2ba16b10a8110d0529"
+    }
+  ],
+  "harness_sha256": "cfb8ce05b5087df04751b6e2e996f83e752f4b4e5c6fd40e9661c58259f3326d"
+}

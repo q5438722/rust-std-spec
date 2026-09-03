@@ -1,0 +1,145 @@
+{
+  "active_contract": {
+    "authority_path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/authority_bindings.json",
+    "conjuncts": [
+      "final-concat",
+      "left-length",
+      "pivot-at-index",
+      "right-length",
+      "slice-permutation",
+      "key-partition"
+    ],
+    "contract_sha256": "9366859a88badc5f8d8cdfb15fbc544ef81edb756429e14a887b1ce6c73e3e95",
+    "contract_text": "pub assume_specification<T, K: core::cmp::Ord, F: core::ops::FnMut(&T) -> K>[ <[T]>::select_nth_unstable_by_key::<K, F> ]( slice: &mut [T], index: usize, f: F, ) -> (ret: (&mut [T], &mut T, &mut [T])) requires index < old(slice)@.len(), ensures final(slice)@ == final(ret.0)@ + seq![*final(ret.1)] + final(ret.2)@, final(ret.0)@.len() == index, *final(ret.1) == final(slice)@[index as int], final(ret.2)@.len() == old(slice)@.len() - (index as int) - 1, slice_permutation(old(slice)@, final(slice)@), slice_select_partition_key::<F, T, K>(final(ret.0)@, *final(ret.1), final(ret.2)@, f), ;"
+  },
+  "adapter_ground_truth": {
+    "manifest": {
+      "bytes": 3398,
+      "path": "evidence/target_079_operational_v1/ground_truth/manifest.json",
+      "sha256": "9f5031459a2eab795e87206c7f93004a6b0db3afc4c65ae8c83f41a970dc2579"
+    },
+    "mir": {
+      "bytes": 35730,
+      "path": "evidence/target_079_operational_v1/ground_truth/probe.mir",
+      "sha256": "80241013d8137fc6199232a2031cc50100ded6ee48a07c5ae3a16009534a3329"
+    },
+    "scenario_count": 10,
+    "toolchain": "rustc 1.96.0 (ac68faa20 2026-05-25)"
+  },
+  "boundary": {
+    "admitted_trust_site_ids": [
+      "TS-079-D004"
+    ],
+    "observations": [
+      "callback, key-function, Ord, and Drop identities",
+      "initial callback-visible state",
+      "total key(state,value) abstract-key, next-state, and panic functions",
+      "total Ord::lt(state,left-owned-key,right-owned-key) result, next-state, and panic functions",
+      "total Drop(state,owned-key) next-state and panic functions",
+      "state-independent contract key and total Ordering functions"
+    ],
+    "prohibited_observations": [
+      "realized calls or invocation count",
+      "temporary lifetime or drop schedule",
+      "selection branches, pivots, swaps, and mutations",
+      "returned references, selected answer, or final state",
+      "execution trace"
+    ]
+  },
+  "classification_eligible": true,
+  "covered_source": [
+    {
+      "bytes": 292,
+      "path": "evidence/target_079_operational_v1/bound_inputs/source_item.rs",
+      "role": "public-key-adapter",
+      "sha256": "eaf3bba68e8eb20e76011297d8822b6b064bb15d044d8e495442c3c759ffb061"
+    },
+    {
+      "bytes": 10525,
+      "path": "evidence/target_079_operational_v1/bound_inputs/select.rs",
+      "role": "selection-and-fallback",
+      "sha256": "93b40c191cc4a5410bf070e80b27ad60dbba144f4628568fbb2f3a6608ff285f"
+    },
+    {
+      "bytes": 3575,
+      "path": "evidence/target_079_operational_v1/bound_inputs/pivot.rs",
+      "role": "pivot-selection",
+      "sha256": "09788115fcd10dac381446e2a68c228266ed2c78d4840fcdb3b77b7bd06bce6e"
+    },
+    {
+      "bytes": 1488,
+      "path": "evidence/target_079_operational_v1/bound_inputs/partition_entry.rs",
+      "role": "partition-entry",
+      "sha256": "659bf07e9477479b77ae012563e7fd74c1e8fd5344511c637d0a2677fb6fa55b"
+    },
+    {
+      "bytes": 15242,
+      "path": "evidence/target_079_operational_v1/bound_inputs/quicksort.rs",
+      "role": "partition-and-unwind",
+      "sha256": "8fc55e114a3715dafb6b6d336b9450534ce7d45314d71faa9bd79a0c7d3e8a13"
+    },
+    {
+      "bytes": 2817,
+      "path": "evidence/target_079_operational_v1/bound_inputs/smallsort.rs",
+      "role": "small-sort-and-unwind",
+      "sha256": "42750ff629840c8a6b065a6dfdb9dc359cde7453d47ff8209b58469fb08b13da"
+    },
+    {
+      "bytes": 71244,
+      "path": "evidence/target_079_operational_v1/bound_inputs/cfg_select.rs",
+      "role": "configuration-dispatch",
+      "sha256": "e1c99a9323ee5b163fcb1dde31b314cf640f5a13747923d898bb21889b689910"
+    },
+    {
+      "bytes": 54885,
+      "path": "evidence/target_079_operational_v1/bound_inputs/sized_type_properties.rs",
+      "role": "zst-dispatch",
+      "sha256": "4b9a8c9276ddf8ae9166df2099b72dbb64e0b1d05a5d8b1520b92dd6bcff723a"
+    },
+    {
+      "bytes": 3368,
+      "path": "evidence/target_079_operational_v1/bound_inputs/callback_vocabulary.rs",
+      "role": "key-contract-vocabulary",
+      "sha256": "dd2cd7647c4172819193417ec4154314e32bddcb30ee6e84f391f84c20fab753"
+    },
+    {
+      "bytes": 2854,
+      "path": "evidence/target_079_operational_v1/bound_inputs/adapter_probe.rs",
+      "role": "adapter-lifetime-ground-truth",
+      "sha256": "6088cfc8ac5833dafb30eef5ac1db97ddbbf0904afdcdf73e8875d862e2761b5"
+    }
+  ],
+  "formal_source_transition": "tools/target_079_operational_smt_v1.py::AdapterTransition + imported ExactRunState",
+  "input_order": "79",
+  "missing_source_phases": [],
+  "model_id": "target-079-key-ord-drop-operational-v1-rust-1.96-complete",
+  "model_version": 1,
+  "schema_version": 2,
+  "selection_reuse": {
+    "accepted_model_id": "target-078-operational-v1-rust-1.96-complete",
+    "accepted_result": {
+      "bytes": 51460,
+      "path": "evidence/target_078_operational_v1/result.json",
+      "sha256": "1cfe7f7161505cf8fe6ed321bd2e43675902d6efcc428d6db258517e417231fc"
+    },
+    "accepted_source_model_complete": true,
+    "classification_inherited": false,
+    "exact_smt_engine": {
+      "bytes": 40552,
+      "path": "tools/target_078_exact_smt_v1.py",
+      "sha256": "ea6a2e02e75e902b0c8632e0938d1833224ca8fa45ade7697fc9672de1e49fd1"
+    },
+    "python_engine": {
+      "bytes": 45184,
+      "path": "tools/target_078_operational_v1.py",
+      "sha256": "3686e3e5da098f0660327d64da95a06981a6683fae5907e90046806d5433e6ef"
+    }
+  },
+  "source_model_complete": true,
+  "target": "core::slice::select_nth_unstable_by_key",
+  "trust_site_dispositions": {
+    "TS-079-D002": "replaced-by-key-ord-drop-adapter-transition",
+    "TS-079-D003": "replaced-by-complete-imported-selection-source-model",
+    "TS-079-E001": "excluded-and-replaced-by-complete-source-model"
+  }
+}

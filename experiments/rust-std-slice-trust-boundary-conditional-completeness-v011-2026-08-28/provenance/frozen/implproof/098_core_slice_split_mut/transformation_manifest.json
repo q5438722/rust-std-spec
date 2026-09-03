@@ -1,0 +1,62 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/098_core_slice_split_mut/harness.rs",
+  "harness_sha256": "14d9b9b3f8c981eabeffd49b3c00652414bc611915f1f9c4b7c70188998fc527",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/098_core_slice_split_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 2271,
+    "body_start_line": 2269,
+    "item_sha256": "75b056645bc50f9f79c972b53ff5c1683ab5eafc1782d305cd4eb47bee542965",
+    "signature_end_line": 2269,
+    "signature_start_line": 2266
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::split_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:2266-2271",
+      "source_sha256": "75b056645bc50f9f79c972b53ff5c1683ab5eafc1782d305cd4eb47bee542965"
+    },
+    {
+      "edit": "Adapted the inherent [T] mutable receiver to an explicit slice: &mut [T] parameter and named return for Verus; the executable target body remains the single call SplitMut::new(slice, pred).",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:2266-2271",
+      "source_sha256": "75b056645bc50f9f79c972b53ff5c1683ab5eafc1782d305cd4eb47bee542965"
+    },
+    {
+      "edit": "Extracted the target-local SplitMut representation with its private mutable slice field, predicate field, and finished flag, preserving field names, order, types, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:678-684"
+    },
+    {
+      "edit": "Included SplitMut::new with the real Rust body Self { v: slice, pred, finished: false } so the constructor is checked rather than trusted.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:687-691"
+    },
+    {
+      "edit": "Preserved the Rust callback bound F: FnMut(&T) -> bool; the harness never invokes the callback in the constructor proof and uses only the audited fnmut_predicate_observed vocabulary.",
+      "kind": "callback_signature_preservation",
+      "source_lines": "core/src/slice/mod.rs:2266-2271; core/src/slice/iter.rs:678-690"
+    },
+    {
+      "edit": "Defined local iterator-view helpers over the extracted mutable initial iterator state to expose old source, remaining, empty yielded prefix/remainder, zero limit, forward direction, and predicate-observation lawfulness.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:678-690 and frozen_inputs/slice/specs/all_slice_specs.rs predicate-split vocabulary"
+    },
+    {
+      "edit": "Revealed closed iterator-view definitions in ghost proof blocks and added a trigger to the local predicate-observation quantifier; these are proof-only annotations with no executable data-flow effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/all_slice_specs.rs predicate-split vocabulary"
+    },
+    {
+      "edit": "Actual Verus verifies the executable source-backed harness after the repaired generated contract removed the unsound final(slice)@ == old(slice)@ frame.",
+      "kind": "actual_verus_proof_after_contract_repair",
+      "source_lines": "core/src/slice/mod.rs:2266-2271; core/src/slice/iter.rs:678-690; generated contract for <[T]>::split_mut"
+    }
+  ]
+}

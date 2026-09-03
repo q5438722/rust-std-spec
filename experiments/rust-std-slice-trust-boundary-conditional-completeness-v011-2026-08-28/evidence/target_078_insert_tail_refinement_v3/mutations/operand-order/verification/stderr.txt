@@ -1,0 +1,233 @@
+note: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:246:1
+    |
+246 | / pub proof fn callback_uses_ordered_operands_and_pre_state(
+247 | |     state: InsertTailState,
+248 | |     boundary: ComparatorBoundary,
+249 | |     left: int,
+250 | |     right: int,
+251 | | )
+    | |_^
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:259:9
+    |
+246 | / pub proof fn callback_uses_ordered_operands_and_pre_state(
+247 | |     state: InsertTailState,
+248 | |     boundary: ComparatorBoundary,
+249 | |     left: int,
+250 | |     right: int,
+251 | | )
+    | |_- at the end of the function body
+...
+259 | /         comparator_callback(
+260 | |             state,
+261 | |             boundary,
+262 | |             left,
+...   |
+269 | |                 right,
+270 | |             ),
+    | |_____________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:271:9
+    |
+246 | / pub proof fn callback_uses_ordered_operands_and_pre_state(
+247 | |     state: InsertTailState,
+248 | |     boundary: ComparatorBoundary,
+249 | |     left: int,
+250 | |     right: int,
+251 | | )
+    | |_- at the end of the function body
+...
+271 | /         comparator_callback(
+272 | |             state,
+273 | |             boundary,
+274 | |             left,
+...   |
+281 | |                 right,
+282 | |             ),
+    | |_____________^ failed this postcondition
+
+note: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:286:1
+    |
+286 | / pub proof fn initial_comparison_panic_is_exact(
+287 | |     state: InsertTailState,
+288 | |     boundary: ComparatorBoundary,
+289 | |     begin: int,
+290 | |     tail: int,
+291 | | )
+    | |_^
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:301:9
+    |
+286 | / pub proof fn initial_comparison_panic_is_exact(
+287 | |     state: InsertTailState,
+288 | |     boundary: ComparatorBoundary,
+289 | |     begin: int,
+290 | |     tail: int,
+291 | | )
+    | |_- at the end of the function body
+...
+301 | /         insert_tail(state, boundary, begin, tail)
+302 | |             == comparator_callback(
+303 | |                 state,
+304 | |                 boundary,
+305 | |                 state.e_sequence[tail],
+306 | |                 state.e_sequence[tail - 1],
+307 | |             ),
+    | |_____________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:308:9
+    |
+286 | / pub proof fn initial_comparison_panic_is_exact(
+287 | |     state: InsertTailState,
+288 | |     boundary: ComparatorBoundary,
+289 | |     begin: int,
+290 | |     tail: int,
+291 | | )
+    | |_- at the end of the function body
+...
+308 | /         insert_tail(state, boundary, begin, tail).e_sequence
+309 | |             == state.e_sequence,
+    | |_______________________________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:351:9
+    |
+321 | / pub proof fn no_shift_path_is_exact(
+322 | |     state: InsertTailState,
+323 | |     boundary: ComparatorBoundary,
+324 | |     begin: int,
+325 | |     tail: int,
+326 | | )
+    | |_- at the end of the function body
+...
+351 |           !insert_tail(state, boundary, begin, tail).e_panicked,
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:444:9
+    |
+420 | / pub proof fn loop_normal_stop_restores_temporary(
+421 | |     state: InsertTailState,
+422 | |     boundary: ComparatorBoundary,
+423 | |     begin: int,
+...   |
+426 | |     temporary: int,
+427 | | )
+    | |_- at the end of the function body
+...
+444 | /         insert_tail_loop(
+445 | |             state,
+446 | |             boundary,
+447 | |             begin,
+...   |
+461 | |                 false,
+462 | |             ),
+    | |_____________^ failed this postcondition
+
+note: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:466:1
+    |
+466 | / pub proof fn loop_panic_restores_gap_and_retains_callback_state(
+467 | |     state: InsertTailState,
+468 | |     boundary: ComparatorBoundary,
+469 | |     begin: int,
+...   |
+472 | |     temporary: int,
+473 | | )
+    | |_^
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:484:9
+    |
+466 | / pub proof fn loop_panic_restores_gap_and_retains_callback_state(
+467 | |     state: InsertTailState,
+468 | |     boundary: ComparatorBoundary,
+469 | |     begin: int,
+...   |
+472 | |     temporary: int,
+473 | | )
+    | |_- at the end of the function body
+...
+484 | /         insert_tail_loop(
+485 | |             state,
+486 | |             boundary,
+487 | |             begin,
+...   |
+501 | |                 true,
+502 | |             ),
+    | |_____________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:503:9
+    |
+466 | / pub proof fn loop_panic_restores_gap_and_retains_callback_state(
+467 | |     state: InsertTailState,
+468 | |     boundary: ComparatorBoundary,
+469 | |     begin: int,
+...   |
+472 | |     temporary: int,
+473 | | )
+    | |_- at the end of the function body
+...
+503 | /         insert_tail_loop(
+504 | |             state,
+505 | |             boundary,
+506 | |             begin,
+...   |
+515 | |                 state.e_sequence[sift - 1],
+516 | |             ),
+    | |_____________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:552:9
+    |
+528 | / pub proof fn loop_less_advances_sift_and_gap(
+529 | |     state: InsertTailState,
+530 | |     boundary: ComparatorBoundary,
+531 | |     begin: int,
+...   |
+534 | |     temporary: int,
+535 | | )
+    | |_- at the end of the function body
+...
+552 | /         insert_tail_loop(
+553 | |             state,
+554 | |             boundary,
+555 | |             begin,
+...   |
+571 | |                 temporary,
+572 | |             ),
+    | |_____________^ failed this postcondition
+
+error: assertion failed
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:810:24
+    |
+810 |                   assert(boundary_panics(
+    |  ________________________^
+811 | |                     boundary,
+812 | |                     lookup_state,
+813 | |                     temporary,
+814 | |                     right,
+815 | |                 ));
+    | |_________________^ assertion failed
+
+error: assertion failed
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/operand-order/insert_tail_model.rs:866:20
+    |
+866 |               assert(boundary_panics(
+    |  ____________________^
+867 | |                 boundary,
+868 | |                 lookup_state,
+869 | |                 temporary,
+870 | |                 right,
+871 | |             ));
+    | |_____________^ assertion failed
+
+error: aborting due to 11 previous errors
+

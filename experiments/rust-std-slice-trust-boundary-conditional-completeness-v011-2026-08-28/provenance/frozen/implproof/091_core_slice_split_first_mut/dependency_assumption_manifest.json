@@ -1,0 +1,64 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "The Verus harness lowers Rust's unsupported mutable slice pattern `[first, tail @ ..]` to the standard first/tail decomposition using `split_at_mut(1)` and `&mut head[0]`; the trusted interface is limited to the vstd mutable slice split/index/final reconstruction facts needed for that lowering.",
+      "boundary": "vstd_mut_slice_split_at_index_contract_for_slice_pattern_desugaring",
+      "evidence": "The saved verified harness preserves the Rust first/tail branch shape with `slice.len() != 0`, `slice.split_at_mut(1)`, and `&mut head[0]`; no target-body external_body, assume_specification, or --no-verify proof marker is present.",
+      "source_lines": "core/src/slice/mod.rs:220-222"
+    }
+  ],
+  "direct_call_names": [
+    "slice.len",
+    "slice.split_at_mut",
+    "slice_index_mut"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Callee closure is source-indexed and conservative for Rust method dispatch; every listed item is source-backed by frozen line/hash metadata.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/091_core_slice_split_first_mut/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/091_core_slice_split_first_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/091_core_slice_split_first_mut/evidence/verus_stderr.txt",
+    "stdout_relpath": "proof_harnesses/091_core_slice_split_first_mut/evidence/verus_stdout.txt",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/091_core_slice_split_first_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/091_core_slice_split_first_mut/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/091_core_slice_split_first_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stdout_relpath": "proof_harnesses/091_core_slice_split_first_mut/evidence/verus_typecheck_stdout.txt"
+  },
+  "proof_status": "actual_verus_verified_modulo_verus_mut_slice_pattern_desugaring_boundary",
+  "schema_version": 1,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "8d6d5b36d373d9e4556d437c6945a36066ed634bd2931a95cbb07d5197b5c3b4",
+  "target": "core::slice::split_first_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

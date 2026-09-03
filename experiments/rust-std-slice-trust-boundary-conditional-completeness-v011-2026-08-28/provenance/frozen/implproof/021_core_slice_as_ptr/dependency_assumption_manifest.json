@@ -1,0 +1,85 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "executable_slice_start_pointer_model_boundary",
+      "name": "rust_1_96_slice_as_ptr_cast",
+      "rationale": "The literal Rust 1.96 slice-to-thin-pointer cast remains unsupported by this Verus build, so this production seed uses an executable raw-pointer model witness rather than an external-body cast. The generated public postcondition is unchanged.",
+      "source_excerpt_relpath": "proof_harnesses/021_core_slice_as_ptr/source_excerpt.rs",
+      "status": "verified_without_target_local_external_body"
+    },
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_start_ptr",
+      "rationale": "The helper is now an open model predicate over pointer address/provenance and the slice view length; the target contains no assume_specification and no target-local external_body.",
+      "status": "executable_model_vocabulary"
+    }
+  ],
+  "direct_call_names": [
+    "rust_1_96_slice_as_ptr_cast"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "Target-local raw slice-start helper is executable and no longer carries #[verifier::external_body]; the helper returns a null-provenance pointer with address equal to the slice length and proves the generated start-pointer vocabulary relation from that model.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/021_core_slice_as_ptr/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "version_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_with_executable_slice_start_pointer_model",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "df0d49a1417773cb8932d48e9e7bb06a553039beaca7f20000b9fc6319236c1d",
+  "target": "core::slice::as_ptr",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/021_core_slice_as_ptr/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/021_core_slice_as_ptr/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self as *const [T] as *const T"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  },
+  "harness_sha256": "d081c3a1a2738f7b8301ffc39e54cc004c5a1158d504c306792f5861cba426c1"
+}

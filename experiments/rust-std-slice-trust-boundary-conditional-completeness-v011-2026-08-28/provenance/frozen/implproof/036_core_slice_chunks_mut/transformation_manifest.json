@@ -1,0 +1,68 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/036_core_slice_chunks_mut/harness.rs",
+  "harness_sha256": "5d031b0f28e555a901f9e1914a6c608443981e5cea25a7ae132b3c3ee90ef79e",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/036_core_slice_chunks_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1202,
+    "body_start_line": 1199,
+    "item_sha256": "ba6eb92cbb43b9ff8b722d18319a3943fdad8e3ab2f9f0c80127e94a27796b2d",
+    "signature_end_line": 1199,
+    "signature_start_line": 1199
+  },
+  "status": "verus_verified_modulo_source_backed_iterator_view_boundary",
+  "target": "core::slice::chunks_mut",
+  "transformations": [
+    {
+      "edit": "Extracted the target-local ChunksMut representation with private `v`, `chunk_size`, and `_marker` fields, preserving field names, order, and privacy while omitting Rust stability/doc attributes.",
+      "kind": "source_context_extraction",
+      "source_lines": "core/src/slice/iter.rs:1656-1666",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Represented the Rust `v: *mut [T]` storage as a mutable-slice sequence view in the harness so the generated iterator-view vocabulary can mention the remaining mutable region; raw pointer provenance and aliasing remain an explicit boundary.",
+      "kind": "raw_pointer_representation_boundary",
+      "source_lines": "core/src/slice/iter.rs:1656-1666",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Included ChunksMut::new with the real Rust body `Self { v: slice, chunk_size: size, _marker: PhantomData }` so the target call is checked rather than trusted.",
+      "kind": "private_helper_body_extraction",
+      "source_lines": "core/src/slice/iter.rs:1670-1672",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &mut [T]` parameter and named return for Verus; the executable target body remains assert then ChunksMut::new(slice, chunk_size).",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1199-1202",
+      "source_sha256": "ba6eb92cbb43b9ff8b722d18319a3943fdad8e3ab2f9f0c80127e94a27796b2d"
+    },
+    {
+      "edit": "Converted Rust `assert!(chunk_size != 0, ...)` to Verus `assert(chunk_size != 0)` under the same generated precondition; no control-flow path is removed.",
+      "kind": "verus_assert_macro_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1200",
+      "source_sha256": "ba6eb92cbb43b9ff8b722d18319a3943fdad8e3ab2f9f0c80127e94a27796b2d"
+    },
+    {
+      "edit": "Defined the closed iterator-view helper from the extracted mutable region and chunk size to expose source, remaining, exact Seq::empty() yielded prefix/remainder, requested chunk size, and forward direction.",
+      "kind": "source_backed_model_instantiation",
+      "source_lines": "core/src/slice/iter.rs:1656-1672",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Revealed the closed iterator-view definition and asserted the exact Seq::empty() yielded-prefix/remainder fields in a ghost proof block; this has no executable data-flow or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/iter.rs:1670-1672",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    },
+    {
+      "edit": "Actual Verus verifies the executable source-backed harness after the repaired generated contract removed the unsound final(slice)@ == old(slice)@ frame.",
+      "kind": "actual_verus_proof_after_contract_repair",
+      "source_lines": "core/src/slice/iter.rs:1656-1672; generated contract for <[T]>::chunks_mut",
+      "source_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3"
+    }
+  ]
+}

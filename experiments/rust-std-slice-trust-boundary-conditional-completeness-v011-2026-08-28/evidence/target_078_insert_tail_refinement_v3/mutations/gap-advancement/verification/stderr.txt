@@ -1,0 +1,112 @@
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/gap-advancement/insert_tail_model.rs:552:9
+    |
+528 | / pub proof fn loop_less_advances_sift_and_gap(
+529 | |     state: InsertTailState,
+530 | |     boundary: ComparatorBoundary,
+531 | |     begin: int,
+...   |
+534 | |     temporary: int,
+535 | | )
+    | |_- at the end of the function body
+...
+552 | /         insert_tail_loop(
+553 | |             state,
+554 | |             boundary,
+555 | |             begin,
+...   |
+571 | |                 temporary,
+572 | |             ),
+    | |_____________^ failed this postcondition
+
+note: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/gap-advancement/insert_tail_model.rs:597:1
+    |
+597 | / pub proof fn insert_tail_loop_preserves_restored_sequence_properties(
+598 | |     state: InsertTailState,
+599 | |     boundary: ComparatorBoundary,
+600 | |     begin: int,
+...   |
+603 | |     temporary: int,
+604 | | )
+    | |_^
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/gap-advancement/insert_tail_model.rs:608:9
+    |
+608 | /         insert_tail_loop(
+609 | |             state,
+610 | |             boundary,
+611 | |             begin,
+...   |
+614 | |             temporary,
+615 | |         ).e_sequence.len() == state.e_sequence.len(),
+    | |____________________________________________________^ failed this postcondition
+...
+652 | /     if sift <= begin {
+653 | |         assert(sift == begin);
+654 | |     } else {
+655 | |         let next_sift = sift - 1;
+...   |
+696 | |     }
+    | |_____- at the end of the function body
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/gap-advancement/insert_tail_model.rs:616:9
+    |
+616 | /         insert_tail_loop(
+617 | |             state,
+618 | |             boundary,
+619 | |             begin,
+...   |
+623 | |         ).e_sequence.to_multiset()
+624 | |             =~= restored_sequence(state, gap, temporary).to_multiset(),
+    | |______________________________________________________________________^ failed this postcondition
+...
+652 | /     if sift <= begin {
+653 | |         assert(sift == begin);
+654 | |     } else {
+655 | |         let next_sift = sift - 1;
+...   |
+696 | |     }
+    | |_____- at the end of the function body
+
+note: recommendation not met
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/gap-advancement/insert_tail_model.rs:628:21
+    |
+628 |                   ==> #[trigger] insert_tail_loop(
+    |  _____________________^
+629 | |                     state,
+630 | |                     boundary,
+631 | |                     begin,
+...   |
+634 | |                     temporary,
+635 | |                 ).e_sequence[index]
+    | |___________________________________^
+    |
+   --> vstd/seq.rs:972:12
+    |
+    = note: recommendation not met
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_078_insert_tail_refinement_v3/mutations/gap-advancement/insert_tail_model.rs:766:9
+    |
+766 | /         insert_tail_loop(
+767 | |             state,
+768 | |             boundary,
+769 | |             begin,
+...   |
+783 | |                 ).e_callback_state,
+784 | |             ),
+    | |_____________^ failed this postcondition
+...
+789 | /     if sift > begin {
+790 | |         let next_sift = sift - 1;
+791 | |         let right = shifted.e_sequence[next_sift];
+792 | |         let called = comparator_callback(
+...   |
+827 | |     }
+    | |_____- at the end of the function body
+
+error: aborting due to 4 previous errors
+

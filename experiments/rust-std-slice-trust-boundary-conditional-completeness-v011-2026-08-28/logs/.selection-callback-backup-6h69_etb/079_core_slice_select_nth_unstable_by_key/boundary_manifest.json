@@ -1,0 +1,159 @@
+{
+  "admitted_trust_site_ids": [
+    "TS-079-D004"
+  ],
+  "all_audited_trust_site_ids": [
+    "TS-079-D001",
+    "TS-079-D002",
+    "TS-079-D003",
+    "TS-079-D004",
+    "TS-079-C001",
+    "TS-079-E001"
+  ],
+  "boundary_narrower_than_target": true,
+  "bounded_source_model": {
+    "models_trust_site_ids": [
+      "TS-079-D002"
+    ],
+    "replacement_id": "RB-079-BOUNDED-KEY-ORD-SMALLSORT",
+    "source_citations": [
+      "core/src/slice/mod.rs:3648-3658",
+      "core/src/slice/sort/select.rs:17-307",
+      "core/src/slice/sort/shared/smallsort.rs:295-309,542-607"
+    ],
+    "transitions": [
+      "fixed length-four index-one valid bounds",
+      "exact callback/key/Ord adapter state threading",
+      "three source-derived insertion-sort tail iterations",
+      "per-comparison intermediate sequence rotations",
+      "gap-guard-restored callback panic prefixes",
+      "final left/pivot/right subslice construction"
+    ]
+  },
+  "callback_adapter_semantics": "left-to-right f(a), f(b), then Ord::lt transitions with distinct intermediate states and no pure/stable-key assumption",
+  "classification_limit": "The bounded source model proves only the canonical length-four insertion-sort execution. No source-backed operational relation currently derives arbitrary-length pivot, partition, narrowing, fallback, mutation, callback-state, and panic behavior, so both target results are missing-source-backed-model.",
+  "context_only_trust_site_ids": [
+    "TS-079-D001",
+    "TS-079-C001"
+  ],
+  "excluded_from_boundary": [
+    "realized invocation trace or count",
+    "pivot or selected permutation",
+    "returned ranges",
+    "final callback state or final slice",
+    "answer encoding",
+    "complete target execution trace"
+  ],
+  "excluded_retained_sites": [
+    {
+      "disposition": "excluded-and-bounded-source-modeled",
+      "reason": "The retained closure-lowering boundary is answer-bearing; the exact callback adapter is modeled in the bounded length-four source obligation.",
+      "trust_site_id": "TS-079-D002"
+    },
+    {
+      "disposition": "excluded-unresolved-source-model",
+      "reason": "The retained private helper supplies the whole selection answer. It remains excluded, but exact introselect, pivot, partition, narrowing, fallback, and panic semantics are not yet modeled.",
+      "trust_site_id": "TS-079-D003"
+    },
+    {
+      "disposition": "excluded-unresolved-source-model",
+      "reason": "The external_body supplies the complete selection result and is excluded rather than relabeled; its arbitrary-length source replacement remains incomplete.",
+      "trust_site_id": "TS-079-E001"
+    }
+  ],
+  "input_order": "79",
+  "missing_source_backed_model": {
+    "classification": "missing-source-backed-model",
+    "missing_transitions": [
+      "choose_pivot mutation and callback schedule",
+      "lower partition intermediate mutation and callback schedule",
+      "introselect window narrowing and ancestor-pivot branch",
+      "16-step median-of-medians fallback",
+      "introselect panic prefixes and unwind mutation",
+      "temporary key Drop order, callback-visible state, and panic"
+    ],
+    "source_citations": [
+      "core/src/slice/sort/select.rs:17-307",
+      "core/src/slice/sort/unstable/quicksort.rs:93-137"
+    ],
+    "unresolved_trust_site_ids": [
+      "TS-079-D003",
+      "TS-079-E001"
+    ]
+  },
+  "reviewed_equivalence": {
+    "kind": "exact-principal-return-and-final-state",
+    "preserved": [
+      "all returned references and lengths",
+      "pivot identity",
+      "entire in-range final slice",
+      "allocation, mutable-borrow, and callback state",
+      "panic status"
+    ],
+    "relaxed_only": [],
+    "source_citations": [
+      "core/src/slice/mod.rs:3592-3645",
+      "core/src/slice/sort/select.rs:17-307"
+    ]
+  },
+  "schema_version": 1,
+  "shared_boundary_observations": [
+    {
+      "field": "b_callback_identity",
+      "meaning": "identity selecting the genuine callback source-step relation",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_initial_callback_state",
+      "meaning": "callback-visible state before the first source call",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_key_result_relation",
+      "meaning": "unique f(value) result indexed by callback state and argument",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_key_next_state_relation",
+      "meaning": "unique state after f(value), indexed by callback state and argument",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_key_panic_relation",
+      "meaning": "f(value) panic outcome indexed by callback state and argument",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_ord_lt_result_relation",
+      "meaning": "unique Ord::lt result indexed by callback state and both key arguments",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_ord_lt_next_state_relation",
+      "meaning": "unique state after Ord::lt, indexed by callback state and both key arguments",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    },
+    {
+      "field": "b_ord_lt_panic_relation",
+      "meaning": "Ord::lt panic outcome indexed by callback state and both key arguments",
+      "trust_site_ids": [
+        "TS-079-D004"
+      ]
+    }
+  ],
+  "target": "core::slice::select_nth_unstable_by_key"
+}

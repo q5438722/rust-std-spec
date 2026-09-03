@@ -1,0 +1,56 @@
+note: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_079_insert_tail_refinement_v3/mutations/cleanup-bypass/insert_tail_model.rs:850:1
+    |
+850 | / pub proof fn loop_abort_bypasses_copy_on_drop(
+851 | |     state: InsertTailState,
+852 | |     boundary: KeyOrdDropBoundary,
+853 | |     begin: int,
+...   |
+856 | |     temporary: int,
+857 | | )
+    | |_^
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_079_insert_tail_refinement_v3/mutations/cleanup-bypass/insert_tail_model.rs:868:9
+    |
+850 | / pub proof fn loop_abort_bypasses_copy_on_drop(
+851 | |     state: InsertTailState,
+852 | |     boundary: KeyOrdDropBoundary,
+853 | |     begin: int,
+...   |
+856 | |     temporary: int,
+857 | | )
+    | |_- at the end of the function body
+...
+868 | /         insert_tail_loop(
+869 | |             state,
+870 | |             boundary,
+871 | |             begin,
+...   |
+880 | |                 state.e_sequence[sift - 1],
+881 | |             ),
+    | |_____________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_079_insert_tail_refinement_v3/mutations/cleanup-bypass/insert_tail_model.rs:882:9
+    |
+850 | / pub proof fn loop_abort_bypasses_copy_on_drop(
+851 | |     state: InsertTailState,
+852 | |     boundary: KeyOrdDropBoundary,
+853 | |     begin: int,
+...   |
+856 | |     temporary: int,
+857 | | )
+    | |_- at the end of the function body
+...
+882 | /         insert_tail_loop(
+883 | |             state,
+884 | |             boundary,
+885 | |             begin,
+...   |
+889 | |         ).e_sequence
+890 | |             == state.e_sequence.update(gap, state.e_sequence[sift]),
+    | |___________________________________________________________________^ failed this postcondition
+
+error: aborting due to 2 previous errors
+

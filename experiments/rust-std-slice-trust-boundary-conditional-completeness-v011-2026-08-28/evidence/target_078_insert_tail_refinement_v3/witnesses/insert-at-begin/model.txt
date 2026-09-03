@@ -1,0 +1,99 @@
+(
+  (define-fun IntroselectLimit () Int
+    16)
+  (define-fun witness_refined_run () ExactState
+    (let ((a!1 (mkCallKey (e_callback_state (mkExactState witness_sequence 0 false))
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              2)
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              (- 2 1)))))
+(let ((a!2 (mkExactState (e_sequence (mkExactState witness_sequence 0 false))
+                         (select (b_next_state witness_boundary) a!1)
+                         (select (b_panics witness_boundary) a!1))))
+(let ((a!3 (RefinedInsertTailLoop
+             a!2
+             witness_boundary
+             0
+             (- 2 1)
+             2
+             (select (e_sequence (mkExactState witness_sequence 0 false)) 2))))
+(let ((a!4 (ite (= (select (b_ordering witness_boundary) a!1) (- 1)) a!3 a!2)))
+  (ite (e_panicked (mkExactState witness_sequence 0 false))
+       (mkExactState witness_sequence 0 false)
+       (ite (e_panicked a!2) a!2 a!4)))))))
+  (define-fun witness_exact_run () ExactState
+    (let ((a!1 (mkCallKey (e_callback_state (mkExactState witness_sequence 0 false))
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              2)
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              (- 2 1)))))
+(let ((a!2 (mkExactState (e_sequence (mkExactState witness_sequence 0 false))
+                         (select (b_next_state witness_boundary) a!1)
+                         (select (b_panics witness_boundary) a!1))))
+(let ((a!3 (ExactInsertTailLoop
+             a!2
+             witness_boundary
+             0
+             (- 2 1)
+             2
+             (select (e_sequence (mkExactState witness_sequence 0 false)) 2))))
+(let ((a!4 (ite (= (select (b_ordering witness_boundary) a!1) (- 1)) a!3 a!2)))
+  (ite (e_panicked (mkExactState witness_sequence 0 false))
+       (mkExactState witness_sequence 0 false)
+       (ite (e_panicked a!2) a!2 a!4)))))))
+  (define-fun witness_sequence () (Array Int Int)
+    (let ((a!1 (store (store (store ((as const (Array Int Int)) 11) 1 30) (- 1) 9)
+                  0
+                  20)))
+  (store a!1 2 5)))
+  (define-fun witness_boundary () Boundary
+    (let ((a!1 (store (store (store ((as const (Array CallKey Int)) 7)
+                                (mkCallKey 1 5 20)
+                                (- 1))
+                         (mkCallKey 0 5 30)
+                         (- 1))
+                  (mkCallKey 2 5 9)
+                  10))
+      (a!2 (store (store (store ((as const (Array CallKey Int)) 8)
+                                (mkCallKey 1 5 20)
+                                2)
+                         (mkCallKey 0 5 30)
+                         1)
+                  (mkCallKey 12 8 8)
+                  14))
+      (a!3 (store (store (store ((as const (Array CallKey Bool)) true)
+                                (mkCallKey 1 5 20)
+                                false)
+                         (mkCallKey 0 5 30)
+                         false)
+                  (mkCallKey 2 5 9)
+                  false)))
+  (mkBoundary 3
+              4
+              ((as const (Array PairKey Int)) 6)
+              (store a!1 (mkCallKey 12 8 8) 13)
+              a!2
+              a!3)))
+  (define-fun witness_state () ExactState
+    (mkExactState witness_sequence 0 false))
+  (define-fun k!98 ((x!0 Int)) Int
+    (ite (= x!0 1) 30
+    (ite (= x!0 (- 1)) 9
+    (ite (= x!0 0) 20
+    (ite (= x!0 2) 5
+      11)))))
+  (define-fun k!99 ((x!0 Int)) Int
+    (ite (= x!0 1) 20
+    (ite (= x!0 (- 1)) 9
+    (ite (= x!0 0) 5
+    (ite (= x!0 2) 30
+      11)))))
+)

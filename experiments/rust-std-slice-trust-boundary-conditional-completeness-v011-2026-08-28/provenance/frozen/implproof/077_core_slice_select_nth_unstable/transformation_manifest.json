@@ -1,0 +1,28 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/harness.rs",
+  "harness_sha256": "7aa08a799d0f53a1e268446d09e959faa13b6f702049062f46f1ac7358b9b419",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 3521,
+    "body_start_line": 3519,
+    "item_sha256": "dd55bbb0ec8084c8e81b3000133de113a2249b5c57d6ffa845cb5c5348909cd2",
+    "signature_end_line": 3519,
+    "signature_start_line": 3516
+  },
+  "status": "verus_verified_modulo_source_backed_selection_partition_boundary_and_ord_lt_observation_boundary",
+  "target": "core::slice::select_nth_unstable",
+  "transformations": [
+    {
+      "kind": "receiver_adaptation",
+      "rationale": "The Rust method receiver `self` is represented as the explicit Verus parameter `slice`; the public body remains the Rust 1.96 delegation `sort::select::partition_at_index(slice, index, T::lt)`."
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "rationale": "The recursive private introselect implementation behind `sort::select::partition_at_index` is isolated as a named source-backed helper boundary. The public target function is executable and not `external_body`."
+    }
+  ]
+}

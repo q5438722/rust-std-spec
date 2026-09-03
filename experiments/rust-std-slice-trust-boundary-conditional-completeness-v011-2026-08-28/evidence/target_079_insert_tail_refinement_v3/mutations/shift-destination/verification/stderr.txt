@@ -1,0 +1,64 @@
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_079_insert_tail_refinement_v3/mutations/shift-destination/insert_tail_model.rs:806:9
+    |
+769 | / pub proof fn loop_ordinary_panic_restores_active_gap(
+770 | |     state: InsertTailState,
+771 | |     boundary: KeyOrdDropBoundary,
+772 | |     begin: int,
+...   |
+775 | |     temporary: int,
+776 | | )
+    | |_- at the end of the function body
+...
+806 | /         insert_tail_loop(
+807 | |             state,
+808 | |             boundary,
+809 | |             begin,
+...   |
+815 | |                 .update(gap, state.e_sequence[sift])
+816 | |                 .update(sift, temporary),
+    | |________________________________________^ failed this postcondition
+
+error: postcondition not satisfied
+   --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_079_insert_tail_refinement_v3/mutations/shift-destination/insert_tail_model.rs:882:9
+    |
+850 | / pub proof fn loop_abort_bypasses_copy_on_drop(
+851 | |     state: InsertTailState,
+852 | |     boundary: KeyOrdDropBoundary,
+853 | |     begin: int,
+...   |
+856 | |     temporary: int,
+857 | | )
+    | |_- at the end of the function body
+...
+882 | /         insert_tail_loop(
+883 | |             state,
+884 | |             boundary,
+885 | |             begin,
+...   |
+889 | |         ).e_sequence
+890 | |             == state.e_sequence.update(gap, state.e_sequence[sift]),
+    | |___________________________________________________________________^ failed this postcondition
+
+error: postcondition not satisfied
+    --> /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/target_079_insert_tail_refinement_v3/mutations/shift-destination/insert_tail_model.rs:1088:9
+     |
+1088 | /         !insert_tail_loop(
+1089 | |             state,
+1090 | |             boundary,
+1091 | |             begin,
+...    |
+1107 | |                     temporary,
+1108 | |                 ).to_multiset(),
+     | |_______________________________^ failed this postcondition
+...
+1123 | /     if sift <= begin {
+1124 | |         assert(sift == begin);
+1125 | |     } else {
+1126 | |         let next_sift = sift - 1;
+...    |
+1151 | |     }
+     | |_____- at the end of the function body
+
+error: aborting due to 3 previous errors
+

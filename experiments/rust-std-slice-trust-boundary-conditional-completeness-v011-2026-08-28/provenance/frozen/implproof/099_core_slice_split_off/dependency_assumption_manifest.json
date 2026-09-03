@@ -1,0 +1,88 @@
+{
+  "assumptions_and_boundaries": [
+    {
+      "assumption": "The generic Rust `R: OneSidedRange<usize>` input is represented by the target-local executable `OneSidedRangeSpec`, which exposes the same `(OneSidedRangeBound, usize)` observation consumed by the Rust 1.96 private helper.",
+      "boundary": "source_backed_one_sided_range_bound_model",
+      "evidence": "The harness executes the source-backed `StartInclusive`, `End`, and `EndInclusive` split-point cases and the `checked_add(1)` overflow-to-None branch before entering the target body.",
+      "source_lines": "core/src/slice/mod.rs:80-94"
+    },
+    {
+      "assumption": "The immutable slice `split_at(split_index)` call uses the reviewed vstd split/index view contract to connect `front` and `back` to the old slice sequence.",
+      "boundary": "vstd_immutable_slice_split_at_view_contract",
+      "evidence": "The verified harness calls `(*slice_ref).split_at(split_index)` only after proving `split_index <= (*slice_ref).len()`, then uses proof-only `lemma_split_at` assertions to discharge `slice_split_off_partition` for both reassignment branches.",
+      "source_lines": "core/src/slice/mod.rs:4914-4924"
+    },
+    {
+      "assumption": "The generated `slice_split_off_partition` vocabulary is the audited prefix/suffix relation `removed + remaining == source || remaining + removed == source`; this helper does not assume the target postcondition.",
+      "boundary": "slice_split_off_partition_contract_vocabulary",
+      "evidence": "The harness defines the same open spec helper and proves it from the executable `split_at` front/back views.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:876-882"
+    }
+  ],
+  "direct_call_names": [
+    "range.bound",
+    "usize.checked_add",
+    "split_point_of",
+    "slice.len",
+    "slice.split_at"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The target body itself is executable Verus and is not externalized. Boundaries are limited to the source-backed range-bound model, the reviewed immutable split_at view facts, and the existing generated split-off vocabulary relation.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 94,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "c0f5b0f8b5ea1ed78e1ad005851f3da7a581ac745e4d9026c7858ea618bacd60",
+      "name": "split_point_of",
+      "public": false,
+      "signature_start_line": 86,
+      "source_reference_path": "core/src/slice/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/099_core_slice_split_off/harness.rs --crate-type=lib",
+    "exit_code_relpath": "proof_harnesses/099_core_slice_split_off/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/099_core_slice_split_off/evidence/verus_stderr.txt",
+    "stdout_relpath": "proof_harnesses/099_core_slice_split_off/evidence/verus_stdout.txt",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/099_core_slice_split_off/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/099_core_slice_split_off/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/099_core_slice_split_off/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stdout_relpath": "proof_harnesses/099_core_slice_split_off/evidence/verus_typecheck_stdout.txt"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_one_sided_range_and_vstd_split_boundary",
+  "schema_version": 1,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "fb19cd4b355c594bef6afbe10c0e9b9fc58e5aca2904b0b2038c4bf72df4768a",
+  "target": "core::slice::split_off",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

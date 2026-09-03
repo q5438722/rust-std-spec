@@ -1,0 +1,32 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/harness.rs",
+  "harness_sha256": "2f630c1c747db3e874e3fcb5c02e7db4faae15824c98f1cdf6480f803712499f",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 3590,
+    "body_start_line": 3588,
+    "item_sha256": "e747f8a086cd882588cd5afe9b1800c1ec90130423301aef03089f05e5623fca",
+    "signature_end_line": 3588,
+    "signature_start_line": 3581
+  },
+  "status": "verus_verified_modulo_source_backed_selection_partition_boundary_and_fnmut_comparator_closure_observation_boundary",
+  "target": "core::slice::select_nth_unstable_by",
+  "transformations": [
+    {
+      "kind": "receiver_adaptation",
+      "rationale": "The Rust method receiver `self` is represented as the explicit Verus parameter `slice`; the public target remains executable and carries the generated comparator-selection contract."
+    },
+    {
+      "kind": "verus_fnmut_closure_lowering_adapter",
+      "rationale": "The source body's `|a: &T, b: &T| compare(a, b) == Less` closure cannot be typechecked by this Verus build because it captures a mutable FnMut comparator. The harness lowers only that adapter to the named source-backed `partition_at_index_by_compare` boundary, borrowing `compare` and preserving the Less predicate."
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "rationale": "The recursive private introselect implementation behind `sort::select::partition_at_index` is isolated as a named source-backed helper boundary. The public target function is executable and not `external_body`."
+    }
+  ]
+}

@@ -1,0 +1,562 @@
+{
+  "accepted_smt": {
+    "datatype_fields": {
+      "Boundary": [
+        "b_callback_identity",
+        "b_initial_state",
+        "b_contract_ordering",
+        "b_ordering",
+        "b_next_state",
+        "b_panics"
+      ],
+      "ExactState": [
+        "e_sequence",
+        "e_callback_state",
+        "e_panicked"
+      ]
+    },
+    "datatype_sorts": {
+      "Boundary": [
+        {
+          "field": "b_callback_identity",
+          "sort": "Int"
+        },
+        {
+          "field": "b_initial_state",
+          "sort": "Int"
+        },
+        {
+          "field": "b_contract_ordering",
+          "sort": "(Array PairKey Int)"
+        },
+        {
+          "field": "b_ordering",
+          "sort": "(Array CallKey Int)"
+        },
+        {
+          "field": "b_next_state",
+          "sort": "(Array CallKey Int)"
+        },
+        {
+          "field": "b_panics",
+          "sort": "(Array CallKey Bool)"
+        }
+      ],
+      "ExactState": [
+        {
+          "field": "e_sequence",
+          "sort": "(Array Int Int)"
+        },
+        {
+          "field": "e_callback_state",
+          "sort": "Int"
+        },
+        {
+          "field": "e_panicked",
+          "sort": "Bool"
+        }
+      ]
+    },
+    "definitions": {
+      "ExactInsertTail": {
+        "kind": "entry",
+        "sha256": "61c85ca8de58c4cd9b00b70c35fc5d9548959f80c620fa4db352bce7d3f6c1d0"
+      },
+      "ExactInsertTailLoop": {
+        "kind": "recursive",
+        "sha256": "dd3583ae9884af512811f81eef114c6e7dd3aa359cd5d876c367b96ed7360725"
+      }
+    },
+    "exact_source_sha256": "ea6a2e02e75e902b0c8632e0938d1833224ca8fa45ade7697fc9672de1e49fd1",
+    "prefix_sha256": "a2ed64cb05002fa3532c895e50f1bfbdd3a0b8888fe5bf26e8fe4166d6029719"
+  },
+  "artifact_id": "target_078_insert_tail_refinement_v3",
+  "classification_effect": "none; this additive package refines insert_tail and CopyOnDrop without replacing accepted operational-v1",
+  "field_bindings": {
+    "ComparatorBoundary_to_Boundary": {
+      "b_callback_identity": "b_callback_identity",
+      "b_contract_ordering": "b_contract_ordering",
+      "b_initial_state": "b_initial_state",
+      "b_next_state": "b_next_state",
+      "b_ordering": "b_ordering",
+      "b_panics": "b_panics"
+    },
+    "InsertTailState_to_ExactState": {
+      "e_callback_state": "e_callback_state",
+      "e_panicked": "e_panicked",
+      "e_sequence": "e_sequence"
+    }
+  },
+  "function_bindings": {
+    "comparator_callback": "ExactCallback",
+    "insert_tail": "ExactInsertTail",
+    "insert_tail_loop": "ExactInsertTailLoop"
+  },
+  "input_order": "78",
+  "mechanical_correspondence": {
+    "boundary_fields": [
+      "b_callback_identity",
+      "b_initial_state",
+      "b_contract_ordering",
+      "b_ordering",
+      "b_next_state",
+      "b_panics"
+    ],
+    "comparison_count": 25,
+    "derivation": "parsed-verus-expression-ast-to-smt",
+    "proof_rule": "field-complete well-founded induction on sift - begin, followed by entry-point lifting",
+    "refined_functions": {
+      "boundary_next_state": "RefinedBoundaryNextState",
+      "boundary_ordering": "RefinedBoundaryOrdering",
+      "boundary_panics": "RefinedBoundaryPanics",
+      "comparator_callback": "RefinedComparatorCallback",
+      "insert_tail": "RefinedInsertTail",
+      "insert_tail_loop": "RefinedInsertTailLoop",
+      "restored_state": "RefinedRestoredState",
+      "shifted_state": "RefinedShiftedState",
+      "target_adapter_is_less": "RefinedTargetAdapterIsLess"
+    },
+    "semantic_functions": [
+      "boundary_ordering",
+      "boundary_next_state",
+      "boundary_panics",
+      "target_adapter_is_less",
+      "comparator_callback",
+      "shifted_state",
+      "restored_state",
+      "insert_tail_loop",
+      "insert_tail"
+    ],
+    "source_sensitive_mutations": [
+      "operand-order",
+      "lookup-state",
+      "shift-source",
+      "shift-destination",
+      "gap-advancement",
+      "normal-restoration",
+      "base-restoration",
+      "panic-restoration",
+      "callback-next-state",
+      "panic-propagation"
+    ],
+    "state_fields": [
+      "e_sequence",
+      "e_callback_state",
+      "e_panicked"
+    ],
+    "valid_domains": [
+      "0 <= begin <= sift; gap == sift + 1; gap < sequence_len",
+      "0 <= begin < tail < sequence_len"
+    ]
+  },
+  "model_id": "target-078-insert-tail-refinement-v3-rust-1.96",
+  "model_version": 3,
+  "schema_version": 1,
+  "source_binding": {
+    "accepted_boundary_manifest": {
+      "path": "evidence/target_078_operational_v1/boundary_manifest.json",
+      "sha256": "ae4dcab6dc9ac4b941e47d422ec80046f1ee3de1fd65da5c13096eae9227cfb3"
+    },
+    "accepted_exact_smt": {
+      "path": "tools/target_078_exact_smt_v1.py",
+      "sha256": "ea6a2e02e75e902b0c8632e0938d1833224ca8fa45ade7697fc9672de1e49fd1"
+    },
+    "accepted_operational_result": {
+      "path": "evidence/target_078_operational_v1/result.json",
+      "sha256": "1cfe7f7161505cf8fe6ed321bd2e43675902d6efcc428d6db258517e417231fc"
+    },
+    "insert_tail_and_copy_on_drop": {
+      "path": "evidence/target_078_operational_v1/bound_inputs/smallsort.rs",
+      "sha256": "42750ff629840c8a6b065a6dfdb9dc359cde7453d47ff8209b58469fb08b13da",
+      "source_reference": "Rust 1.96 smallsort.rs CopyOnDrop and insert_tail"
+    }
+  },
+  "stage_transition": "disabled",
+  "target": "core::slice::select_nth_unstable_by",
+  "verus": {
+    "fail_closed_guard_functions": [
+      "restored_sequence",
+      "valid_insert_tail_input",
+      "valid_insert_tail_loop_input",
+      "panic_state_is_boundary_observed"
+    ],
+    "fail_closed_guard_sha256": {
+      "panic_state_is_boundary_observed": "ab1064811248025840e03ad5b05cbd2dc6c9dea3726ce4d0558e13be61e7b827",
+      "restored_sequence": "92c8b141ba87d58ee1a2dad0bb1a7ba2a192ffbd786c35304f773b2a18a1b173",
+      "valid_insert_tail_input": "3a0e939a2a6359f0ef55432ffc76c2f94c394bf69c39e0c4be249914439ba879",
+      "valid_insert_tail_loop_input": "2ea889331ed405727623a6dfcb775d233b943129bd4c66d2500a44d5bf8e34f4"
+    },
+    "precomputed_terminal_or_answer_input": false,
+    "proof_count": 13,
+    "proof_obligations": {
+      "callback_uses_ordered_operands_and_pre_state": "e885c318a0b31a3bad53754ef86de05f26fcc1ef677303e4201f658f47b7d26f",
+      "initial_comparison_panic_is_exact": "5df620bd59da9f0a5cde9ad2a88f28c97a3155636446fc65613f8f20b25d7af6",
+      "initial_less_enters_loop_with_tail_gap": "3247230005fc3f46b4c208c91d5a678a32f4cdde32f77180ee685581dc5a7da2",
+      "insert_tail_loop_preserves_restored_sequence_properties": "fdb3ac8424122dde8ec961a4920765bf7b376b0b923bd567d1f8fe3784bef6e1",
+      "insert_tail_loop_retains_callback_state_on_panic": "87fcb6b8c7429d63e963e7af00978c874450f6f52b37030eb4a0ee0917e156ad",
+      "insert_tail_preserves_length_multiplicity_and_frame": "c1f1b84081175afeaedc7c463c2093c9e20dfa48dc7bdb243ca810ebf1c68ec4",
+      "insert_tail_retains_callback_state_on_panic": "9a1f4553a72667b828f547bbab4ba59c643ce10f9a6d4d057f0f2013a21ffdde",
+      "loop_at_begin_restores_temporary": "cdd6869653a5959e5b3cece4101a930f3bab78e8dddd48f8b2eb72f2f597df88",
+      "loop_less_advances_sift_and_gap": "f6c5f332f601b63cd05f11ab7e6f79c03864ccbe5359356cadc6cce7fda2b8e4",
+      "loop_normal_stop_restores_temporary": "f3739c5f5a29028b757b28d41744dbf4cf125b8ac83f2a98a1f0bbc877e83410",
+      "loop_panic_restores_gap_and_retains_callback_state": "027cd82b01fbfa321e6b040b3d901fb90d8579073031ae8179dbb93157f6cc4b",
+      "no_shift_path_is_exact": "59cefbbf30fc56a0043c45e7cf0c7c6308a535666ffda15b7aeb9553d3154782",
+      "shift_then_restore_preserves_identity_multiplicity": "eae81617a723e25615ef5db8d2f20c45098e32b77e33d20960ea8f0a88a836c1"
+    },
+    "proof_sha256": "f9b73f7d1a6927de74cd1a96437ed2da0961a132760265a8493af45cccc9e0c6",
+    "semantic_bridge": {
+      "derivation": "parsed-verus-expression-ast-to-smt",
+      "functions": {
+        "boundary_next_state": {
+          "derived_smt_sha256": "a1905b0836abb80aef11e66eae73f56d44558a1d2f88b35d5e9752b9555d3caf",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedBoundaryNextState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "db98e84aaa22e204070ad97c65367631211f918a96f32f69ce425d75640b37bb"
+        },
+        "boundary_ordering": {
+          "derived_smt_sha256": "b708ce968bd13bbb7ef7398f41111bcabeaa5af6790b97bc9c61aaf744dbede7",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedBoundaryOrdering",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "4ea307f9c21555e9ae35f1606e31044effac656f36441778f013af6dfbe208d6"
+        },
+        "boundary_panics": {
+          "derived_smt_sha256": "01a87069d61dad88b56e94d584b6e2727e60a3309a750a60ab5800f5de3deeaa",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedBoundaryPanics",
+          "smt_return_sort": "Bool",
+          "verus_return_type": "bool",
+          "verus_sha256": "126169da296a218cf3827a8d2b54e0fbd79ffad5da0e7e1bff3cbd1a52c72338"
+        },
+        "comparator_callback": {
+          "derived_smt_sha256": "507889db8d76c6c254733f66047ba0de04092ed2dcebddf84affa2b60db233a5",
+          "parameters": [
+            {
+              "name": "state",
+              "smt_sort": "ExactState",
+              "verus_type": "InsertTailState"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedComparatorCallback",
+          "smt_return_sort": "ExactState",
+          "verus_return_type": "InsertTailState",
+          "verus_sha256": "0ebe54c90791eb383613f5291ee57796faee1b5be130431d8f7b8a1306b13da2"
+        },
+        "insert_tail": {
+          "derived_smt_sha256": "508943e7151c9fc161c04bb697efdfd3cba6f53f1ee8c5845989d840436d8e15",
+          "parameters": [
+            {
+              "name": "state",
+              "smt_sort": "ExactState",
+              "verus_type": "InsertTailState"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "begin",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "tail",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedInsertTail",
+          "smt_return_sort": "ExactState",
+          "verus_return_type": "InsertTailState",
+          "verus_sha256": "c3156935a4a0dabd6c0d9067e005b0db1f1aa842e29d44ff5ddfabf0fa2ad322"
+        },
+        "insert_tail_loop": {
+          "derived_smt_sha256": "9e9028fcec051ded4c189203a7ab3c59b3ab12c51f472e4e7e697a93a6521b9c",
+          "parameters": [
+            {
+              "name": "state",
+              "smt_sort": "ExactState",
+              "verus_type": "InsertTailState"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "begin",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "sift",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "gap",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "temporary",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": true,
+          "refined_smt_function": "RefinedInsertTailLoop",
+          "smt_return_sort": "ExactState",
+          "verus_return_type": "InsertTailState",
+          "verus_sha256": "5206acbaa869b09dd3e2e73fa81072c6e160c46ee275ba198d11f0031ea991b5"
+        },
+        "restored_state": {
+          "derived_smt_sha256": "f72c8dd70b6058ea5692c7496c36f786f4267928b70dc4a5c5ae721714533c64",
+          "parameters": [
+            {
+              "name": "state",
+              "smt_sort": "ExactState",
+              "verus_type": "InsertTailState"
+            },
+            {
+              "name": "destination",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "temporary",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "panicked",
+              "smt_sort": "Bool",
+              "verus_type": "bool"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedRestoredState",
+          "smt_return_sort": "ExactState",
+          "verus_return_type": "InsertTailState",
+          "verus_sha256": "253c1479cfb8b951fee0abac361bbeb8f0dc5e172f364c1f9681f1a02fcce76f"
+        },
+        "shifted_state": {
+          "derived_smt_sha256": "ffb5a3175e903e168b38ad703cf8faeebdfc8b04d814c19de874910aedd6b460",
+          "parameters": [
+            {
+              "name": "state",
+              "smt_sort": "ExactState",
+              "verus_type": "InsertTailState"
+            },
+            {
+              "name": "sift",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "gap",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedShiftedState",
+          "smt_return_sort": "ExactState",
+          "verus_return_type": "InsertTailState",
+          "verus_sha256": "754c86049b66e31ee8f65b4d75128c2e0e0285eb75018317b14a70c3fb8f352c"
+        },
+        "target_adapter_is_less": {
+          "derived_smt_sha256": "eaf52d5421b24688bf4ee81622b94372babcad037ef94c72c61ce6a7c4f8c129",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "ComparatorBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "recursive": false,
+          "refined_smt_function": "RefinedTargetAdapterIsLess",
+          "smt_return_sort": "Bool",
+          "verus_return_type": "bool",
+          "verus_sha256": "8f40c4d0cf512716b48f307441922cc9acce1062bd91d48a5d65c17d6fddea1b"
+        }
+      },
+      "source_sha256": "f9b73f7d1a6927de74cd1a96437ed2da0961a132760265a8493af45cccc9e0c6"
+    },
+    "source_order": [
+      "initial comparison before moving the tail identity",
+      "move sift into the current gap",
+      "advance the guard destination to sift",
+      "decrement sift before the next comparison",
+      "lookup callback observations at the current pre-call state",
+      "commit callback next state before panic propagation",
+      "restore the temporary identity at the current gap on stop or panic"
+    ],
+    "struct_field_types": {
+      "ComparatorBoundary": [
+        {
+          "field": "b_callback_identity",
+          "type": "int"
+        },
+        {
+          "field": "b_initial_state",
+          "type": "int"
+        },
+        {
+          "field": "b_contract_ordering",
+          "type": "Map<int, Map<int, int>>"
+        },
+        {
+          "field": "b_ordering",
+          "type": "Map<int, Map<int, Map<int, int>>>"
+        },
+        {
+          "field": "b_next_state",
+          "type": "Map<int, Map<int, Map<int, int>>>"
+        },
+        {
+          "field": "b_panics",
+          "type": "Map<int, Map<int, Map<int, bool>>>"
+        }
+      ],
+      "InsertTailState": [
+        {
+          "field": "e_sequence",
+          "type": "Seq<int>"
+        },
+        {
+          "field": "e_callback_state",
+          "type": "int"
+        },
+        {
+          "field": "e_panicked",
+          "type": "bool"
+        }
+      ]
+    },
+    "struct_fields": {
+      "ComparatorBoundary": [
+        "b_callback_identity",
+        "b_initial_state",
+        "b_contract_ordering",
+        "b_ordering",
+        "b_next_state",
+        "b_panics"
+      ],
+      "InsertTailState": [
+        "e_sequence",
+        "e_callback_state",
+        "e_panicked"
+      ]
+    },
+    "top_level_inputs": [
+      "accepted ComparatorBoundary",
+      "pre-call InsertTailState containing source identities",
+      "valid begin index",
+      "valid tail index"
+    ],
+    "trusted_free": true
+  }
+}

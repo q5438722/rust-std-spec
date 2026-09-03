@@ -1,0 +1,164 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_disjoint_indices_valid",
+      "rationale": "The generated disjoint/in-bounds vocabulary remains target-local contract vocabulary. The executable public target obtains the Ok/Err branch facts from the Rust 1.96 get_disjoint_check_valid boundary before calling the unsafe unchecked dependency.",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "name": "get_disjoint_check_valid",
+      "rationale": "The Rust 1.96 public target first calls `get_disjoint_check_valid(&indices, self.len())?`. The harness preserves that control-flow step and isolates only the private helper loop over in-bounds and overlap checks, with postconditions distinguishing Ok as slice_disjoint_indices_valid and Err as its negation.",
+      "source_excerpt_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5686-5703",
+      "source_sha256": "dfe645823002998fd85f45a791fa6deaa9180bd59d7814458417698e7b657772",
+      "status": "minimal_trusted_boundary_for_source_backed_disjoint_validity_checker"
+    },
+    {
+      "kind": "generated_target_dependency",
+      "name": "core::slice::get_disjoint_unchecked_mut",
+      "rationale": "The Rust 1.96 success path is exactly `unsafe { Ok(self.get_disjoint_unchecked_mut(indices)) }`. The target harness reuses the already verified unchecked-disjoint body shape and its generated precondition, so the unsafe call is guarded by the checker-established slice_disjoint_indices_valid fact.",
+      "source_lines": "core/src/slice/mod.rs:5149-5164 and 5216-5219; proof_harnesses/052_core_slice_get_disjoint_unchecked_mut/harness.rs",
+      "status": "reviewed_dependency_reused_for_success_path_unchecked_mutable_reference_array"
+    },
+    {
+      "kind": "source_backed_raw_pointer_maybe_uninit_trait_boundary",
+      "name": "rust_1_96_fill_disjoint_mut_array_and_assume_init",
+      "rationale": "The local unchecked dependency wrapper now verifies the Rust 1.96 raw slice pointer token and MaybeUninit setup token helpers as executable scaffold. The retained trusted boundary is limited to the source loop over `0..N`, unchecked index clone, SliceIndex::get_unchecked_mut, raw pointer `cast/add/write`, and final `arr.assume_init()`, reused only after the checker boundary establishes the unsafe disjoint-validity domain.",
+      "source_excerpt_relpath": "proof_harnesses/052_core_slice_get_disjoint_unchecked_mut/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5149-5164",
+      "source_sha256": "fadb1cf499d963bdf8603a8901d68a9dc03c5ce7ebf3f084ce0fe58348b65be2",
+      "status": "reviewed_source_backed_unchecked_fill_write_assume_init_boundary_reused_locally_after_executable_scaffold_reduction"
+    }
+  ],
+  "direct_call_names": [
+    "get_disjoint_check_valid",
+    "get_disjoint_unchecked_mut",
+    "rust_1_96_slice_receiver_to_raw",
+    "rust_1_96_maybe_uninit_array_uninit",
+    "rust_1_96_maybe_uninit_array_as_mut_ptr",
+    "rust_1_96_fill_disjoint_mut_array_and_assume_init"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::get_disjoint_unchecked_mut"
+  ],
+  "harness_sha256": "0501ca467e2311a3611480da4aa9027a84a5a0ce5391eff8af0c6493b43c6e7d",
+  "module": "slice",
+  "notes": "The public target function is executable and non-external: it preserves the Rust 1.96 get_disjoint_check_valid(&indices, slice.len())? gate, Err early return, unsafe Ok(get_disjoint_unchecked_mut(indices)) success flow, Ok disjoint-validity/final-length contract, and Err unchanged-slice frame. The local raw-slice and MaybeUninit setup helpers now execute without external_body; get_disjoint_check_valid and the unsafe fill/assume_init operation remain the retained trusted boundaries. The harness has no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 5703,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+      "item_sha256": "dfe645823002998fd85f45a791fa6deaa9180bd59d7814458417698e7b657772",
+      "name": "get_disjoint_check_valid",
+      "public": false,
+      "signature_start_line": 5686,
+      "source_reference_path": "core/src/slice/mod.rs"
+    },
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/051_core_slice_get_disjoint_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 120,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "7b5e4fff93ae53089ff1e2be33e185bf9a66d29ecafabd0b6f458d69d7ab3e26",
+    "summary": "verification results:: 5 verified, 0 errors",
+    "version_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "version_stderr_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_version_stderr.txt",
+    "version_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_check_valid_and_get_disjoint_unchecked_mut_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "292597fa2c1db3013b7e606fa810dbc0b309cbbe4f2f916c0cd4e02dd40bd59d",
+  "target": "core::slice::get_disjoint_mut",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/051_core_slice_get_disjoint_mut/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/051_core_slice_get_disjoint_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [
+        "executable reviewed get_disjoint_unchecked_mut MaybeUninit token setup",
+        "reviewed retained arr.assume_init() inside fill boundary"
+      ],
+      "present": true
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "get_disjoint_check_valid returns IndexOutOfBounds or OverlappingIndices instead of panicking"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "executable reviewed get_disjoint_unchecked_mut raw slice token setup",
+        "reviewed retained raw write boundary"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "GetDisjointMutIndex: Clone",
+        "GetDisjointMutIndex::is_in_bounds/is_overlapping through check_valid boundary",
+        "SliceIndex::get_unchecked_mut through reviewed unchecked boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe Ok(get_disjoint_unchecked_mut(indices)) guarded by get_disjoint_check_valid"
+      ],
+      "present": true
+    }
+  }
+}

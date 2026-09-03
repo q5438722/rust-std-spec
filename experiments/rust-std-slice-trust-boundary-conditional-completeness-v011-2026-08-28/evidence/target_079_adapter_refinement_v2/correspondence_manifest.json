@@ -1,0 +1,1316 @@
+{
+  "accepted_smt": {
+    "datatype_fields": {
+      "AdapterFrame": [
+        "af_state",
+        "af_termination",
+        "af_is_less",
+        "af_panic_origin",
+        "af_left_owned",
+        "af_right_owned",
+        "af_left_live",
+        "af_right_live"
+      ],
+      "Boundary": [
+        "b_callback_identity",
+        "b_key_function_identity",
+        "b_ord_function_identity",
+        "b_drop_function_identity",
+        "b_initial_state",
+        "b_contract_key",
+        "b_contract_ordering",
+        "b_key_result",
+        "b_key_next_state",
+        "b_key_panics",
+        "b_ord_lt_result",
+        "b_ord_lt_next_state",
+        "b_ord_lt_panics",
+        "b_drop_next_state",
+        "b_drop_panics"
+      ],
+      "OwnedKey": [
+        "owned_creation_state",
+        "owned_slot",
+        "owned_source_identity",
+        "owned_key_identity"
+      ]
+    },
+    "datatype_sorts": {
+      "AdapterFrame": [
+        {
+          "field": "af_state",
+          "sort": "Int"
+        },
+        {
+          "field": "af_termination",
+          "sort": "Int"
+        },
+        {
+          "field": "af_is_less",
+          "sort": "Bool"
+        },
+        {
+          "field": "af_panic_origin",
+          "sort": "Int"
+        },
+        {
+          "field": "af_left_owned",
+          "sort": "OwnedKey"
+        },
+        {
+          "field": "af_right_owned",
+          "sort": "OwnedKey"
+        },
+        {
+          "field": "af_left_live",
+          "sort": "Bool"
+        },
+        {
+          "field": "af_right_live",
+          "sort": "Bool"
+        }
+      ],
+      "Boundary": [
+        {
+          "field": "b_callback_identity",
+          "sort": "Int"
+        },
+        {
+          "field": "b_key_function_identity",
+          "sort": "Int"
+        },
+        {
+          "field": "b_ord_function_identity",
+          "sort": "Int"
+        },
+        {
+          "field": "b_drop_function_identity",
+          "sort": "Int"
+        },
+        {
+          "field": "b_initial_state",
+          "sort": "Int"
+        },
+        {
+          "field": "b_contract_key",
+          "sort": "(Array Int Int)"
+        },
+        {
+          "field": "b_contract_ordering",
+          "sort": "(Array PairKey Int)"
+        },
+        {
+          "field": "b_key_result",
+          "sort": "(Array KeyCall Int)"
+        },
+        {
+          "field": "b_key_next_state",
+          "sort": "(Array KeyCall Int)"
+        },
+        {
+          "field": "b_key_panics",
+          "sort": "(Array KeyCall Bool)"
+        },
+        {
+          "field": "b_ord_lt_result",
+          "sort": "(Array OrdCall Bool)"
+        },
+        {
+          "field": "b_ord_lt_next_state",
+          "sort": "(Array OrdCall Int)"
+        },
+        {
+          "field": "b_ord_lt_panics",
+          "sort": "(Array OrdCall Bool)"
+        },
+        {
+          "field": "b_drop_next_state",
+          "sort": "(Array DropCall Int)"
+        },
+        {
+          "field": "b_drop_panics",
+          "sort": "(Array DropCall Bool)"
+        }
+      ],
+      "OwnedKey": [
+        {
+          "field": "owned_creation_state",
+          "sort": "Int"
+        },
+        {
+          "field": "owned_slot",
+          "sort": "Int"
+        },
+        {
+          "field": "owned_source_identity",
+          "sort": "Int"
+        },
+        {
+          "field": "owned_key_identity",
+          "sort": "Int"
+        }
+      ]
+    },
+    "definitions": {
+      "AdapterDropLeft": {
+        "sha256": "48be6b5e72dc7c3effbe03e6f6d1549830f4a158f40f2a457c037488fbebe0c2",
+        "verus_function": "adapter_drop_left"
+      },
+      "AdapterDropRight": {
+        "sha256": "867b0e4474903c68e2320d4392a26199844d127a6162c5d379c0284d049a05c5",
+        "verus_function": "adapter_drop_right"
+      },
+      "AdapterInitial": {
+        "sha256": "4c5d86d418344b36e4f8fed7c729a5e1058b1faf6621dd656fb80b521a962493",
+        "verus_function": "adapter_initial"
+      },
+      "AdapterKeyLeft": {
+        "sha256": "556d3bda9368b8abc218f065443ef0c0760f0c128b0f752483ce4405d24b9aab",
+        "verus_function": "adapter_key_left"
+      },
+      "AdapterKeyRight": {
+        "sha256": "a58dc8ddb59e10d5c5bec02635a5b8aea0f0c426c98e259f5c65bab5e45d9e7a",
+        "verus_function": "adapter_key_right"
+      },
+      "AdapterOrdLt": {
+        "sha256": "bdafff1b5336c3145088ccbbc5c2dec9848a9fda35ca109e679b8fb69e34021c",
+        "verus_function": "adapter_ord_lt"
+      },
+      "AdapterTransition": {
+        "sha256": "238ae541da79aafe5abe6d806d19d113c65f03631855068811f072e5a9499720",
+        "verus_function": "adapter_transition"
+      }
+    },
+    "prefix_sha256": "849b5070c0a5b4e2eed4a54a1db042819447532f34bd7ff92402de5c33a1d851",
+    "source_sha256": "c6cb0169896b2b69084726caf8f71e9501772b180a624cb1129a35f7f1bd1b23",
+    "step_order": [
+      "adapter_key_left",
+      "adapter_key_right",
+      "adapter_ord_lt",
+      "adapter_drop_right",
+      "adapter_drop_left"
+    ]
+  },
+  "artifact_id": "target_079_adapter_refinement_v2",
+  "classification_effect": "none; this proof refines the accepted adapter construction and replays, but does not replace, the operational-v1 obligations",
+  "field_bindings": {
+    "AdapterFrame": {
+      "af_is_less": "af_is_less",
+      "af_left_live": "af_left_live",
+      "af_left_owned": "af_left_owned",
+      "af_panic_origin": "af_panic_origin",
+      "af_right_live": "af_right_live",
+      "af_right_owned": "af_right_owned",
+      "af_state": "af_state",
+      "af_termination": "af_termination"
+    },
+    "KeyOrdDropBoundary_to_Boundary": {
+      "b_callback_identity": "b_callback_identity",
+      "b_contract_key": "b_contract_key",
+      "b_contract_ordering": "b_contract_ordering",
+      "b_drop_function_identity": "b_drop_function_identity",
+      "b_drop_next_state": "b_drop_next_state",
+      "b_drop_panics": "b_drop_panics",
+      "b_initial_state": "b_initial_state",
+      "b_key_function_identity": "b_key_function_identity",
+      "b_key_next_state": "b_key_next_state",
+      "b_key_panics": "b_key_panics",
+      "b_key_result": "b_key_result",
+      "b_ord_function_identity": "b_ord_function_identity",
+      "b_ord_lt_next_state": "b_ord_lt_next_state",
+      "b_ord_lt_panics": "b_ord_lt_panics",
+      "b_ord_lt_result": "b_ord_lt_result"
+    },
+    "OwnedKey": {
+      "owned_creation_state": "owned_creation_state",
+      "owned_key_identity": "owned_key_identity",
+      "owned_slot": "owned_slot",
+      "owned_source_identity": "owned_source_identity"
+    }
+  },
+  "function_bindings": {
+    "adapter_drop_left": "AdapterDropLeft",
+    "adapter_drop_right": "AdapterDropRight",
+    "adapter_initial": "AdapterInitial",
+    "adapter_key_left": "AdapterKeyLeft",
+    "adapter_key_right": "AdapterKeyRight",
+    "adapter_ord_lt": "AdapterOrdLt",
+    "adapter_transition": "AdapterTransition"
+  },
+  "input_order": "79",
+  "mechanical_correspondence": {
+    "boundary_map_key_encodings": {
+      "b_contract_key": {
+        "key_constructor": null,
+        "verus_index_arity": 1
+      },
+      "b_contract_ordering": {
+        "key_constructor": "mkPairKey",
+        "verus_index_arity": 2
+      },
+      "b_drop_next_state": {
+        "key_constructor": "mkDropCall",
+        "verus_index_arity": 2
+      },
+      "b_drop_panics": {
+        "key_constructor": "mkDropCall",
+        "verus_index_arity": 2
+      },
+      "b_key_next_state": {
+        "key_constructor": "mkKeyCall",
+        "verus_index_arity": 2
+      },
+      "b_key_panics": {
+        "key_constructor": "mkKeyCall",
+        "verus_index_arity": 2
+      },
+      "b_key_result": {
+        "key_constructor": "mkKeyCall",
+        "verus_index_arity": 2
+      },
+      "b_ord_lt_next_state": {
+        "key_constructor": "mkOrdCall",
+        "verus_index_arity": 3
+      },
+      "b_ord_lt_panics": {
+        "key_constructor": "mkOrdCall",
+        "verus_index_arity": 3
+      },
+      "b_ord_lt_result": {
+        "key_constructor": "mkOrdCall",
+        "verus_index_arity": 3
+      }
+    },
+    "comparison_count": 113,
+    "constructor_field_comparisons": {
+      "AdapterFrame": [
+        "af_state",
+        "af_termination",
+        "af_is_less",
+        "af_panic_origin",
+        "af_left_owned",
+        "af_right_owned",
+        "af_left_live",
+        "af_right_live"
+      ],
+      "OwnedKey": [
+        "owned_creation_state",
+        "owned_slot",
+        "owned_source_identity",
+        "owned_key_identity"
+      ]
+    },
+    "derivation": "parsed-verus-expression-ast-to-smt",
+    "refined_functions": {
+      "adapter_drop_left": "RefinedAdapterDropLeft",
+      "adapter_drop_right": "RefinedAdapterDropRight",
+      "adapter_initial": "RefinedAdapterInitial",
+      "adapter_key_left": "RefinedAdapterKeyLeft",
+      "adapter_key_right": "RefinedAdapterKeyRight",
+      "adapter_ord_lt": "RefinedAdapterOrdLt",
+      "adapter_transition": "RefinedAdapterTransition",
+      "drop_next_state": "RefinedDropNextState",
+      "drop_panics": "RefinedDropPanics",
+      "frame_after_drop_right": "RefinedFrameAfterDropRight",
+      "frame_after_key_left": "RefinedFrameAfterKeyLeft",
+      "frame_after_key_right": "RefinedFrameAfterKeyRight",
+      "frame_after_ord_lt": "RefinedFrameAfterOrdLt",
+      "key_next_state": "RefinedKeyNextState",
+      "key_panics": "RefinedKeyPanics",
+      "key_result": "RefinedKeyResult",
+      "left_drop_state": "RefinedLeftDropState",
+      "left_owned": "RefinedLeftOwned",
+      "left_state": "RefinedLeftState",
+      "ord_lt_next_state": "RefinedOrdLtNextState",
+      "ord_lt_panics": "RefinedOrdLtPanics",
+      "ord_lt_result": "RefinedOrdLtResult",
+      "ord_state": "RefinedOrdState",
+      "owned_key": "RefinedOwnedKey",
+      "right_drop_state": "RefinedRightDropState",
+      "right_owned": "RefinedRightOwned",
+      "right_state": "RefinedRightState"
+    },
+    "semantic_functions": [
+      "key_result",
+      "key_next_state",
+      "key_panics",
+      "ord_lt_result",
+      "ord_lt_next_state",
+      "ord_lt_panics",
+      "drop_next_state",
+      "drop_panics",
+      "owned_key",
+      "adapter_initial",
+      "adapter_key_left",
+      "adapter_key_right",
+      "adapter_ord_lt",
+      "adapter_drop_right",
+      "adapter_drop_left",
+      "frame_after_key_left",
+      "frame_after_key_right",
+      "frame_after_ord_lt",
+      "frame_after_drop_right",
+      "adapter_transition",
+      "left_state",
+      "left_owned",
+      "right_state",
+      "right_owned",
+      "ord_state",
+      "right_drop_state",
+      "left_drop_state"
+    ],
+    "source_sensitive_mutations": [
+      "right-owned-field",
+      "initial-default-field",
+      "boundary-helper-field"
+    ]
+  },
+  "model_id": "target-079-adapter-refinement-v2-rust-1.96",
+  "model_version": 2,
+  "panic_origin_encoding": {
+    "0": "none",
+    "1": "f(left)",
+    "2": "f(right)",
+    "3": "Ord::lt",
+    "4": "drop(right)",
+    "5": "drop(left)"
+  },
+  "schema_version": 1,
+  "source_binding": {
+    "accepted_boundary_manifest": {
+      "path": "evidence/target_079_operational_v1/boundary_manifest.json",
+      "sha256": "497f1bc756e8bd784b6f00d2a4de3db3e2581fdb29c142c07aae8d318edff72a"
+    },
+    "accepted_operational_result": {
+      "path": "evidence/target_079_operational_v1/result.json",
+      "sha256": "18db0ed0092d48b7e7eacbfcba51fcc98d4682db04b39480474c8f30a7fefc2a"
+    },
+    "source_body": {
+      "path": "provenance/frozen/implproof/079_core_slice_select_nth_unstable_by_key/source_body.json",
+      "sha256": "56c5f346b42878d42ded518d721bb576f702c1601babff7eb61fe2a109d9cdbd"
+    }
+  },
+  "source_order": [
+    "f(left)",
+    "f(right)",
+    "Ord::lt(&left_key,&right_key)",
+    "drop(right_owned_key)",
+    "drop(left_owned_key)"
+  ],
+  "stage_transition": "disabled",
+  "target": "core::slice::select_nth_unstable_by_key",
+  "termination_encoding": {
+    "0": "normal",
+    "1": "panic/unwind",
+    "2": "abort"
+  },
+  "verus": {
+    "functions": {
+      "adapter_drop_left": {
+        "sha256": "af6b04cdb47aaca7d6150120ee3fbf2bc75f3c4b48360caa0233e2c38b5b00d1",
+        "smt_function": "AdapterDropLeft"
+      },
+      "adapter_drop_right": {
+        "sha256": "f3ba9efade00a28c5835627419d10444c2e87ef44a86a585e0c5596a95e220c0",
+        "smt_function": "AdapterDropRight"
+      },
+      "adapter_initial": {
+        "sha256": "c3a5fd354df59f7b63a986da6b9782c8bdce83741367570a2c456a2945a150aa",
+        "smt_function": "AdapterInitial"
+      },
+      "adapter_key_left": {
+        "sha256": "cd45bbc9a7897cbb0415a1945321f5f90eaac85381ba3faf06cfb68677ce3afe",
+        "smt_function": "AdapterKeyLeft"
+      },
+      "adapter_key_right": {
+        "sha256": "a007d567a3ab30998b2b53d13412655d383bbab3c388d4dd48b55fe8006a8536",
+        "smt_function": "AdapterKeyRight"
+      },
+      "adapter_ord_lt": {
+        "sha256": "6b3863c4d6262c22ac0eb7c8b1a88b336d3a978149d6bf5ce7e9baf7ab780621",
+        "smt_function": "AdapterOrdLt"
+      },
+      "adapter_transition": {
+        "sha256": "b3b74b908643b556101c0e4d9a9dc0a157b520198f33b47e0bf52a2294a78aca",
+        "smt_function": "AdapterTransition"
+      }
+    },
+    "precomputed_terminal_input": false,
+    "proof_count": 13,
+    "proof_obligations": {
+      "first_key_panic_stops_before_owned_cleanup": "b9ec420b73a80d27d5e87afa38e2bb84abf139b64154c4ca65b54ff24f61c94d",
+      "initial_callback_state_is_the_transition_entry": "b2c263539c6142f33e175a7baeb1c2823595cf874fe7b12e0baaffe773390bee",
+      "normal_execution_threads_all_callback_states": "2fb7b617f981da6bb692ca515d587adaa0fe7f8d3023ce69bd5848c5b7161ed4",
+      "normal_left_destructor_panic_is_single_panic": "2eb79afcc31f04580ada2e1904cfbf3df0a615b85a652ceef05289640512e9d4",
+      "normal_right_and_unwind_left_destructor_panics_abort": "e70bdbe42c33db364686cfac7e0c0b8837862fb7486bbfbf4f2cef1c9dcbfa23",
+      "normal_right_destructor_panic_unwinds_left": "eb02b1a6bf2dcf7e9ca0fc49e90d28f91a2d458cb1f577e71c45ea9653fd999f",
+      "ord_panic_and_left_destructor_panic_after_right_cleanup_aborts": "98ef7c1eb461a310998cab54decb8406d0a72706983af7784fff17434da6ad6d",
+      "ord_panic_and_right_destructor_panic_aborts_before_left": "1f4fd4284c5a3035b3307197ffc6f98a7adcbc39e0f67616184f3395b373f2c7",
+      "ord_panic_cleans_right_then_left": "466720b0b144e8fcb08e641dd8eaf653820de376d1e683990946b0d9caa1075e",
+      "owned_key_identity_tracks_creation_slot_and_source": "58559f9b60b191044618be36b44631bbf493de6dfaa1b4fb17eafaf81cd511d5",
+      "second_key_panic_and_left_destructor_panic_aborts": "b47f80e6235e8fc58641bd4f328a48abe1d174f0e35251cdb1e614c883f03913",
+      "second_key_panic_cleans_up_only_left": "e4bd610cb571393477cfb82138bf3094964058c14e7a530559c3ecaaf8f0770c",
+      "transition_is_the_smt_constructor_chain": "8ad34f0f133a42878affd0513ebc64160cd8747f3e70e8376c9ce42422c2f76f"
+    },
+    "proof_sha256": "850ce906c62eb9a2f57ba7f154e34d4005e81c32608242ac72746f56ed9db022",
+    "semantic_bridge": {
+      "derivation": "parsed-verus-expression-ast-to-smt",
+      "functions": {
+        "adapter_drop_left": {
+          "derived_smt_sha256": "61e2059ec018a59af52ac3a7710b0f4a4dc1a7c1967c3f5bf28cdd880ba2e1d0",
+          "parameters": [
+            {
+              "name": "frame",
+              "smt_sort": "AdapterFrame",
+              "verus_type": "AdapterFrame"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterDropLeft",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "af6b04cdb47aaca7d6150120ee3fbf2bc75f3c4b48360caa0233e2c38b5b00d1"
+        },
+        "adapter_drop_right": {
+          "derived_smt_sha256": "7149624ed304fc27737178d97d68eca1989c8066b7dbfd443e16d7802b82c3aa",
+          "parameters": [
+            {
+              "name": "frame",
+              "smt_sort": "AdapterFrame",
+              "verus_type": "AdapterFrame"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterDropRight",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "f3ba9efade00a28c5835627419d10444c2e87ef44a86a585e0c5596a95e220c0"
+        },
+        "adapter_initial": {
+          "derived_smt_sha256": "233c11c2ff19aff584e57e392a04c22e2beda9a082b47c15217adeac447a5c8b",
+          "parameters": [
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterInitial",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "c3a5fd354df59f7b63a986da6b9782c8bdce83741367570a2c456a2945a150aa"
+        },
+        "adapter_key_left": {
+          "derived_smt_sha256": "f9e4787f44b083312dccf8ef1624daa42c9dadc8f8faba97cd5209f897bf08c0",
+          "parameters": [
+            {
+              "name": "frame",
+              "smt_sort": "AdapterFrame",
+              "verus_type": "AdapterFrame"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterKeyLeft",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "cd45bbc9a7897cbb0415a1945321f5f90eaac85381ba3faf06cfb68677ce3afe"
+        },
+        "adapter_key_right": {
+          "derived_smt_sha256": "9cbf963a6970257f70cf0d79520dbb735ff2bef9256a562fc4b6a9ab8576d35e",
+          "parameters": [
+            {
+              "name": "frame",
+              "smt_sort": "AdapterFrame",
+              "verus_type": "AdapterFrame"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterKeyRight",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "a007d567a3ab30998b2b53d13412655d383bbab3c388d4dd48b55fe8006a8536"
+        },
+        "adapter_ord_lt": {
+          "derived_smt_sha256": "74363fadcb5745215c4a3e3efe599dfc7fb1026b73620d08d9ac7622a26ef256",
+          "parameters": [
+            {
+              "name": "frame",
+              "smt_sort": "AdapterFrame",
+              "verus_type": "AdapterFrame"
+            },
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterOrdLt",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "6b3863c4d6262c22ac0eb7c8b1a88b336d3a978149d6bf5ce7e9baf7ab780621"
+        },
+        "adapter_transition": {
+          "derived_smt_sha256": "f0e8b3b2c0438acf1e43a45f6a7096ef9a2c4969be3ca42dabb330be9c468fc3",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedAdapterTransition",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "b3b74b908643b556101c0e4d9a9dc0a157b520198f33b47e0bf52a2294a78aca"
+        },
+        "drop_next_state": {
+          "derived_smt_sha256": "c8be91c47edb17c2698caefb8f774895b4ee01328941137a2e67a8b625470863",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "key",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            }
+          ],
+          "refined_smt_function": "RefinedDropNextState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "d67d29a6e8e8f75fe2a7b0ac975b9242c9b7fcb36dff80b581352ea06190ae5f"
+        },
+        "drop_panics": {
+          "derived_smt_sha256": "f29c093a63421cb932eb72c0ecc0705321689920d76a3e3ad5db0d69cdf99a0d",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "key",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            }
+          ],
+          "refined_smt_function": "RefinedDropPanics",
+          "smt_return_sort": "Bool",
+          "verus_return_type": "bool",
+          "verus_sha256": "e04e8a4bbd91db04a842ec6a411c4ea217b61053c86ca7d14ec503a26516c7e4"
+        },
+        "frame_after_drop_right": {
+          "derived_smt_sha256": "99a29a567ba7367d2e5965bc5f3479f33fe3ea3dabdfad04338d5fb30dd74dd3",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedFrameAfterDropRight",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "b458e9ae0bd65e77dfecbe99f5498991dc175f0fb65958a392f7d6e41454334e"
+        },
+        "frame_after_key_left": {
+          "derived_smt_sha256": "f398b5476972850eb0131089af0825b55900991b9fa851431a7215aca5d50fe2",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedFrameAfterKeyLeft",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "aa963878f7ec045f83b7ae512bfaedf7d91e531a4a6e61c360478070f59a4216"
+        },
+        "frame_after_key_right": {
+          "derived_smt_sha256": "2f33a4f2913c318f983cfedf9b9b66e877cbf1f628e42fc1c5351d9fc69d8e21",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedFrameAfterKeyRight",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "903a5ecad5f5333a1142ecdaeed89d52cfa57c32231447920cf2df036c1b5934"
+        },
+        "frame_after_ord_lt": {
+          "derived_smt_sha256": "3f77dbb3545beb387555be5033e0613a19d06cf0f7a82b6cb59b9dd3dc5750e8",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedFrameAfterOrdLt",
+          "smt_return_sort": "AdapterFrame",
+          "verus_return_type": "AdapterFrame",
+          "verus_sha256": "f7455225de103518561ac326ea3770530d0c5d2f846b6fdb23e35eb2d6652b2f"
+        },
+        "key_next_state": {
+          "derived_smt_sha256": "5e7af0fe5258e0b31476433104eac3dfca4ecb8cd2320565e7da18f3349aaf2a",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "value",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedKeyNextState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "6c4c2bf08293dcbe0781a87b8f5c2ea06e8f890c41bd1795311c3a6f19a55c4c"
+        },
+        "key_panics": {
+          "derived_smt_sha256": "08ff6d0bbe17a0765343de9400bfc920e8759946494c3ef58ec8eb2f97c75661",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "value",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedKeyPanics",
+          "smt_return_sort": "Bool",
+          "verus_return_type": "bool",
+          "verus_sha256": "8d5274617762d415ee979fe45aa60176aff507938f6a052f58987744334de4ac"
+        },
+        "key_result": {
+          "derived_smt_sha256": "224fd1561758d29ce9f2897fbb3615edc46f94a0cae8d4a954c066735edbc839",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "value",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedKeyResult",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "d53b80ea84126a74ce3d966705cf1acdf49394107956b52a79c2f765690c7154"
+        },
+        "left_drop_state": {
+          "derived_smt_sha256": "e5f0928278c6a2fea2d4b9af25a78bb91143c067d558f8667751c673dfb530a1",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedLeftDropState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "e5f6600bc7232520c0c17f7df879f6a26e750190cd735dc99c524bdda2a9d18d"
+        },
+        "left_owned": {
+          "derived_smt_sha256": "5cdf9fcaa2bff1559c63bb21c6e10e8f3749b141d432397053c869c72c1cd512",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedLeftOwned",
+          "smt_return_sort": "OwnedKey",
+          "verus_return_type": "OwnedKey",
+          "verus_sha256": "ca987d09fae6eae162cbe8f5ee88b85910f62fdeb3423b8c5f175f2601ed95a4"
+        },
+        "left_state": {
+          "derived_smt_sha256": "b233c52b92daf4fba575ddcb62778913f92bb7cc6eb5bef8dddfcab5f48706f9",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedLeftState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "55e8d536e2c731f94238bb79586e98412ff25be88d5ff76249b62ccbfdb2a7a0"
+        },
+        "ord_lt_next_state": {
+          "derived_smt_sha256": "f0087e7eaaa8ed003cb744025bb48c4e95e5336fae3cc7415e5861b3af0ccb80",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            },
+            {
+              "name": "right",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            }
+          ],
+          "refined_smt_function": "RefinedOrdLtNextState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "a750da97631dcd3c4c4e50658f6be667943c539fdff2f45d7f732f506e0a7dc7"
+        },
+        "ord_lt_panics": {
+          "derived_smt_sha256": "61cfe3160c9865db040f625ec2b95af70651b49ec95373e6e83a8cd6ae439c41",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            },
+            {
+              "name": "right",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            }
+          ],
+          "refined_smt_function": "RefinedOrdLtPanics",
+          "smt_return_sort": "Bool",
+          "verus_return_type": "bool",
+          "verus_sha256": "da39fb1cfa3cf3fb398026640c250003104fb749873b9c58a506ecc0c88c439a"
+        },
+        "ord_lt_result": {
+          "derived_smt_sha256": "86177a1276d14f44daf486d805b7cc9edf3a78131f3f3ca80e151a547a201b10",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            },
+            {
+              "name": "right",
+              "smt_sort": "OwnedKey",
+              "verus_type": "OwnedKey"
+            }
+          ],
+          "refined_smt_function": "RefinedOrdLtResult",
+          "smt_return_sort": "Bool",
+          "verus_return_type": "bool",
+          "verus_sha256": "b9981af20b27bf70a4b547da767d813c654065b9f410da271d7d12841e55b37d"
+        },
+        "ord_state": {
+          "derived_smt_sha256": "28741f010f669d6c7d01ee6a6fbba4cb6a3192fc199402fabea91232b3d0471c",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedOrdState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "ee2a6e5c0fded2714ec800b1c52987f7495126e2f7a98ecb903951f991a1dc5c"
+        },
+        "owned_key": {
+          "derived_smt_sha256": "39916900542cae59814e99b224dd66fba160554c71ab1516375f4aebb71f84c3",
+          "parameters": [
+            {
+              "name": "creation_state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "slot",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "source_identity",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "key_identity",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedOwnedKey",
+          "smt_return_sort": "OwnedKey",
+          "verus_return_type": "OwnedKey",
+          "verus_sha256": "bfb1c0a8944b7782a028560976164f990ce6ffa2db902f9703e2127b26780004"
+        },
+        "right_drop_state": {
+          "derived_smt_sha256": "84a66f44af183cbccab1c6528abae18fa91e1ddcc2771168a783af6199abde0e",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedRightDropState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "5e60d92f45e54166fe678e74d2bec47a50020e928c928b73d7dc0d36a95e46f5"
+        },
+        "right_owned": {
+          "derived_smt_sha256": "e33f992af12de319e36bd4ed310273a2b0645fd8b1b495660ef5f7571952721d",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedRightOwned",
+          "smt_return_sort": "OwnedKey",
+          "verus_return_type": "OwnedKey",
+          "verus_sha256": "5fe8bbfb4402deec666f54c7263392a69f496a731137309f22f824aa37ba8b3d"
+        },
+        "right_state": {
+          "derived_smt_sha256": "5852e2c214d37a733dca056513d3ec4318cb0834a403dd5b15ad809f3568046e",
+          "parameters": [
+            {
+              "name": "boundary",
+              "smt_sort": "Boundary",
+              "verus_type": "KeyOrdDropBoundary"
+            },
+            {
+              "name": "state",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "left",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            },
+            {
+              "name": "right",
+              "smt_sort": "Int",
+              "verus_type": "int"
+            }
+          ],
+          "refined_smt_function": "RefinedRightState",
+          "smt_return_sort": "Int",
+          "verus_return_type": "int",
+          "verus_sha256": "fc2321841bb4448437465c7b436d4d35bf78f5c60e88b379ef520a3a180731cf"
+        }
+      },
+      "source_sha256": "850ce906c62eb9a2f57ba7f154e34d4005e81c32608242ac72746f56ed9db022"
+    },
+    "step_order": [
+      "adapter_key_left",
+      "adapter_key_right",
+      "adapter_ord_lt",
+      "adapter_drop_right",
+      "adapter_drop_left"
+    ],
+    "struct_field_types": {
+      "AdapterFrame": [
+        {
+          "field": "af_state",
+          "type": "int"
+        },
+        {
+          "field": "af_termination",
+          "type": "int"
+        },
+        {
+          "field": "af_is_less",
+          "type": "bool"
+        },
+        {
+          "field": "af_panic_origin",
+          "type": "int"
+        },
+        {
+          "field": "af_left_owned",
+          "type": "OwnedKey"
+        },
+        {
+          "field": "af_right_owned",
+          "type": "OwnedKey"
+        },
+        {
+          "field": "af_left_live",
+          "type": "bool"
+        },
+        {
+          "field": "af_right_live",
+          "type": "bool"
+        }
+      ],
+      "KeyOrdDropBoundary": [
+        {
+          "field": "b_callback_identity",
+          "type": "int"
+        },
+        {
+          "field": "b_key_function_identity",
+          "type": "int"
+        },
+        {
+          "field": "b_ord_function_identity",
+          "type": "int"
+        },
+        {
+          "field": "b_drop_function_identity",
+          "type": "int"
+        },
+        {
+          "field": "b_initial_state",
+          "type": "int"
+        },
+        {
+          "field": "b_contract_key",
+          "type": "Map<int, int>"
+        },
+        {
+          "field": "b_contract_ordering",
+          "type": "Map<int, Map<int, int>>"
+        },
+        {
+          "field": "b_key_result",
+          "type": "Map<int, Map<int, int>>"
+        },
+        {
+          "field": "b_key_next_state",
+          "type": "Map<int, Map<int, int>>"
+        },
+        {
+          "field": "b_key_panics",
+          "type": "Map<int, Map<int, bool>>"
+        },
+        {
+          "field": "b_ord_lt_result",
+          "type": "Map<int, Map<OwnedKey, Map<OwnedKey, bool>>>"
+        },
+        {
+          "field": "b_ord_lt_next_state",
+          "type": "Map<int, Map<OwnedKey, Map<OwnedKey, int>>>"
+        },
+        {
+          "field": "b_ord_lt_panics",
+          "type": "Map<int, Map<OwnedKey, Map<OwnedKey, bool>>>"
+        },
+        {
+          "field": "b_drop_next_state",
+          "type": "Map<int, Map<OwnedKey, int>>"
+        },
+        {
+          "field": "b_drop_panics",
+          "type": "Map<int, Map<OwnedKey, bool>>"
+        }
+      ],
+      "OwnedKey": [
+        {
+          "field": "owned_creation_state",
+          "type": "int"
+        },
+        {
+          "field": "owned_slot",
+          "type": "int"
+        },
+        {
+          "field": "owned_source_identity",
+          "type": "int"
+        },
+        {
+          "field": "owned_key_identity",
+          "type": "int"
+        }
+      ]
+    },
+    "struct_fields": {
+      "AdapterFrame": [
+        "af_state",
+        "af_termination",
+        "af_is_less",
+        "af_panic_origin",
+        "af_left_owned",
+        "af_right_owned",
+        "af_left_live",
+        "af_right_live"
+      ],
+      "KeyOrdDropBoundary": [
+        "b_callback_identity",
+        "b_key_function_identity",
+        "b_ord_function_identity",
+        "b_drop_function_identity",
+        "b_initial_state",
+        "b_contract_key",
+        "b_contract_ordering",
+        "b_key_result",
+        "b_key_next_state",
+        "b_key_panics",
+        "b_ord_lt_result",
+        "b_ord_lt_next_state",
+        "b_ord_lt_panics",
+        "b_drop_next_state",
+        "b_drop_panics"
+      ],
+      "OwnedKey": [
+        "owned_creation_state",
+        "owned_slot",
+        "owned_source_identity",
+        "owned_key_identity"
+      ]
+    },
+    "top_level_inputs": [
+      "boundary",
+      "state",
+      "left_identity",
+      "right_identity"
+    ],
+    "trusted_free": true
+  }
+}

@@ -1,0 +1,15 @@
+PYTHONDONTWRITEBYTECODE=1 /home/chentianyu/miniconda3/bin/python3 -c 'import sys
+from pathlib import Path
+sys.path.insert(0, str(Path('"'"'tools'"'"').resolve()))
+import operational_v2_certification as c
+text = c.REVIEW_PATH.read_text()
+contradiction = ('"'"'\nThe reconciliation reports 61 rows, overlays `78,79`, exact counts '"'"'
+                 '"'"'`49/13/0`, reviewed-equivalence counts `42/20/0`, and zero missing '"'"'
+                 '"'"'classifications.\n'"'"')
+try:
+    c._parse_accept_review(text + contradiction)
+except c.OperationalV2CertificationError:
+    print('"'"'duplicate_conflicting_summary=REJECTED'"'"')
+else:
+    print('"'"'duplicate_conflicting_summary=ACCEPTED'"'"')
+'

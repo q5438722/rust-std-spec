@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/111_core_slice_subslice_range/harness.rs",
+  "harness_sha256": "a146f50eddb3926853c4c17c18838063a647cb152fdee0b6e0cc940eb2b0d49c",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/111_core_slice_subslice_range/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 5337,
+    "body_start_line": 5315,
+    "item_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421",
+    "signature_end_line": 5315,
+    "signature_start_line": 5315
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_addr_zst_panic_pointer_domain_bridge_boundary",
+  "target": "core::slice::subslice_range",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &[T]` argument and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:5315-5337",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421"
+    },
+    {
+      "edit": "Attached the generated `slice_subslice_range_option_result(slice@, subslice@, ret)` postcondition directly to the executable public target.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::subslice_range",
+      "source_sha256": "efa221cefc2e3ffa897082292c658fd9163e1e151be34c08189360d0b01729bb"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 branch/data flow: ZST panic, self.as_ptr().addr(), subslice.as_ptr().addr(), wrapping_sub byte_start, is_multiple_of(size_of::<T>()) alignment check, division by size_of::<T>(), wrapping_add end construction, and length-guarded Some(Range { start, end })/None.",
+      "kind": "rust_control_flow_preserved",
+      "source_lines": "core/src/slice/mod.rs:5316-5336",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421"
+    },
+    {
+      "edit": "Reused the reviewed as_ptr boundary locally and isolated only the ZST panic, pointer-address/provenance observations, verified concrete size, wrapping/alignment/division/addition arithmetic helpers, and generated pointer-domain result bridges that Verus cannot derive from a pure Seq view.",
+      "kind": "source_backed_pointer_domain_boundary",
+      "source_lines": "core/src/slice/mod.rs:5316-5336 and core/src/slice/mod.rs:726-728",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421"
+    },
+    {
+      "edit": "Removed source-pure arithmetic helper external_body attributes after Verus accepted the executable Rust 1.96 concrete size, wrapping/alignment/division helper bodies with actual verification.",
+      "kind": "source_pure_arithmetic_external_body_reduction",
+      "source_lines": "core/src/slice/mod.rs:5323-5330",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421"
+    },
+    {
+      "edit": "Removed the rust_type_is_zst/spec-bridged layout helper external_body attributes: the ZST test now verifies as `core::mem::size_of::<T>() == 0`, and the size helper returns concrete `core::mem::size_of::<T>()`, proving the nonzero divisor from the preserved panic branch.",
+      "kind": "concrete_sizeof_external_body_reduction",
+      "source_lines": "core/src/slice/mod.rs:5316-5318,5326",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421"
+    }
+  ]
+}

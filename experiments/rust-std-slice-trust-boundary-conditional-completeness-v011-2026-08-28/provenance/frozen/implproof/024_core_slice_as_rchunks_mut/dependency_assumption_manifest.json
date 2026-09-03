@@ -1,0 +1,100 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "array_value_view;flatten_array_chunks;slice_array_rchunks_partition",
+      "rationale": "The generated contract's shared array-chunk vocabulary is inlined as open spec definitions so Verus can check the returned prefix remainder plus flattened mutable chunk suffix relation without assuming the target postcondition.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:921-959",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "existing_vstd_source_contract_boundary",
+      "name": "<[T]>::split_at_mut",
+      "rationale": "The Rust 1.96 target body calls safe `split_at_mut(self.len() - len * N)`. The harness uses reviewed vstd mutable split view and final-frame facts at that exact proved-in-bounds index while the exact-vstd implementation proof for split_at_mut remains a later obligation.",
+      "source_lines": "core/src/slice/mod.rs:1608; core/src/slice/mod.rs:1947",
+      "status": "minimal_trusted_boundary_for_safe_mutable_slice_split_view_and_final_frame_facts"
+    },
+    {
+      "kind": "source_backed_unsafe_array_chunk_view_boundary",
+      "name": "rust_1_96_as_chunks_unchecked_mut_view",
+      "rationale": "The public target body keeps the unsafe mutable chunk conversion point after proving the suffix length is a multiple of N. The target-local external-body boundary models only Rust 1.96 `as_chunks_unchecked_mut`'s old-view and final-view array-slice relation; it does not assume the full as_rchunks_mut postcondition.",
+      "source_lines": "core/src/slice/mod.rs:1610-1612; core/src/slice/mod.rs:1498-1509",
+      "status": "minimal_trusted_boundary_for_source_backed_unsafe_mut_slice_to_array_chunks_view"
+    },
+    {
+      "kind": "panic_or_bounds",
+      "name": "assert!(N != 0)",
+      "rationale": "The generated precondition `N != 0` makes the Rust assertion pass; the Verus harness keeps the assertion as a proof assertion.",
+      "source_lines": "core/src/slice/mod.rs:1606",
+      "status": "discharged_by_target_precondition"
+    }
+  ],
+  "direct_call_names": [
+    "as_chunks_unchecked_mut",
+    "assert!",
+    "len",
+    "split_at_mut"
+  ],
+  "generated_target_dependency_candidates": [],
+  "module": "slice",
+  "notes": "The target function is executable and non-external: it asserts N != 0, computes `len = slice.len() / N`, splits mutably at `slice.len() - len * N`, performs the unsafe mutable chunk-view conversion boundary at `multiple_of_n`, and returns `(remainder, array_slice)`. The proof is modulo the named vstd split_at_mut view/final-frame facts plus the source-backed unsafe mutable array/chunk-view boundary; it uses no assume_specification and no target-body external_body.",
+  "private_helper_callee_closure": [],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/024_core_slice_as_rchunks_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 120,
+    "exit_code_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/024_core_slice_as_rchunks_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu",
+    "version_relpath": "proof_harnesses/024_core_slice_as_rchunks_mut/evidence/verus_version.txt"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_mut_array_chunk_view_and_vstd_split_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "2de629d24e9c7a21c57f1857ac9cf123c54ecf397268228a1cc0a5acbd0988d4",
+  "target": "core::slice::as_rchunks_mut",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bassert(?:_eq|_ne)?!"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "source-backed unsafe <[T]>::as_chunks_unchecked_mut array-chunk view conversion"
+      ],
+      "present": true
+    }
+  }
+}

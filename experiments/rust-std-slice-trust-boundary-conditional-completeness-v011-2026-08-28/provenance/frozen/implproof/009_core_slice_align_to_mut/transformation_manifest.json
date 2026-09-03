@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/009_core_slice_align_to_mut/harness.rs",
+  "harness_sha256": "27f0152fe8fbc5f0ddee8324f6ce96dd547673f2b229e095a57d191fa2dedb43",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/009_core_slice_align_to_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4605,
+    "body_start_line": 4564,
+    "item_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27",
+    "signature_end_line": 4564,
+    "signature_start_line": 4564
+  },
+  "status": "verus_verified_modulo_source_backed_align_offset_offsets_arithmetic_source_shaped_mut_split_setup_raw_parts_provenance_and_final_frame_boundary",
+  "target": "core::slice::align_to_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` mutable receiver to an explicit `slice: &mut [T]` parameter, naming the return, and preserving the unsafe public target signature.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4564-4605",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27"
+    },
+    {
+      "edit": "Attached the generated `slice_align_to_domain(old(slice)@)` precondition and `slice_align_to_mut_result(old(slice)@, ret.0@, ret.1@, ret.2@, final(ret.0)@, final(ret.1)@, final(ret.2)@, final(slice)@)` postcondition to the executable target; no assume_specification or target-body external_body is used.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::align_to_mut::<U>",
+      "source_sha256": "d3f3080fe88dd4be74e095f3d06df2b686c52dd000e8bba962feaa71695cd330"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 branch structure and proved the type layout query plus private align_to_offsets arithmetic executable: ZST early return, self.as_ptr(), ptr::align_offset, offset fallback, rest_len = self.len() - offset, gcd/ts/us computation, rest_len / ts * us, rest_len % ts, and now the aligned branch split_at_mut(offset), rest length observation, and rest.as_mut_ptr start-pointer model before the retained raw-parts tail.",
+      "kind": "source_flow_preserved",
+      "source_lines": "core/src/slice/mod.rs:4566-4604",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27"
+    },
+    {
+      "edit": "Isolated source-backed boundaries for ptr::align_offset, the narrow align_to_offsets multiplication-fit fact, and the lower from_raw_parts_mut/provenance/aliasing plus final-frame bridge. The gcd/div/mod offset arithmetic, split_at_mut(offset), rest.len(), and executable mutable Slice start-pointer model now run in the named aligned-branch helper.",
+      "kind": "source_backed_align_offset_offsets_arithmetic_source_shaped_mut_split_setup_raw_parts_provenance_final_frame_boundary",
+      "source_lines": "core/src/slice/mod.rs:4433-4464,4564-4605",
+      "source_sha256": "79bc07c28c34e853de5c1bbc49ebb8f27b4e8837109fc51c6a15eef97565ec27"
+    }
+  ]
+}

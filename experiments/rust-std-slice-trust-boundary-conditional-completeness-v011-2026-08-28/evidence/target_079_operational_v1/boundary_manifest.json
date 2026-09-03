@@ -1,0 +1,66 @@
+{
+  "active_contract_sha256": "9366859a88badc5f8d8cdfb15fbc544ef81edb756429e14a887b1ce6c73e3e95",
+  "adapter_evaluation_order": [
+    "f(left)",
+    "f(right)",
+    "K::lt(&left_key,&right_key)",
+    "drop(right_owned_key)",
+    "drop(left_owned_key)"
+  ],
+  "adapter_replaced_trust_site_ids": [
+    "TS-079-D002"
+  ],
+  "admitted_trust_site_ids": [
+    "TS-079-D004"
+  ],
+  "algorithm_replaced_trust_site_ids": [
+    "TS-079-D003",
+    "TS-079-E001"
+  ],
+  "classification_boundary_requirement": "runtime key results and Ord::lt observations project exactly to the state-independent contract key total order",
+  "classification_eligible": true,
+  "equivalence": "exact termination, principal return, and full final/interrupted state; traces and panic origin are internal",
+  "excluded_from_boundary": [
+    "realized calls or invocation count",
+    "temporary lifetime or drop schedule",
+    "selection branches, pivots, swaps, and mutations",
+    "returned references, selected answer, or final state",
+    "execution trace"
+  ],
+  "input_order": "79",
+  "model_id": "target-079-key-ord-drop-operational-v1-rust-1.96-complete",
+  "model_version": 1,
+  "owned_key_identity": {
+    "boundary_observation": false,
+    "fields": [
+      "creation state",
+      "left/right operand slot",
+      "source value identity",
+      "abstract key identity"
+    ],
+    "role": "source-derived identity for each live owned K temporary; equal abstract keys remain separately destructible"
+  },
+  "schema_version": 2,
+  "selection_engine": {
+    "classification_inherited": false,
+    "model_id": "target-078-operational-v1-rust-1.96-complete",
+    "module": "tools/target_078_operational_v1.py",
+    "reuse": "read-only source-backed dispatch, insertion, pivot, partition, narrowing, fallback, restoration, and return"
+  },
+  "shared_boundary_observations": [
+    "callback, key-function, Ord, and Drop identities",
+    "initial callback-visible state",
+    "total key(state,value) abstract-key, next-state, and panic functions",
+    "total Ord::lt(state,left-owned-key,right-owned-key) result, next-state, and panic functions",
+    "total Drop(state,owned-key) next-state and panic functions",
+    "state-independent contract key and total Ordering functions"
+  ],
+  "source_model_complete": true,
+  "target": "core::slice::select_nth_unstable_by_key",
+  "termination_composition": {
+    "abort": "distinct termination bypasses ordinary unwind and retains the interrupted full selection state",
+    "normal": "selection consumes Ord::lt and continues",
+    "panic": "accepted target-078 CopyOnDrop and gap-guard unwind restoration runs"
+  },
+  "unresolved_trust_site_ids": []
+}

@@ -1,0 +1,32 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/080_core_slice_sort_unstable/harness.rs",
+  "harness_sha256": "f33612f224f9be9a0c02c95f3f8584dcc9c3f9cc17e0b015baaa3c480c5747df",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/080_core_slice_sort_unstable/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 3138,
+    "body_start_line": 3136,
+    "item_sha256": "5154b661dcc16f24263c4b635e0888ffc4be3015e2838c800eab883b6f352be6",
+    "signature_end_line": 3136,
+    "signature_start_line": 3133
+  },
+  "status": "verus_verified_modulo_source_backed_unstable_sort_boundary_and_ord_lt_observation_boundary",
+  "target": "core::slice::sort_unstable",
+  "transformations": [
+    {
+      "kind": "receiver_adaptation",
+      "rationale": "The Rust method receiver `self` is represented as the explicit Verus parameter `slice`; the public target remains executable and carries the generated permutation and sorted-by-Ord contract."
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "rationale": "The recursive/private unstable-sort implementation behind `sort::unstable::sort` is isolated as a named source-backed helper boundary. The public target function is executable and not `external_body`."
+    },
+    {
+      "kind": "ord_lt_callback_observation_boundary",
+      "rationale": "The Rust 1.96 body passes `&mut T::lt` to the unstable sorter. The harness preserves that call shape and records the Ord comparison relation through existing generated vocabulary instead of adding stability or unique-output obligations."
+    }
+  ]
+}

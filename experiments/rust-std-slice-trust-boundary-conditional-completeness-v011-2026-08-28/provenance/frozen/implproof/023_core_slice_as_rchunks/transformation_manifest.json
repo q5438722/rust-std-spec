@@ -1,0 +1,62 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/023_core_slice_as_rchunks/harness.rs",
+  "harness_sha256": "93b2129db9cac8b450bcf5594dd0c0afcc0a91cb2d841b6670d94367e649c608",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/023_core_slice_as_rchunks/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 1451,
+    "body_start_line": 1443,
+    "item_sha256": "da9aac6cc29f7a3a33a9f26056a284ed83aa4fd844a40b4bdf8fcd348f48a346",
+    "signature_end_line": 1443,
+    "signature_start_line": 1443
+  },
+  "status": "verus_verified_modulo_source_backed_array_chunk_view_and_vstd_split_boundary",
+  "target": "core::slice::as_rchunks",
+  "transformations": [
+    {
+      "edit": "Adapted the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and named return for Verus; the executable target body remains the same assert, quotient, split, unsafe chunk conversion, and tuple return flow.",
+      "kind": "receiver_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1443-1451",
+      "source_sha256": "da9aac6cc29f7a3a33a9f26056a284ed83aa4fd844a40b4bdf8fcd348f48a346"
+    },
+    {
+      "edit": "Adapted the Rust `pub const fn` target item to a non-const Verus harness function; no executable control-flow or data-flow step was changed.",
+      "kind": "verus_const_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1443",
+      "source_sha256": "da9aac6cc29f7a3a33a9f26056a284ed83aa4fd844a40b4bdf8fcd348f48a346"
+    },
+    {
+      "edit": "Converted Rust `assert!(N != 0, ...)` to Verus `assert(N != 0)` under the same generated precondition; no control-flow path is removed.",
+      "kind": "verus_assert_macro_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1444",
+      "source_sha256": "da9aac6cc29f7a3a33a9f26056a284ed83aa4fd844a40b4bdf8fcd348f48a346"
+    },
+    {
+      "edit": "Named the Rust split index expression `slice.len() - len * N` as `split_index` after computing `len = slice.len() / N`; this lets proof annotations reuse the exact expression before calling `slice.split_at(split_index)`.",
+      "kind": "proof_index_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1445-1446",
+      "source_sha256": "da9aac6cc29f7a3a33a9f26056a284ed83aa4fd844a40b4bdf8fcd348f48a346"
+    },
+    {
+      "edit": "Kept the unsafe chunk-conversion point and modeled only `multiple_of_n.as_chunks_unchecked()` as the target-local boundary `rust_1_96_as_chunks_unchecked_view(multiple_of_n)` after proving `N != 0` and suffix length divisibility.",
+      "kind": "unsafe_array_chunk_view_boundary_adaptation",
+      "source_lines": "core/src/slice/mod.rs:1447-1450; core/src/slice/mod.rs:1338-1349",
+      "source_sha256": "1af5889426d173ab1e019f11a75a4697ca2a0e9e0a280108402b7b5ca699ddc3"
+    },
+    {
+      "edit": "Inlined the generated shared vocabulary predicates `array_value_view`, `flatten_array_chunks`, and `slice_array_rchunks_partition` so Verus can check the exact prefix-remainder plus flattened chunk suffix postcondition.",
+      "kind": "shared_vocabulary_extraction",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:921-959",
+      "source_sha256": "source-backed frozen generated vocabulary"
+    },
+    {
+      "edit": "Added proof-only arithmetic, sequence-split, and reveal annotations to discharge `split_index < N`, suffix divisibility by N, and prefix/suffix recomposition; these have no executable data-flow or evaluation-order effect.",
+      "kind": "proof_only_annotation",
+      "source_lines": "core/src/slice/mod.rs:1445-1451",
+      "source_sha256": "da9aac6cc29f7a3a33a9f26056a284ed83aa4fd844a40b4bdf8fcd348f48a346"
+    }
+  ]
+}

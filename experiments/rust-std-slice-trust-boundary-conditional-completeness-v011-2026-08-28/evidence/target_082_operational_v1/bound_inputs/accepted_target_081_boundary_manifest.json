@@ -1,0 +1,58 @@
+{
+  "admitted_trust_site_ids": [
+    "TS-081-D004"
+  ],
+  "boundary_narrower_than_target": true,
+  "callback_lifecycle": "compare is dropped once after normal return or during unwind; drop panic during unwind is modeled as abort",
+  "comparator_observation_projection": "each source-derived callback event projects its state, operands, and exact Ordering to comparator_observation",
+  "context_only_trust_site_ids": [
+    "TS-081-D001",
+    "TS-081-C001"
+  ],
+  "externally_observable_state": "observable_element_state is distinct from callback_state and contains the complete element interior-mutation state, indexed by stable observable-cell identity; callback and Drop transitions update it before either normal return or panic becomes observable",
+  "input_order": "81",
+  "model_id": "target-081-operational-v1-rust-1.96-complete",
+  "pending_replacement_trust_site_ids": [],
+  "prohibited_boundary_observations": [
+    "realized comparison schedule or prior comparisons",
+    "pivot, partition, swap, or write choice",
+    "selected output or permutation",
+    "aggregate final state",
+    "target execution trace",
+    "precomputed terminal result"
+  ],
+  "replaced_trust_site_ids": [
+    "TS-081-D002",
+    "TS-081-D003",
+    "TS-081-E001"
+  ],
+  "schema_version": 1,
+  "shared_boundary_observations": [
+    "total compare Ordering(state,left_identity,right_identity)",
+    "total compare next_state(state,left_identity,right_identity)",
+    "total compare next observable element interior state(state,left_identity,right_identity,current interior state)",
+    "total compare panic(state,left_identity,right_identity)",
+    "total callback Drop next_state(state,unwinding)",
+    "total callback Drop next observable element interior state(state,unwinding,current interior state)",
+    "total callback Drop panic(state,unwinding)"
+  ],
+  "source_adapter": "one compare(a,b) evaluation; on success test Ordering::Less",
+  "source_derived_observations": [
+    "callback evaluation count and operand order",
+    "Ordering::Less branch result",
+    "comparison schedule",
+    "callback destruction point and unwind mode",
+    "private-sort pivots, partitions, swaps, writes, and restoration",
+    "terminal status, output sequence, and final callback state",
+    "final externally observable element interior-mutation state"
+  ],
+  "target": "core::slice::sort_unstable_by",
+  "trust_site_dispositions": {
+    "TS-081-C001": "context-only-direct-call-identity",
+    "TS-081-D001": "context-only-generated-contract-vocabulary",
+    "TS-081-D002": "replaced-by-source-ordering-to-less-adapter",
+    "TS-081-D003": "replaced-by-accepted-private-source-transitions",
+    "TS-081-D004": "admitted-total-callback-and-drop-observations",
+    "TS-081-E001": "replaced-by-accepted-private-source-transitions"
+  }
+}

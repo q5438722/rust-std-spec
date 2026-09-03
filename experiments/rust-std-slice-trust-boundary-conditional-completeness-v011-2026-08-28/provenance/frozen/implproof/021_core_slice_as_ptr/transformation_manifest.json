@@ -1,0 +1,38 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/021_core_slice_as_ptr/harness.rs",
+  "harness_sha256": "d081c3a1a2738f7b8301ffc39e54cc004c5a1158d504c306792f5861cba426c1",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/021_core_slice_as_ptr/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 728,
+    "body_start_line": 726,
+    "item_sha256": "df0d49a1417773cb8932d48e9e7bb06a553039beaca7f20000b9fc6319236c1d",
+    "signature_end_line": 726,
+    "signature_start_line": 726
+  },
+  "status": "verus_verified_with_executable_slice_start_pointer_model",
+  "target": "core::slice::as_ptr",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &[T]` parameter and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:726-728",
+      "source_sha256": "df0d49a1417773cb8932d48e9e7bb06a553039beaca7f20000b9fc6319236c1d"
+    },
+    {
+      "edit": "Attached the generated `slice_start_ptr(slice@, ptr)` postcondition to the target function; this records the contract under test and does not assume the target body.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::as_ptr",
+      "source_sha256": "52c2a91bc8c7e49cd77d4429bb2b2a6e50a788211f2abca511f4df650f1a5edc"
+    },
+    {
+      "kind": "executable_slice_start_pointer_model_seed",
+      "edit": "Removed the target-local #[verifier::external_body] marker from the Rust 1.96 raw slice-start helper and replaced the unsupported literal cast body with an executable raw-pointer model witness; the public target contract is unchanged.",
+      "source_lines": "core/src/slice/mod.rs:726-728",
+      "source_sha256": "df0d49a1417773cb8932d48e9e7bb06a553039beaca7f20000b9fc6319236c1d"
+    }
+  ]
+}

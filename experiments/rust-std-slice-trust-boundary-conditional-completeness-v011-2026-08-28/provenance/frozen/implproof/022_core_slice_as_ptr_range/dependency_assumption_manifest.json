@@ -1,0 +1,134 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "slice_ptr_range_result;slice_ptr_range_starts_at_slice;slice_start_ptr",
+      "rationale": "The generated immutable pointer-range vocabulary is instantiated locally: the reviewed immutable slice-start pointer fact comes from the as_ptr dependency, and the range-result fact is linked only through the source-backed `start.add(self.len())` boundary. The target postcondition is not assumed directly.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "generated_target_dependency",
+      "name": "core::slice::as_ptr",
+      "rationale": "The Rust 1.96 body first calls `self.as_ptr()`. The harness reuses the already reviewed as_ptr shape by calling a local executable wrapper with `slice_start_ptr(slice@, ptr)`.",
+      "source_lines": "core/src/slice/mod.rs:726-728 and 794; proof_harnesses/021_core_slice_as_ptr/harness.rs",
+      "status": "reviewed_dependency_reused_for_immutable_pointer_start_fact"
+    },
+    {
+      "kind": "executable_slice_start_pointer_model",
+      "name": "rust_1_96_slice_as_ptr_cast",
+      "rationale": "The local core::slice::as_ptr dependency wrapper now reuses the accepted null-provenance, length-address Slice start-pointer model instead of a target-local external_body cast boundary. Evidence: proof_inventory/raw_slice_start_pointer_range_consumers_20260818T0711Z/summary.json.",
+      "status": "verified_executable_model_no_external_body",
+      "verification": "proof_inventory/raw_slice_start_pointer_range_consumers_20260818T0711Z/summary.json"
+    },
+    {
+      "kind": "source_backed_raw_pointer_add_range_boundary",
+      "name": "rust_1_96_ptr_add_range_end",
+      "rationale": "The public target computes `let end = unsafe { start.add(self.len()) }`. Verus does not model the raw-pointer provenance and one-past-end arithmetic for `add`, so the harness isolates exactly that operation in a source-backed unsafe boundary whose contract connects the reviewed start pointer and current length to `slice_ptr_range_result`.",
+      "source_excerpt_relpath": "proof_harnesses/022_core_slice_as_ptr_range/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:794-813",
+      "source_sha256": "b42ea830188debee4c9145f4e52e8a270861f5c3845a4f1c4a50e006987ed5d7",
+      "status": "minimal_trusted_boundary_until_raw_pointer_add_provenance_is_modeled_by_verus",
+      "adjudication": {
+        "attempt": "Removed only this helper's external_body annotation while preserving the Rust `unsafe { start.add(len) }` body and the existing postconditions.",
+        "diagnostics": "proof_inventory/ptr_range_end_boundary_adjudication_20260814T1951Z/no_external_attempts/022_core_slice_as_ptr_range_no_external_add.stderr",
+        "outcome": "retained; Verus rejects raw `*const T::add` at typecheck and requests an assume_specification for the std pointer-add method"
+      }
+    }
+  ],
+  "direct_call_names": [
+    "as_ptr",
+    "len",
+    "rust_1_96_ptr_add_range_end",
+    "rust_1_96_slice_as_ptr_cast"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_ptr"
+  ],
+  "harness_sha256": "687039cbba24ebc55d2e606ed50ff5ab935b164f0ef5cecc1076e8042152ef19",
+  "module": "slice",
+  "notes": "The public target and local start-pointer helper are executable and non-external: it preserves the Rust 1.96 flow `let start = self.as_ptr(); let end = unsafe { start.add(self.len()) }; start..end`, with only the inherent receiver adapted to an explicit immutable-slice parameter. The harness contains no assume_specification, no --no-verify marker, and no public-target external_body. A focused 2026-08-14 no-external attempt for `rust_1_96_ptr_add_range_end` was rejected at typecheck because this Verus std model has no contract for raw `*const T::add`; the source-backed range-end bridge is therefore retained. The local rust_1_96_slice_as_ptr_cast helper now verifies through the root Slice start-pointer model; only rust_1_96_ptr_add_range_end remains as the retained range-end pointer-add boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/022_core_slice_as_ptr_range/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/022_core_slice_as_ptr_range/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/022_core_slice_as_ptr_range/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_inventory/raw_slice_start_pointer_range_consumers_20260818T0711Z/evidence/022_actual.stdout",
+    "stdout_sha256": "3c25f41d00f776556053537ef13d1ade995c7cac38eb514a16183d9e78df62f1",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "version_relpath": "proof_harnesses/022_core_slice_as_ptr_range/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_executable_slice_start_pointer_model_boundary_and_raw_pointer_add_range_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "b42ea830188debee4c9145f4e52e8a270861f5c3845a4f1c4a50e006987ed5d7",
+  "target": "core::slice::as_ptr_range",
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "self.as_ptr()",
+        "start.add(self.len())"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { start.add(self.len()) }"
+      ],
+      "present": true
+    }
+  }
+}

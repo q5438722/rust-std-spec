@@ -1,0 +1,490 @@
+{
+  "active_contract_sha256": "9366859a88badc5f8d8cdfb15fbc544ef81edb756429e14a887b1ce6c73e3e95",
+  "active_contract_text": "pub assume_specification<T, K: core::cmp::Ord, F: core::ops::FnMut(&T) -> K>[ <[T]>::select_nth_unstable_by_key::<K, F> ]( slice: &mut [T], index: usize, f: F, ) -> (ret: (&mut [T], &mut T, &mut [T])) requires index < old(slice)@.len(), ensures final(slice)@ == final(ret.0)@ + seq![*final(ret.1)] + final(ret.2)@, final(ret.0)@.len() == index, *final(ret.1) == final(slice)@[index as int], final(ret.2)@.len() == old(slice)@.len() - (index as int) - 1, slice_permutation(old(slice)@, final(slice)@), slice_select_partition_key::<F, T, K>(final(ret.0)@, *final(ret.1), final(ret.2)@, f), ;",
+  "admitted_trust_site_ids": [
+    "TS-079-D004"
+  ],
+  "artifact_id": "079_core_slice_select_nth_unstable_by_key",
+  "authority_bindings": {
+    "bytes": 10315,
+    "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/authority_bindings.json",
+    "sha256": "ae56730d818fc692f5e2e51864c58a94eee2dc17c6204b9aa5b7832abd0c0786"
+  },
+  "bound_inputs": {
+    "bytes": 4080,
+    "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/bound_inputs/manifest.json",
+    "sha256": "0d7e71648c56605443d7000834ade39f856750e0852d73d4cd48dceea6928426"
+  },
+  "boundary_manifest": {
+    "bytes": 5497,
+    "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/boundary_manifest.json",
+    "sha256": "2a9f099220d01395c20a419b28d2d521ed0f73407d45acb8cd8c1a5e0ead504e"
+  },
+  "bounded_nonvacuity": {
+    "smt": {
+      "bytes": 23225,
+      "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/bounded_nonvacuity.smt2",
+      "sha256": "cf3998c3d6bb3d907b33d2e4e3cc6ba8dd8e9adb0b126c28fa7c75cf5c05cbff"
+    },
+    "solver": {
+      "argv": [
+        "/home/chentianyu/miniconda3/bin/z3",
+        "-smt2",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/bounded_nonvacuity.smt2"
+      ],
+      "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/bounded_nonvacuity/command.txt",
+      "exit_code": 0,
+      "expected_solver_result": "sat",
+      "solver_result": "sat",
+      "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/bounded_nonvacuity/status.txt",
+      "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/bounded_nonvacuity/stderr.txt",
+      "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/bounded_nonvacuity/stdout.txt"
+    }
+  },
+  "classification": {
+    "completeness_modulo_reviewed_equivalence_status": "missing-source-backed-model",
+    "exact_output_determinism_status": "missing-source-backed-model"
+  },
+  "classification_basis": "The bounded source model executes the literal length-four insertion-sort path: tails one, two, and three thread exact callback states and intermediate sequence rotations. It rejects the former one/two-adapter all-equal traces, admits the canonical three-adapter trace, and rejects wrong descending and mixed post-states. Panic probes execute source-valid prefixes through the same adapter and gap-guard rotation definitions. The model does not encode choose_pivot, lower-partition mutations and callbacks, introselect narrowing, the 16-step fallback, or their panic prefixes for arbitrary lengths. The retained whole-helper sites therefore remain unresolved and both results are missing-source-backed-model, not boundary-insufficient. Target 079 also leaves temporary key Drop order, callback-visible state, and panic unmodeled.",
+  "excluded_retained_trust_site_ids": [
+    "TS-079-D002",
+    "TS-079-D003",
+    "TS-079-E001"
+  ],
+  "independent_review": "required",
+  "input_order": "79",
+  "length_four_source_execution": {
+    "smt": {
+      "bytes": 23462,
+      "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_source_execution.smt2",
+      "sha256": "cd8165b6c4b65b51148e8952cd6b521e0cf4507b81cf21021f9214b18ce2cbcd"
+    },
+    "solver": {
+      "argv": [
+        "/home/chentianyu/miniconda3/bin/z3",
+        "-smt2",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_source_execution.smt2"
+      ],
+      "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_source_execution/command.txt",
+      "exit_code": 0,
+      "expected_solver_result": "sat",
+      "solver_result": "sat",
+      "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_source_execution/status.txt",
+      "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_source_execution/stderr.txt",
+      "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_source_execution/stdout.txt"
+    }
+  },
+  "length_four_wrong_schedule_regression": {
+    "smt": {
+      "bytes": 23295,
+      "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_wrong_schedule_regression.smt2",
+      "sha256": "bdf7392640d76690cc0e756d3a99258cdf9fe52822736b3b81ef1a52b8c2c6bf"
+    },
+    "solver": {
+      "argv": [
+        "/home/chentianyu/miniconda3/bin/z3",
+        "-smt2",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_wrong_schedule_regression.smt2"
+      ],
+      "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_wrong_schedule_regression/command.txt",
+      "exit_code": 0,
+      "expected_solver_result": "unsat",
+      "solver_result": "unsat",
+      "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_wrong_schedule_regression/status.txt",
+      "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_wrong_schedule_regression/stderr.txt",
+      "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/length_four_wrong_schedule_regression/stdout.txt"
+    }
+  },
+  "mixed_source_execution": {
+    "smt": {
+      "bytes": 23463,
+      "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/mixed_source_execution.smt2",
+      "sha256": "fa076b7491d390e40aa8f462602a52e0491f1305f3102014d3bf6704a8ea0112"
+    },
+    "solver": {
+      "argv": [
+        "/home/chentianyu/miniconda3/bin/z3",
+        "-smt2",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/mixed_source_execution.smt2"
+      ],
+      "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/mixed_source_execution/command.txt",
+      "exit_code": 0,
+      "expected_solver_result": "sat",
+      "solver_result": "sat",
+      "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/mixed_source_execution/status.txt",
+      "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/mixed_source_execution/stderr.txt",
+      "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/mixed_source_execution/stdout.txt"
+    }
+  },
+  "obligations": {
+    "completeness-modulo-reviewed-selection-equivalence": {
+      "metadata": {
+        "bytes": 10185,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation.metadata.json",
+        "sha256": "ada0f39876bef997abefa7f38153d8a436eba77fd98472dc3d362dca62bfa1e8"
+      },
+      "smt": {
+        "bytes": 22712,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation.smt2",
+        "sha256": "9c450f7591ed88b6a1b6d805096be6846b3ff3b94dd18ca1ee6bf700666762ed"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-T:15",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/obligation/stdout.txt"
+      }
+    }
+  },
+  "panic_after_shift_regressions": {
+    "restored": {
+      "smt": {
+        "bytes": 23411,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_restored.smt2",
+        "sha256": "bd6d214e0fea9f5de56a85bfce116803bab5d2278c7c663549e4633b4afa7b63"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_restored.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_restored/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_restored/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_restored/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_restored/stdout.txt"
+      }
+    },
+    "unrestored": {
+      "smt": {
+        "bytes": 23411,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_unrestored.smt2",
+        "sha256": "db9fcdc07936ae62b911cf927c909553eecd049e55c436c192272196392bc321"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_unrestored.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_unrestored/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_unrestored/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_unrestored/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_after_shift_unrestored/stdout.txt"
+      }
+    }
+  },
+  "panic_prefix_probes": {
+    "first-key": {
+      "smt": {
+        "bytes": 23389,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_first-key.smt2",
+        "sha256": "f391932906c06f088e8f73842cf7156549338ebbc01dd52a777a766609e9f76b"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_first-key.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_first-key/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_first-key/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_first-key/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_first-key/stdout.txt"
+      }
+    },
+    "ord-lt": {
+      "smt": {
+        "bytes": 23441,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_ord-lt.smt2",
+        "sha256": "321154cccc0e40d61f3554216b3f3d7c4bdf09f715483c9a7794b6dee6624848"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_ord-lt.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_ord-lt/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_ord-lt/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_ord-lt/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_ord-lt/stdout.txt"
+      }
+    },
+    "second-key": {
+      "smt": {
+        "bytes": 23389,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_second-key.smt2",
+        "sha256": "91c7745bfa09fead1d656aeb1ac60ac15530ca3922eb1496fc837a1f9642dce9"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_second-key.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_second-key/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_second-key/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_second-key/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/panic_prefix_second-key/stdout.txt"
+      }
+    }
+  },
+  "schema_version": 1,
+  "small_sort_regressions": {
+    "descending": {
+      "smt": {
+        "bytes": 23389,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_descending_regression.smt2",
+        "sha256": "413cb6ca71f0a6172e351eafbee10d7987ac1c90063edd0ad94460dc8a6e99b1"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_descending_regression.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_descending_regression/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_descending_regression/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_descending_regression/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_descending_regression/stdout.txt"
+      }
+    },
+    "mixed": {
+      "smt": {
+        "bytes": 23389,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_mixed_regression.smt2",
+        "sha256": "86766c777b5c3b5f93594fdf3b8c174b7b120045c87a15c8b9d7a97c3a1ff454"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_mixed_regression.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_mixed_regression/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_mixed_regression/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_mixed_regression/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_mixed_regression/stdout.txt"
+      }
+    },
+    "tail-three-front": {
+      "smt": {
+        "bytes": 23389,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-front_regression.smt2",
+        "sha256": "24ae0b1eade66443fbb0dc138ff9e6cf34b0eef6f508038b1cc0f2bfdb338e28"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-front_regression.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-front_regression/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-front_regression/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-front_regression/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-front_regression/stdout.txt"
+      }
+    },
+    "tail-three-middle": {
+      "smt": {
+        "bytes": 23389,
+        "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-middle_regression.smt2",
+        "sha256": "fc2570c091d7c432ed1fee2e817c2c23c79c28b39d3bb4b94c958271a03cec4f"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-middle_regression.smt2"
+        ],
+        "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-middle_regression/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-middle_regression/status.txt",
+        "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-middle_regression/stderr.txt",
+        "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/small_sort_tail-three-middle_regression/stdout.txt"
+      }
+    }
+  },
+  "stage_transition": "disabled",
+  "target": "core::slice::select_nth_unstable_by_key",
+  "trust_site_bindings": {
+    "bytes": 16566,
+    "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/trust_site_bindings.json",
+    "sha256": "e98fd507c3d1b970a950fd4d6720328414bb941067d95643885b3b52af2d7f60"
+  },
+  "unresolved_source_model_phases": [
+    "choose_pivot mutation and callback schedule",
+    "lower partition intermediate mutation and callback schedule",
+    "introselect window narrowing and ancestor-pivot branch",
+    "16-step median-of-medians fallback",
+    "introselect panic prefixes and unwind mutation",
+    "temporary key Drop order, callback-visible state, and panic"
+  ],
+  "updated_crosswalk_fields": [
+    "exact_output_determinism_status",
+    "completeness_modulo_reviewed_equivalence_status"
+  ],
+  "verus": {
+    "captured_model": {
+      "bytes": 10152,
+      "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/selection_callback_model.rs",
+      "sha256": "0ccd9ca6d6c8018da5b6a3876dae2e619301fdf568e03cd40138145f2a050684"
+    },
+    "expected_summary": "verification results:: 5 verified, 0 errors",
+    "source_model": {
+      "bytes": 10152,
+      "path": "proofs/079_core_slice_select_nth_unstable_by_key.rs",
+      "sha256": "0ccd9ca6d6c8018da5b6a3876dae2e619301fdf568e03cd40138145f2a050684"
+    },
+    "typecheck": {
+      "argv": [
+        "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/selection_callback_model.rs",
+        "--crate-type=lib",
+        "--no-verify"
+      ],
+      "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/typecheck/command.txt",
+      "exit_code": 0,
+      "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/typecheck/status.txt",
+      "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/typecheck/stderr.txt",
+      "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/typecheck/stdout.txt"
+    },
+    "verification": {
+      "argv": [
+        "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/selection_callback_model.rs",
+        "--crate-type=lib"
+      ],
+      "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/verification/command.txt",
+      "exit_code": 0,
+      "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/verification/status.txt",
+      "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/verification/stderr.txt",
+      "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/verus/verification/stdout.txt"
+    }
+  },
+  "witness": {
+    "bytes": 10331,
+    "path": "evidence/targets/079_core_slice_select_nth_unstable_by_key/witness.json",
+    "sha256": "86280c2aba152c7fa7c1b44db7b9a466c7cdb4c6f2a4b2c5d2c2f215dd2fe72d"
+  },
+  "witness_replay": {
+    "argv": [
+      "/home/chentianyu/miniconda3/bin/python3",
+      "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/tools/replay_selection_callback_cluster.py",
+      "--witness",
+      "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/079_core_slice_select_nth_unstable_by_key/witness.json"
+    ],
+    "command": "evidence/targets/079_core_slice_select_nth_unstable_by_key/witness_replay/command.txt",
+    "exit_code": 0,
+    "result": {
+      "bounded_source_execution_witness": {
+        "callback_state": 12,
+        "sequence": [
+          10,
+          20,
+          30,
+          40
+        ]
+      },
+      "functional_boundary_diagnostic": {
+        "execution1_active_contract_checks": {
+          "callback_partition": true,
+          "exact_identity_multiplicity": true,
+          "final_concat_and_lengths": true,
+          "in_place_state_identity": true,
+          "pivot_at_index": true,
+          "requires_index_in_bounds": true,
+          "returned_range_identities": true
+        },
+        "execution2_active_contract_checks": {
+          "callback_partition": true,
+          "exact_identity_multiplicity": true,
+          "final_concat_and_lengths": true,
+          "in_place_state_identity": true,
+          "pivot_at_index": true,
+          "requires_index_in_bounds": true,
+          "returned_range_identities": true
+        },
+        "observed": {
+          "exact_equivalent": false,
+          "execution1_is_source_reachable": true,
+          "execution1_satisfies_active_contract": true,
+          "execution2_is_source_reachable": false,
+          "execution2_satisfies_active_contract": true,
+          "only_difference": "callback-visible-final-state",
+          "reviewed_selection_equivalent": false,
+          "same_input_and_boundary": true
+        },
+        "source_outcomes": [
+          {
+            "callback_state": 3,
+            "sequence": [
+              10,
+              20
+            ]
+          }
+        ]
+      },
+      "input_order": "79",
+      "negative_witnesses": {
+        "callback_final_state_drift": {
+          "baseline_satisfies_active_contract": true,
+          "candidate_satisfies_active_contract": true,
+          "reviewed_selection_equivalent": false
+        },
+        "foreign_identity": {
+          "baseline_satisfies_active_contract": true,
+          "candidate_satisfies_active_contract": false,
+          "reviewed_selection_equivalent": false
+        },
+        "malformed_returned_range": {
+          "baseline_satisfies_active_contract": true,
+          "candidate_satisfies_active_contract": false,
+          "reviewed_selection_equivalent": false
+        }
+      },
+      "status": "passed",
+      "target": "core::slice::select_nth_unstable_by_key",
+      "witness_sha256": "86280c2aba152c7fa7c1b44db7b9a466c7cdb4c6f2a4b2c5d2c2f215dd2fe72d"
+    },
+    "status": "evidence/targets/079_core_slice_select_nth_unstable_by_key/witness_replay/status.txt",
+    "stderr": "evidence/targets/079_core_slice_select_nth_unstable_by_key/witness_replay/stderr.txt",
+    "stdout": "evidence/targets/079_core_slice_select_nth_unstable_by_key/witness_replay/stdout.txt"
+  }
+}

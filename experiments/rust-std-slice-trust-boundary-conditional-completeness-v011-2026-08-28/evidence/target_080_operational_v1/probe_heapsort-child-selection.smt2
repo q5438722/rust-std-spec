@@ -1,0 +1,2679 @@
+; Target: core::slice::sort_unstable
+; Model: target-080-operational-v1-rust-1.96-complete
+; Formal transition: source-level Rust 1.96 unstable sort interpreter.
+(set-logic ALL)
+(set-option :produce-models true)
+
+; Boundary_T fields: b_ordering, b_contract_ordering, b_next_state,
+; and b_panics. No realized source choices are boundary inputs.
+(declare-datatypes ((CallKey 0))
+  (((mkCallKey
+      (call_state Int)
+      (call_left_identity Int)
+      (call_right_identity Int)))))
+(declare-datatypes ((PairKey 0))
+  (((mkPairKey
+      (pair_left_identity Int)
+      (pair_right_identity Int)))))
+(declare-datatypes ((Configuration 0))
+  (((mkConfiguration
+      (c_optimize_for_size Bool)
+      (c_element_size Int)))))
+(declare-datatypes ((SortConfiguration 0))
+  (((mkSortConfiguration
+      (sc_optimize_for_size Bool)
+      (sc_target_pointer_width Int)
+      (sc_element_size Int)
+      (sc_is_freeze Bool)
+      (sc_is_copy Bool)))))
+(declare-datatypes ((Boundary 0))
+  (((mkBoundary
+      (b_callback_identity Int)
+      (b_initial_state Int)
+      (b_contract_ordering (Array PairKey Int))
+      (b_ordering (Array CallKey Int))
+      (b_next_state (Array CallKey Int))
+      (b_panics (Array CallKey Bool))))))
+(declare-datatypes ((Result 0))
+  (((mkResult
+      (r_sequence (Array Int Int))
+      (r_callback Int)
+      (r_panicked Bool)
+      (r_aborted Bool)
+      (r_terminal Bool)
+      (r_status Int)
+      (r_unit Bool)
+      (r_index Int)))))
+(declare-datatypes ((FormalMachine 0))
+  (((mkFormalMachine
+      (m_origin (Array Int Int))
+      (m_sequence (Array Int Int))
+      (m_callback Int)
+      (m_panicked Bool)))))
+
+(define-fun BoundaryOrdering
+  ((b Boundary) (state Int) (left Int) (right Int)) Int
+  (select (b_ordering b) (mkCallKey state left right)))
+(define-fun ContractOrdering
+  ((b Boundary) (left Int) (right Int)) Int
+  (select (b_contract_ordering b) (mkPairKey left right)))
+(define-fun BoundaryNextState
+  ((b Boundary) (state Int) (left Int) (right Int)) Int
+  (select (b_next_state b) (mkCallKey state left right)))
+(define-fun BoundaryPanics
+  ((b Boundary) (state Int) (left Int) (right Int)) Bool
+  (select (b_panics b) (mkCallKey state left right)))
+(define-fun TargetAdapterIsLess
+  ((b Boundary) (state Int) (left Int) (right Int)) Bool
+  (= (BoundaryOrdering b state left right) -1))
+(define-fun BoundaryWellFormed ((b Boundary)) Bool
+  (and
+    (forall ((state Int) (left Int) (right Int))
+      (let ((ordering (BoundaryOrdering b state left right)))
+        (or (= ordering -1) (= ordering 0) (= ordering 1))))
+    (forall ((state Int) (left Int) (right Int))
+      (= (BoundaryOrdering b state left right)
+         (ContractOrdering b left right)))
+    (forall ((value Int))
+      (= (ContractOrdering b value value) 0))
+    (forall ((left Int) (right Int))
+      (= (ContractOrdering b left right)
+         (- (ContractOrdering b right left))))
+    (forall ((left Int) (middle Int) (right Int))
+      (=>
+        (and
+          (<= (ContractOrdering b left middle) 0)
+          (<= (ContractOrdering b middle right) 0))
+        (<= (ContractOrdering b left right) 0)))))
+(define-fun SwapArray
+  ((sequence (Array Int Int)) (left Int) (right Int)) (Array Int Int)
+  (store
+    (store sequence left (select sequence right))
+    right
+    (select sequence left)))
+(define-fun FormalCallback
+  ((machine FormalMachine)
+   (b Boundary)
+   (left Int)
+   (right Int)) FormalMachine
+  (mkFormalMachine
+    (m_origin machine)
+    (m_sequence machine)
+    (BoundaryNextState b (m_callback machine) left right)
+    (or
+      (m_panicked machine)
+      (BoundaryPanics b (m_callback machine) left right))))
+(define-fun FormalSwap
+  ((machine FormalMachine) (left Int) (right Int)) FormalMachine
+  (mkFormalMachine
+    (m_origin machine)
+    (SwapArray (m_sequence machine) left right)
+    (m_callback machine)
+    (m_panicked machine)))
+(define-fun FormalWriteFromOrigin
+  ((machine FormalMachine)
+   (destination Int)
+   (origin_index Int)) FormalMachine
+  (mkFormalMachine
+    (m_origin machine)
+    (store
+      (m_sequence machine)
+      destination
+      (select (m_origin machine) origin_index))
+    (m_callback machine)
+    (m_panicked machine)))
+
+
+; Source-exact big-step state. Every callback updates this state before panic
+; propagation, and every active gap guard restores its saved identity.
+(declare-datatypes ((ExactState 0))
+  (((mkExactState
+      (e_sequence (Array Int Int))
+      (e_callback_state Int)
+      (e_panicked Bool)))))
+(declare-datatypes ((ExactIndexResult 0))
+  (((mkExactIndexResult
+      (eir_state ExactState)
+      (eir_value Int)))))
+(declare-datatypes ((ExactBoolResult 0))
+  (((mkExactBoolResult
+      (ebr_state ExactState)
+      (ebr_value Bool)))))
+
+(define-fun ExactCallback
+  ((q ExactState) (b Boundary) (left Int) (right Int)) ExactState
+  (mkExactState
+    (e_sequence q)
+    (BoundaryNextState b (e_callback_state q) left right)
+    (BoundaryPanics b (e_callback_state q) left right)))
+(define-fun ExactSwap
+  ((q ExactState) (left Int) (right Int)) ExactState
+  (mkExactState
+    (SwapArray (e_sequence q) left right)
+    (e_callback_state q)
+    (e_panicked q)))
+
+; insertion_sort_shift_left / insert_tail / CopyOnDrop
+(define-fun-rec ExactInsertTailLoop
+  ((q ExactState)
+   (b Boundary)
+   (begin Int)
+   (sift Int)
+   (gap Int)
+   (temporary Int)) ExactState
+  (ite
+    (e_panicked q)
+    q
+    (let ((shifted
+            (mkExactState
+              (store
+                (e_sequence q)
+                gap
+                (select (e_sequence q) sift))
+              (e_callback_state q)
+              false)))
+      (ite
+        (= sift begin)
+        (mkExactState
+          (store (e_sequence shifted) sift temporary)
+          (e_callback_state shifted)
+          false)
+        (let ((next_sift (- sift 1)))
+          (let ((right (select (e_sequence shifted) next_sift)))
+            (let ((called
+                    (ExactCallback shifted b temporary right))
+                  (less
+                    (TargetAdapterIsLess
+                      b
+                      (e_callback_state shifted)
+                      temporary
+                      right)))
+              (ite
+                (e_panicked called)
+                (mkExactState
+                  (store (e_sequence called) sift temporary)
+                  (e_callback_state called)
+                  true)
+                (ite
+                  less
+                  (ExactInsertTailLoop
+                    called b begin next_sift sift temporary)
+                  (mkExactState
+                    (store (e_sequence called) sift temporary)
+                    (e_callback_state called)
+                    false))))))))))
+
+(define-fun ExactInsertTail
+  ((q ExactState) (b Boundary) (begin Int) (tail Int)) ExactState
+  (ite
+    (e_panicked q)
+    q
+    (let ((temporary (select (e_sequence q) tail))
+          (right (select (e_sequence q) (- tail 1))))
+      (let ((called (ExactCallback q b temporary right))
+            (less
+              (TargetAdapterIsLess
+                b (e_callback_state q) temporary right)))
+        (ite
+          (e_panicked called)
+          called
+          (ite
+            less
+            (ExactInsertTailLoop
+              called b begin (- tail 1) tail temporary)
+            called))))))
+
+(define-fun-rec ExactInsertionSortLoop
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (end Int)
+   (tail Int)) ExactState
+  (ite
+    (or (e_panicked q) (>= tail end))
+    q
+    (let ((next (ExactInsertTail q b start tail)))
+      (ite
+        (e_panicked next)
+        next
+        (ExactInsertionSortLoop next b start end (+ tail 1))))))
+
+; min/max source scans
+(define-fun-rec ExactExtremeScanLoop
+  ((q ExactState)
+   (b Boundary)
+   (end Int)
+   (candidate Int)
+   (accumulator Int)
+   (find_min Bool)) ExactIndexResult
+  (ite
+    (or (e_panicked q) (>= candidate end))
+    (mkExactIndexResult q accumulator)
+    (let ((left
+            (ite
+              find_min
+              (select (e_sequence q) candidate)
+              (select (e_sequence q) accumulator)))
+          (right
+            (ite
+              find_min
+              (select (e_sequence q) accumulator)
+              (select (e_sequence q) candidate))))
+      (let ((called (ExactCallback q b left right))
+            (less
+              (TargetAdapterIsLess
+                b (e_callback_state q) left right)))
+        (ite
+          (e_panicked called)
+          (mkExactIndexResult called accumulator)
+          (ExactExtremeScanLoop
+            called
+            b
+            end
+            (+ candidate 1)
+            (ite less candidate accumulator)
+            find_min))))))
+
+; choose_pivot / median3_rec / median3
+(define-fun ExactMedian3
+  ((q ExactState)
+   (b Boundary)
+   (a Int)
+   (sample_b Int)
+   (c Int)) ExactIndexResult
+  (let ((value_a (select (e_sequence q) a))
+        (value_b (select (e_sequence q) sample_b)))
+    (let ((first (ExactCallback q b value_a value_b))
+          (less_a_b
+            (TargetAdapterIsLess
+              b (e_callback_state q) value_a value_b)))
+      (ite
+        (e_panicked first)
+        (mkExactIndexResult first a)
+        (let ((value_c (select (e_sequence first) c)))
+          (let ((second
+                  (ExactCallback first b value_a value_c))
+                (less_a_c
+                  (TargetAdapterIsLess
+                    b (e_callback_state first) value_a value_c)))
+            (ite
+              (e_panicked second)
+              (mkExactIndexResult second a)
+              (ite
+                (= less_a_b less_a_c)
+                (let ((third
+                        (ExactCallback second b value_b value_c))
+                      (less_b_c
+                        (TargetAdapterIsLess
+                          b
+                          (e_callback_state second)
+                          value_b
+                          value_c)))
+                  (mkExactIndexResult
+                    third
+                    (ite (xor less_b_c less_a_b) c sample_b)))
+                (mkExactIndexResult second a)))))))))
+
+(define-fun-rec ExactMedian3Rec
+  ((q ExactState)
+   (b Boundary)
+   (a Int)
+   (sample_b Int)
+   (c Int)
+   (n Int)) ExactIndexResult
+  (ite
+    (e_panicked q)
+    (mkExactIndexResult q a)
+    (ite
+      (>= (* n 8) 64)
+      (let ((n8 (div n 8)))
+        (let ((first
+                (ExactMedian3Rec
+                  q b a (+ a (* n8 4)) (+ a (* n8 7)) n8)))
+          (ite
+            (e_panicked (eir_state first))
+            first
+            (let ((second
+                    (ExactMedian3Rec
+                      (eir_state first)
+                      b
+                      sample_b
+                      (+ sample_b (* n8 4))
+                      (+ sample_b (* n8 7))
+                      n8)))
+              (ite
+                (e_panicked (eir_state second))
+                second
+                (let ((third
+                        (ExactMedian3Rec
+                          (eir_state second)
+                          b
+                          c
+                          (+ c (* n8 4))
+                          (+ c (* n8 7))
+                          n8)))
+                  (ite
+                    (e_panicked (eir_state third))
+                    third
+                    (ExactMedian3
+                      (eir_state third)
+                      b
+                      (eir_value first)
+                      (eir_value second)
+                      (eir_value third)))))))))
+      (ExactMedian3 q b a sample_b c))))
+
+(define-fun ExactChoosePivot
+  ((q ExactState) (b Boundary) (start Int) (end Int)) ExactIndexResult
+  (let ((length (- end start)))
+    (let ((eighth (div length 8)))
+      (let ((a start)
+            (sample_b (+ start (* eighth 4)))
+            (c (+ start (* eighth 7))))
+        (let ((chosen
+                (ite
+                  (< length 64)
+                  (ExactMedian3 q b a sample_b c)
+                  (ExactMedian3Rec q b a sample_b c eighth))))
+          (mkExactIndexResult
+            (eir_state chosen)
+            (- (eir_value chosen) start)))))))
+
+; Partition predicate adapter, including ancestor-pivot reverse partition.
+(define-fun ExactPartitionPredicate
+  ((q ExactState)
+   (b Boundary)
+   (value Int)
+   (pivot Int)
+   (reverse Bool)) ExactBoolResult
+  (ite
+    reverse
+    (let ((called (ExactCallback q b pivot value)))
+      (mkExactBoolResult
+        called
+        (not
+          (TargetAdapterIsLess
+            b (e_callback_state q) pivot value))))
+    (let ((called (ExactCallback q b value pivot)))
+      (mkExactBoolResult
+        called
+        (TargetAdapterIsLess
+          b (e_callback_state q) value pivot)))))
+
+(define-fun-rec ExactLomutoSimpleLoop
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (end Int)
+   (left Int)
+   (right Int)
+   (pivot Int)
+   (reverse Bool)) ExactIndexResult
+  (ite
+    (or (e_panicked q) (>= right end))
+    (mkExactIndexResult q (- left start))
+    (let ((predicate
+            (ExactPartitionPredicate
+              q b (select (e_sequence q) right) pivot reverse)))
+      (ite
+        (e_panicked (ebr_state predicate))
+        (mkExactIndexResult (ebr_state predicate) (- left start))
+        (let ((swapped
+                (ExactSwap (ebr_state predicate) left right)))
+          (ExactLomutoSimpleLoop
+            swapped
+            b
+            start
+            end
+            (ite (ebr_value predicate) (+ left 1) left)
+            (+ right 1)
+            pivot
+            reverse))))))
+
+(define-fun-rec ExactLomutoCyclicLoop
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (end Int)
+   (right Int)
+   (num_lt Int)
+   (gap_value Int)
+   (gap_position Int)
+   (pivot Int)
+   (reverse Bool)) ExactIndexResult
+  (ite
+    (e_panicked q)
+    (mkExactIndexResult
+      (mkExactState
+        (store (e_sequence q) gap_position gap_value)
+        (e_callback_state q)
+        true)
+      num_lt)
+    (ite
+      (< right end)
+      (let ((right_value (select (e_sequence q) right)))
+        (let ((predicate
+                (ExactPartitionPredicate
+                  q b right_value pivot reverse)))
+          (ite
+            (e_panicked (ebr_state predicate))
+            (mkExactIndexResult
+              (mkExactState
+                (store
+                  (e_sequence (ebr_state predicate))
+                  gap_position
+                  gap_value)
+                (e_callback_state (ebr_state predicate))
+                true)
+              num_lt)
+            (let ((left (+ start num_lt)))
+              (let ((cycled
+                      (mkExactState
+                        (store
+                          (store
+                            (e_sequence (ebr_state predicate))
+                            gap_position
+                            (select
+                              (e_sequence (ebr_state predicate))
+                              left))
+                          left
+                          right_value)
+                        (e_callback_state (ebr_state predicate))
+                        false)))
+                (ExactLomutoCyclicLoop
+                  cycled
+                  b
+                  start
+                  end
+                  (+ right 1)
+                  (ite (ebr_value predicate) (+ num_lt 1) num_lt)
+                  gap_value
+                  right
+                  pivot
+                  reverse))))))
+      (let ((predicate
+              (ExactPartitionPredicate q b gap_value pivot reverse)))
+        (ite
+          (e_panicked (ebr_state predicate))
+          (mkExactIndexResult
+            (mkExactState
+              (store
+                (e_sequence (ebr_state predicate))
+                gap_position
+                gap_value)
+              (e_callback_state (ebr_state predicate))
+              true)
+            num_lt)
+          (let ((left (+ start num_lt)))
+            (let ((cycled
+                    (mkExactState
+                      (store
+                        (store
+                          (e_sequence (ebr_state predicate))
+                          gap_position
+                          (select
+                            (e_sequence (ebr_state predicate))
+                            left))
+                        left
+                        gap_value)
+                      (e_callback_state (ebr_state predicate))
+                      false)))
+              (mkExactIndexResult
+                cycled
+                (ite (ebr_value predicate) (+ num_lt 1) num_lt)))))))))
+
+(define-fun ExactRestoreGap
+  ((q ExactState)
+   (gap_present Bool)
+   (gap_value Int)
+   (gap_position Int)) ExactState
+  (ite
+    gap_present
+    (mkExactState
+      (store (e_sequence q) gap_position gap_value)
+      (e_callback_state q)
+      (e_panicked q))
+    q))
+
+(define-fun-rec ExactHoareLoop
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (pivot Int)
+   (reverse Bool)
+   (left Int)
+   (right Int)
+   (gap_present Bool)
+   (gap_value Int)
+   (gap_position Int)
+   (scan_right Bool)) ExactIndexResult
+  (ite
+    (e_panicked q)
+    (mkExactIndexResult
+      (ExactRestoreGap q gap_present gap_value gap_position)
+      (- left start))
+    (ite
+      scan_right
+      (let ((next_right (- right 1)))
+        (ite
+          (>= left next_right)
+          (mkExactIndexResult
+            (ExactRestoreGap q gap_present gap_value gap_position)
+            (- left start))
+          (let ((predicate
+                  (ExactPartitionPredicate
+                    q
+                    b
+                    (select (e_sequence q) next_right)
+                    pivot
+                    reverse)))
+            (ite
+              (e_panicked (ebr_state predicate))
+              (mkExactIndexResult
+                (ExactRestoreGap
+                  (ebr_state predicate)
+                  gap_present
+                  gap_value
+                  gap_position)
+                (- left start))
+              (ite
+                (ebr_value predicate)
+                (let ((saved
+                        (ite
+                          gap_present
+                          gap_value
+                          (select
+                            (e_sequence (ebr_state predicate))
+                            left)))
+                      (filled
+                        (ite
+                          gap_present
+                          (store
+                            (e_sequence (ebr_state predicate))
+                            gap_position
+                            (select
+                              (e_sequence (ebr_state predicate))
+                              left))
+                          (e_sequence (ebr_state predicate)))))
+                  (let ((cycled
+                          (mkExactState
+                            (store
+                              filled
+                              left
+                              (select
+                                (e_sequence (ebr_state predicate))
+                                next_right))
+                            (e_callback_state (ebr_state predicate))
+                            false)))
+                    (ExactHoareLoop
+                      cycled b start pivot reverse
+                      (+ left 1) next_right true saved next_right false)))
+                (ExactHoareLoop
+                  (ebr_state predicate)
+                  b
+                  start
+                  pivot
+                  reverse
+                  left
+                  next_right
+                  gap_present
+                  gap_value
+                  gap_position
+                  true))))))
+      (ite
+        (>= left right)
+        (mkExactIndexResult
+          (ExactRestoreGap q gap_present gap_value gap_position)
+          (- left start))
+        (let ((predicate
+                (ExactPartitionPredicate
+                  q b (select (e_sequence q) left) pivot reverse)))
+          (ite
+            (e_panicked (ebr_state predicate))
+            (mkExactIndexResult
+              (ExactRestoreGap
+                (ebr_state predicate)
+                gap_present
+                gap_value
+                gap_position)
+              (- left start))
+            (ite
+              (ebr_value predicate)
+              (ExactHoareLoop
+                (ebr_state predicate)
+                b
+                start
+                pivot
+                reverse
+                (+ left 1)
+                right
+                gap_present
+                gap_value
+                gap_position
+                false)
+              (ExactHoareLoop
+                (ebr_state predicate)
+                b
+                start
+                pivot
+                reverse
+                left
+                right
+                gap_present
+                gap_value
+                gap_position
+                true))))))))
+
+(define-fun ExactPartition
+  ((q ExactState)
+   (b Boundary)
+   (c Configuration)
+   (start Int)
+   (end Int)
+   (pivot_position Int)
+   (reverse Bool)) ExactIndexResult
+  (let ((pivot_global (+ start pivot_position)))
+    (let ((pivoted (ExactSwap q start pivot_global)))
+      (let ((pivot (select (e_sequence pivoted) start))
+            (lower_start (+ start 1)))
+        (let ((partitioned
+                (ite
+                  (> (c_element_size c) 96)
+                  (ExactHoareLoop
+                    pivoted
+                    b
+                    lower_start
+                    pivot
+                    reverse
+                    lower_start
+                    end
+                    false
+                    0
+                    0
+                    false)
+                  (ite
+                    (c_optimize_for_size c)
+                    (ExactLomutoSimpleLoop
+                      pivoted
+                      b
+                      lower_start
+                      end
+                      lower_start
+                      lower_start
+                      pivot
+                      reverse)
+                    (ExactLomutoCyclicLoop
+                      pivoted
+                      b
+                      lower_start
+                      end
+                      (+ lower_start 1)
+                      0
+                      (select (e_sequence pivoted) lower_start)
+                      lower_start
+                      pivot
+                      reverse)))))
+          (ite
+            (e_panicked (eir_state partitioned))
+            partitioned
+            (mkExactIndexResult
+              (ExactSwap
+                (eir_state partitioned)
+                start
+                (+ start (eir_value partitioned)))
+              (eir_value partitioned))))))))
+
+
+(define-fun ExactLimitExhausted ((limit Int)) Bool
+  (= limit 0))
+
+; find_existing_run and descending reversal
+(declare-datatypes ((ExactRunResult 0))
+  (((mkExactRunResult
+      (err_state ExactState)
+      (err_length Int)
+      (err_descending Bool)))))
+
+(define-fun-rec ExactExistingRunLoop
+  ((q ExactState)
+   (b Boundary)
+   (length Int)
+   (run_length Int)
+   (descending Bool)) ExactRunResult
+  (ite
+    (or (e_panicked q) (>= run_length length))
+    (mkExactRunResult q run_length descending)
+    (let ((left (select (e_sequence q) run_length))
+          (right (select (e_sequence q) (- run_length 1))))
+      (let ((called (ExactCallback q b left right))
+            (less
+              (TargetAdapterIsLess
+                b (e_callback_state q) left right)))
+        (ite
+          (e_panicked called)
+          (mkExactRunResult called run_length descending)
+          (ite
+            (ite descending less (not less))
+            (ExactExistingRunLoop
+              called b length (+ run_length 1) descending)
+            (mkExactRunResult called run_length descending)))))))
+
+(define-fun ExactFindExistingRun
+  ((q ExactState) (b Boundary) (length Int)) ExactRunResult
+  (ite
+    (< length 2)
+    (mkExactRunResult q length false)
+    (let ((left (select (e_sequence q) 1))
+          (right (select (e_sequence q) 0)))
+      (let ((called (ExactCallback q b left right))
+            (descending
+              (TargetAdapterIsLess
+                b (e_callback_state q) left right)))
+        (ite
+          (e_panicked called)
+          (mkExactRunResult called 2 descending)
+          (ExactExistingRunLoop called b length 2 descending))))))
+
+(define-fun-rec ExactReverseLoop
+  ((q ExactState) (left Int) (right Int)) ExactState
+  (ite
+    (or (e_panicked q) (>= left right))
+    q
+    (ExactReverseLoop
+      (ExactSwap q left right) (+ left 1) (- right 1))))
+
+; heapsort and sift_down
+(define-funs-rec
+  ((ExactSiftDown
+      ((q ExactState)
+       (b Boundary)
+       (start Int)
+       (end Int)
+       (node Int)) ExactState)
+   (ExactSiftDownParent
+      ((q ExactState)
+       (b Boundary)
+       (start Int)
+       (end Int)
+       (node Int)
+       (child Int)) ExactState))
+  ((ite
+     (e_panicked q)
+     q
+     (let ((length (- end start))
+           (child (+ (* 2 node) 1)))
+       (ite
+         (>= child length)
+         q
+         (ite
+           (< (+ child 1) length)
+           (let ((left (select (e_sequence q) (+ start child)))
+                 (right
+                   (select (e_sequence q) (+ start child 1))))
+             (let ((called (ExactCallback q b left right))
+                   (right_greater
+                     (TargetAdapterIsLess
+                       b (e_callback_state q) left right)))
+               (ite
+                 (e_panicked called)
+                 called
+                 (ExactSiftDownParent
+                   called
+                   b
+                   start
+                   end
+                   node
+                   (ite right_greater (+ child 1) child)))))
+           (ExactSiftDownParent q b start end node child)))))
+   (ite
+     (e_panicked q)
+     q
+     (let ((left (select (e_sequence q) (+ start node)))
+           (right (select (e_sequence q) (+ start child))))
+       (let ((called (ExactCallback q b left right))
+             (parent_less
+               (TargetAdapterIsLess
+                 b (e_callback_state q) left right)))
+         (ite
+           (e_panicked called)
+           called
+           (ite
+             parent_less
+             (ExactSiftDown
+               (ExactSwap q (+ start node) (+ start child))
+               b
+               start
+               end
+               child)
+             called)))))))
+
+(define-fun-rec ExactHeapSortLoop
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (length Int)
+   (index Int)) ExactState
+  (ite
+    (or (e_panicked q) (< index 0))
+    q
+    (let ((sifted
+            (ite
+              (>= index length)
+              (ExactSiftDown
+                q b start (+ start length) (- index length))
+              (ExactSiftDown
+                (ExactSwap q start (+ start index))
+                b
+                start
+                (+ start index)
+                0))))
+      (ExactHeapSortLoop sifted b start length (- index 1)))))
+
+(define-fun ExactHeapSort
+  ((q ExactState) (b Boundary) (start Int) (end Int)) ExactState
+  (let ((length (- end start)))
+    (ExactHeapSortLoop
+      q b start length (- (+ length (div length 2)) 1))))
+
+; fixed sort4/sort8 and bidirectional merge
+(declare-datatypes ((ExactArrayResult 0))
+  (((mkExactArrayResult
+      (ear_state ExactState)
+      (ear_output (Array Int Int))))))
+
+(define-fun ExactSort4
+  ((q ExactState) (b Boundary) (start Int)) ExactState
+  (let ((v0 (select (e_sequence q) start))
+        (v1 (select (e_sequence q) (+ start 1)))
+        (v2 (select (e_sequence q) (+ start 2)))
+        (v3 (select (e_sequence q) (+ start 3))))
+    (let ((first (ExactCallback q b v1 v0))
+          (c1
+            (TargetAdapterIsLess b (e_callback_state q) v1 v0)))
+      (ite
+        (e_panicked first)
+        first
+        (let ((second (ExactCallback first b v3 v2))
+              (c2
+                (TargetAdapterIsLess
+                  b (e_callback_state first) v3 v2)))
+          (ite
+            (e_panicked second)
+            second
+            (let ((a (ite c1 (+ start 1) start))
+                  (sample_b (ite c1 start (+ start 1)))
+                  (c (ite c2 (+ start 3) (+ start 2)))
+                  (d (ite c2 (+ start 2) (+ start 3))))
+              (let ((third
+                      (ExactCallback
+                        second
+                        b
+                        (select (e_sequence q) c)
+                        (select (e_sequence q) a)))
+                    (c3
+                      (TargetAdapterIsLess
+                        b
+                        (e_callback_state second)
+                        (select (e_sequence q) c)
+                        (select (e_sequence q) a))))
+                (ite
+                  (e_panicked third)
+                  third
+                  (let ((fourth
+                          (ExactCallback
+                            third
+                            b
+                            (select (e_sequence q) d)
+                            (select (e_sequence q) sample_b)))
+                        (c4
+                          (TargetAdapterIsLess
+                            b
+                            (e_callback_state third)
+                            (select (e_sequence q) d)
+                            (select (e_sequence q) sample_b))))
+                    (ite
+                      (e_panicked fourth)
+                      fourth
+                      (let ((minimum (ite c3 c a))
+                            (maximum (ite c4 sample_b d))
+                            (unknown_left
+                              (ite c3 a (ite c4 c sample_b)))
+                            (unknown_right
+                              (ite c4 d (ite c3 sample_b c))))
+                        (let ((fifth
+                                (ExactCallback
+                                  fourth
+                                  b
+                                  (select
+                                    (e_sequence q)
+                                    unknown_right)
+                                  (select
+                                    (e_sequence q)
+                                    unknown_left)))
+                              (c5
+                                (TargetAdapterIsLess
+                                  b
+                                  (e_callback_state fourth)
+                                  (select
+                                    (e_sequence q)
+                                    unknown_right)
+                                  (select
+                                    (e_sequence q)
+                                    unknown_left))))
+                          (ite
+                            (e_panicked fifth)
+                            fifth
+                            (mkExactState
+                              (store
+                                (store
+                                  (store
+                                    (store
+                                      (e_sequence q)
+                                      start
+                                      (select
+                                        (e_sequence q)
+                                        minimum))
+                                    (+ start 1)
+                                    (select
+                                      (e_sequence q)
+                                      (ite c5
+                                        unknown_right
+                                        unknown_left)))
+                                  (+ start 2)
+                                  (select
+                                    (e_sequence q)
+                                    (ite c5
+                                      unknown_left
+                                      unknown_right)))
+                                (+ start 3)
+                                (select
+                                  (e_sequence q)
+                                  maximum))
+                              (e_callback_state fifth)
+                              false)))))))))))))))
+
+(define-fun-rec ExactMergeLoop
+  ((q ExactState)
+   (b Boundary)
+   (output (Array Int Int))
+   (start Int)
+   (length Int)
+   (split Int)
+   (iteration Int)
+   (left Int)
+   (right Int)
+   (left_back Int)
+   (right_back Int)
+   (front Int)
+   (back Int)) ExactArrayResult
+  (ite
+    (or (e_panicked q) (>= iteration split))
+    (ite
+      (and
+        (not (e_panicked q))
+        (= (mod length 2) 1))
+      (mkExactArrayResult
+        q
+        (store
+          output
+          front
+          (select
+            (e_sequence q)
+            (ite (< left (+ left_back 1)) left right))))
+      (mkExactArrayResult q output))
+    (let ((up_left (select (e_sequence q) left))
+          (up_right (select (e_sequence q) right)))
+      (let ((called_up (ExactCallback q b up_right up_left))
+            (take_left
+              (not
+                (TargetAdapterIsLess
+                  b
+                  (e_callback_state q)
+                  up_right
+                  up_left))))
+        (ite
+          (e_panicked called_up)
+          (mkExactArrayResult called_up output)
+          (let ((output_up
+                  (store
+                    output
+                    front
+                    (ite take_left up_left up_right)))
+                (down_left
+                  (select (e_sequence q) left_back))
+                (down_right
+                  (select (e_sequence q) right_back)))
+            (let ((called_down
+                    (ExactCallback
+                      called_up b down_right down_left))
+                  (take_right
+                    (not
+                      (TargetAdapterIsLess
+                        b
+                        (e_callback_state called_up)
+                        down_right
+                        down_left))))
+              (ite
+                (e_panicked called_down)
+                (mkExactArrayResult called_down output_up)
+                (ExactMergeLoop
+                  called_down
+                  b
+                  (store
+                    output_up
+                    back
+                    (ite take_right down_right down_left))
+                  start
+                  length
+                  split
+                  (+ iteration 1)
+                  (ite take_left (+ left 1) left)
+                  (ite take_left right (+ right 1))
+                  (ite take_right left_back (- left_back 1))
+                  (ite take_right (- right_back 1) right_back)
+                  (+ front 1)
+                  (- back 1))))))))))
+
+(define-fun ExactMerge
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (length Int)
+   (split Int)) ExactArrayResult
+  (ExactMergeLoop
+    q
+    b
+    (e_sequence q)
+    start
+    length
+    split
+    0
+    start
+    (+ start split)
+    (- (+ start split) 1)
+    (- (+ start length) 1)
+    start
+    (- (+ start length) 1)))
+
+(define-fun ExactSort8
+  ((q ExactState) (b Boundary) (start Int)) ExactState
+  (let ((left (ExactSort4 q b start)))
+    (ite
+      (e_panicked left)
+      left
+      (let ((right (ExactSort4 left b (+ start 4))))
+        (ite
+          (e_panicked right)
+          right
+          (let ((merged (ExactMerge right b start 8 4)))
+            (ite
+              (e_panicked (ear_state merged))
+              (ear_state merged)
+              (mkExactState
+                (ear_output merged)
+                (e_callback_state (ear_state merged))
+                false))))))))
+
+; fixed sorting-network prefixes
+(define-fun ExactNetworkFirst ((network Int) (index Int)) Int
+  (ite (= network 13) (ite (= index 0) 0 (ite (= index 1) 1 (ite (= index 2) 2 (ite (= index 3) 3 (ite (= index 4) 5 (ite (= index 5) 6 (ite (= index 6) 1 (ite (= index 7) 2 (ite (= index 8) 4 (ite (= index 9) 7 (ite (= index 10) 8 (ite (= index 11) 0 (ite (= index 12) 1 (ite (= index 13) 3 (ite (= index 14) 7 (ite (= index 15) 9 (ite (= index 16) 11 (ite (= index 17) 4 (ite (= index 18) 5 (ite (= index 19) 8 (ite (= index 20) 10 (ite (= index 21) 0 (ite (= index 22) 3 (ite (= index 23) 4 (ite (= index 24) 6 (ite (= index 25) 9 (ite (= index 26) 0 (ite (= index 27) 2 (ite (= index 28) 6 (ite (= index 29) 7 (ite (= index 30) 10 (ite (= index 31) 1 (ite (= index 32) 2 (ite (= index 33) 5 (ite (= index 34) 9 (ite (= index 35) 1 (ite (= index 36) 3 (ite (= index 37) 5 (ite (= index 38) 6 (ite (= index 39) 2 (ite (= index 40) 4 (ite (= index 41) 6 (ite (= index 42) 8 (ite (= index 43) 3 (ite (= index 44) 5 0))))))))))))))))))))))))))))))))))))))))))))) (ite (= index 0) 0 (ite (= index 1) 1 (ite (= index 2) 2 (ite (= index 3) 4 (ite (= index 4) 0 (ite (= index 5) 2 (ite (= index 6) 3 (ite (= index 7) 5 (ite (= index 8) 0 (ite (= index 9) 1 (ite (= index 10) 4 (ite (= index 11) 7 (ite (= index 12) 1 (ite (= index 13) 3 (ite (= index 14) 5 (ite (= index 15) 0 (ite (= index 16) 2 (ite (= index 17) 3 (ite (= index 18) 6 (ite (= index 19) 2 (ite (= index 20) 4 (ite (= index 21) 6 (ite (= index 22) 1 (ite (= index 23) 3 (ite (= index 24) 5 0)))))))))))))))))))))))))))
+(define-fun ExactNetworkSecond ((network Int) (index Int)) Int
+  (ite (= network 13) (ite (= index 0) 12 (ite (= index 1) 10 (ite (= index 2) 9 (ite (= index 3) 7 (ite (= index 4) 11 (ite (= index 5) 8 (ite (= index 6) 6 (ite (= index 7) 3 (ite (= index 8) 11 (ite (= index 9) 9 (ite (= index 10) 10 (ite (= index 11) 4 (ite (= index 12) 2 (ite (= index 13) 6 (ite (= index 14) 8 (ite (= index 15) 10 (ite (= index 16) 12 (ite (= index 17) 6 (ite (= index 18) 9 (ite (= index 19) 11 (ite (= index 20) 12 (ite (= index 21) 5 (ite (= index 22) 8 (ite (= index 23) 7 (ite (= index 24) 11 (ite (= index 25) 10 (ite (= index 26) 1 (ite (= index 27) 5 (ite (= index 28) 9 (ite (= index 29) 8 (ite (= index 30) 11 (ite (= index 31) 3 (ite (= index 32) 4 (ite (= index 33) 6 (ite (= index 34) 10 (ite (= index 35) 2 (ite (= index 36) 4 (ite (= index 37) 7 (ite (= index 38) 8 (ite (= index 39) 3 (ite (= index 40) 5 (ite (= index 41) 7 (ite (= index 42) 9 (ite (= index 43) 4 (ite (= index 44) 6 0))))))))))))))))))))))))))))))))))))))))))))) (ite (= index 0) 3 (ite (= index 1) 7 (ite (= index 2) 5 (ite (= index 3) 8 (ite (= index 4) 7 (ite (= index 5) 4 (ite (= index 6) 8 (ite (= index 7) 6 (ite (= index 8) 2 (ite (= index 9) 3 (ite (= index 10) 5 (ite (= index 11) 8 (ite (= index 12) 4 (ite (= index 13) 6 (ite (= index 14) 7 (ite (= index 15) 1 (ite (= index 16) 4 (ite (= index 17) 5 (ite (= index 18) 8 (ite (= index 19) 3 (ite (= index 20) 5 (ite (= index 21) 7 (ite (= index 22) 2 (ite (= index 23) 4 (ite (= index 24) 6 0)))))))))))))))))))))))))))
+(define-fun ExactNetworkCount ((network Int)) Int
+  (ite (= network 13) 45
+    (ite (= network 9) 25 0)))
+
+(define-fun-rec ExactNetworkLoop
+  ((q ExactState)
+   (b Boundary)
+   (start Int)
+   (network Int)
+   (index Int)) ExactState
+  (ite
+    (or
+      (e_panicked q)
+      (>= index (ExactNetworkCount network)))
+    q
+    (let ((first (+ start (ExactNetworkFirst network index)))
+          (second (+ start (ExactNetworkSecond network index))))
+      (let ((left (select (e_sequence q) first))
+            (right (select (e_sequence q) second)))
+        (let ((called (ExactCallback q b right left))
+              (should_swap
+                (TargetAdapterIsLess
+                  b (e_callback_state q) right left)))
+          (ite
+            (e_panicked called)
+            called
+            (ExactNetworkLoop
+              (ite should_swap
+                (ExactSwap called first second)
+                called)
+              b
+              start
+              network
+              (+ index 1))))))))
+
+(define-fun ExactNetworkRegion
+  ((q ExactState) (b Boundary) (start Int) (end Int)) ExactState
+  (let ((length (- end start)))
+    (let ((network
+            (ite (>= length 13) 13
+              (ite (>= length 9) 9 0))))
+      (let ((networked (ExactNetworkLoop q b start network 0)))
+        (ite
+          (e_panicked networked)
+          networked
+          (ExactInsertionSortLoop
+            networked
+            b
+            start
+            end
+            (+ start (ite (= network 0) 1 network))))))))
+
+(define-fun ExactSmallNetwork
+  ((q ExactState) (b Boundary) (start Int) (end Int)) ExactState
+  (let ((length (- end start)))
+    (ite
+      (< length 2)
+      q
+      (ite
+        (< length 18)
+        (ExactNetworkRegion q b start end)
+        (let ((half (div length 2)))
+          (let ((left
+                  (ExactNetworkRegion q b start (+ start half))))
+            (ite
+              (e_panicked left)
+              left
+              (let ((right
+                      (ExactNetworkRegion
+                        left b (+ start half) end)))
+                (ite
+                  (e_panicked right)
+                  right
+                  (let ((merged
+                          (ExactMerge right b start length half)))
+                    (ite
+                      (e_panicked (ear_state merged))
+                      (ear_state merged)
+                      (mkExactState
+                        (ear_output merged)
+                        (e_callback_state (ear_state merged))
+                        false))))))))))))
+
+; scratch small sort. Scratch operations thread callback state but only copy
+; back to the source sequence after both halves are initialized.
+(define-fun ExactSmallGeneral
+  ((q ExactState)
+   (b Boundary)
+   (c SortConfiguration)
+   (start Int)
+   (end Int)) ExactState
+  (let ((length (- end start))
+        (half (div (- end start) 2)))
+    (ite
+      (< length 2)
+      q
+      (let ((scratch
+              (mkExactState
+                (e_sequence q)
+                (e_callback_state q)
+                false)))
+        (let ((presorted
+                (ite
+                  (and (<= (sc_element_size c) 16) (>= length 16))
+                  8
+                  (ite (>= length 8) 4 1)))
+              (left_fixed
+                (ite
+                  (and (<= (sc_element_size c) 16) (>= length 16))
+                  (ExactSort8 scratch b start)
+                  (ite
+                    (>= length 8)
+                    (ExactSort4 scratch b start)
+                    scratch))))
+          (ite
+            (e_panicked left_fixed)
+            (mkExactState
+              (e_sequence q)
+              (e_callback_state left_fixed)
+              true)
+            (let ((right_fixed
+                    (ite
+                      (= presorted 8)
+                      (ExactSort8 left_fixed b (+ start half))
+                      (ite
+                        (= presorted 4)
+                        (ExactSort4 left_fixed b (+ start half))
+                        left_fixed))))
+              (ite
+                (e_panicked right_fixed)
+                (mkExactState
+                  (e_sequence q)
+                  (e_callback_state right_fixed)
+                  true)
+                (let ((left_sorted
+                        (ExactInsertionSortLoop
+                          right_fixed
+                          b
+                          start
+                          (+ start half)
+                          (+ start presorted))))
+                  (ite
+                    (e_panicked left_sorted)
+                    (mkExactState
+                      (e_sequence q)
+                      (e_callback_state left_sorted)
+                      true)
+                    (let ((right_sorted
+                            (ExactInsertionSortLoop
+                              left_sorted
+                              b
+                              (+ start half)
+                              end
+                              (+ start half presorted))))
+                      (ite
+                        (e_panicked right_sorted)
+                        (mkExactState
+                          (e_sequence q)
+                          (e_callback_state right_sorted)
+                          true)
+                        (let ((merged
+                                (ExactMerge
+                                  right_sorted
+                                  b
+                                  start
+                                  length
+                                  half)))
+                          (ite
+                            (e_panicked (ear_state merged))
+                            (mkExactState
+                              (e_sequence right_sorted)
+                              (e_callback_state (ear_state merged))
+                              true)
+                            (mkExactState
+                              (ear_output merged)
+                              (e_callback_state (ear_state merged))
+                              false)))))))))))))))
+
+; 0=fallback insertion, 1=general scratch, 2=network.
+(define-fun ExactSmallSortKind ((c SortConfiguration)) Int
+  (let ((general_fits
+          (<= (* (sc_element_size c) 48) 4096))
+        (network_fits
+          (and
+            (<= (sc_element_size c) 8)
+            (<= (* (sc_element_size c) 32) 4096))))
+    (ite
+      (not (sc_is_freeze c))
+      0
+      (ite
+        (not (sc_is_copy c))
+        (ite general_fits 1 0)
+        (ite network_fits 2 (ite general_fits 1 0))))))
+
+(define-fun ExactSmallSortThreshold ((c SortConfiguration)) Int
+  (ite (= (ExactSmallSortKind c) 0) 16 32))
+
+(define-fun ExactSmallSort
+  ((q ExactState)
+   (b Boundary)
+   (c SortConfiguration)
+   (start Int)
+   (end Int)) ExactState
+  (let ((kind (ExactSmallSortKind c)))
+    (ite
+      (= kind 0)
+      (ite
+        (>= (- end start) 2)
+        (ExactInsertionSortLoop q b start end (+ start 1))
+        q)
+      (ite
+        (= kind 1)
+        (ExactSmallGeneral q b c start end)
+        (ExactSmallNetwork q b start end)))))
+
+; recursive-left / iterative-right quicksort
+(define-funs-rec
+  ((ExactQuickSort
+      ((q ExactState)
+       (b Boundary)
+       (c SortConfiguration)
+       (start Int)
+       (end Int)
+       (ancestor_present Bool)
+       (ancestor Int)
+       (limit Int))
+      ExactState)
+   (ExactQuickSortPartition
+      ((q ExactState)
+       (b Boundary)
+       (c SortConfiguration)
+       (start Int)
+       (end Int)
+       (ancestor_present Bool)
+       (ancestor Int)
+       (limit Int)
+       (pivot_position Int))
+      ExactState))
+  ((ite
+    (e_panicked q)
+    q
+    (let ((length (- end start)))
+      (ite
+        (<= length (ExactSmallSortThreshold c))
+        (ExactSmallSort q b c start end)
+        (ite
+          (ExactLimitExhausted limit)
+          (ExactHeapSort q b start end)
+          (let ((next_limit (- limit 1))
+                (chosen (ExactChoosePivot q b start end)))
+            (ite
+              (e_panicked (eir_state chosen))
+              (eir_state chosen)
+              (ite
+                ancestor_present
+                (let ((pivot
+                        (select
+                          (e_sequence (eir_state chosen))
+                          (+ start (eir_value chosen)))))
+                  (let ((compared
+                          (ExactCallback
+                            (eir_state chosen) b ancestor pivot))
+                        (ancestor_less
+                          (TargetAdapterIsLess
+                            b
+                            (e_callback_state (eir_state chosen))
+                            ancestor
+                            pivot)))
+                    (ite
+                      (e_panicked compared)
+                      compared
+                      (ite
+                        (not ancestor_less)
+                        (let ((equal
+                                (ExactPartition
+                                  compared
+                                  b
+                                  (mkConfiguration
+                                    (sc_optimize_for_size c)
+                                    (sc_element_size c))
+                                  start
+                                  end
+                                  (eir_value chosen)
+                                  true)))
+                          (ite
+                            (e_panicked (eir_state equal))
+                            (eir_state equal)
+                            (ExactQuickSort
+                              (eir_state equal)
+                              b
+                              c
+                              (+ start (eir_value equal) 1)
+                              end
+                              false
+                              0
+                              next_limit)))
+                        (ExactQuickSortPartition
+                          compared
+                          b
+                          c
+                          start
+                          end
+                          true
+                          ancestor
+                          next_limit
+                          (eir_value chosen))))))
+                (ExactQuickSortPartition
+                  (eir_state chosen)
+                  b
+                  c
+                  start
+                  end
+                  false
+                  0
+                  next_limit
+                  (eir_value chosen)))))))))
+   (let ((partitioned
+          (ExactPartition
+            q
+            b
+            (mkConfiguration
+              (sc_optimize_for_size c)
+              (sc_element_size c))
+            start
+            end
+            pivot_position
+            false)))
+    (ite
+      (e_panicked (eir_state partitioned))
+      (eir_state partitioned)
+      (let ((pivot_index (+ start (eir_value partitioned))))
+        (let ((pivot
+                (select
+                  (e_sequence (eir_state partitioned))
+                  pivot_index))
+              (left
+                (ExactQuickSort
+                  (eir_state partitioned)
+                  b
+                  c
+                  start
+                  pivot_index
+                  ancestor_present
+                  ancestor
+                  limit)))
+          (ite
+            (e_panicked left)
+            left
+            (ExactQuickSort
+              left
+              b
+              c
+              (+ pivot_index 1)
+              end
+              true
+              pivot
+              limit))))))))
+
+(define-fun-rec ExactILog2 ((value Int)) Int
+  (ite (< value 2) 0 (+ 1 (ExactILog2 (div value 2)))))
+
+(define-fun ExactSort
+  ((q ExactState)
+   (b Boundary)
+   (c SortConfiguration)
+   (length Int)) ExactState
+  (ite
+    (or (= (sc_element_size c) 0) (< length 2))
+    q
+    (ite
+      (or
+        (sc_optimize_for_size c)
+        (= (sc_target_pointer_width c) 16))
+      (ExactHeapSort q b 0 length)
+      (ite
+        (<= length 20)
+        (ExactInsertionSortLoop q b 0 length 1)
+        (let ((run (ExactFindExistingRun q b length)))
+          (ite
+            (e_panicked (err_state run))
+            (err_state run)
+            (ite
+              (= (err_length run) length)
+              (ite
+                (err_descending run)
+                (ExactReverseLoop
+                  (err_state run) 0 (- length 1))
+                (err_state run))
+              (ExactQuickSort
+                (err_state run)
+                b
+                c
+                0
+                length
+                false
+                0
+                (* 2
+                  (ExactILog2
+                    (ite
+                      (= (mod length 2) 0)
+                      (+ length 1)
+                      length)))))))))))
+
+; formal source input case=configuration-heapsort-16-bit
+(define-fun boundary_0 () Boundary
+  (mkBoundary
+    80
+    0
+    (lambda ((key PairKey)) (ite (< (pair_left_identity key) (pair_right_identity key)) -1 (ite (= (pair_left_identity key) (pair_right_identity key)) 0 1)))
+    (lambda ((key CallKey)) (ite (< (call_left_identity key) (call_right_identity key)) -1 (ite (= (call_left_identity key) (call_right_identity key)) 0 1)))
+    (lambda ((key CallKey)) (+ (call_state key) 1))
+    (lambda ((key CallKey)) false)))
+(define-fun configuration_0 () SortConfiguration
+  (mkSortConfiguration
+    false
+    16
+    8
+    false
+    false))
+(define-fun source_initial_0 () FormalMachine
+  (mkFormalMachine (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store ((as const (Array Int Int)) 0) 0 20) 1 6) 2 13) 3 5) 4 1) 5 21) 6 9) 7 8) 8 0) 9 22) 10 10) 11 16) 12 19) 13 3) 14 2) 15 14) 16 24) 17 11) 18 23) 19 4) 20 15) 21 18) 22 12) 23 7) 24 17) (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store ((as const (Array Int Int)) 0) 0 20) 1 6) 2 13) 3 5) 4 1) 5 21) 6 9) 7 8) 8 0) 9 22) 10 10) 11 16) 12 19) 13 3) 14 2) 15 14) 16 24) 17 11) 18 23) 19 4) 20 15) 21 18) 22 12) 23 7) 24 17) (b_initial_state boundary_0) false))
+(assert (BoundaryWellFormed boundary_0))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[36]:choose-greater-child
+(assert (not (m_panicked source_initial_0)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback source_initial_0) (select (m_origin source_initial_0) 23) (select (m_origin source_initial_0) 24)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback source_initial_0) (select (m_origin source_initial_0) 23) (select (m_origin source_initial_0) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[36]:choose-greater-child
+(define-fun formal_0_1 () FormalMachine (FormalCallback source_initial_0 boundary_0 (select (m_origin source_initial_0) 23) (select (m_origin source_initial_0) 24)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[36]:parent-child
+(assert (not (m_panicked formal_0_1)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_1) (select (m_origin formal_0_1) 11) (select (m_origin formal_0_1) 24)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_1) (select (m_origin formal_0_1) 11) (select (m_origin formal_0_1) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[36]:parent-child
+(define-fun formal_0_2 () FormalMachine (FormalCallback formal_0_1 boundary_0 (select (m_origin formal_0_1) 11) (select (m_origin formal_0_1) 24)))
+; source swap phase=sort:configuration-heapsort:sift-down[36]:swap
+(define-fun formal_0_3 () FormalMachine (FormalSwap formal_0_2 11 24))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[35]:choose-greater-child
+(assert (not (m_panicked formal_0_3)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_3) (select (m_origin formal_0_3) 21) (select (m_origin formal_0_3) 22)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_3) (select (m_origin formal_0_3) 21) (select (m_origin formal_0_3) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[35]:choose-greater-child
+(define-fun formal_0_4 () FormalMachine (FormalCallback formal_0_3 boundary_0 (select (m_origin formal_0_3) 21) (select (m_origin formal_0_3) 22)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[35]:parent-child
+(assert (not (m_panicked formal_0_4)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_4) (select (m_origin formal_0_4) 10) (select (m_origin formal_0_4) 21)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_4) (select (m_origin formal_0_4) 10) (select (m_origin formal_0_4) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[35]:parent-child
+(define-fun formal_0_5 () FormalMachine (FormalCallback formal_0_4 boundary_0 (select (m_origin formal_0_4) 10) (select (m_origin formal_0_4) 21)))
+; source swap phase=sort:configuration-heapsort:sift-down[35]:swap
+(define-fun formal_0_6 () FormalMachine (FormalSwap formal_0_5 10 21))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[34]:choose-greater-child
+(assert (not (m_panicked formal_0_6)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_6) (select (m_origin formal_0_6) 19) (select (m_origin formal_0_6) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_6) (select (m_origin formal_0_6) 19) (select (m_origin formal_0_6) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[34]:choose-greater-child
+(define-fun formal_0_7 () FormalMachine (FormalCallback formal_0_6 boundary_0 (select (m_origin formal_0_6) 19) (select (m_origin formal_0_6) 20)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[34]:parent-child
+(assert (not (m_panicked formal_0_7)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_7) (select (m_origin formal_0_7) 9) (select (m_origin formal_0_7) 20)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_7) (select (m_origin formal_0_7) 9) (select (m_origin formal_0_7) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[34]:parent-child
+(define-fun formal_0_8 () FormalMachine (FormalCallback formal_0_7 boundary_0 (select (m_origin formal_0_7) 9) (select (m_origin formal_0_7) 20)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[33]:choose-greater-child
+(assert (not (m_panicked formal_0_8)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_8) (select (m_origin formal_0_8) 17) (select (m_origin formal_0_8) 18)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_8) (select (m_origin formal_0_8) 17) (select (m_origin formal_0_8) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[33]:choose-greater-child
+(define-fun formal_0_9 () FormalMachine (FormalCallback formal_0_8 boundary_0 (select (m_origin formal_0_8) 17) (select (m_origin formal_0_8) 18)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[33]:parent-child
+(assert (not (m_panicked formal_0_9)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_9) (select (m_origin formal_0_9) 8) (select (m_origin formal_0_9) 18)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_9) (select (m_origin formal_0_9) 8) (select (m_origin formal_0_9) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[33]:parent-child
+(define-fun formal_0_10 () FormalMachine (FormalCallback formal_0_9 boundary_0 (select (m_origin formal_0_9) 8) (select (m_origin formal_0_9) 18)))
+; source swap phase=sort:configuration-heapsort:sift-down[33]:swap
+(define-fun formal_0_11 () FormalMachine (FormalSwap formal_0_10 8 18))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[32]:choose-greater-child
+(assert (not (m_panicked formal_0_11)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_11) (select (m_origin formal_0_11) 15) (select (m_origin formal_0_11) 16)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_11) (select (m_origin formal_0_11) 15) (select (m_origin formal_0_11) 16)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[32]:choose-greater-child
+(define-fun formal_0_12 () FormalMachine (FormalCallback formal_0_11 boundary_0 (select (m_origin formal_0_11) 15) (select (m_origin formal_0_11) 16)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[32]:parent-child
+(assert (not (m_panicked formal_0_12)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_12) (select (m_origin formal_0_12) 7) (select (m_origin formal_0_12) 16)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_12) (select (m_origin formal_0_12) 7) (select (m_origin formal_0_12) 16)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[32]:parent-child
+(define-fun formal_0_13 () FormalMachine (FormalCallback formal_0_12 boundary_0 (select (m_origin formal_0_12) 7) (select (m_origin formal_0_12) 16)))
+; source swap phase=sort:configuration-heapsort:sift-down[32]:swap
+(define-fun formal_0_14 () FormalMachine (FormalSwap formal_0_13 7 16))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[31]:choose-greater-child
+(assert (not (m_panicked formal_0_14)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_14) (select (m_origin formal_0_14) 13) (select (m_origin formal_0_14) 14)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_14) (select (m_origin formal_0_14) 13) (select (m_origin formal_0_14) 14)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[31]:choose-greater-child
+(define-fun formal_0_15 () FormalMachine (FormalCallback formal_0_14 boundary_0 (select (m_origin formal_0_14) 13) (select (m_origin formal_0_14) 14)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[31]:parent-child
+(assert (not (m_panicked formal_0_15)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_15) (select (m_origin formal_0_15) 6) (select (m_origin formal_0_15) 13)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_15) (select (m_origin formal_0_15) 6) (select (m_origin formal_0_15) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[31]:parent-child
+(define-fun formal_0_16 () FormalMachine (FormalCallback formal_0_15 boundary_0 (select (m_origin formal_0_15) 6) (select (m_origin formal_0_15) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[30]:choose-greater-child
+(assert (not (m_panicked formal_0_16)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_16) (select (m_origin formal_0_16) 24) (select (m_origin formal_0_16) 12)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_16) (select (m_origin formal_0_16) 24) (select (m_origin formal_0_16) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[30]:choose-greater-child
+(define-fun formal_0_17 () FormalMachine (FormalCallback formal_0_16 boundary_0 (select (m_origin formal_0_16) 24) (select (m_origin formal_0_16) 12)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[30]:parent-child
+(assert (not (m_panicked formal_0_17)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_17) (select (m_origin formal_0_17) 5) (select (m_origin formal_0_17) 12)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_17) (select (m_origin formal_0_17) 5) (select (m_origin formal_0_17) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[30]:parent-child
+(define-fun formal_0_18 () FormalMachine (FormalCallback formal_0_17 boundary_0 (select (m_origin formal_0_17) 5) (select (m_origin formal_0_17) 12)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[29]:choose-greater-child
+(assert (not (m_panicked formal_0_18)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_18) (select (m_origin formal_0_18) 9) (select (m_origin formal_0_18) 21)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_18) (select (m_origin formal_0_18) 9) (select (m_origin formal_0_18) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[29]:choose-greater-child
+(define-fun formal_0_19 () FormalMachine (FormalCallback formal_0_18 boundary_0 (select (m_origin formal_0_18) 9) (select (m_origin formal_0_18) 21)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[29]:parent-child
+(assert (not (m_panicked formal_0_19)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_19) (select (m_origin formal_0_19) 4) (select (m_origin formal_0_19) 9)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_19) (select (m_origin formal_0_19) 4) (select (m_origin formal_0_19) 9)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[29]:parent-child
+(define-fun formal_0_20 () FormalMachine (FormalCallback formal_0_19 boundary_0 (select (m_origin formal_0_19) 4) (select (m_origin formal_0_19) 9)))
+; source swap phase=sort:configuration-heapsort:sift-down[29]:swap
+(define-fun formal_0_21 () FormalMachine (FormalSwap formal_0_20 4 9))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[29]:choose-greater-child
+(assert (not (m_panicked formal_0_21)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_21) (select (m_origin formal_0_21) 19) (select (m_origin formal_0_21) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_21) (select (m_origin formal_0_21) 19) (select (m_origin formal_0_21) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[29]:choose-greater-child
+(define-fun formal_0_22 () FormalMachine (FormalCallback formal_0_21 boundary_0 (select (m_origin formal_0_21) 19) (select (m_origin formal_0_21) 20)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[29]:parent-child
+(assert (not (m_panicked formal_0_22)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_22) (select (m_origin formal_0_22) 4) (select (m_origin formal_0_22) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_22) (select (m_origin formal_0_22) 4) (select (m_origin formal_0_22) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[29]:parent-child
+(define-fun formal_0_23 () FormalMachine (FormalCallback formal_0_22 boundary_0 (select (m_origin formal_0_22) 4) (select (m_origin formal_0_22) 20)))
+; source swap phase=sort:configuration-heapsort:sift-down[29]:swap
+(define-fun formal_0_24 () FormalMachine (FormalSwap formal_0_23 9 20))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[28]:choose-greater-child
+(assert (not (m_panicked formal_0_24)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_24) (select (m_origin formal_0_24) 16) (select (m_origin formal_0_24) 18)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_24) (select (m_origin formal_0_24) 16) (select (m_origin formal_0_24) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[28]:choose-greater-child
+(define-fun formal_0_25 () FormalMachine (FormalCallback formal_0_24 boundary_0 (select (m_origin formal_0_24) 16) (select (m_origin formal_0_24) 18)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[28]:parent-child
+(assert (not (m_panicked formal_0_25)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_25) (select (m_origin formal_0_25) 3) (select (m_origin formal_0_25) 16)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_25) (select (m_origin formal_0_25) 3) (select (m_origin formal_0_25) 16)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[28]:parent-child
+(define-fun formal_0_26 () FormalMachine (FormalCallback formal_0_25 boundary_0 (select (m_origin formal_0_25) 3) (select (m_origin formal_0_25) 16)))
+; source swap phase=sort:configuration-heapsort:sift-down[28]:swap
+(define-fun formal_0_27 () FormalMachine (FormalSwap formal_0_26 3 7))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[28]:choose-greater-child
+(assert (not (m_panicked formal_0_27)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_27) (select (m_origin formal_0_27) 15) (select (m_origin formal_0_27) 7)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_27) (select (m_origin formal_0_27) 15) (select (m_origin formal_0_27) 7)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[28]:choose-greater-child
+(define-fun formal_0_28 () FormalMachine (FormalCallback formal_0_27 boundary_0 (select (m_origin formal_0_27) 15) (select (m_origin formal_0_27) 7)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[28]:parent-child
+(assert (not (m_panicked formal_0_28)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_28) (select (m_origin formal_0_28) 3) (select (m_origin formal_0_28) 15)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_28) (select (m_origin formal_0_28) 3) (select (m_origin formal_0_28) 15)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[28]:parent-child
+(define-fun formal_0_29 () FormalMachine (FormalCallback formal_0_28 boundary_0 (select (m_origin formal_0_28) 3) (select (m_origin formal_0_28) 15)))
+; source swap phase=sort:configuration-heapsort:sift-down[28]:swap
+(define-fun formal_0_30 () FormalMachine (FormalSwap formal_0_29 7 15))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[27]:choose-greater-child
+(assert (not (m_panicked formal_0_30)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_30) (select (m_origin formal_0_30) 5) (select (m_origin formal_0_30) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_30) (select (m_origin formal_0_30) 5) (select (m_origin formal_0_30) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[27]:choose-greater-child
+(define-fun formal_0_31 () FormalMachine (FormalCallback formal_0_30 boundary_0 (select (m_origin formal_0_30) 5) (select (m_origin formal_0_30) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[27]:parent-child
+(assert (not (m_panicked formal_0_31)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_31) (select (m_origin formal_0_31) 2) (select (m_origin formal_0_31) 5)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_31) (select (m_origin formal_0_31) 2) (select (m_origin formal_0_31) 5)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[27]:parent-child
+(define-fun formal_0_32 () FormalMachine (FormalCallback formal_0_31 boundary_0 (select (m_origin formal_0_31) 2) (select (m_origin formal_0_31) 5)))
+; source swap phase=sort:configuration-heapsort:sift-down[27]:swap
+(define-fun formal_0_33 () FormalMachine (FormalSwap formal_0_32 2 5))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[27]:choose-greater-child
+(assert (not (m_panicked formal_0_33)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_33) (select (m_origin formal_0_33) 24) (select (m_origin formal_0_33) 12)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_33) (select (m_origin formal_0_33) 24) (select (m_origin formal_0_33) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[27]:choose-greater-child
+(define-fun formal_0_34 () FormalMachine (FormalCallback formal_0_33 boundary_0 (select (m_origin formal_0_33) 24) (select (m_origin formal_0_33) 12)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[27]:parent-child
+(assert (not (m_panicked formal_0_34)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_34) (select (m_origin formal_0_34) 2) (select (m_origin formal_0_34) 12)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_34) (select (m_origin formal_0_34) 2) (select (m_origin formal_0_34) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[27]:parent-child
+(define-fun formal_0_35 () FormalMachine (FormalCallback formal_0_34 boundary_0 (select (m_origin formal_0_34) 2) (select (m_origin formal_0_34) 12)))
+; source swap phase=sort:configuration-heapsort:sift-down[27]:swap
+(define-fun formal_0_36 () FormalMachine (FormalSwap formal_0_35 5 12))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[26]:choose-greater-child
+(assert (not (m_panicked formal_0_36)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_36) (select (m_origin formal_0_36) 16) (select (m_origin formal_0_36) 9)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_36) (select (m_origin formal_0_36) 16) (select (m_origin formal_0_36) 9)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[26]:choose-greater-child
+(define-fun formal_0_37 () FormalMachine (FormalCallback formal_0_36 boundary_0 (select (m_origin formal_0_36) 16) (select (m_origin formal_0_36) 9)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[26]:parent-child
+(assert (not (m_panicked formal_0_37)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_37) (select (m_origin formal_0_37) 1) (select (m_origin formal_0_37) 16)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_37) (select (m_origin formal_0_37) 1) (select (m_origin formal_0_37) 16)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[26]:parent-child
+(define-fun formal_0_38 () FormalMachine (FormalCallback formal_0_37 boundary_0 (select (m_origin formal_0_37) 1) (select (m_origin formal_0_37) 16)))
+; source swap phase=sort:configuration-heapsort:sift-down[26]:swap
+(define-fun formal_0_39 () FormalMachine (FormalSwap formal_0_38 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[26]:choose-greater-child
+(assert (not (m_panicked formal_0_39)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_39) (select (m_origin formal_0_39) 15) (select (m_origin formal_0_39) 18)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_39) (select (m_origin formal_0_39) 15) (select (m_origin formal_0_39) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[26]:choose-greater-child
+(define-fun formal_0_40 () FormalMachine (FormalCallback formal_0_39 boundary_0 (select (m_origin formal_0_39) 15) (select (m_origin formal_0_39) 18)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[26]:parent-child
+(assert (not (m_panicked formal_0_40)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_40) (select (m_origin formal_0_40) 1) (select (m_origin formal_0_40) 18)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_40) (select (m_origin formal_0_40) 1) (select (m_origin formal_0_40) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[26]:parent-child
+(define-fun formal_0_41 () FormalMachine (FormalCallback formal_0_40 boundary_0 (select (m_origin formal_0_40) 1) (select (m_origin formal_0_40) 18)))
+; source swap phase=sort:configuration-heapsort:sift-down[26]:swap
+(define-fun formal_0_42 () FormalMachine (FormalSwap formal_0_41 3 8))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[26]:choose-greater-child
+(assert (not (m_panicked formal_0_42)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_42) (select (m_origin formal_0_42) 17) (select (m_origin formal_0_42) 8)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_42) (select (m_origin formal_0_42) 17) (select (m_origin formal_0_42) 8)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[26]:choose-greater-child
+(define-fun formal_0_43 () FormalMachine (FormalCallback formal_0_42 boundary_0 (select (m_origin formal_0_42) 17) (select (m_origin formal_0_42) 8)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[26]:parent-child
+(assert (not (m_panicked formal_0_43)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_43) (select (m_origin formal_0_43) 1) (select (m_origin formal_0_43) 17)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_43) (select (m_origin formal_0_43) 1) (select (m_origin formal_0_43) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[26]:parent-child
+(define-fun formal_0_44 () FormalMachine (FormalCallback formal_0_43 boundary_0 (select (m_origin formal_0_43) 1) (select (m_origin formal_0_43) 17)))
+; source swap phase=sort:configuration-heapsort:sift-down[26]:swap
+(define-fun formal_0_45 () FormalMachine (FormalSwap formal_0_44 8 17))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[25]:choose-greater-child
+(assert (not (m_panicked formal_0_45)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_45) (select (m_origin formal_0_45) 16) (select (m_origin formal_0_45) 5)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_45) (select (m_origin formal_0_45) 16) (select (m_origin formal_0_45) 5)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[25]:choose-greater-child
+(define-fun formal_0_46 () FormalMachine (FormalCallback formal_0_45 boundary_0 (select (m_origin formal_0_45) 16) (select (m_origin formal_0_45) 5)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[25]:parent-child
+(assert (not (m_panicked formal_0_46)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_46) (select (m_origin formal_0_46) 0) (select (m_origin formal_0_46) 16)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_46) (select (m_origin formal_0_46) 0) (select (m_origin formal_0_46) 16)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[25]:parent-child
+(define-fun formal_0_47 () FormalMachine (FormalCallback formal_0_46 boundary_0 (select (m_origin formal_0_46) 0) (select (m_origin formal_0_46) 16)))
+; source swap phase=sort:configuration-heapsort:sift-down[25]:swap
+(define-fun formal_0_48 () FormalMachine (FormalSwap formal_0_47 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[25]:choose-greater-child
+(assert (not (m_panicked formal_0_48)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_48) (select (m_origin formal_0_48) 18) (select (m_origin formal_0_48) 9)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_48) (select (m_origin formal_0_48) 18) (select (m_origin formal_0_48) 9)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[25]:choose-greater-child
+(define-fun formal_0_49 () FormalMachine (FormalCallback formal_0_48 boundary_0 (select (m_origin formal_0_48) 18) (select (m_origin formal_0_48) 9)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[25]:parent-child
+(assert (not (m_panicked formal_0_49)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_49) (select (m_origin formal_0_49) 0) (select (m_origin formal_0_49) 18)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_49) (select (m_origin formal_0_49) 0) (select (m_origin formal_0_49) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[25]:parent-child
+(define-fun formal_0_50 () FormalMachine (FormalCallback formal_0_49 boundary_0 (select (m_origin formal_0_49) 0) (select (m_origin formal_0_49) 18)))
+; source swap phase=sort:configuration-heapsort:sift-down[25]:swap
+(define-fun formal_0_51 () FormalMachine (FormalSwap formal_0_50 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[25]:choose-greater-child
+(assert (not (m_panicked formal_0_51)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_51) (select (m_origin formal_0_51) 15) (select (m_origin formal_0_51) 17)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_51) (select (m_origin formal_0_51) 15) (select (m_origin formal_0_51) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[25]:choose-greater-child
+(define-fun formal_0_52 () FormalMachine (FormalCallback formal_0_51 boundary_0 (select (m_origin formal_0_51) 15) (select (m_origin formal_0_51) 17)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[25]:parent-child
+(assert (not (m_panicked formal_0_52)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_52) (select (m_origin formal_0_52) 0) (select (m_origin formal_0_52) 15)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_52) (select (m_origin formal_0_52) 0) (select (m_origin formal_0_52) 15)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[25]:parent-child
+(define-fun formal_0_53 () FormalMachine (FormalCallback formal_0_52 boundary_0 (select (m_origin formal_0_52) 0) (select (m_origin formal_0_52) 15)))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_54 () FormalMachine (FormalSwap formal_0_53 0 24))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(assert (not (m_panicked formal_0_54)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_54) (select (m_origin formal_0_54) 18) (select (m_origin formal_0_54) 5)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_54) (select (m_origin formal_0_54) 18) (select (m_origin formal_0_54) 5)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(define-fun formal_0_55 () FormalMachine (FormalCallback formal_0_54 boundary_0 (select (m_origin formal_0_54) 18) (select (m_origin formal_0_54) 5)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(assert (not (m_panicked formal_0_55)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_55) (select (m_origin formal_0_55) 11) (select (m_origin formal_0_55) 18)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_55) (select (m_origin formal_0_55) 11) (select (m_origin formal_0_55) 18)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(define-fun formal_0_56 () FormalMachine (FormalCallback formal_0_55 boundary_0 (select (m_origin formal_0_55) 11) (select (m_origin formal_0_55) 18)))
+; source swap phase=sort:configuration-heapsort:sift-down[24]:swap
+(define-fun formal_0_57 () FormalMachine (FormalSwap formal_0_56 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(assert (not (m_panicked formal_0_57)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_57) (select (m_origin formal_0_57) 0) (select (m_origin formal_0_57) 9)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_57) (select (m_origin formal_0_57) 0) (select (m_origin formal_0_57) 9)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(define-fun formal_0_58 () FormalMachine (FormalCallback formal_0_57 boundary_0 (select (m_origin formal_0_57) 0) (select (m_origin formal_0_57) 9)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(assert (not (m_panicked formal_0_58)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_58) (select (m_origin formal_0_58) 11) (select (m_origin formal_0_58) 9)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_58) (select (m_origin formal_0_58) 11) (select (m_origin formal_0_58) 9)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(define-fun formal_0_59 () FormalMachine (FormalCallback formal_0_58 boundary_0 (select (m_origin formal_0_58) 11) (select (m_origin formal_0_58) 9)))
+; source swap phase=sort:configuration-heapsort:sift-down[24]:swap
+(define-fun formal_0_60 () FormalMachine (FormalSwap formal_0_59 1 4))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(assert (not (m_panicked formal_0_60)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_60) (select (m_origin formal_0_60) 20) (select (m_origin formal_0_60) 21)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_60) (select (m_origin formal_0_60) 20) (select (m_origin formal_0_60) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(define-fun formal_0_61 () FormalMachine (FormalCallback formal_0_60 boundary_0 (select (m_origin formal_0_60) 20) (select (m_origin formal_0_60) 21)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(assert (not (m_panicked formal_0_61)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_61) (select (m_origin formal_0_61) 11) (select (m_origin formal_0_61) 21)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_61) (select (m_origin formal_0_61) 11) (select (m_origin formal_0_61) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(define-fun formal_0_62 () FormalMachine (FormalCallback formal_0_61 boundary_0 (select (m_origin formal_0_61) 11) (select (m_origin formal_0_61) 21)))
+; source swap phase=sort:configuration-heapsort:sift-down[24]:swap
+(define-fun formal_0_63 () FormalMachine (FormalSwap formal_0_62 4 10))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(assert (not (m_panicked formal_0_63)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_63) (select (m_origin formal_0_63) 10) (select (m_origin formal_0_63) 22)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_63) (select (m_origin formal_0_63) 10) (select (m_origin formal_0_63) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:choose-greater-child
+(define-fun formal_0_64 () FormalMachine (FormalCallback formal_0_63 boundary_0 (select (m_origin formal_0_63) 10) (select (m_origin formal_0_63) 22)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(assert (not (m_panicked formal_0_64)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_64) (select (m_origin formal_0_64) 11) (select (m_origin formal_0_64) 22)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_64) (select (m_origin formal_0_64) 11) (select (m_origin formal_0_64) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[24]:parent-child
+(define-fun formal_0_65 () FormalMachine (FormalCallback formal_0_64 boundary_0 (select (m_origin formal_0_64) 11) (select (m_origin formal_0_64) 22)))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_66 () FormalMachine (FormalSwap formal_0_65 0 23))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(assert (not (m_panicked formal_0_66)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_66) (select (m_origin formal_0_66) 9) (select (m_origin formal_0_66) 5)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_66) (select (m_origin formal_0_66) 9) (select (m_origin formal_0_66) 5)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(define-fun formal_0_67 () FormalMachine (FormalCallback formal_0_66 boundary_0 (select (m_origin formal_0_66) 9) (select (m_origin formal_0_66) 5)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(assert (not (m_panicked formal_0_67)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_67) (select (m_origin formal_0_67) 23) (select (m_origin formal_0_67) 9)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_67) (select (m_origin formal_0_67) 23) (select (m_origin formal_0_67) 9)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(define-fun formal_0_68 () FormalMachine (FormalCallback formal_0_67 boundary_0 (select (m_origin formal_0_67) 23) (select (m_origin formal_0_67) 9)))
+; source swap phase=sort:configuration-heapsort:sift-down[23]:swap
+(define-fun formal_0_69 () FormalMachine (FormalSwap formal_0_68 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(assert (not (m_panicked formal_0_69)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_69) (select (m_origin formal_0_69) 0) (select (m_origin formal_0_69) 21)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_69) (select (m_origin formal_0_69) 0) (select (m_origin formal_0_69) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(define-fun formal_0_70 () FormalMachine (FormalCallback formal_0_69 boundary_0 (select (m_origin formal_0_69) 0) (select (m_origin formal_0_69) 21)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(assert (not (m_panicked formal_0_70)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_70) (select (m_origin formal_0_70) 23) (select (m_origin formal_0_70) 0)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_70) (select (m_origin formal_0_70) 23) (select (m_origin formal_0_70) 0)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(define-fun formal_0_71 () FormalMachine (FormalCallback formal_0_70 boundary_0 (select (m_origin formal_0_70) 23) (select (m_origin formal_0_70) 0)))
+; source swap phase=sort:configuration-heapsort:sift-down[23]:swap
+(define-fun formal_0_72 () FormalMachine (FormalSwap formal_0_71 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(assert (not (m_panicked formal_0_72)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_72) (select (m_origin formal_0_72) 15) (select (m_origin formal_0_72) 17)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_72) (select (m_origin formal_0_72) 15) (select (m_origin formal_0_72) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(define-fun formal_0_73 () FormalMachine (FormalCallback formal_0_72 boundary_0 (select (m_origin formal_0_72) 15) (select (m_origin formal_0_72) 17)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(assert (not (m_panicked formal_0_73)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_73) (select (m_origin formal_0_73) 23) (select (m_origin formal_0_73) 15)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_73) (select (m_origin formal_0_73) 23) (select (m_origin formal_0_73) 15)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(define-fun formal_0_74 () FormalMachine (FormalCallback formal_0_73 boundary_0 (select (m_origin formal_0_73) 23) (select (m_origin formal_0_73) 15)))
+; source swap phase=sort:configuration-heapsort:sift-down[23]:swap
+(define-fun formal_0_75 () FormalMachine (FormalSwap formal_0_74 3 7))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(assert (not (m_panicked formal_0_75)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_75) (select (m_origin formal_0_75) 3) (select (m_origin formal_0_75) 7)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_75) (select (m_origin formal_0_75) 3) (select (m_origin formal_0_75) 7)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:choose-greater-child
+(define-fun formal_0_76 () FormalMachine (FormalCallback formal_0_75 boundary_0 (select (m_origin formal_0_75) 3) (select (m_origin formal_0_75) 7)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(assert (not (m_panicked formal_0_76)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_76) (select (m_origin formal_0_76) 23) (select (m_origin formal_0_76) 7)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_76) (select (m_origin formal_0_76) 23) (select (m_origin formal_0_76) 7)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[23]:parent-child
+(define-fun formal_0_77 () FormalMachine (FormalCallback formal_0_76 boundary_0 (select (m_origin formal_0_76) 23) (select (m_origin formal_0_76) 7)))
+; source swap phase=sort:configuration-heapsort:sift-down[23]:swap
+(define-fun formal_0_78 () FormalMachine (FormalSwap formal_0_77 7 16))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_79 () FormalMachine (FormalSwap formal_0_78 0 22))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[22]:choose-greater-child
+(assert (not (m_panicked formal_0_79)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_79) (select (m_origin formal_0_79) 0) (select (m_origin formal_0_79) 5)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_79) (select (m_origin formal_0_79) 0) (select (m_origin formal_0_79) 5)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[22]:choose-greater-child
+(define-fun formal_0_80 () FormalMachine (FormalCallback formal_0_79 boundary_0 (select (m_origin formal_0_79) 0) (select (m_origin formal_0_79) 5)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[22]:parent-child
+(assert (not (m_panicked formal_0_80)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_80) (select (m_origin formal_0_80) 22) (select (m_origin formal_0_80) 5)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_80) (select (m_origin formal_0_80) 22) (select (m_origin formal_0_80) 5)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[22]:parent-child
+(define-fun formal_0_81 () FormalMachine (FormalCallback formal_0_80 boundary_0 (select (m_origin formal_0_80) 22) (select (m_origin formal_0_80) 5)))
+; source swap phase=sort:configuration-heapsort:sift-down[22]:swap
+(define-fun formal_0_82 () FormalMachine (FormalSwap formal_0_81 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[22]:choose-greater-child
+(assert (not (m_panicked formal_0_82)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_82) (select (m_origin formal_0_82) 12) (select (m_origin formal_0_82) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_82) (select (m_origin formal_0_82) 12) (select (m_origin formal_0_82) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[22]:choose-greater-child
+(define-fun formal_0_83 () FormalMachine (FormalCallback formal_0_82 boundary_0 (select (m_origin formal_0_82) 12) (select (m_origin formal_0_82) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[22]:parent-child
+(assert (not (m_panicked formal_0_83)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_83) (select (m_origin formal_0_83) 22) (select (m_origin formal_0_83) 12)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_83) (select (m_origin formal_0_83) 22) (select (m_origin formal_0_83) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[22]:parent-child
+(define-fun formal_0_84 () FormalMachine (FormalCallback formal_0_83 boundary_0 (select (m_origin formal_0_83) 22) (select (m_origin formal_0_83) 12)))
+; source swap phase=sort:configuration-heapsort:sift-down[22]:swap
+(define-fun formal_0_85 () FormalMachine (FormalSwap formal_0_84 2 5))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[22]:choose-greater-child
+(assert (not (m_panicked formal_0_85)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_85) (select (m_origin formal_0_85) 24) (select (m_origin formal_0_85) 2)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_85) (select (m_origin formal_0_85) 24) (select (m_origin formal_0_85) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[22]:choose-greater-child
+(define-fun formal_0_86 () FormalMachine (FormalCallback formal_0_85 boundary_0 (select (m_origin formal_0_85) 24) (select (m_origin formal_0_85) 2)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[22]:parent-child
+(assert (not (m_panicked formal_0_86)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_86) (select (m_origin formal_0_86) 22) (select (m_origin formal_0_86) 24)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_86) (select (m_origin formal_0_86) 22) (select (m_origin formal_0_86) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[22]:parent-child
+(define-fun formal_0_87 () FormalMachine (FormalCallback formal_0_86 boundary_0 (select (m_origin formal_0_86) 22) (select (m_origin formal_0_86) 24)))
+; source swap phase=sort:configuration-heapsort:sift-down[22]:swap
+(define-fun formal_0_88 () FormalMachine (FormalSwap formal_0_87 5 11))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_89 () FormalMachine (FormalSwap formal_0_88 0 21))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[21]:choose-greater-child
+(assert (not (m_panicked formal_0_89)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_89) (select (m_origin formal_0_89) 0) (select (m_origin formal_0_89) 12)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_89) (select (m_origin formal_0_89) 0) (select (m_origin formal_0_89) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[21]:choose-greater-child
+(define-fun formal_0_90 () FormalMachine (FormalCallback formal_0_89 boundary_0 (select (m_origin formal_0_89) 0) (select (m_origin formal_0_89) 12)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[21]:parent-child
+(assert (not (m_panicked formal_0_90)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_90) (select (m_origin formal_0_90) 10) (select (m_origin formal_0_90) 0)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_90) (select (m_origin formal_0_90) 10) (select (m_origin formal_0_90) 0)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[21]:parent-child
+(define-fun formal_0_91 () FormalMachine (FormalCallback formal_0_90 boundary_0 (select (m_origin formal_0_90) 10) (select (m_origin formal_0_90) 0)))
+; source swap phase=sort:configuration-heapsort:sift-down[21]:swap
+(define-fun formal_0_92 () FormalMachine (FormalSwap formal_0_91 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[21]:choose-greater-child
+(assert (not (m_panicked formal_0_92)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_92) (select (m_origin formal_0_92) 15) (select (m_origin formal_0_92) 21)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_92) (select (m_origin formal_0_92) 15) (select (m_origin formal_0_92) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[21]:choose-greater-child
+(define-fun formal_0_93 () FormalMachine (FormalCallback formal_0_92 boundary_0 (select (m_origin formal_0_92) 15) (select (m_origin formal_0_92) 21)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[21]:parent-child
+(assert (not (m_panicked formal_0_93)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_93) (select (m_origin formal_0_93) 10) (select (m_origin formal_0_93) 21)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_93) (select (m_origin formal_0_93) 10) (select (m_origin formal_0_93) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[21]:parent-child
+(define-fun formal_0_94 () FormalMachine (FormalCallback formal_0_93 boundary_0 (select (m_origin formal_0_93) 10) (select (m_origin formal_0_93) 21)))
+; source swap phase=sort:configuration-heapsort:sift-down[21]:swap
+(define-fun formal_0_95 () FormalMachine (FormalSwap formal_0_94 1 4))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[21]:choose-greater-child
+(assert (not (m_panicked formal_0_95)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_95) (select (m_origin formal_0_95) 20) (select (m_origin formal_0_95) 11)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_95) (select (m_origin formal_0_95) 20) (select (m_origin formal_0_95) 11)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[21]:choose-greater-child
+(define-fun formal_0_96 () FormalMachine (FormalCallback formal_0_95 boundary_0 (select (m_origin formal_0_95) 20) (select (m_origin formal_0_95) 11)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[21]:parent-child
+(assert (not (m_panicked formal_0_96)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_96) (select (m_origin formal_0_96) 10) (select (m_origin formal_0_96) 11)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_96) (select (m_origin formal_0_96) 10) (select (m_origin formal_0_96) 11)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[21]:parent-child
+(define-fun formal_0_97 () FormalMachine (FormalCallback formal_0_96 boundary_0 (select (m_origin formal_0_96) 10) (select (m_origin formal_0_96) 11)))
+; source swap phase=sort:configuration-heapsort:sift-down[21]:swap
+(define-fun formal_0_98 () FormalMachine (FormalSwap formal_0_97 4 10))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_99 () FormalMachine (FormalSwap formal_0_98 0 20))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[20]:choose-greater-child
+(assert (not (m_panicked formal_0_99)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_99) (select (m_origin formal_0_99) 21) (select (m_origin formal_0_99) 12)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_99) (select (m_origin formal_0_99) 21) (select (m_origin formal_0_99) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[20]:choose-greater-child
+(define-fun formal_0_100 () FormalMachine (FormalCallback formal_0_99 boundary_0 (select (m_origin formal_0_99) 21) (select (m_origin formal_0_99) 12)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[20]:parent-child
+(assert (not (m_panicked formal_0_100)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_100) (select (m_origin formal_0_100) 4) (select (m_origin formal_0_100) 12)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_100) (select (m_origin formal_0_100) 4) (select (m_origin formal_0_100) 12)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[20]:parent-child
+(define-fun formal_0_101 () FormalMachine (FormalCallback formal_0_100 boundary_0 (select (m_origin formal_0_100) 4) (select (m_origin formal_0_100) 12)))
+; source swap phase=sort:configuration-heapsort:sift-down[20]:swap
+(define-fun formal_0_102 () FormalMachine (FormalSwap formal_0_101 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[20]:choose-greater-child
+(assert (not (m_panicked formal_0_102)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_102) (select (m_origin formal_0_102) 24) (select (m_origin formal_0_102) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_102) (select (m_origin formal_0_102) 24) (select (m_origin formal_0_102) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[20]:choose-greater-child
+(define-fun formal_0_103 () FormalMachine (FormalCallback formal_0_102 boundary_0 (select (m_origin formal_0_102) 24) (select (m_origin formal_0_102) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[20]:parent-child
+(assert (not (m_panicked formal_0_103)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_103) (select (m_origin formal_0_103) 4) (select (m_origin formal_0_103) 24)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_103) (select (m_origin formal_0_103) 4) (select (m_origin formal_0_103) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[20]:parent-child
+(define-fun formal_0_104 () FormalMachine (FormalCallback formal_0_103 boundary_0 (select (m_origin formal_0_103) 4) (select (m_origin formal_0_103) 24)))
+; source swap phase=sort:configuration-heapsort:sift-down[20]:swap
+(define-fun formal_0_105 () FormalMachine (FormalSwap formal_0_104 2 5))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[20]:choose-greater-child
+(assert (not (m_panicked formal_0_105)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_105) (select (m_origin formal_0_105) 22) (select (m_origin formal_0_105) 2)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_105) (select (m_origin formal_0_105) 22) (select (m_origin formal_0_105) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[20]:choose-greater-child
+(define-fun formal_0_106 () FormalMachine (FormalCallback formal_0_105 boundary_0 (select (m_origin formal_0_105) 22) (select (m_origin formal_0_105) 2)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[20]:parent-child
+(assert (not (m_panicked formal_0_106)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_106) (select (m_origin formal_0_106) 4) (select (m_origin formal_0_106) 2)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_106) (select (m_origin formal_0_106) 4) (select (m_origin formal_0_106) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[20]:parent-child
+(define-fun formal_0_107 () FormalMachine (FormalCallback formal_0_106 boundary_0 (select (m_origin formal_0_106) 4) (select (m_origin formal_0_106) 2)))
+; source swap phase=sort:configuration-heapsort:sift-down[20]:swap
+(define-fun formal_0_108 () FormalMachine (FormalSwap formal_0_107 5 12))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_109 () FormalMachine (FormalSwap formal_0_108 0 19))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[19]:choose-greater-child
+(assert (not (m_panicked formal_0_109)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_109) (select (m_origin formal_0_109) 21) (select (m_origin formal_0_109) 24)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_109) (select (m_origin formal_0_109) 21) (select (m_origin formal_0_109) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[19]:choose-greater-child
+(define-fun formal_0_110 () FormalMachine (FormalCallback formal_0_109 boundary_0 (select (m_origin formal_0_109) 21) (select (m_origin formal_0_109) 24)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[19]:parent-child
+(assert (not (m_panicked formal_0_110)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_110) (select (m_origin formal_0_110) 19) (select (m_origin formal_0_110) 21)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_110) (select (m_origin formal_0_110) 19) (select (m_origin formal_0_110) 21)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[19]:parent-child
+(define-fun formal_0_111 () FormalMachine (FormalCallback formal_0_110 boundary_0 (select (m_origin formal_0_110) 19) (select (m_origin formal_0_110) 21)))
+; source swap phase=sort:configuration-heapsort:sift-down[19]:swap
+(define-fun formal_0_112 () FormalMachine (FormalSwap formal_0_111 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[19]:choose-greater-child
+(assert (not (m_panicked formal_0_112)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_112) (select (m_origin formal_0_112) 15) (select (m_origin formal_0_112) 11)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_112) (select (m_origin formal_0_112) 15) (select (m_origin formal_0_112) 11)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[19]:choose-greater-child
+(define-fun formal_0_113 () FormalMachine (FormalCallback formal_0_112 boundary_0 (select (m_origin formal_0_112) 15) (select (m_origin formal_0_112) 11)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[19]:parent-child
+(assert (not (m_panicked formal_0_113)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_113) (select (m_origin formal_0_113) 19) (select (m_origin formal_0_113) 11)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_113) (select (m_origin formal_0_113) 19) (select (m_origin formal_0_113) 11)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[19]:parent-child
+(define-fun formal_0_114 () FormalMachine (FormalCallback formal_0_113 boundary_0 (select (m_origin formal_0_113) 19) (select (m_origin formal_0_113) 11)))
+; source swap phase=sort:configuration-heapsort:sift-down[19]:swap
+(define-fun formal_0_115 () FormalMachine (FormalSwap formal_0_114 1 4))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[19]:choose-greater-child
+(assert (not (m_panicked formal_0_115)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_115) (select (m_origin formal_0_115) 20) (select (m_origin formal_0_115) 10)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_115) (select (m_origin formal_0_115) 20) (select (m_origin formal_0_115) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[19]:choose-greater-child
+(define-fun formal_0_116 () FormalMachine (FormalCallback formal_0_115 boundary_0 (select (m_origin formal_0_115) 20) (select (m_origin formal_0_115) 10)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[19]:parent-child
+(assert (not (m_panicked formal_0_116)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_116) (select (m_origin formal_0_116) 19) (select (m_origin formal_0_116) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_116) (select (m_origin formal_0_116) 19) (select (m_origin formal_0_116) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[19]:parent-child
+(define-fun formal_0_117 () FormalMachine (FormalCallback formal_0_116 boundary_0 (select (m_origin formal_0_116) 19) (select (m_origin formal_0_116) 20)))
+; source swap phase=sort:configuration-heapsort:sift-down[19]:swap
+(define-fun formal_0_118 () FormalMachine (FormalSwap formal_0_117 4 9))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_119 () FormalMachine (FormalSwap formal_0_118 0 18))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[18]:choose-greater-child
+(assert (not (m_panicked formal_0_119)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_119) (select (m_origin formal_0_119) 11) (select (m_origin formal_0_119) 24)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_119) (select (m_origin formal_0_119) 11) (select (m_origin formal_0_119) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[18]:choose-greater-child
+(define-fun formal_0_120 () FormalMachine (FormalCallback formal_0_119 boundary_0 (select (m_origin formal_0_119) 11) (select (m_origin formal_0_119) 24)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[18]:parent-child
+(assert (not (m_panicked formal_0_120)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_120) (select (m_origin formal_0_120) 8) (select (m_origin formal_0_120) 24)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_120) (select (m_origin formal_0_120) 8) (select (m_origin formal_0_120) 24)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[18]:parent-child
+(define-fun formal_0_121 () FormalMachine (FormalCallback formal_0_120 boundary_0 (select (m_origin formal_0_120) 8) (select (m_origin formal_0_120) 24)))
+; source swap phase=sort:configuration-heapsort:sift-down[18]:swap
+(define-fun formal_0_122 () FormalMachine (FormalSwap formal_0_121 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[18]:choose-greater-child
+(assert (not (m_panicked formal_0_122)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_122) (select (m_origin formal_0_122) 2) (select (m_origin formal_0_122) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_122) (select (m_origin formal_0_122) 2) (select (m_origin formal_0_122) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[18]:choose-greater-child
+(define-fun formal_0_123 () FormalMachine (FormalCallback formal_0_122 boundary_0 (select (m_origin formal_0_122) 2) (select (m_origin formal_0_122) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[18]:parent-child
+(assert (not (m_panicked formal_0_123)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_123) (select (m_origin formal_0_123) 8) (select (m_origin formal_0_123) 2)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_123) (select (m_origin formal_0_123) 8) (select (m_origin formal_0_123) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[18]:parent-child
+(define-fun formal_0_124 () FormalMachine (FormalCallback formal_0_123 boundary_0 (select (m_origin formal_0_123) 8) (select (m_origin formal_0_123) 2)))
+; source swap phase=sort:configuration-heapsort:sift-down[18]:swap
+(define-fun formal_0_125 () FormalMachine (FormalSwap formal_0_124 2 5))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[18]:choose-greater-child
+(assert (not (m_panicked formal_0_125)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_125) (select (m_origin formal_0_125) 22) (select (m_origin formal_0_125) 4)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_125) (select (m_origin formal_0_125) 22) (select (m_origin formal_0_125) 4)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[18]:choose-greater-child
+(define-fun formal_0_126 () FormalMachine (FormalCallback formal_0_125 boundary_0 (select (m_origin formal_0_125) 22) (select (m_origin formal_0_125) 4)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[18]:parent-child
+(assert (not (m_panicked formal_0_126)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_126) (select (m_origin formal_0_126) 8) (select (m_origin formal_0_126) 22)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_126) (select (m_origin formal_0_126) 8) (select (m_origin formal_0_126) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[18]:parent-child
+(define-fun formal_0_127 () FormalMachine (FormalCallback formal_0_126 boundary_0 (select (m_origin formal_0_126) 8) (select (m_origin formal_0_126) 22)))
+; source swap phase=sort:configuration-heapsort:sift-down[18]:swap
+(define-fun formal_0_128 () FormalMachine (FormalSwap formal_0_127 5 11))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_129 () FormalMachine (FormalSwap formal_0_128 0 17))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[17]:choose-greater-child
+(assert (not (m_panicked formal_0_129)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_129) (select (m_origin formal_0_129) 11) (select (m_origin formal_0_129) 2)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_129) (select (m_origin formal_0_129) 11) (select (m_origin formal_0_129) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[17]:choose-greater-child
+(define-fun formal_0_130 () FormalMachine (FormalCallback formal_0_129 boundary_0 (select (m_origin formal_0_129) 11) (select (m_origin formal_0_129) 2)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[17]:parent-child
+(assert (not (m_panicked formal_0_130)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_130) (select (m_origin formal_0_130) 1) (select (m_origin formal_0_130) 11)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_130) (select (m_origin formal_0_130) 1) (select (m_origin formal_0_130) 11)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[17]:parent-child
+(define-fun formal_0_131 () FormalMachine (FormalCallback formal_0_130 boundary_0 (select (m_origin formal_0_130) 1) (select (m_origin formal_0_130) 11)))
+; source swap phase=sort:configuration-heapsort:sift-down[17]:swap
+(define-fun formal_0_132 () FormalMachine (FormalSwap formal_0_131 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[17]:choose-greater-child
+(assert (not (m_panicked formal_0_132)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_132) (select (m_origin formal_0_132) 15) (select (m_origin formal_0_132) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_132) (select (m_origin formal_0_132) 15) (select (m_origin formal_0_132) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[17]:choose-greater-child
+(define-fun formal_0_133 () FormalMachine (FormalCallback formal_0_132 boundary_0 (select (m_origin formal_0_132) 15) (select (m_origin formal_0_132) 20)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[17]:parent-child
+(assert (not (m_panicked formal_0_133)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_133) (select (m_origin formal_0_133) 1) (select (m_origin formal_0_133) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_133) (select (m_origin formal_0_133) 1) (select (m_origin formal_0_133) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[17]:parent-child
+(define-fun formal_0_134 () FormalMachine (FormalCallback formal_0_133 boundary_0 (select (m_origin formal_0_133) 1) (select (m_origin formal_0_133) 20)))
+; source swap phase=sort:configuration-heapsort:sift-down[17]:swap
+(define-fun formal_0_135 () FormalMachine (FormalSwap formal_0_134 1 4))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[17]:choose-greater-child
+(assert (not (m_panicked formal_0_135)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_135) (select (m_origin formal_0_135) 19) (select (m_origin formal_0_135) 10)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_135) (select (m_origin formal_0_135) 19) (select (m_origin formal_0_135) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[17]:choose-greater-child
+(define-fun formal_0_136 () FormalMachine (FormalCallback formal_0_135 boundary_0 (select (m_origin formal_0_135) 19) (select (m_origin formal_0_135) 10)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[17]:parent-child
+(assert (not (m_panicked formal_0_136)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_136) (select (m_origin formal_0_136) 1) (select (m_origin formal_0_136) 10)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_136) (select (m_origin formal_0_136) 1) (select (m_origin formal_0_136) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[17]:parent-child
+(define-fun formal_0_137 () FormalMachine (FormalCallback formal_0_136 boundary_0 (select (m_origin formal_0_136) 1) (select (m_origin formal_0_136) 10)))
+; source swap phase=sort:configuration-heapsort:sift-down[17]:swap
+(define-fun formal_0_138 () FormalMachine (FormalSwap formal_0_137 4 10))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_139 () FormalMachine (FormalSwap formal_0_138 0 16))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[16]:choose-greater-child
+(assert (not (m_panicked formal_0_139)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_139) (select (m_origin formal_0_139) 20) (select (m_origin formal_0_139) 2)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_139) (select (m_origin formal_0_139) 20) (select (m_origin formal_0_139) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[16]:choose-greater-child
+(define-fun formal_0_140 () FormalMachine (FormalCallback formal_0_139 boundary_0 (select (m_origin formal_0_139) 20) (select (m_origin formal_0_139) 2)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[16]:parent-child
+(assert (not (m_panicked formal_0_140)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_140) (select (m_origin formal_0_140) 23) (select (m_origin formal_0_140) 20)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_140) (select (m_origin formal_0_140) 23) (select (m_origin formal_0_140) 20)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[16]:parent-child
+(define-fun formal_0_141 () FormalMachine (FormalCallback formal_0_140 boundary_0 (select (m_origin formal_0_140) 23) (select (m_origin formal_0_140) 20)))
+; source swap phase=sort:configuration-heapsort:sift-down[16]:swap
+(define-fun formal_0_142 () FormalMachine (FormalSwap formal_0_141 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[16]:choose-greater-child
+(assert (not (m_panicked formal_0_142)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_142) (select (m_origin formal_0_142) 15) (select (m_origin formal_0_142) 10)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_142) (select (m_origin formal_0_142) 15) (select (m_origin formal_0_142) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[16]:choose-greater-child
+(define-fun formal_0_143 () FormalMachine (FormalCallback formal_0_142 boundary_0 (select (m_origin formal_0_142) 15) (select (m_origin formal_0_142) 10)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[16]:parent-child
+(assert (not (m_panicked formal_0_143)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_143) (select (m_origin formal_0_143) 23) (select (m_origin formal_0_143) 15)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_143) (select (m_origin formal_0_143) 23) (select (m_origin formal_0_143) 15)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[16]:parent-child
+(define-fun formal_0_144 () FormalMachine (FormalCallback formal_0_143 boundary_0 (select (m_origin formal_0_143) 23) (select (m_origin formal_0_143) 15)))
+; source swap phase=sort:configuration-heapsort:sift-down[16]:swap
+(define-fun formal_0_145 () FormalMachine (FormalSwap formal_0_144 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[16]:choose-greater-child
+(assert (not (m_panicked formal_0_145)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_145) (select (m_origin formal_0_145) 7) (select (m_origin formal_0_145) 17)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_145) (select (m_origin formal_0_145) 7) (select (m_origin formal_0_145) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[16]:choose-greater-child
+(define-fun formal_0_146 () FormalMachine (FormalCallback formal_0_145 boundary_0 (select (m_origin formal_0_145) 7) (select (m_origin formal_0_145) 17)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[16]:parent-child
+(assert (not (m_panicked formal_0_146)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_146) (select (m_origin formal_0_146) 23) (select (m_origin formal_0_146) 17)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_146) (select (m_origin formal_0_146) 23) (select (m_origin formal_0_146) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[16]:parent-child
+(define-fun formal_0_147 () FormalMachine (FormalCallback formal_0_146 boundary_0 (select (m_origin formal_0_146) 23) (select (m_origin formal_0_146) 17)))
+; source swap phase=sort:configuration-heapsort:sift-down[16]:swap
+(define-fun formal_0_148 () FormalMachine (FormalSwap formal_0_147 3 8))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_149 () FormalMachine (FormalSwap formal_0_148 0 15))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[15]:choose-greater-child
+(assert (not (m_panicked formal_0_149)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_149) (select (m_origin formal_0_149) 15) (select (m_origin formal_0_149) 2)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_149) (select (m_origin formal_0_149) 15) (select (m_origin formal_0_149) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[15]:choose-greater-child
+(define-fun formal_0_150 () FormalMachine (FormalCallback formal_0_149 boundary_0 (select (m_origin formal_0_149) 15) (select (m_origin formal_0_149) 2)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[15]:parent-child
+(assert (not (m_panicked formal_0_150)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_150) (select (m_origin formal_0_150) 3) (select (m_origin formal_0_150) 15)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_150) (select (m_origin formal_0_150) 3) (select (m_origin formal_0_150) 15)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[15]:parent-child
+(define-fun formal_0_151 () FormalMachine (FormalCallback formal_0_150 boundary_0 (select (m_origin formal_0_150) 3) (select (m_origin formal_0_150) 15)))
+; source swap phase=sort:configuration-heapsort:sift-down[15]:swap
+(define-fun formal_0_152 () FormalMachine (FormalSwap formal_0_151 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[15]:choose-greater-child
+(assert (not (m_panicked formal_0_152)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_152) (select (m_origin formal_0_152) 17) (select (m_origin formal_0_152) 10)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_152) (select (m_origin formal_0_152) 17) (select (m_origin formal_0_152) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[15]:choose-greater-child
+(define-fun formal_0_153 () FormalMachine (FormalCallback formal_0_152 boundary_0 (select (m_origin formal_0_152) 17) (select (m_origin formal_0_152) 10)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[15]:parent-child
+(assert (not (m_panicked formal_0_153)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_153) (select (m_origin formal_0_153) 3) (select (m_origin formal_0_153) 17)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_153) (select (m_origin formal_0_153) 3) (select (m_origin formal_0_153) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[15]:parent-child
+(define-fun formal_0_154 () FormalMachine (FormalCallback formal_0_153 boundary_0 (select (m_origin formal_0_153) 3) (select (m_origin formal_0_153) 17)))
+; source swap phase=sort:configuration-heapsort:sift-down[15]:swap
+(define-fun formal_0_155 () FormalMachine (FormalSwap formal_0_154 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[15]:choose-greater-child
+(assert (not (m_panicked formal_0_155)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_155) (select (m_origin formal_0_155) 7) (select (m_origin formal_0_155) 23)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_155) (select (m_origin formal_0_155) 7) (select (m_origin formal_0_155) 23)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[15]:choose-greater-child
+(define-fun formal_0_156 () FormalMachine (FormalCallback formal_0_155 boundary_0 (select (m_origin formal_0_155) 7) (select (m_origin formal_0_155) 23)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[15]:parent-child
+(assert (not (m_panicked formal_0_156)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_156) (select (m_origin formal_0_156) 3) (select (m_origin formal_0_156) 7)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_156) (select (m_origin formal_0_156) 3) (select (m_origin formal_0_156) 7)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[15]:parent-child
+(define-fun formal_0_157 () FormalMachine (FormalCallback formal_0_156 boundary_0 (select (m_origin formal_0_156) 3) (select (m_origin formal_0_156) 7)))
+; source swap phase=sort:configuration-heapsort:sift-down[15]:swap
+(define-fun formal_0_158 () FormalMachine (FormalSwap formal_0_157 3 7))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_159 () FormalMachine (FormalSwap formal_0_158 0 14))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[14]:choose-greater-child
+(assert (not (m_panicked formal_0_159)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_159) (select (m_origin formal_0_159) 17) (select (m_origin formal_0_159) 2)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_159) (select (m_origin formal_0_159) 17) (select (m_origin formal_0_159) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[14]:choose-greater-child
+(define-fun formal_0_160 () FormalMachine (FormalCallback formal_0_159 boundary_0 (select (m_origin formal_0_159) 17) (select (m_origin formal_0_159) 2)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[14]:parent-child
+(assert (not (m_panicked formal_0_160)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_160) (select (m_origin formal_0_160) 14) (select (m_origin formal_0_160) 2)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_160) (select (m_origin formal_0_160) 14) (select (m_origin formal_0_160) 2)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[14]:parent-child
+(define-fun formal_0_161 () FormalMachine (FormalCallback formal_0_160 boundary_0 (select (m_origin formal_0_160) 14) (select (m_origin formal_0_160) 2)))
+; source swap phase=sort:configuration-heapsort:sift-down[14]:swap
+(define-fun formal_0_162 () FormalMachine (FormalSwap formal_0_161 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[14]:choose-greater-child
+(assert (not (m_panicked formal_0_162)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_162) (select (m_origin formal_0_162) 22) (select (m_origin formal_0_162) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_162) (select (m_origin formal_0_162) 22) (select (m_origin formal_0_162) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[14]:choose-greater-child
+(define-fun formal_0_163 () FormalMachine (FormalCallback formal_0_162 boundary_0 (select (m_origin formal_0_162) 22) (select (m_origin formal_0_162) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[14]:parent-child
+(assert (not (m_panicked formal_0_163)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_163) (select (m_origin formal_0_163) 14) (select (m_origin formal_0_163) 22)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_163) (select (m_origin formal_0_163) 14) (select (m_origin formal_0_163) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[14]:parent-child
+(define-fun formal_0_164 () FormalMachine (FormalCallback formal_0_163 boundary_0 (select (m_origin formal_0_163) 14) (select (m_origin formal_0_163) 22)))
+; source swap phase=sort:configuration-heapsort:sift-down[14]:swap
+(define-fun formal_0_165 () FormalMachine (FormalSwap formal_0_164 2 5))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[14]:choose-greater-child
+(assert (not (m_panicked formal_0_165)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_165) (select (m_origin formal_0_165) 8) (select (m_origin formal_0_165) 4)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_165) (select (m_origin formal_0_165) 8) (select (m_origin formal_0_165) 4)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[14]:choose-greater-child
+(define-fun formal_0_166 () FormalMachine (FormalCallback formal_0_165 boundary_0 (select (m_origin formal_0_165) 8) (select (m_origin formal_0_165) 4)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[14]:parent-child
+(assert (not (m_panicked formal_0_166)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_166) (select (m_origin formal_0_166) 14) (select (m_origin formal_0_166) 4)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_166) (select (m_origin formal_0_166) 14) (select (m_origin formal_0_166) 4)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[14]:parent-child
+(define-fun formal_0_167 () FormalMachine (FormalCallback formal_0_166 boundary_0 (select (m_origin formal_0_166) 14) (select (m_origin formal_0_166) 4)))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_168 () FormalMachine (FormalSwap formal_0_167 0 13))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[13]:choose-greater-child
+(assert (not (m_panicked formal_0_168)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_168) (select (m_origin formal_0_168) 17) (select (m_origin formal_0_168) 22)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_168) (select (m_origin formal_0_168) 17) (select (m_origin formal_0_168) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[13]:choose-greater-child
+(define-fun formal_0_169 () FormalMachine (FormalCallback formal_0_168 boundary_0 (select (m_origin formal_0_168) 17) (select (m_origin formal_0_168) 22)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[13]:parent-child
+(assert (not (m_panicked formal_0_169)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_169) (select (m_origin formal_0_169) 13) (select (m_origin formal_0_169) 22)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_169) (select (m_origin formal_0_169) 13) (select (m_origin formal_0_169) 22)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[13]:parent-child
+(define-fun formal_0_170 () FormalMachine (FormalCallback formal_0_169 boundary_0 (select (m_origin formal_0_169) 13) (select (m_origin formal_0_169) 22)))
+; source swap phase=sort:configuration-heapsort:sift-down[13]:swap
+(define-fun formal_0_171 () FormalMachine (FormalSwap formal_0_170 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[13]:choose-greater-child
+(assert (not (m_panicked formal_0_171)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_171) (select (m_origin formal_0_171) 14) (select (m_origin formal_0_171) 6)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_171) (select (m_origin formal_0_171) 14) (select (m_origin formal_0_171) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[13]:choose-greater-child
+(define-fun formal_0_172 () FormalMachine (FormalCallback formal_0_171 boundary_0 (select (m_origin formal_0_171) 14) (select (m_origin formal_0_171) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[13]:parent-child
+(assert (not (m_panicked formal_0_172)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_172) (select (m_origin formal_0_172) 13) (select (m_origin formal_0_172) 6)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_172) (select (m_origin formal_0_172) 13) (select (m_origin formal_0_172) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[13]:parent-child
+(define-fun formal_0_173 () FormalMachine (FormalCallback formal_0_172 boundary_0 (select (m_origin formal_0_172) 13) (select (m_origin formal_0_172) 6)))
+; source swap phase=sort:configuration-heapsort:sift-down[13]:swap
+(define-fun formal_0_174 () FormalMachine (FormalSwap formal_0_173 2 6))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_175 () FormalMachine (FormalSwap formal_0_174 0 12))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[12]:choose-greater-child
+(assert (not (m_panicked formal_0_175)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_175) (select (m_origin formal_0_175) 17) (select (m_origin formal_0_175) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_175) (select (m_origin formal_0_175) 17) (select (m_origin formal_0_175) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[12]:choose-greater-child
+(define-fun formal_0_176 () FormalMachine (FormalCallback formal_0_175 boundary_0 (select (m_origin formal_0_175) 17) (select (m_origin formal_0_175) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[12]:parent-child
+(assert (not (m_panicked formal_0_176)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_176) (select (m_origin formal_0_176) 4) (select (m_origin formal_0_176) 17)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_176) (select (m_origin formal_0_176) 4) (select (m_origin formal_0_176) 17)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[12]:parent-child
+(define-fun formal_0_177 () FormalMachine (FormalCallback formal_0_176 boundary_0 (select (m_origin formal_0_176) 4) (select (m_origin formal_0_176) 17)))
+; source swap phase=sort:configuration-heapsort:sift-down[12]:swap
+(define-fun formal_0_178 () FormalMachine (FormalSwap formal_0_177 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[12]:choose-greater-child
+(assert (not (m_panicked formal_0_178)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_178) (select (m_origin formal_0_178) 7) (select (m_origin formal_0_178) 10)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_178) (select (m_origin formal_0_178) 7) (select (m_origin formal_0_178) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[12]:choose-greater-child
+(define-fun formal_0_179 () FormalMachine (FormalCallback formal_0_178 boundary_0 (select (m_origin formal_0_178) 7) (select (m_origin formal_0_178) 10)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[12]:parent-child
+(assert (not (m_panicked formal_0_179)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_179) (select (m_origin formal_0_179) 4) (select (m_origin formal_0_179) 10)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_179) (select (m_origin formal_0_179) 4) (select (m_origin formal_0_179) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[12]:parent-child
+(define-fun formal_0_180 () FormalMachine (FormalCallback formal_0_179 boundary_0 (select (m_origin formal_0_179) 4) (select (m_origin formal_0_179) 10)))
+; source swap phase=sort:configuration-heapsort:sift-down[12]:swap
+(define-fun formal_0_181 () FormalMachine (FormalSwap formal_0_180 1 4))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[12]:choose-greater-child
+(assert (not (m_panicked formal_0_181)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_181) (select (m_origin formal_0_181) 19) (select (m_origin formal_0_181) 1)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_181) (select (m_origin formal_0_181) 19) (select (m_origin formal_0_181) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[12]:choose-greater-child
+(define-fun formal_0_182 () FormalMachine (FormalCallback formal_0_181 boundary_0 (select (m_origin formal_0_181) 19) (select (m_origin formal_0_181) 1)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[12]:parent-child
+(assert (not (m_panicked formal_0_182)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_182) (select (m_origin formal_0_182) 4) (select (m_origin formal_0_182) 1)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_182) (select (m_origin formal_0_182) 4) (select (m_origin formal_0_182) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[12]:parent-child
+(define-fun formal_0_183 () FormalMachine (FormalCallback formal_0_182 boundary_0 (select (m_origin formal_0_182) 4) (select (m_origin formal_0_182) 1)))
+; source swap phase=sort:configuration-heapsort:sift-down[12]:swap
+(define-fun formal_0_184 () FormalMachine (FormalSwap formal_0_183 4 10))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_185 () FormalMachine (FormalSwap formal_0_184 0 11))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[11]:choose-greater-child
+(assert (not (m_panicked formal_0_185)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_185) (select (m_origin formal_0_185) 10) (select (m_origin formal_0_185) 6)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_185) (select (m_origin formal_0_185) 10) (select (m_origin formal_0_185) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[11]:choose-greater-child
+(define-fun formal_0_186 () FormalMachine (FormalCallback formal_0_185 boundary_0 (select (m_origin formal_0_185) 10) (select (m_origin formal_0_185) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[11]:parent-child
+(assert (not (m_panicked formal_0_186)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_186) (select (m_origin formal_0_186) 8) (select (m_origin formal_0_186) 10)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_186) (select (m_origin formal_0_186) 8) (select (m_origin formal_0_186) 10)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[11]:parent-child
+(define-fun formal_0_187 () FormalMachine (FormalCallback formal_0_186 boundary_0 (select (m_origin formal_0_186) 8) (select (m_origin formal_0_186) 10)))
+; source swap phase=sort:configuration-heapsort:sift-down[11]:swap
+(define-fun formal_0_188 () FormalMachine (FormalSwap formal_0_187 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[11]:choose-greater-child
+(assert (not (m_panicked formal_0_188)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_188) (select (m_origin formal_0_188) 7) (select (m_origin formal_0_188) 1)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_188) (select (m_origin formal_0_188) 7) (select (m_origin formal_0_188) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[11]:choose-greater-child
+(define-fun formal_0_189 () FormalMachine (FormalCallback formal_0_188 boundary_0 (select (m_origin formal_0_188) 7) (select (m_origin formal_0_188) 1)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[11]:parent-child
+(assert (not (m_panicked formal_0_189)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_189) (select (m_origin formal_0_189) 8) (select (m_origin formal_0_189) 7)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_189) (select (m_origin formal_0_189) 8) (select (m_origin formal_0_189) 7)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[11]:parent-child
+(define-fun formal_0_190 () FormalMachine (FormalCallback formal_0_189 boundary_0 (select (m_origin formal_0_189) 8) (select (m_origin formal_0_189) 7)))
+; source swap phase=sort:configuration-heapsort:sift-down[11]:swap
+(define-fun formal_0_191 () FormalMachine (FormalSwap formal_0_190 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[11]:choose-greater-child
+(assert (not (m_panicked formal_0_191)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_191) (select (m_origin formal_0_191) 3) (select (m_origin formal_0_191) 23)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_191) (select (m_origin formal_0_191) 3) (select (m_origin formal_0_191) 23)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[11]:choose-greater-child
+(define-fun formal_0_192 () FormalMachine (FormalCallback formal_0_191 boundary_0 (select (m_origin formal_0_191) 3) (select (m_origin formal_0_191) 23)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[11]:parent-child
+(assert (not (m_panicked formal_0_192)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_192) (select (m_origin formal_0_192) 8) (select (m_origin formal_0_192) 23)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_192) (select (m_origin formal_0_192) 8) (select (m_origin formal_0_192) 23)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[11]:parent-child
+(define-fun formal_0_193 () FormalMachine (FormalCallback formal_0_192 boundary_0 (select (m_origin formal_0_192) 8) (select (m_origin formal_0_192) 23)))
+; source swap phase=sort:configuration-heapsort:sift-down[11]:swap
+(define-fun formal_0_194 () FormalMachine (FormalSwap formal_0_193 3 8))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_195 () FormalMachine (FormalSwap formal_0_194 0 10))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[10]:choose-greater-child
+(assert (not (m_panicked formal_0_195)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_195) (select (m_origin formal_0_195) 7) (select (m_origin formal_0_195) 6)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_195) (select (m_origin formal_0_195) 7) (select (m_origin formal_0_195) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[10]:choose-greater-child
+(define-fun formal_0_196 () FormalMachine (FormalCallback formal_0_195 boundary_0 (select (m_origin formal_0_195) 7) (select (m_origin formal_0_195) 6)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[10]:parent-child
+(assert (not (m_panicked formal_0_196)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_196) (select (m_origin formal_0_196) 4) (select (m_origin formal_0_196) 6)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_196) (select (m_origin formal_0_196) 4) (select (m_origin formal_0_196) 6)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[10]:parent-child
+(define-fun formal_0_197 () FormalMachine (FormalCallback formal_0_196 boundary_0 (select (m_origin formal_0_196) 4) (select (m_origin formal_0_196) 6)))
+; source swap phase=sort:configuration-heapsort:sift-down[10]:swap
+(define-fun formal_0_198 () FormalMachine (FormalSwap formal_0_197 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[10]:choose-greater-child
+(assert (not (m_panicked formal_0_198)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_198) (select (m_origin formal_0_198) 14) (select (m_origin formal_0_198) 13)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_198) (select (m_origin formal_0_198) 14) (select (m_origin formal_0_198) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[10]:choose-greater-child
+(define-fun formal_0_199 () FormalMachine (FormalCallback formal_0_198 boundary_0 (select (m_origin formal_0_198) 14) (select (m_origin formal_0_198) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[10]:parent-child
+(assert (not (m_panicked formal_0_199)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_199) (select (m_origin formal_0_199) 4) (select (m_origin formal_0_199) 13)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_199) (select (m_origin formal_0_199) 4) (select (m_origin formal_0_199) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[10]:parent-child
+(define-fun formal_0_200 () FormalMachine (FormalCallback formal_0_199 boundary_0 (select (m_origin formal_0_199) 4) (select (m_origin formal_0_199) 13)))
+; source swap phase=sort:configuration-heapsort:sift-down[10]:swap
+(define-fun formal_0_201 () FormalMachine (FormalSwap formal_0_200 2 6))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_202 () FormalMachine (FormalSwap formal_0_201 0 9))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[9]:choose-greater-child
+(assert (not (m_panicked formal_0_202)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_202) (select (m_origin formal_0_202) 7) (select (m_origin formal_0_202) 13)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_202) (select (m_origin formal_0_202) 7) (select (m_origin formal_0_202) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[9]:choose-greater-child
+(define-fun formal_0_203 () FormalMachine (FormalCallback formal_0_202 boundary_0 (select (m_origin formal_0_202) 7) (select (m_origin formal_0_202) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[9]:parent-child
+(assert (not (m_panicked formal_0_203)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_203) (select (m_origin formal_0_203) 19) (select (m_origin formal_0_203) 7)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_203) (select (m_origin formal_0_203) 19) (select (m_origin formal_0_203) 7)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[9]:parent-child
+(define-fun formal_0_204 () FormalMachine (FormalCallback formal_0_203 boundary_0 (select (m_origin formal_0_203) 19) (select (m_origin formal_0_203) 7)))
+; source swap phase=sort:configuration-heapsort:sift-down[9]:swap
+(define-fun formal_0_205 () FormalMachine (FormalSwap formal_0_204 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[9]:choose-greater-child
+(assert (not (m_panicked formal_0_205)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_205) (select (m_origin formal_0_205) 23) (select (m_origin formal_0_205) 1)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_205) (select (m_origin formal_0_205) 23) (select (m_origin formal_0_205) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[9]:choose-greater-child
+(define-fun formal_0_206 () FormalMachine (FormalCallback formal_0_205 boundary_0 (select (m_origin formal_0_205) 23) (select (m_origin formal_0_205) 1)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[9]:parent-child
+(assert (not (m_panicked formal_0_206)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_206) (select (m_origin formal_0_206) 19) (select (m_origin formal_0_206) 23)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_206) (select (m_origin formal_0_206) 19) (select (m_origin formal_0_206) 23)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[9]:parent-child
+(define-fun formal_0_207 () FormalMachine (FormalCallback formal_0_206 boundary_0 (select (m_origin formal_0_206) 19) (select (m_origin formal_0_206) 23)))
+; source swap phase=sort:configuration-heapsort:sift-down[9]:swap
+(define-fun formal_0_208 () FormalMachine (FormalSwap formal_0_207 1 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[9]:choose-greater-child
+(assert (not (m_panicked formal_0_208)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_208) (select (m_origin formal_0_208) 3) (select (m_origin formal_0_208) 8)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_208) (select (m_origin formal_0_208) 3) (select (m_origin formal_0_208) 8)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[9]:choose-greater-child
+(define-fun formal_0_209 () FormalMachine (FormalCallback formal_0_208 boundary_0 (select (m_origin formal_0_208) 3) (select (m_origin formal_0_208) 8)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[9]:parent-child
+(assert (not (m_panicked formal_0_209)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_209) (select (m_origin formal_0_209) 19) (select (m_origin formal_0_209) 3)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_209) (select (m_origin formal_0_209) 19) (select (m_origin formal_0_209) 3)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[9]:parent-child
+(define-fun formal_0_210 () FormalMachine (FormalCallback formal_0_209 boundary_0 (select (m_origin formal_0_209) 19) (select (m_origin formal_0_209) 3)))
+; source swap phase=sort:configuration-heapsort:sift-down[9]:swap
+(define-fun formal_0_211 () FormalMachine (FormalSwap formal_0_210 3 7))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_212 () FormalMachine (FormalSwap formal_0_211 0 8))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[8]:choose-greater-child
+(assert (not (m_panicked formal_0_212)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_212) (select (m_origin formal_0_212) 23) (select (m_origin formal_0_212) 13)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_212) (select (m_origin formal_0_212) 23) (select (m_origin formal_0_212) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[8]:choose-greater-child
+(define-fun formal_0_213 () FormalMachine (FormalCallback formal_0_212 boundary_0 (select (m_origin formal_0_212) 23) (select (m_origin formal_0_212) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[8]:parent-child
+(assert (not (m_panicked formal_0_213)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_213) (select (m_origin formal_0_213) 8) (select (m_origin formal_0_213) 23)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_213) (select (m_origin formal_0_213) 8) (select (m_origin formal_0_213) 23)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[8]:parent-child
+(define-fun formal_0_214 () FormalMachine (FormalCallback formal_0_213 boundary_0 (select (m_origin formal_0_213) 8) (select (m_origin formal_0_213) 23)))
+; source swap phase=sort:configuration-heapsort:sift-down[8]:swap
+(define-fun formal_0_215 () FormalMachine (FormalSwap formal_0_214 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[8]:choose-greater-child
+(assert (not (m_panicked formal_0_215)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_215) (select (m_origin formal_0_215) 3) (select (m_origin formal_0_215) 1)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_215) (select (m_origin formal_0_215) 3) (select (m_origin formal_0_215) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[8]:choose-greater-child
+(define-fun formal_0_216 () FormalMachine (FormalCallback formal_0_215 boundary_0 (select (m_origin formal_0_215) 3) (select (m_origin formal_0_215) 1)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[8]:parent-child
+(assert (not (m_panicked formal_0_216)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_216) (select (m_origin formal_0_216) 8) (select (m_origin formal_0_216) 1)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_216) (select (m_origin formal_0_216) 8) (select (m_origin formal_0_216) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[8]:parent-child
+(define-fun formal_0_217 () FormalMachine (FormalCallback formal_0_216 boundary_0 (select (m_origin formal_0_216) 8) (select (m_origin formal_0_216) 1)))
+; source swap phase=sort:configuration-heapsort:sift-down[8]:swap
+(define-fun formal_0_218 () FormalMachine (FormalSwap formal_0_217 1 4))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_219 () FormalMachine (FormalSwap formal_0_218 0 7))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[7]:choose-greater-child
+(assert (not (m_panicked formal_0_219)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_219) (select (m_origin formal_0_219) 1) (select (m_origin formal_0_219) 13)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_219) (select (m_origin formal_0_219) 1) (select (m_origin formal_0_219) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[7]:choose-greater-child
+(define-fun formal_0_220 () FormalMachine (FormalCallback formal_0_219 boundary_0 (select (m_origin formal_0_219) 1) (select (m_origin formal_0_219) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[7]:parent-child
+(assert (not (m_panicked formal_0_220)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_220) (select (m_origin formal_0_220) 19) (select (m_origin formal_0_220) 1)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_220) (select (m_origin formal_0_220) 19) (select (m_origin formal_0_220) 1)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[7]:parent-child
+(define-fun formal_0_221 () FormalMachine (FormalCallback formal_0_220 boundary_0 (select (m_origin formal_0_220) 19) (select (m_origin formal_0_220) 1)))
+; source swap phase=sort:configuration-heapsort:sift-down[7]:swap
+(define-fun formal_0_222 () FormalMachine (FormalSwap formal_0_221 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[7]:choose-greater-child
+(assert (not (m_panicked formal_0_222)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_222) (select (m_origin formal_0_222) 3) (select (m_origin formal_0_222) 8)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_222) (select (m_origin formal_0_222) 3) (select (m_origin formal_0_222) 8)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[7]:choose-greater-child
+(define-fun formal_0_223 () FormalMachine (FormalCallback formal_0_222 boundary_0 (select (m_origin formal_0_222) 3) (select (m_origin formal_0_222) 8)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[7]:parent-child
+(assert (not (m_panicked formal_0_223)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_223) (select (m_origin formal_0_223) 19) (select (m_origin formal_0_223) 3)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_223) (select (m_origin formal_0_223) 19) (select (m_origin formal_0_223) 3)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[7]:parent-child
+(define-fun formal_0_224 () FormalMachine (FormalCallback formal_0_223 boundary_0 (select (m_origin formal_0_223) 19) (select (m_origin formal_0_223) 3)))
+; source swap phase=sort:configuration-heapsort:sift-down[7]:swap
+(define-fun formal_0_225 () FormalMachine (FormalSwap formal_0_224 1 3))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_226 () FormalMachine (FormalSwap formal_0_225 0 6))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[6]:choose-greater-child
+(assert (not (m_panicked formal_0_226)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_226) (select (m_origin formal_0_226) 3) (select (m_origin formal_0_226) 13)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_226) (select (m_origin formal_0_226) 3) (select (m_origin formal_0_226) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[6]:choose-greater-child
+(define-fun formal_0_227 () FormalMachine (FormalCallback formal_0_226 boundary_0 (select (m_origin formal_0_226) 3) (select (m_origin formal_0_226) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[6]:parent-child
+(assert (not (m_panicked formal_0_227)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_227) (select (m_origin formal_0_227) 4) (select (m_origin formal_0_227) 3)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_227) (select (m_origin formal_0_227) 4) (select (m_origin formal_0_227) 3)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[6]:parent-child
+(define-fun formal_0_228 () FormalMachine (FormalCallback formal_0_227 boundary_0 (select (m_origin formal_0_227) 4) (select (m_origin formal_0_227) 3)))
+; source swap phase=sort:configuration-heapsort:sift-down[6]:swap
+(define-fun formal_0_229 () FormalMachine (FormalSwap formal_0_228 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[6]:choose-greater-child
+(assert (not (m_panicked formal_0_229)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_229) (select (m_origin formal_0_229) 19) (select (m_origin formal_0_229) 8)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_229) (select (m_origin formal_0_229) 19) (select (m_origin formal_0_229) 8)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[6]:choose-greater-child
+(define-fun formal_0_230 () FormalMachine (FormalCallback formal_0_229 boundary_0 (select (m_origin formal_0_229) 19) (select (m_origin formal_0_229) 8)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[6]:parent-child
+(assert (not (m_panicked formal_0_230)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_230) (select (m_origin formal_0_230) 4) (select (m_origin formal_0_230) 19)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_230) (select (m_origin formal_0_230) 4) (select (m_origin formal_0_230) 19)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[6]:parent-child
+(define-fun formal_0_231 () FormalMachine (FormalCallback formal_0_230 boundary_0 (select (m_origin formal_0_230) 4) (select (m_origin formal_0_230) 19)))
+; source swap phase=sort:configuration-heapsort:sift-down[6]:swap
+(define-fun formal_0_232 () FormalMachine (FormalSwap formal_0_231 1 3))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_233 () FormalMachine (FormalSwap formal_0_232 0 5))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[5]:choose-greater-child
+(assert (not (m_panicked formal_0_233)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_233) (select (m_origin formal_0_233) 19) (select (m_origin formal_0_233) 13)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_233) (select (m_origin formal_0_233) 19) (select (m_origin formal_0_233) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[5]:choose-greater-child
+(define-fun formal_0_234 () FormalMachine (FormalCallback formal_0_233 boundary_0 (select (m_origin formal_0_233) 19) (select (m_origin formal_0_233) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[5]:parent-child
+(assert (not (m_panicked formal_0_234)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_234) (select (m_origin formal_0_234) 14) (select (m_origin formal_0_234) 19)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_234) (select (m_origin formal_0_234) 14) (select (m_origin formal_0_234) 19)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[5]:parent-child
+(define-fun formal_0_235 () FormalMachine (FormalCallback formal_0_234 boundary_0 (select (m_origin formal_0_234) 14) (select (m_origin formal_0_234) 19)))
+; source swap phase=sort:configuration-heapsort:sift-down[5]:swap
+(define-fun formal_0_236 () FormalMachine (FormalSwap formal_0_235 0 1))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[5]:choose-greater-child
+(assert (not (m_panicked formal_0_236)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_236) (select (m_origin formal_0_236) 4) (select (m_origin formal_0_236) 8)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_236) (select (m_origin formal_0_236) 4) (select (m_origin formal_0_236) 8)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[5]:choose-greater-child
+(define-fun formal_0_237 () FormalMachine (FormalCallback formal_0_236 boundary_0 (select (m_origin formal_0_236) 4) (select (m_origin formal_0_236) 8)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[5]:parent-child
+(assert (not (m_panicked formal_0_237)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_237) (select (m_origin formal_0_237) 14) (select (m_origin formal_0_237) 4)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_237) (select (m_origin formal_0_237) 14) (select (m_origin formal_0_237) 4)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[5]:parent-child
+(define-fun formal_0_238 () FormalMachine (FormalCallback formal_0_237 boundary_0 (select (m_origin formal_0_237) 14) (select (m_origin formal_0_237) 4)))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_239 () FormalMachine (FormalSwap formal_0_238 0 4))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[4]:choose-greater-child
+(assert (not (m_panicked formal_0_239)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_239) (select (m_origin formal_0_239) 14) (select (m_origin formal_0_239) 13)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_239) (select (m_origin formal_0_239) 14) (select (m_origin formal_0_239) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[4]:choose-greater-child
+(define-fun formal_0_240 () FormalMachine (FormalCallback formal_0_239 boundary_0 (select (m_origin formal_0_239) 14) (select (m_origin formal_0_239) 13)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[4]:parent-child
+(assert (not (m_panicked formal_0_240)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_240) (select (m_origin formal_0_240) 8) (select (m_origin formal_0_240) 13)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_240) (select (m_origin formal_0_240) 8) (select (m_origin formal_0_240) 13)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[4]:parent-child
+(define-fun formal_0_241 () FormalMachine (FormalCallback formal_0_240 boundary_0 (select (m_origin formal_0_240) 8) (select (m_origin formal_0_240) 13)))
+; source swap phase=sort:configuration-heapsort:sift-down[4]:swap
+(define-fun formal_0_242 () FormalMachine (FormalSwap formal_0_241 0 2))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_243 () FormalMachine (FormalSwap formal_0_242 0 3))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[3]:choose-greater-child
+(assert (not (m_panicked formal_0_243)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_243) (select (m_origin formal_0_243) 14) (select (m_origin formal_0_243) 8)) false))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_243) (select (m_origin formal_0_243) 14) (select (m_origin formal_0_243) 8)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[3]:choose-greater-child
+(define-fun formal_0_244 () FormalMachine (FormalCallback formal_0_243 boundary_0 (select (m_origin formal_0_243) 14) (select (m_origin formal_0_243) 8)))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[3]:parent-child
+(assert (not (m_panicked formal_0_244)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_244) (select (m_origin formal_0_244) 4) (select (m_origin formal_0_244) 14)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_244) (select (m_origin formal_0_244) 4) (select (m_origin formal_0_244) 14)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[3]:parent-child
+(define-fun formal_0_245 () FormalMachine (FormalCallback formal_0_244 boundary_0 (select (m_origin formal_0_244) 4) (select (m_origin formal_0_244) 14)))
+; source swap phase=sort:configuration-heapsort:sift-down[3]:swap
+(define-fun formal_0_246 () FormalMachine (FormalSwap formal_0_245 0 1))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_247 () FormalMachine (FormalSwap formal_0_246 0 2))
+; source callback case=configuration-heapsort-16-bit phase=sort:configuration-heapsort:sift-down[2]:parent-child
+(assert (not (m_panicked formal_0_247)))
+(assert (= (TargetAdapterIsLess boundary_0 (m_callback formal_0_247) (select (m_origin formal_0_247) 8) (select (m_origin formal_0_247) 4)) true))
+(assert (= (BoundaryPanics boundary_0 (m_callback formal_0_247) (select (m_origin formal_0_247) 8) (select (m_origin formal_0_247) 4)) false))
+; source callback transition phase=sort:configuration-heapsort:sift-down[2]:parent-child
+(define-fun formal_0_248 () FormalMachine (FormalCallback formal_0_247 boundary_0 (select (m_origin formal_0_247) 8) (select (m_origin formal_0_247) 4)))
+; source swap phase=sort:configuration-heapsort:sift-down[2]:swap
+(define-fun formal_0_249 () FormalMachine (FormalSwap formal_0_248 0 1))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_250 () FormalMachine (FormalSwap formal_0_249 0 1))
+; source swap phase=sort:configuration-heapsort:extract
+(define-fun formal_0_251 () FormalMachine (FormalSwap formal_0_250 0 0))
+(define-fun formal_result_0 () Result
+  (mkResult
+    (m_sequence formal_0_251)
+    (m_callback formal_0_251)
+    (m_panicked formal_0_251)
+    false
+    true
+    (ite (m_panicked formal_0_251) 1 0)
+    (not (m_panicked formal_0_251))
+    -1))
+(define-fun reference_result_0 () Result (mkResult (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store ((as const (Array Int Int)) 0) 0 0) 1 1) 2 2) 3 3) 4 4) 5 5) 6 6) 7 7) 8 8) 9 9) 10 10) 11 11) 12 12) 13 13) 14 14) 15 15) 16 16) 17 17) 18 18) 19 19) 20 20) 21 21) 22 22) 23 23) 24 24) 155 false false true 0 true -1))
+; retained source-forcing witness: heapsort-child-selection
+(assert (= formal_result_0 (mkResult (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store (store ((as const (Array Int Int)) 0) 0 0) 1 1) 2 2) 3 3) 4 4) 5 5) 6 6) 7 7) 8 8) 9 9) 10 10) 11 11) 12 12) 13 13) 14 14) 15 15) 16 16) 17 17) 18 18) 19 19) 20 20) 21 21) 22 22) 23 23) 24 24) 155 false false true 0 true -1)))
+(check-sat-using (then ctx-solver-simplify smt))

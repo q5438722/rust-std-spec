@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/046_core_slice_first_chunk_mut/harness.rs",
+  "harness_sha256": "aeca88005b9fcb5798c1d8f3c6fb5684955bf89a0c5efdf4e512cd1b1e2854fe",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/046_core_slice_first_chunk_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 366,
+    "body_start_line": 357,
+    "item_sha256": "2170d94c79e1f26619cef13c46a6700a5a217819967b3a26a6ec3dc9fc9e703d",
+    "signature_end_line": 357,
+    "signature_start_line": 357
+  },
+  "status": "verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_mut_array_ref_final_frame_boundary",
+  "target": "core::slice::first_chunk_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed-only contract/body string recorder with an executable Verus target function, adapting the inherent `[T]` receiver to an explicit `slice: &mut [T]` argument and naming the return.",
+      "kind": "verus_signature_adaptation",
+      "source_lines": "core/src/slice/mod.rs:357-366",
+      "source_sha256": "2170d94c79e1f26619cef13c46a6700a5a217819967b3a26a6ec3dc9fc9e703d"
+    },
+    {
+      "edit": "Attached the generated mutable prefix/final-frame postconditions directly to the executable target: the `N <= old(slice)@.len()` Some branch, returned-prefix array view, final slice replacement by `*final(ret.unwrap())`, and the too-short None branch frame preservation.",
+      "kind": "contract_attachment",
+      "source_lines": "frozen generated contract for <[T]>::first_chunk_mut::<N>",
+      "source_sha256": "d8923bf81d0b7f8ad6deaa97aafdc3660f245da6e77099ad672c98478c31ed55"
+    },
+    {
+      "edit": "Preserved the Rust 1.96 branch flow: `if self.len() < N { None } else { Some(unsafe { &mut *(self.as_mut_ptr().cast_array()) }) }`; the implicit receiver and chained raw-pointer operations are the only Verus syntax adaptations.",
+      "kind": "rust_control_flow_preserved",
+      "source_lines": "core/src/slice/mod.rs:358-364",
+      "source_sha256": "2170d94c79e1f26619cef13c46a6700a5a217819967b3a26a6ec3dc9fc9e703d"
+    },
+    {
+      "edit": "Reused the reviewed `core::slice::as_mut_ptr` dependency shape through a local executable `as_mut_ptr` wrapper with `slice_start_mut_ptr` and final-frame preservation, and isolated only Verus-unsupported `ptr.cast_array()` plus `unsafe { &mut *ptr }` as named source-backed raw-pointer/provenance and mutable array-reference final-frame boundaries.",
+      "kind": "source_backed_mut_raw_pointer_prefix_array_ref_boundaries",
+      "source_lines": "core/src/slice/mod.rs:363-364",
+      "source_sha256": "2170d94c79e1f26619cef13c46a6700a5a217819967b3a26a6ec3dc9fc9e703d"
+    }
+  ]
+}

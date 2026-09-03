@@ -1,0 +1,662 @@
+{
+  "accepted_pointer_dependency": {
+    "active_contract_sha256": "840c4efc8976016ca0b1c8728d1cabb13529c6e83939e8ca3cbc31232ba6a14a",
+    "admission_mode": "defined allocation/address/provenance cast transition only; no returned pointer is copied into Boundary_T",
+    "artifact_id": "019_core_slice_as_mut_ptr",
+    "independent_review": {
+      "bytes": 5026,
+      "path": "review/REVIEW_ACCEPTANCE_20260831T173550Z.md",
+      "sha256": "ac1e73b3cc3317a40425924d73ab0bddcd8099f4fde1caa26b00d4bad1a7cf0d"
+    },
+    "result": {
+      "bytes": 36691,
+      "path": "evidence/targets/019_core_slice_as_mut_ptr/result.json",
+      "sha256": "892768b0d297fedeeb94d3d537a973a94f6da3fc6d522969dee89e00247a0f5c"
+    },
+    "source_model": {
+      "bytes": 6310,
+      "path": "proofs/019_core_slice_as_mut_ptr.rs",
+      "sha256": "d7b0afb4251d8a468b55b0073dc53e6bc2e82b623e9cdfff0eae1f8b8ec9551e"
+    },
+    "target": "core::slice::as_mut_ptr"
+  },
+  "active_contract_sha256": "f7f4347b6b668b99b56a86daa936797fae5b45f6ffc22dbacc872c1be89b2dde",
+  "active_contract_text": "pub assume_specification<T, const N: usize>[ <[T]>::as_rchunks_mut::<N> ]( slice: &mut [T], ) -> (ret: (&mut [T], &mut [[T; N]])) requires N != 0, ensures slice_array_rchunks_partition::<T, N>(old(slice)@, ret.0@, ret.1@), ret.1@.len() == old(slice)@.len() / (N as nat), ret.0@.len() == old(slice)@.len() % (N as nat), ret.0@ == old(slice)@.subrange(0, ret.0@.len() as int), forall|chunk: int| 0 <= chunk < ret.1@.len() ==> array_value_view::<T, N>(ret.1@[chunk]) == old(slice)@.subrange(ret.0@.len() as int + chunk * (N as int), ret.0@.len() as int + (chunk + 1) * (N as int)), final(ret.1)@.len() == ret.1@.len(), final(ret.0)@.len() == ret.0@.len(), final(slice)@ == final(ret.0)@ + flatten_array_chunks::<T, N>(final(ret.1)@), final(ret.0)@ == final(slice)@.subrange(0, final(ret.0)@.len() as int), forall|chunk: int| 0 <= chunk < final(ret.1)@.len() ==> array_value_view::<T, N>(final(ret.1)@[chunk]) == final(slice)@.subrange(final(ret.0)@.len() as int + chunk * (N as int), final(ret.0)@.len() as int + (chunk + 1) * (N as int)), ;",
+  "artifact_id": "024_core_slice_as_rchunks_mut",
+  "authority_bindings": {
+    "bytes": 6598,
+    "path": "evidence/targets/024_core_slice_as_rchunks_mut/authority_bindings.json",
+    "sha256": "1368f342962f427563f8a4b206b2d8bdd2cb09750649bdaf94aa4d9565c2c88d"
+  },
+  "bound_inputs": {
+    "bytes": 5549,
+    "path": "evidence/targets/024_core_slice_as_rchunks_mut/bound_inputs_manifest.json",
+    "sha256": "84789778e839cad6c784626e214050854bb453627e0ed65d2641bf1514d969ed"
+  },
+  "boundary_manifest": {
+    "bytes": 6417,
+    "path": "evidence/targets/024_core_slice_as_rchunks_mut/boundary_manifest.json",
+    "sha256": "666e7c448b1210e715256abd82e7016d97954241ce91f73e13ce57d0f3cd65a5"
+  },
+  "classification": {
+    "completeness_modulo_reviewed_equivalence_status": "conditional-incomplete",
+    "exact_output_determinism_status": "conditional-complete"
+  },
+  "classification_basis": "The exact-output theorem negation is UNSAT. The full exact theorem is SAT because the active mutable contract permits different final contents while preserving all lengths, shared-storage aliases, frames, and final subranges; the fixed witness independently replays every active conjunct.",
+  "excluded_retained_trust_site_ids": [
+    "TS-024-D003",
+    "TS-024-E001"
+  ],
+  "fixed_sat_replay": {
+    "smt": {
+      "bytes": 17055,
+      "path": "evidence/targets/024_core_slice_as_rchunks_mut/counterexample_model.smt2",
+      "sha256": "7500bea69cfe84878a7223dc90b47c58213b8c9052d54e2f1b2691dcb14a37e1"
+    },
+    "solver": {
+      "argv": [
+        "/home/chentianyu/miniconda3/bin/z3",
+        "-smt2",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/counterexample_model.smt2"
+      ],
+      "command": "evidence/targets/024_core_slice_as_rchunks_mut/counterexample_model/command.txt",
+      "exit_code": 0,
+      "expected_solver_result": "sat",
+      "solver_result": "sat",
+      "status": "evidence/targets/024_core_slice_as_rchunks_mut/counterexample_model/status.txt",
+      "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/counterexample_model/stderr.txt",
+      "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/counterexample_model/stdout.txt"
+    }
+  },
+  "input_order": "24",
+  "obligations": {
+    "completeness-modulo-reviewed-equivalence": {
+      "metadata": {
+        "bytes": 13191,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/obligation.metadata.json",
+        "sha256": "86bb3998bd6062282df719da10e8ebaca0cd60af3cbe7c8fa5ad17a8cbb82373"
+      },
+      "smt": {
+        "bytes": 16360,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/obligation.smt2",
+        "sha256": "14785acb108fed7bda2b375c18830ce5dfb59fdc67077f06f0fb3dd3ad44d9ba"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/obligation.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/obligation/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/obligation/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/obligation/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/obligation/stdout.txt"
+      }
+    },
+    "exact-output-determinism": {
+      "metadata": {
+        "bytes": 10915,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation.metadata.json",
+        "sha256": "4c6f792eb291c7d8f28ea5e200fb74291d053e2479329dc3f0171e24cf67c1f9"
+      },
+      "smt": {
+        "bytes": 14467,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation.smt2",
+        "sha256": "09318617ad7b80137b25108313917403577d18aa5bd50644f546a7cbdffb2899"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/exact_output_obligation/stdout.txt"
+      }
+    }
+  },
+  "ordered_lower_dependency": {
+    "active_contract_sha256": "c7cdf29658c01698013e14c2ab14e93699f855167a15eb4e3d697742a7d40c9a",
+    "admission_mode": "defined lower transition composed inside TargetDefinition_T; no lower output or final state enters Boundary_T",
+    "artifact_id": "015_core_slice_as_chunks_unchecked_mut",
+    "obligation": {
+      "bytes": 14131,
+      "path": "evidence/targets/015_core_slice_as_chunks_unchecked_mut/obligation.smt2",
+      "sha256": "612900399b04fcd3752774510971f4960ce526ae3d7db8b0380710bb671ca381"
+    },
+    "result": {
+      "bytes": 32694,
+      "path": "evidence/targets/015_core_slice_as_chunks_unchecked_mut/result.json",
+      "sha256": "7013db9686b99aca5e8386a43b77c71637f1e32317730d299f96f8c33c6d1941"
+    },
+    "source_model": {
+      "bytes": 6391,
+      "path": "proofs/015_core_slice_as_chunks_unchecked_mut.rs",
+      "sha256": "040b948d103ca390140f1134f746d379a67b35f7462f2b5c30bb727f8d6f98e8"
+    },
+    "target": "core::slice::as_chunks_unchecked_mut"
+  },
+  "preserved_target_evidence": {
+    "012_core_slice_as_chunks": {
+      "after_sha256": "00d8334d374142a4cbd97999635609a3b6250710a9b515c5bd771d8b59d53191",
+      "before_sha256": "00d8334d374142a4cbd97999635609a3b6250710a9b515c5bd771d8b59d53191"
+    },
+    "013_core_slice_as_chunks_mut": {
+      "after_sha256": "20fefa7c85c88315176f7d92b371a546417637b8006083a22f9ed0c82b825366",
+      "before_sha256": "20fefa7c85c88315176f7d92b371a546417637b8006083a22f9ed0c82b825366"
+    },
+    "014_core_slice_as_chunks_unchecked": {
+      "after_sha256": "a5a87caa05893e82bac3a8ef3c395ebb380b9dd32e6618df9f95ce79405c986f",
+      "before_sha256": "a5a87caa05893e82bac3a8ef3c395ebb380b9dd32e6618df9f95ce79405c986f"
+    },
+    "015_core_slice_as_chunks_unchecked_mut": {
+      "after_sha256": "2faa3f16a2154b9858a3e6d3a9a34cc9f5f07d0814b506f86a8a9763aaad7e2a",
+      "before_sha256": "2faa3f16a2154b9858a3e6d3a9a34cc9f5f07d0814b506f86a8a9763aaad7e2a"
+    },
+    "019_core_slice_as_mut_ptr": {
+      "after_sha256": "3d4aaa73cc58ea5bcff57b1ce683d9706a85916583249fd40fa3eb719a3a305d",
+      "before_sha256": "3d4aaa73cc58ea5bcff57b1ce683d9706a85916583249fd40fa3eb719a3a305d"
+    },
+    "020_core_slice_as_mut_ptr_range": {
+      "after_sha256": "dc5e531a1d3245e65a8dfb589926d7c32b999072b7b113e04ffce3488bf2692c",
+      "before_sha256": "dc5e531a1d3245e65a8dfb589926d7c32b999072b7b113e04ffce3488bf2692c"
+    },
+    "021_core_slice_as_ptr": {
+      "after_sha256": "5d48dda10977b63ae7a757d4f15215b26c504cc5f97038ffd2729e1cd52a0d37",
+      "before_sha256": "5d48dda10977b63ae7a757d4f15215b26c504cc5f97038ffd2729e1cd52a0d37"
+    },
+    "022_core_slice_as_ptr_range": {
+      "after_sha256": "b3ad4c9f03a321be32779b76c9da8e787ff0e13c691df57368fb61cdb7fbd77e",
+      "before_sha256": "b3ad4c9f03a321be32779b76c9da8e787ff0e13c691df57368fb61cdb7fbd77e"
+    },
+    "023_core_slice_as_rchunks": {
+      "after_sha256": "412437a3f4add477d5d51eff94fd87fd906ed74e77f8d33f131b484bcdade097",
+      "before_sha256": "412437a3f4add477d5d51eff94fd87fd906ed74e77f8d33f131b484bcdade097"
+    },
+    "028_core_slice_binary_search": {
+      "after_sha256": "d7fe49b313ba38a33bf20a7d8733da52ca3275097b0c43edf0eb4784f78d9d2f",
+      "before_sha256": "d7fe49b313ba38a33bf20a7d8733da52ca3275097b0c43edf0eb4784f78d9d2f"
+    },
+    "029_core_slice_binary_search_by": {
+      "after_sha256": "576f475b49402fd8a224231d603b35ff68600dc2bea7f96598fb1f29b7124a52",
+      "before_sha256": "576f475b49402fd8a224231d603b35ff68600dc2bea7f96598fb1f29b7124a52"
+    },
+    "030_core_slice_binary_search_by_key": {
+      "after_sha256": "bf1d1d024e1a155e2d6ca0854812e2aa2c0b93c8b683df5829c1881487f955fe",
+      "before_sha256": "bf1d1d024e1a155e2d6ca0854812e2aa2c0b93c8b683df5829c1881487f955fe"
+    },
+    "051_core_slice_get_disjoint_mut": {
+      "after_sha256": "b4d575b1fbaf6ed03a3336289d077e7afe37ea1b3856c368d3ea085e576d7373",
+      "before_sha256": "b4d575b1fbaf6ed03a3336289d077e7afe37ea1b3856c368d3ea085e576d7373"
+    },
+    "052_core_slice_get_disjoint_unchecked_mut": {
+      "after_sha256": "d1192be6666f2c3a01511f8fad469a090ac0c66f4797998d8eac1cd93bbd9b0f",
+      "before_sha256": "d1192be6666f2c3a01511f8fad469a090ac0c66f4797998d8eac1cd93bbd9b0f"
+    },
+    "065_core_slice_partition_point": {
+      "after_sha256": "cc543542d08b3a41a7b7537054fe62bc9823b86a55f7bcc2846dcd63a37f2f14",
+      "before_sha256": "cc543542d08b3a41a7b7537054fe62bc9823b86a55f7bcc2846dcd63a37f2f14"
+    },
+    "081_core_slice_sort_unstable_by": {
+      "after_sha256": "7028372ff01661b86c08a9213a5c62ca37b49021dd6e17b528b5f04465d814a6",
+      "before_sha256": "7028372ff01661b86c08a9213a5c62ca37b49021dd6e17b528b5f04465d814a6"
+    },
+    "106_core_slice_splitn_mut": {
+      "after_sha256": "9ff53ef33c84b2f8b485ba85e1ffdf3b82093a6d847760379b1aaab8b058a4db",
+      "before_sha256": "9ff53ef33c84b2f8b485ba85e1ffdf3b82093a6d847760379b1aaab8b058a4db"
+    },
+    "120_core_slice_write_copy_of_slice": {
+      "after_sha256": "0cd3791cfe3f84f2b7bd7c6e1bf8cfa58f8c783b460e09772c1153960533030f",
+      "before_sha256": "0cd3791cfe3f84f2b7bd7c6e1bf8cfa58f8c783b460e09772c1153960533030f"
+    }
+  },
+  "rejected_retained_contract_sha256": "2eb4482ca836049f0db386dc97308eeb2e7376ffde6abdd110f3691e11c6cf69",
+  "remaining_not_run": 43,
+  "satisfiability_and_rejection_probes": {
+    "changed_output_provenance": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-transition",
+      "smt": {
+        "bytes": 16534,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/changed_output_provenance.smt2",
+        "sha256": "803084324bcdc5df92f40cdf82a2c460cbe2c0b8f60ccc4c300b331e1f6acbac"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/changed_output_provenance.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/changed_output_provenance/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/changed_output_provenance/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/changed_output_provenance/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/changed_output_provenance/stdout.txt"
+      }
+    },
+    "invalid_alias_exclusivity": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16305,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_alias_exclusivity.smt2",
+        "sha256": "b7ad48d44a3a1aa5ade0b74eb318bd767f6cce06ae829b723777ba823a12b058"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_alias_exclusivity.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_alias_exclusivity/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_alias_exclusivity/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_alias_exclusivity/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_alias_exclusivity/stdout.txt"
+      }
+    },
+    "invalid_isize_overflow": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16299,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_isize_overflow.smt2",
+        "sha256": "4d91fec29dc54fcee2f316b99185b89726b5d2ef6248aec558a7f5eff70e5805"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_isize_overflow.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_isize_overflow/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_isize_overflow/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_isize_overflow/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_isize_overflow/stdout.txt"
+      }
+    },
+    "invalid_lower_divisibility": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-transition",
+      "smt": {
+        "bytes": 16521,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_lower_divisibility.smt2",
+        "sha256": "4edd042b7fb8a0c0e5981f5f565f06a10fdab32158f63663b63e9e0f1420427b"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_lower_divisibility.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_lower_divisibility/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_lower_divisibility/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_lower_divisibility/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_lower_divisibility/stdout.txt"
+      }
+    },
+    "invalid_misaligned_pointer": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16304,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_misaligned_pointer.smt2",
+        "sha256": "6943f0d444618d7a74e1d09ee86077ab7af7fce184751754067514830baf0968"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_misaligned_pointer.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_misaligned_pointer/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_misaligned_pointer/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_misaligned_pointer/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_misaligned_pointer/stdout.txt"
+      }
+    },
+    "invalid_multiple_allocation_span": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16305,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_multiple_allocation_span.smt2",
+        "sha256": "0dfa885ae1eceb9dd0ed8a7806c28b4d93497feef42e3e7811305df1e5c94aff"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_multiple_allocation_span.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_multiple_allocation_span/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_multiple_allocation_span/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_multiple_allocation_span/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_multiple_allocation_span/stdout.txt"
+      }
+    },
+    "invalid_n_zero": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16304,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_n_zero.smt2",
+        "sha256": "175c1e0f84b9bf560f32fa51ba71db3d346cb44cdd1f86381b57a67ad7b4348a"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_n_zero.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_n_zero/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_n_zero/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_n_zero/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_n_zero/stdout.txt"
+      }
+    },
+    "invalid_nonwritable_storage": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16305,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_nonwritable_storage.smt2",
+        "sha256": "7d164ff15f6cff5c2d9813640281acd39d2d226bb04301706267b89e1c754b2e"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_nonwritable_storage.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_nonwritable_storage/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_nonwritable_storage/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_nonwritable_storage/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_nonwritable_storage/stdout.txt"
+      }
+    },
+    "invalid_null_pointer": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16301,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_null_pointer.smt2",
+        "sha256": "811ed4a0b38cefb4b939d6f29f601f8c8b8143331908d32be1466479e5cf8da8"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_null_pointer.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_null_pointer/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_null_pointer/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_null_pointer/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_null_pointer/stdout.txt"
+      }
+    },
+    "invalid_uninitialized_storage": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-domain",
+      "smt": {
+        "bytes": 16305,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_uninitialized_storage.smt2",
+        "sha256": "1f68471ba5ffa624790e5b1c47ff39c2f7133530fdaa38d9b854e975cb285583"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_uninitialized_storage.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_uninitialized_storage/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_uninitialized_storage/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_uninitialized_storage/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/invalid_uninitialized_storage/stdout.txt"
+      }
+    },
+    "swapped_front_rear": {
+      "expected_solver_result": "unsat",
+      "kind": "invalid-transition",
+      "smt": {
+        "bytes": 16565,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/swapped_front_rear.smt2",
+        "sha256": "90a958c6558690ce515638f389959be1b9555c4187630101495c80eb676cdc19"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/swapped_front_rear.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/swapped_front_rear/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "unsat",
+        "solver_result": "unsat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/swapped_front_rear/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/swapped_front_rear/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/swapped_front_rear/stdout.txt"
+      }
+    },
+    "valid_empty": {
+      "expected_solver_result": "sat",
+      "kind": "valid",
+      "smt": {
+        "bytes": 16556,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_empty.smt2",
+        "sha256": "96c956fac85ee70dbca8483b946a3a661de548926b01bf9d4ab1a1bdece601f2"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_empty.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_empty/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_empty/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_empty/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_empty/stdout.txt"
+      }
+    },
+    "valid_nonempty": {
+      "expected_solver_result": "sat",
+      "kind": "valid",
+      "smt": {
+        "bytes": 16556,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_nonempty.smt2",
+        "sha256": "5a520444810722143ec641ee8d863862fb9bd85b98e69c963a3663bf830ae614"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_nonempty.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_nonempty/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_nonempty/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_nonempty/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_nonempty/stdout.txt"
+      }
+    },
+    "valid_zst": {
+      "expected_solver_result": "sat",
+      "kind": "valid",
+      "smt": {
+        "bytes": 16556,
+        "path": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_zst.smt2",
+        "sha256": "8852c3ad07f43a32750036824a7cb438f87ce3846e6e97671671c4bf7a632664"
+      },
+      "solver": {
+        "argv": [
+          "/home/chentianyu/miniconda3/bin/z3",
+          "-smt2",
+          "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_zst.smt2"
+        ],
+        "command": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_zst/command.txt",
+        "exit_code": 0,
+        "expected_solver_result": "sat",
+        "solver_result": "sat",
+        "status": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_zst/status.txt",
+        "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_zst/stderr.txt",
+        "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/probes/valid_zst/stdout.txt"
+      }
+    }
+  },
+  "schema_version": 1,
+  "target": "core::slice::as_rchunks_mut",
+  "updated_crosswalk_fields": [
+    "completeness_modulo_reviewed_equivalence_status",
+    "exact_output_determinism_status"
+  ],
+  "verus": {
+    "captured_model": {
+      "bytes": 6370,
+      "path": "evidence/targets/024_core_slice_as_rchunks_mut/verus/source_transition_model.rs",
+      "sha256": "06824178dc4080915d0fb39b2e663476e7f55a70e6f31a07167b747ff96c80cf"
+    },
+    "external_body_count": 0,
+    "source_model": {
+      "bytes": 6370,
+      "path": "proofs/024_core_slice_as_rchunks_mut.rs",
+      "sha256": "06824178dc4080915d0fb39b2e663476e7f55a70e6f31a07167b747ff96c80cf"
+    },
+    "typecheck": {
+      "argv": [
+        "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/verus/source_transition_model.rs",
+        "--crate-type=lib",
+        "--no-verify"
+      ],
+      "command": "evidence/targets/024_core_slice_as_rchunks_mut/verus/typecheck/command.txt",
+      "exit_code": 0,
+      "status": "evidence/targets/024_core_slice_as_rchunks_mut/verus/typecheck/status.txt",
+      "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/verus/typecheck/stderr.txt",
+      "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/verus/typecheck/stdout.txt"
+    },
+    "verification": {
+      "argv": [
+        "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/verus/source_transition_model.rs",
+        "--crate-type=lib"
+      ],
+      "command": "evidence/targets/024_core_slice_as_rchunks_mut/verus/verification/command.txt",
+      "exit_code": 0,
+      "status": "evidence/targets/024_core_slice_as_rchunks_mut/verus/verification/status.txt",
+      "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/verus/verification/stderr.txt",
+      "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/verus/verification/stdout.txt"
+    },
+    "verified_count": 1
+  },
+  "witness": {
+    "artifact": {
+      "bytes": 3354,
+      "path": "evidence/targets/024_core_slice_as_rchunks_mut/witness.json",
+      "sha256": "9752ed605963a398b68c1ec731dcdab30b516a5a09b6ed4aa81a2da0cea8078e"
+    },
+    "replay": {
+      "argv": [
+        "/home/chentianyu/miniconda3/bin/python3",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/tools/replay_chunk_contract_drift.py",
+        "--witness",
+        "/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/evidence/targets/024_core_slice_as_rchunks_mut/witness.json"
+      ],
+      "command": "evidence/targets/024_core_slice_as_rchunks_mut/witness_replay/command.txt",
+      "exit_code": 0,
+      "result": {
+        "active_conjuncts": {
+          "execution1": {
+            "ActiveChunksLengthConjunct": true,
+            "ActiveFinalChunkSubrangesConjunct": true,
+            "ActiveFinalChunksLengthConjunct": true,
+            "ActiveFinalFrameConjunct": true,
+            "ActiveFinalRemainderLengthConjunct": true,
+            "ActiveFinalRemainderSubrangeConjunct": true,
+            "ActiveInitialChunkSubrangesConjunct": true,
+            "ActiveInitialRemainderSubrangeConjunct": true,
+            "ActivePartitionConjunct": true,
+            "ActiveRemainderLengthConjunct": true
+          },
+          "execution2": {
+            "ActiveChunksLengthConjunct": true,
+            "ActiveFinalChunkSubrangesConjunct": true,
+            "ActiveFinalChunksLengthConjunct": true,
+            "ActiveFinalFrameConjunct": true,
+            "ActiveFinalRemainderLengthConjunct": true,
+            "ActiveFinalRemainderSubrangeConjunct": true,
+            "ActiveInitialChunkSubrangesConjunct": true,
+            "ActiveInitialRemainderSubrangeConjunct": true,
+            "ActivePartitionConjunct": true,
+            "ActiveRemainderLengthConjunct": true
+          }
+        },
+        "active_contract_sha256": "f7f4347b6b668b99b56a86daa936797fae5b45f6ffc22dbacc872c1be89b2dde",
+        "input_order": "24",
+        "observed": {
+          "exact_final_state_equal": false,
+          "exact_output_equal": true,
+          "execution1_satisfies_all_active_conjuncts": true,
+          "execution2_satisfies_all_active_conjuncts": true,
+          "full_exact_equivalent": false,
+          "same_boundary": true,
+          "same_input": true
+        },
+        "schema_version": 1,
+        "source_transition_checks": {
+          "array_pointer_cast_preserves_address_and_provenance": true,
+          "final_view_projects_the_same_final_slice": true,
+          "pointer_cast_preserves_address_and_provenance": true,
+          "raw_slice_uses_one_initialized_shared_storage": true,
+          "returned_mutable_view_aliases_input_storage": true
+        },
+        "status": "passed",
+        "target": "core::slice::as_rchunks_mut",
+        "witness_sha256": "9752ed605963a398b68c1ec731dcdab30b516a5a09b6ed4aa81a2da0cea8078e"
+      },
+      "status": "evidence/targets/024_core_slice_as_rchunks_mut/witness_replay/status.txt",
+      "stderr": "evidence/targets/024_core_slice_as_rchunks_mut/witness_replay/stderr.txt",
+      "stdout": "evidence/targets/024_core_slice_as_rchunks_mut/witness_replay/stdout.txt"
+    }
+  }
+}

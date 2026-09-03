@@ -1,0 +1,26 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/030_core_slice_binary_search_by_key/harness.rs",
+  "harness_sha256": "32b74e3bde8746067172fcee2dd0be2a004875c1c044c1c16cde67db2386efa4",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/030_core_slice_binary_search_by_key/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 3077,
+    "body_start_line": 3075,
+    "item_sha256": "93926d7471959bd2dca6f11321a73a445294b73af7c3748212f85ed08d5c31ae",
+    "signature_end_line": 3075,
+    "signature_start_line": 3071
+  },
+  "status": "verus_verified_modulo_reviewed_binary_search_by_fnmut_key_observation_ord_cmp_observation_closure_lowering_and_result_bridge_boundary",
+  "target": "core::slice::binary_search_by_key",
+  "transformations": [
+    "Adapted inherent receiver `self` to explicit `slice: &[T]` harness parameter.",
+    "Preserved the Rust 1.96 wrapper intent as `self.binary_search_by(|k| f(k).cmp(b))`.",
+    "Reused the reviewed `core::slice::binary_search_by` implementation-proof boundary as the target-local dependency contract.",
+    "Modeled the `f(k)` key callback and `Ord::cmp` comparison through the generated key-search vocabulary and the retained delegate/result bridge; unused standalone observation declarations were pruned.",
+    "Lowered only the unsupported mutable-FnMut closure adapter/delegation into `rust_1_96_binary_search_by_key_delegate` because this Verus build rejects closures capturing a mutable FnMut key function.",
+    "Added a proof-only result bridge from the reviewed binary_search_by Ok/Err bounds to `slice_binary_search_by_key_result(slice@, *key, f, result)`."
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "fnmut_key_observed;ord_cmp_observed;ord_leq_observed;ordering_rank;slice_multiplicity;slice_permutation;slice_sorted_by_key",
+      "rationale": "The generated key-sort contract vocabulary is instantiated in the harness and attached to the private helper boundary and public target without a specification assumption.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "verus_fnmut_key_ord_closure_lowering_boundary",
+      "name": "|a: &T, b: &T| f(a).lt(&f(b))",
+      "rationale": "Rust 1.96 passes this FnMut key extraction plus Ord::lt closure to `sort::unstable::sort`. This Verus build rejects closures that capture a mutable FnMut key function and then call Ord::lt on the extracted keys, so the harness lowers only that closure adapter to the named key-observation boundary while preserving the key extraction, Less predicate, sort call intent, and public target postcondition.",
+      "source_excerpt_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3240-3246",
+      "source_sha256": "a1709e9e61a25c52c3235a85bf2c15daf80785ec749e7f9bed299596413c074e",
+      "status": "minimal_verus_closure_lowering_boundary_for_fnmut_key_ord_observation"
+    },
+    {
+      "kind": "source_backed_unstable_sort_boundary",
+      "name": "sort::unstable::sort",
+      "rationale": "The recursive private unstable sorting implementation is not recursively proved here; its source-backed boundary carries only the generated permutation and key-observation sortedness facts required by the public target contract.",
+      "source_excerpt_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3246; core/src/slice/sort/unstable/mod.rs:22-58",
+      "source_sha256": "4047932f984b2bd725a29a2f8de10ac74cee50c73701a7d5c84e2482f415f13e",
+      "status": "minimal_trusted_boundary_until_private_unstable_sort_algorithm_is_recursively_proved"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "FnMut key extraction and Ord::lt observation",
+      "rationale": "The Rust target receives an arbitrary `FnMut(&T) -> K` key function and compares keys with `K: Ord`. The harness records the relation through the audited key/Ord observation vocabulary rather than assuming the public target body.",
+      "source_lines": "core/src/slice/mod.rs:3240-3246",
+      "status": "minimal_observation_boundary_for_fnmut_key_and_ord_callback"
+    }
+  ],
+  "direct_call_names": [
+    "f",
+    "lt",
+    "sort"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "88519f55b9b7374707b758bed4b244c175c3c7d632fd8a32c424172ed9557f8d",
+  "module": "slice",
+  "notes": "Target body is represented by a non-external public Verus function that keeps the Rust 1.96 unstable-sort intent `sort::unstable::sort(self, &mut |a, b| f(a).lt(&f(b)))`. Because Verus rejects the exact FnMut key/Ord closure capture, only the closure adapter plus private unstable-sort helper is isolated in the named external-body boundary. The public target function is executable, has no target-body external_body, and adds no stability or unique-output obligation.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 58,
+      "disposition": "source_backed_private_unstable_sort_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/unstable/mod.rs",
+      "item_sha256": "4047932f984b2bd725a29a2f8de10ac74cee50c73701a7d5c84e2482f415f13e",
+      "name": "sort::unstable::sort",
+      "public": false,
+      "signature_start_line": 22,
+      "source_reference_path": "core/src/slice/sort/unstable/mod.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/082_core_slice_sort_unstable_by_key/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/082_core_slice_sort_unstable_by_key/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_unstable_sort_boundary_and_fnmut_key_ord_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "a1709e9e61a25c52c3235a85bf2c15daf80785ec749e7f9bed299596413c074e",
+  "target": "core::slice::sort_unstable_by_key",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/082_core_slice_sort_unstable_by_key/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "FnMut key extraction observation",
+        "Ord::lt key comparison observation",
+        "Verus FnMut key/Ord closure lowering boundary",
+        "sort::unstable::sort source-backed boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

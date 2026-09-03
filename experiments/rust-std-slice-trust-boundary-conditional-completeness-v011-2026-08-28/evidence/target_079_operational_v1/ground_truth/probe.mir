@@ -1,0 +1,1312 @@
+// WARNING: This output format is intended for human consumers only
+// and is subject to change without notice. Knock yourself out.
+// HINT: See also -Z dump-mir for MIR at specific points during compilation.
+fn event(_1: &Cell<u32>, _2: &str) -> () {
+    debug state => _1;
+    debug name => _2;
+    let mut _0: ();
+    let _3: u32;
+    let _4: ();
+    let mut _5: u32;
+    let mut _6: (u32, bool);
+    let _7: ();
+    let mut _8: std::fmt::Arguments<'_>;
+    let mut _10: &u32;
+    let _11: u32;
+    let mut _12: (u32, bool);
+    let mut _13: &&str;
+    let mut _14: &u32;
+    let mut _16: core::fmt::rt::Argument<'_>;
+    let mut _17: core::fmt::rt::Argument<'_>;
+    let mut _18: core::fmt::rt::Argument<'_>;
+    let mut _19: &[u8; 24];
+    let _20: &[core::fmt::rt::Argument<'_>; 3];
+    let mut _21: &&str;
+    let mut _22: &u32;
+    let mut _23: &u32;
+    scope 1 {
+        debug before => _3;
+        let _9: (&u32, &&str, &u32);
+        scope 2 {
+            debug args => _9;
+            let _15: [core::fmt::rt::Argument<'_>; 3];
+            scope 3 {
+                debug args => _15;
+            }
+        }
+    }
+
+    bb0: {
+        _3 = Cell::<u32>::get(copy _1) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _6 = AddWithOverflow(copy _3, const 1_u32);
+        assert(!move (_6.1: bool), "attempt to compute `{} + {}`, which would overflow", copy _3, const 1_u32) -> [success: bb2, unwind continue];
+    }
+
+    bb2: {
+        _5 = move (_6.0: u32);
+        _4 = Cell::<u32>::set(copy _1, move _5) -> [return: bb3, unwind continue];
+    }
+
+    bb3: {
+        _12 = AddWithOverflow(copy _3, const 1_u32);
+        assert(!move (_12.1: bool), "attempt to compute `{} + {}`, which would overflow", copy _3, const 1_u32) -> [success: bb4, unwind continue];
+    }
+
+    bb4: {
+        _11 = move (_12.0: u32);
+        _10 = &_11;
+        _13 = &_2;
+        _14 = &_3;
+        _9 = (move _10, move _13, move _14);
+        _21 = copy (_9.1: &&str);
+        _16 = core::fmt::rt::Argument::<'_>::new_display::<&str>(copy _21) -> [return: bb5, unwind continue];
+    }
+
+    bb5: {
+        _22 = copy (_9.2: &u32);
+        _17 = core::fmt::rt::Argument::<'_>::new_display::<u32>(copy _22) -> [return: bb6, unwind continue];
+    }
+
+    bb6: {
+        _23 = copy (_9.0: &u32);
+        _18 = core::fmt::rt::Argument::<'_>::new_display::<u32>(copy _23) -> [return: bb7, unwind continue];
+    }
+
+    bb7: {
+        _15 = [move _16, move _17, move _18];
+        _19 = const b"\x06event=\xc0\x07 state=\xc0\x02->\xc0\x01\n\x00";
+        _20 = &_15;
+        _8 = Arguments::<'_>::new::<24, 3>(move _19, copy _20) -> [return: bb8, unwind continue];
+    }
+
+    bb8: {
+        _7 = std::io::_eprint(move _8) -> [return: bb9, unwind continue];
+    }
+
+    bb9: {
+        return;
+    }
+}
+
+alloc1 (size: 24, align: 1) {
+    0x00 │ 06 65 76 65 6e 74 3d c0 07 20 73 74 61 74 65 3d │ .event=.. state=
+    0x10 │ c0 02 2d 3e c0 01 0a 00                         │ ..->....
+}
+
+fn <impl at /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:12:10: 12:12>::assert_fields_are_eq(_1: &Key) -> () {
+    debug self => _1;
+    let mut _0: ();
+    scope 1 {
+        scope 2 {
+            scope 3 {
+                scope 4 {
+                }
+            }
+        }
+    }
+
+    bb0: {
+        return;
+    }
+}
+
+fn <impl at /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:21:1: 21:23>::eq(_1: &Key, _2: &Key) -> bool {
+    debug self => _1;
+    debug other => _2;
+    let mut _0: bool;
+    let mut _3: i32;
+    let mut _4: i32;
+
+    bb0: {
+        _3 = copy ((*_1).1: i32);
+        _4 = copy ((*_2).1: i32);
+        _0 = Eq(move _3, move _4);
+        return;
+    }
+}
+
+fn <impl at /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:27:1: 27:24>::partial_cmp(_1: &Key, _2: &Key) -> Option<std::cmp::Ordering> {
+    debug self => _1;
+    debug other => _2;
+    let mut _0: std::option::Option<std::cmp::Ordering>;
+    let mut _3: std::cmp::Ordering;
+    let mut _4: &i32;
+    let _5: &i32;
+
+    bb0: {
+        _4 = &((*_1).1: i32);
+        _5 = &((*_2).1: i32);
+        _3 = <i32 as Ord>::cmp(move _4, copy _5) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _0 = Option::<std::cmp::Ordering>::Some(move _3);
+        return;
+    }
+}
+
+fn <impl at /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:27:1: 27:24>::lt(_1: &Key, _2: &Key) -> bool {
+    debug self => _1;
+    debug other => _2;
+    let mut _0: bool;
+    let _3: ();
+    let _4: &std::cell::Cell<u32>;
+    let _5: &std::rc::Rc<std::cell::Cell<u32>>;
+    let mut _6: &str;
+    let mut _7: bool;
+    let _8: !;
+    let mut _9: std::fmt::Arguments<'_>;
+    let mut _10: i32;
+    let mut _11: i32;
+
+    bb0: {
+        _5 = &((*_1).2: std::rc::Rc<std::cell::Cell<u32>>);
+        _4 = <Rc<Cell<u32>> as Deref>::deref(copy _5) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _6 = const "ord-lt";
+        _3 = event(copy _4, move _6) -> [return: bb2, unwind continue];
+    }
+
+    bb2: {
+        _7 = copy ((*_1).3: bool);
+        switchInt(move _7) -> [0: bb5, otherwise: bb3];
+    }
+
+    bb3: {
+        _9 = Arguments::<'_>::from_str(const "ord-lt-panic") -> [return: bb4, unwind continue];
+    }
+
+    bb4: {
+        _8 = std::rt::panic_fmt(move _9) -> unwind continue;
+    }
+
+    bb5: {
+        _10 = copy ((*_1).1: i32);
+        _11 = copy ((*_2).1: i32);
+        _0 = Lt(move _10, move _11);
+        return;
+    }
+}
+
+alloc3 (size: 12, align: 1) {
+    6f 72 64 2d 6c 74 2d 70 61 6e 69 63             │ ord-lt-panic
+}
+
+alloc2 (size: 6, align: 1) {
+    6f 72 64 2d 6c 74                               │ ord-lt
+}
+
+fn <impl at /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:41:1: 41:17>::cmp(_1: &Key, _2: &Key) -> std::cmp::Ordering {
+    debug self => _1;
+    debug other => _2;
+    let mut _0: std::cmp::Ordering;
+    let mut _3: &i32;
+    let _4: &i32;
+
+    bb0: {
+        _3 = &((*_1).1: i32);
+        _4 = &((*_2).1: i32);
+        _0 = <i32 as Ord>::cmp(move _3, copy _4) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        return;
+    }
+}
+
+fn <impl at /home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:47:1: 47:18>::drop(_1: &mut Key) -> () {
+    debug self => _1;
+    let mut _0: ();
+    let _2: ();
+    let _3: &std::cell::Cell<u32>;
+    let _4: &std::rc::Rc<std::cell::Cell<u32>>;
+    let _5: &str;
+    let _6: &std::string::String;
+    let _7: std::string::String;
+    let mut _8: std::string::String;
+    let mut _9: std::fmt::Arguments<'_>;
+    let _10: (&&str,);
+    let mut _11: &&str;
+    let mut _13: core::fmt::rt::Argument<'_>;
+    let mut _14: &[u8; 8];
+    let _15: &[core::fmt::rt::Argument<'_>; 1];
+    let mut _16: bool;
+    let _17: !;
+    let mut _18: std::fmt::Arguments<'_>;
+    let _19: (&&str,);
+    let mut _20: &&str;
+    let mut _22: core::fmt::rt::Argument<'_>;
+    let mut _23: &[u8; 15];
+    let _24: &[core::fmt::rt::Argument<'_>; 1];
+    let mut _25: &&str;
+    let mut _26: &&str;
+    scope 1 {
+        debug args => _10;
+        let _12: [core::fmt::rt::Argument<'_>; 1];
+        scope 2 {
+            debug args => _12;
+        }
+    }
+    scope 3 {
+        debug args => _19;
+        let _21: [core::fmt::rt::Argument<'_>; 1];
+        scope 4 {
+            debug args => _21;
+        }
+    }
+
+    bb0: {
+        _4 = &((*_1).2: std::rc::Rc<std::cell::Cell<u32>>);
+        _3 = <Rc<Cell<u32>> as Deref>::deref(copy _4) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _11 = &((*_1).0: &str);
+        _10 = (move _11,);
+        _25 = copy (_10.0: &&str);
+        _13 = core::fmt::rt::Argument::<'_>::new_display::<&str>(copy _25) -> [return: bb2, unwind continue];
+    }
+
+    bb2: {
+        _12 = [move _13];
+        _14 = const b"\x05drop-\xc0\x00";
+        _15 = &_12;
+        _9 = Arguments::<'_>::new::<8, 1>(move _14, copy _15) -> [return: bb3, unwind continue];
+    }
+
+    bb3: {
+        _8 = format(move _9) -> [return: bb4, unwind continue];
+    }
+
+    bb4: {
+        _7 = must_use::<String>(move _8) -> [return: bb5, unwind continue];
+    }
+
+    bb5: {
+        _6 = &_7;
+        _5 = <String as Deref>::deref(copy _6) -> [return: bb6, unwind: bb13];
+    }
+
+    bb6: {
+        _2 = event(copy _3, copy _5) -> [return: bb7, unwind: bb13];
+    }
+
+    bb7: {
+        drop(_7) -> [return: bb8, unwind continue];
+    }
+
+    bb8: {
+        _16 = copy ((*_1).4: bool);
+        switchInt(move _16) -> [0: bb12, otherwise: bb9];
+    }
+
+    bb9: {
+        _20 = &((*_1).0: &str);
+        _19 = (move _20,);
+        _26 = copy (_19.0: &&str);
+        _22 = core::fmt::rt::Argument::<'_>::new_display::<&str>(copy _26) -> [return: bb10, unwind continue];
+    }
+
+    bb10: {
+        _21 = [move _22];
+        _23 = const b"\x05drop-\xc0\x06-panic\x00";
+        _24 = &_21;
+        _18 = Arguments::<'_>::new::<15, 1>(move _23, copy _24) -> [return: bb11, unwind continue];
+    }
+
+    bb11: {
+        _17 = std::rt::panic_fmt(move _18) -> unwind continue;
+    }
+
+    bb12: {
+        return;
+    }
+
+    bb13 (cleanup): {
+        drop(_7) -> [return: bb14, unwind terminate(cleanup)];
+    }
+
+    bb14 (cleanup): {
+        resume;
+    }
+}
+
+alloc5 (size: 15, align: 1) {
+    05 64 72 6f 70 2d c0 06 2d 70 61 6e 69 63 00    │ .drop-..-panic.
+}
+
+alloc4 (size: 8, align: 1) {
+    05 64 72 6f 70 2d c0 00                         │ .drop-..
+}
+
+fn run(_1: &str) -> () {
+    debug scenario => _1;
+    let mut _0: ();
+    let _2: std::rc::Rc<std::cell::Cell<u32>>;
+    let mut _3: std::cell::Cell<u32>;
+    let mut _8: &mut u32;
+    let mut _9: &i32;
+    let mut _10: &std::rc::Rc<std::cell::Cell<u32>>;
+    let mut _11: &&str;
+    let mut _13: &Key;
+    let _14: Key;
+    let mut _15: &mut {closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30};
+    let mut _16: (&i32,);
+    let _17: &i32;
+    let _18: &Key;
+    let _19: Key;
+    let mut _20: &mut {closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30};
+    let mut _21: (&i32,);
+    let _22: &i32;
+    let _23: ();
+    let _24: &std::cell::Cell<u32>;
+    let _25: &std::rc::Rc<std::cell::Cell<u32>>;
+    let _26: &str;
+    let _27: &std::string::String;
+    let _28: std::string::String;
+    let mut _29: std::string::String;
+    let mut _30: std::fmt::Arguments<'_>;
+    let mut _32: &bool;
+    let mut _34: core::fmt::rt::Argument<'_>;
+    let mut _35: &[u8; 10];
+    let _36: &[core::fmt::rt::Argument<'_>; 1];
+    let mut _37: &bool;
+    scope 1 {
+        debug state => _2;
+        let _4: i32;
+        scope 2 {
+            debug left => _4;
+            let _5: i32;
+            scope 3 {
+                debug right => _5;
+                let mut _6: u32;
+                scope 4 {
+                    debug key_calls => _6;
+                    let mut _7: {closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30};
+                    scope 5 {
+                        debug f => _7;
+                        let _12: bool;
+                        scope 6 {
+                            debug result => _12;
+                            let _31: (&bool,);
+                            scope 7 {
+                                debug args => _31;
+                                let _33: [core::fmt::rt::Argument<'_>; 1];
+                                scope 8 {
+                                    debug args => _33;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    bb0: {
+        _3 = Cell::<u32>::new(const 0_u32) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _2 = Rc::<Cell<u32>>::new(move _3) -> [return: bb2, unwind continue];
+    }
+
+    bb2: {
+        _4 = const 10_i32;
+        _5 = const 20_i32;
+        _6 = const 0_u32;
+        _8 = &mut _6;
+        _9 = &_4;
+        _10 = &_2;
+        _11 = &_1;
+        _7 = {closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30} { key_calls: move _8, left: move _9, state: move _10, scenario: move _11 };
+        _15 = &mut _7;
+        _17 = &_4;
+        _16 = (copy _17,);
+        _14 = <{closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30} as FnMut<(&i32,)>>::call_mut(move _15, move _16) -> [return: bb3, unwind: bb20];
+    }
+
+    bb3: {
+        _13 = &_14;
+        _20 = &mut _7;
+        _22 = &_5;
+        _21 = (copy _22,);
+        _19 = <{closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30} as FnMut<(&i32,)>>::call_mut(move _20, move _21) -> [return: bb4, unwind: bb19];
+    }
+
+    bb4: {
+        _18 = &_19;
+        _12 = <Key as PartialOrd>::lt(move _13, copy _18) -> [return: bb5, unwind: bb18];
+    }
+
+    bb5: {
+        drop(_19) -> [return: bb6, unwind: bb19];
+    }
+
+    bb6: {
+        drop(_14) -> [return: bb7, unwind: bb20];
+    }
+
+    bb7: {
+        _25 = &_2;
+        _24 = <Rc<Cell<u32>> as Deref>::deref(copy _25) -> [return: bb8, unwind: bb20];
+    }
+
+    bb8: {
+        _32 = &_12;
+        _31 = (move _32,);
+        _37 = copy (_31.0: &bool);
+        _34 = core::fmt::rt::Argument::<'_>::new_display::<bool>(copy _37) -> [return: bb9, unwind: bb20];
+    }
+
+    bb9: {
+        _33 = [move _34];
+        _35 = const b"\x07result-\xc0\x00";
+        _36 = &_33;
+        _30 = Arguments::<'_>::new::<10, 1>(move _35, copy _36) -> [return: bb10, unwind: bb20];
+    }
+
+    bb10: {
+        _29 = format(move _30) -> [return: bb11, unwind: bb20];
+    }
+
+    bb11: {
+        _28 = must_use::<String>(move _29) -> [return: bb12, unwind: bb20];
+    }
+
+    bb12: {
+        _27 = &_28;
+        _26 = <String as Deref>::deref(copy _27) -> [return: bb13, unwind: bb17];
+    }
+
+    bb13: {
+        _23 = event(copy _24, copy _26) -> [return: bb14, unwind: bb17];
+    }
+
+    bb14: {
+        drop(_28) -> [return: bb15, unwind: bb20];
+    }
+
+    bb15: {
+        drop(_2) -> [return: bb16, unwind continue];
+    }
+
+    bb16: {
+        return;
+    }
+
+    bb17 (cleanup): {
+        drop(_28) -> [return: bb20, unwind terminate(cleanup)];
+    }
+
+    bb18 (cleanup): {
+        drop(_19) -> [return: bb19, unwind terminate(cleanup)];
+    }
+
+    bb19 (cleanup): {
+        drop(_14) -> [return: bb20, unwind terminate(cleanup)];
+    }
+
+    bb20 (cleanup): {
+        drop(_2) -> [return: bb21, unwind terminate(cleanup)];
+    }
+
+    bb21 (cleanup): {
+        resume;
+    }
+}
+
+alloc9 (size: 10, align: 1) {
+    07 72 65 73 75 6c 74 2d c0 00                   │ .result-..
+}
+
+fn run::{closure#0}(_1: &mut {closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:61:17: 61:30}, _2: &i32) -> Key {
+    debug value => _2;
+    debug key_calls => (*((*_1).0: &mut u32));
+    debug left => (*((*_1).1: &i32));
+    debug state => (*((*_1).2: &std::rc::Rc<std::cell::Cell<u32>>));
+    debug scenario => (*((*_1).3: &&str));
+    let mut _0: Key;
+    let mut _3: (u32, bool);
+    let _4: &str;
+    let mut _5: bool;
+    let mut _6: i32;
+    let mut _7: i32;
+    let _8: ();
+    let _9: &std::cell::Cell<u32>;
+    let _10: &str;
+    let _11: &std::string::String;
+    let _12: std::string::String;
+    let mut _13: std::string::String;
+    let mut _14: std::fmt::Arguments<'_>;
+    let mut _16: &&str;
+    let mut _18: core::fmt::rt::Argument<'_>;
+    let mut _19: &[u8; 7];
+    let _20: &[core::fmt::rt::Argument<'_>; 1];
+    let mut _21: bool;
+    let mut _22: &&str;
+    let mut _23: bool;
+    let mut _24: &&str;
+    let mut _25: &&str;
+    let _26: !;
+    let mut _27: std::fmt::Arguments<'_>;
+    let mut _28: bool;
+    let mut _29: &&str;
+    let mut _30: bool;
+    let mut _31: &&str;
+    let mut _32: bool;
+    let mut _33: &&str;
+    let mut _34: &&str;
+    let _35: !;
+    let mut _36: std::fmt::Arguments<'_>;
+    let mut _37: &str;
+    let mut _38: i32;
+    let mut _39: std::rc::Rc<std::cell::Cell<u32>>;
+    let mut _40: bool;
+    let mut _41: bool;
+    let mut _42: &&str;
+    let mut _43: bool;
+    let mut _44: &&str;
+    let mut _45: bool;
+    let mut _46: &&str;
+    let mut _47: &&str;
+    let mut _48: &&str;
+    let mut _49: bool;
+    let mut _50: bool;
+    let mut _51: bool;
+    let mut _52: bool;
+    let mut _53: bool;
+    let mut _54: bool;
+    let mut _55: bool;
+    let mut _56: &&str;
+    let mut _57: &&str;
+    let mut _58: &&str;
+    let mut _59: &&str;
+    let mut _60: &&str;
+    let mut _61: &&str;
+    let mut _62: &&str;
+    let mut _63: &&str;
+    let mut _64: &&str;
+    let mut _65: &&str;
+    let mut _66: &mut u32;
+    let mut _67: &mut u32;
+    let mut _68: &mut u32;
+    let mut _69: &i32;
+    let mut _70: &std::rc::Rc<std::cell::Cell<u32>>;
+    let mut _71: &&str;
+    let mut _72: &&str;
+    let mut _73: &&str;
+    let mut _74: &&str;
+    let mut _75: &std::rc::Rc<std::cell::Cell<u32>>;
+    let mut _76: &&str;
+    let mut _77: &&str;
+    let mut _78: &&str;
+    let mut _79: &&str;
+    let mut _80: &str;
+    let mut _81: &&str;
+    let mut _82: &str;
+    let mut _83: &&str;
+    let mut _84: &str;
+    let mut _85: &&str;
+    let mut _86: &str;
+    let mut _87: &&str;
+    let mut _88: &str;
+    let mut _89: &&str;
+    let mut _90: &str;
+    scope 1 {
+        debug name => _4;
+        let _15: (&&str,);
+        scope 2 {
+            debug args => _15;
+            let _17: [core::fmt::rt::Argument<'_>; 1];
+            scope 3 {
+                debug args => _17;
+            }
+        }
+    }
+
+    bb0: {
+        _66 = copy ((*_1).0: &mut u32);
+        _3 = AddWithOverflow(copy (*_66), const 1_u32);
+        _67 = copy ((*_1).0: &mut u32);
+        assert(!move (_3.1: bool), "attempt to compute `{} + {}`, which would overflow", copy (*_67), const 1_u32) -> [success: bb1, unwind continue];
+    }
+
+    bb1: {
+        _68 = copy ((*_1).0: &mut u32);
+        (*_68) = move (_3.0: u32);
+        _6 = copy (*_2);
+        _69 = copy ((*_1).1: &i32);
+        _7 = copy (*_69);
+        _5 = Eq(move _6, move _7);
+        switchInt(move _5) -> [0: bb3, otherwise: bb2];
+    }
+
+    bb2: {
+        _4 = const "left";
+        goto -> bb4;
+    }
+
+    bb3: {
+        _4 = const "right";
+        goto -> bb4;
+    }
+
+    bb4: {
+        _70 = copy ((*_1).2: &std::rc::Rc<std::cell::Cell<u32>>);
+        _9 = <Rc<Cell<u32>> as Deref>::deref(copy _70) -> [return: bb5, unwind continue];
+    }
+
+    bb5: {
+        _16 = &_4;
+        _15 = (move _16,);
+        _71 = copy (_15.0: &&str);
+        _18 = core::fmt::rt::Argument::<'_>::new_display::<&str>(copy _71) -> [return: bb6, unwind continue];
+    }
+
+    bb6: {
+        _17 = [move _18];
+        _19 = const b"\x04key-\xc0\x00";
+        _20 = &_17;
+        _14 = Arguments::<'_>::new::<7, 1>(move _19, copy _20) -> [return: bb7, unwind continue];
+    }
+
+    bb7: {
+        _13 = format(move _14) -> [return: bb8, unwind continue];
+    }
+
+    bb8: {
+        _12 = must_use::<String>(move _13) -> [return: bb9, unwind continue];
+    }
+
+    bb9: {
+        _11 = &_12;
+        _10 = <String as Deref>::deref(copy _11) -> [return: bb10, unwind: bb56];
+    }
+
+    bb10: {
+        _8 = event(copy _9, copy _10) -> [return: bb11, unwind: bb56];
+    }
+
+    bb11: {
+        drop(_12) -> [return: bb12, unwind continue];
+    }
+
+    bb12: {
+        _72 = copy ((*_1).3: &&str);
+        _22 = const run::{closure#0}::promoted[13];
+        _21 = <&str as PartialEq>::eq(copy _72, move _22) -> [return: bb13, unwind continue];
+    }
+
+    bb13: {
+        switchInt(move _21) -> [0: bb18, otherwise: bb14];
+    }
+
+    bb14: {
+        _24 = &_4;
+        _25 = const run::{closure#0}::promoted[12];
+        _23 = <&str as PartialEq>::eq(move _24, move _25) -> [return: bb15, unwind continue];
+    }
+
+    bb15: {
+        switchInt(move _23) -> [0: bb18, otherwise: bb16];
+    }
+
+    bb16: {
+        _27 = Arguments::<'_>::from_str(const "first-key-panic") -> [return: bb17, unwind continue];
+    }
+
+    bb17: {
+        _26 = std::rt::panic_fmt(move _27) -> unwind continue;
+    }
+
+    bb18: {
+        _73 = copy ((*_1).3: &&str);
+        _29 = const run::{closure#0}::promoted[11];
+        _28 = <&str as PartialEq>::eq(copy _73, move _29) -> [return: bb19, unwind continue];
+    }
+
+    bb19: {
+        switchInt(move _28) -> [0: bb20, otherwise: bb22];
+    }
+
+    bb20: {
+        _74 = copy ((*_1).3: &&str);
+        _31 = const run::{closure#0}::promoted[10];
+        _30 = <&str as PartialEq>::eq(copy _74, move _31) -> [return: bb21, unwind continue];
+    }
+
+    bb21: {
+        switchInt(move _30) -> [0: bb26, otherwise: bb22];
+    }
+
+    bb22: {
+        _33 = &_4;
+        _34 = const run::{closure#0}::promoted[9];
+        _32 = <&str as PartialEq>::eq(move _33, move _34) -> [return: bb23, unwind continue];
+    }
+
+    bb23: {
+        switchInt(move _32) -> [0: bb26, otherwise: bb24];
+    }
+
+    bb24: {
+        _36 = Arguments::<'_>::from_str(const "second-key-panic") -> [return: bb25, unwind continue];
+    }
+
+    bb25: {
+        _35 = std::rt::panic_fmt(move _36) -> unwind continue;
+    }
+
+    bb26: {
+        _37 = copy _4;
+        _38 = copy (*_2);
+        _75 = copy ((*_1).2: &std::rc::Rc<std::cell::Cell<u32>>);
+        _39 = <Rc<Cell<u32>> as Clone>::clone(copy _75) -> [return: bb27, unwind continue];
+    }
+
+    bb27: {
+        _76 = copy ((*_1).3: &&str);
+        _42 = const run::{closure#0}::promoted[8];
+        _41 = <&str as PartialEq>::eq(copy _76, move _42) -> [return: bb28, unwind: bb55];
+    }
+
+    bb28: {
+        switchInt(move _41) -> [0: bb29, otherwise: bb33];
+    }
+
+    bb29: {
+        _77 = copy ((*_1).3: &&str);
+        _44 = const run::{closure#0}::promoted[7];
+        _43 = <&str as PartialEq>::eq(copy _77, move _44) -> [return: bb30, unwind: bb55];
+    }
+
+    bb30: {
+        switchInt(move _43) -> [0: bb31, otherwise: bb33];
+    }
+
+    bb31: {
+        _78 = copy ((*_1).3: &&str);
+        _46 = const run::{closure#0}::promoted[6];
+        _45 = <&str as PartialEq>::eq(copy _78, move _46) -> [return: bb32, unwind: bb55];
+    }
+
+    bb32: {
+        switchInt(move _45) -> [0: bb34, otherwise: bb33];
+    }
+
+    bb33: {
+        _47 = &_4;
+        _48 = const run::{closure#0}::promoted[5];
+        _40 = <&str as PartialEq>::eq(move _47, move _48) -> [return: bb58, unwind: bb55];
+    }
+
+    bb34: {
+        _40 = const false;
+        goto -> bb35;
+    }
+
+    bb35: {
+        _79 = copy ((*_1).3: &&str);
+        _80 = copy (*_79);
+        _55 = <str as PartialEq>::eq(copy _80, const "right-drop-panic") -> [return: bb53, unwind: bb55];
+    }
+
+    bb36: {
+        _49 = const false;
+        goto -> bb54;
+    }
+
+    bb37: {
+        _56 = &_4;
+        _57 = const run::{closure#0}::promoted[4];
+        _49 = <&str as PartialEq>::eq(move _56, move _57) -> [return: bb59, unwind: bb55];
+    }
+
+    bb38: {
+        _81 = copy ((*_1).3: &&str);
+        _82 = copy (*_81);
+        _54 = <str as PartialEq>::eq(copy _82, const "left-drop-panic") -> [return: bb52, unwind: bb55];
+    }
+
+    bb39: {
+        _58 = &_4;
+        _59 = const run::{closure#0}::promoted[3];
+        _49 = <&str as PartialEq>::eq(move _58, move _59) -> [return: bb60, unwind: bb55];
+    }
+
+    bb40: {
+        _83 = copy ((*_1).3: &&str);
+        _84 = copy (*_83);
+        _53 = <str as PartialEq>::eq(copy _84, const "ord-lt-panic-right-drop-panic") -> [return: bb51, unwind: bb55];
+    }
+
+    bb41: {
+        _60 = &_4;
+        _61 = const run::{closure#0}::promoted[2];
+        _49 = <&str as PartialEq>::eq(move _60, move _61) -> [return: bb61, unwind: bb55];
+    }
+
+    bb42: {
+        _85 = copy ((*_1).3: &&str);
+        _86 = copy (*_85);
+        _52 = <str as PartialEq>::eq(copy _86, const "ord-lt-panic-left-drop-panic") -> [return: bb50, unwind: bb55];
+    }
+
+    bb43: {
+        _62 = &_4;
+        _63 = const run::{closure#0}::promoted[1];
+        _49 = <&str as PartialEq>::eq(move _62, move _63) -> [return: bb62, unwind: bb55];
+    }
+
+    bb44: {
+        _87 = copy ((*_1).3: &&str);
+        _88 = copy (*_87);
+        _51 = <str as PartialEq>::eq(copy _88, const "right-drop-panic-left-drop-panic") -> [return: bb49, unwind: bb55];
+    }
+
+    bb45: {
+        _49 = const true;
+        goto -> bb54;
+    }
+
+    bb46: {
+        _89 = copy ((*_1).3: &&str);
+        _90 = copy (*_89);
+        _50 = <str as PartialEq>::eq(copy _90, const "second-key-panic-left-drop-panic") -> [return: bb48, unwind: bb55];
+    }
+
+    bb47: {
+        _64 = &_4;
+        _65 = const run::{closure#0}::promoted[0];
+        _49 = <&str as PartialEq>::eq(move _64, move _65) -> [return: bb63, unwind: bb55];
+    }
+
+    bb48: {
+        switchInt(move _50) -> [0: bb36, otherwise: bb47];
+    }
+
+    bb49: {
+        switchInt(move _51) -> [0: bb46, otherwise: bb45];
+    }
+
+    bb50: {
+        switchInt(move _52) -> [0: bb44, otherwise: bb43];
+    }
+
+    bb51: {
+        switchInt(move _53) -> [0: bb42, otherwise: bb41];
+    }
+
+    bb52: {
+        switchInt(move _54) -> [0: bb40, otherwise: bb39];
+    }
+
+    bb53: {
+        switchInt(move _55) -> [0: bb38, otherwise: bb37];
+    }
+
+    bb54: {
+        _0 = Key { name: move _37, rank: move _38, state: move _39, panic_in_lt: move _40, panic_in_drop: move _49 };
+        return;
+    }
+
+    bb55 (cleanup): {
+        drop(_39) -> [return: bb57, unwind terminate(cleanup)];
+    }
+
+    bb56 (cleanup): {
+        drop(_12) -> [return: bb57, unwind terminate(cleanup)];
+    }
+
+    bb57 (cleanup): {
+        resume;
+    }
+
+    bb58: {
+        goto -> bb35;
+    }
+
+    bb59: {
+        goto -> bb54;
+    }
+
+    bb60: {
+        goto -> bb54;
+    }
+
+    bb61: {
+        goto -> bb54;
+    }
+
+    bb62: {
+        goto -> bb54;
+    }
+
+    bb63: {
+        goto -> bb54;
+    }
+}
+
+alloc14 (size: 16, align: 1) {
+    73 65 63 6f 6e 64 2d 6b 65 79 2d 70 61 6e 69 63 │ second-key-panic
+}
+
+alloc13 (size: 15, align: 1) {
+    66 69 72 73 74 2d 6b 65 79 2d 70 61 6e 69 63    │ first-key-panic
+}
+
+alloc12 (size: 7, align: 1) {
+    04 6b 65 79 2d c0 00                            │ .key-..
+}
+
+alloc11 (size: 5, align: 1) {
+    72 69 67 68 74                                  │ right
+}
+
+alloc10 (size: 4, align: 1) {
+    6c 65 66 74                                     │ left
+}
+
+const run::{closure#0}::promoted[0]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "left";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc10 (size: 4, align: 1) {
+    6c 65 66 74                                     │ left
+}
+
+const run::{closure#0}::promoted[1]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "left";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc10 (size: 4, align: 1) {
+    6c 65 66 74                                     │ left
+}
+
+const run::{closure#0}::promoted[2]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "right";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc11 (size: 5, align: 1) {
+    72 69 67 68 74                                  │ right
+}
+
+const run::{closure#0}::promoted[3]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "left";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc10 (size: 4, align: 1) {
+    6c 65 66 74                                     │ left
+}
+
+const run::{closure#0}::promoted[4]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "right";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc11 (size: 5, align: 1) {
+    72 69 67 68 74                                  │ right
+}
+
+const run::{closure#0}::promoted[5]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "left";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc10 (size: 4, align: 1) {
+    6c 65 66 74                                     │ left
+}
+
+const run::{closure#0}::promoted[6]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "ord-lt-panic-left-drop-panic";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc17 (size: 28, align: 1) {
+    0x00 │ 6f 72 64 2d 6c 74 2d 70 61 6e 69 63 2d 6c 65 66 │ ord-lt-panic-lef
+    0x10 │ 74 2d 64 72 6f 70 2d 70 61 6e 69 63             │ t-drop-panic
+}
+
+const run::{closure#0}::promoted[7]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "ord-lt-panic-right-drop-panic";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc16 (size: 29, align: 1) {
+    0x00 │ 6f 72 64 2d 6c 74 2d 70 61 6e 69 63 2d 72 69 67 │ ord-lt-panic-rig
+    0x10 │ 68 74 2d 64 72 6f 70 2d 70 61 6e 69 63          │ ht-drop-panic
+}
+
+const run::{closure#0}::promoted[8]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "ord-lt-panic";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc3 (size: 12, align: 1) {
+    6f 72 64 2d 6c 74 2d 70 61 6e 69 63             │ ord-lt-panic
+}
+
+const run::{closure#0}::promoted[9]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "right";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc11 (size: 5, align: 1) {
+    72 69 67 68 74                                  │ right
+}
+
+const run::{closure#0}::promoted[10]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "second-key-panic-left-drop-panic";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc15 (size: 32, align: 1) {
+    0x00 │ 73 65 63 6f 6e 64 2d 6b 65 79 2d 70 61 6e 69 63 │ second-key-panic
+    0x10 │ 2d 6c 65 66 74 2d 64 72 6f 70 2d 70 61 6e 69 63 │ -left-drop-panic
+}
+
+const run::{closure#0}::promoted[11]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "second-key-panic";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc14 (size: 16, align: 1) {
+    73 65 63 6f 6e 64 2d 6b 65 79 2d 70 61 6e 69 63 │ second-key-panic
+}
+
+const run::{closure#0}::promoted[12]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "left";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc10 (size: 4, align: 1) {
+    6c 65 66 74                                     │ left
+}
+
+const run::{closure#0}::promoted[13]: &&str = {
+    let mut _0: &&str;
+    let mut _1: &str;
+
+    bb0: {
+        _1 = const "first-key-panic";
+        _0 = &_1;
+        return;
+    }
+}
+
+alloc13 (size: 15, align: 1) {
+    66 69 72 73 74 2d 6b 65 79 2d 70 61 6e 69 63    │ first-key-panic
+}
+
+fn main() -> () {
+    let mut _0: ();
+    let _1: ();
+    let mut _2: std::boxed::Box<dyn for<'a, 'b> std::ops::Fn(&'a std::panic::PanicHookInfo<'b>) + std::marker::Send + std::marker::Sync>;
+    let mut _3: std::boxed::Box<{closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:101:35: 101:41}>;
+    let _4: std::string::String;
+    let mut _5: std::option::Option<std::string::String>;
+    let mut _6: &mut std::env::Args;
+    let mut _7: std::env::Args;
+    let mut _8: &str;
+    let _9: ();
+    let _10: &str;
+    let _11: &std::string::String;
+    scope 1 {
+        debug scenario => _4;
+    }
+
+    bb0: {
+        _3 = Box::<{closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:101:35: 101:41}>::new(const ZeroSized: {closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:101:35: 101:41}) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _2 = move _3 as std::boxed::Box<dyn for<'a, 'b> std::ops::Fn(&'a std::panic::PanicHookInfo<'b>) + std::marker::Send + std::marker::Sync> (PointerCoercion(Unsize, Implicit));
+        _1 = set_hook(move _2) -> [return: bb2, unwind continue];
+    }
+
+    bb2: {
+        _7 = args() -> [return: bb3, unwind continue];
+    }
+
+    bb3: {
+        _6 = &mut _7;
+        _5 = <Args as Iterator>::nth(move _6, const 1_usize) -> [return: bb4, unwind: bb11];
+    }
+
+    bb4: {
+        _8 = const "scenario argument";
+        _4 = Option::<String>::expect(move _5, move _8) -> [return: bb5, unwind: bb11];
+    }
+
+    bb5: {
+        drop(_7) -> [return: bb6, unwind: bb10];
+    }
+
+    bb6: {
+        _11 = &_4;
+        _10 = <String as Deref>::deref(copy _11) -> [return: bb7, unwind: bb10];
+    }
+
+    bb7: {
+        _9 = run(copy _10) -> [return: bb8, unwind: bb10];
+    }
+
+    bb8: {
+        drop(_4) -> [return: bb9, unwind continue];
+    }
+
+    bb9: {
+        return;
+    }
+
+    bb10 (cleanup): {
+        drop(_4) -> [return: bb12, unwind terminate(cleanup)];
+    }
+
+    bb11 (cleanup): {
+        drop(_7) -> [return: bb12, unwind terminate(cleanup)];
+    }
+
+    bb12 (cleanup): {
+        resume;
+    }
+}
+
+alloc24 (size: 17, align: 1) {
+    0x00 │ 73 63 65 6e 61 72 69 6f 20 61 72 67 75 6d 65 6e │ scenario argumen
+    0x10 │ 74                                              │ t
+}
+
+fn main::{closure#0}(_1: &{closure@/home/chentianyu/nanvix-rust-std-spec-survey/experiments/rust-std-slice-trust-boundary-conditional-completeness-v011-2026-08-28/research/probes/target_079_adapter_probe.rs:101:35: 101:41}, _2: &PanicHookInfo<'_>) -> () {
+    debug info => _2;
+    let mut _0: ();
+    let _3: ();
+    let mut _4: std::fmt::Arguments<'_>;
+    let _5: (&&std::panic::PanicHookInfo<'_>,);
+    let mut _6: &&std::panic::PanicHookInfo<'_>;
+    let mut _8: core::fmt::rt::Argument<'_>;
+    let mut _9: &[u8; 16];
+    let _10: &[core::fmt::rt::Argument<'_>; 1];
+    let mut _11: &&std::panic::PanicHookInfo<'_>;
+    scope 1 {
+        debug args => _5;
+        let _7: [core::fmt::rt::Argument<'_>; 1];
+        scope 2 {
+            debug args => _7;
+        }
+    }
+
+    bb0: {
+        _6 = &_2;
+        _5 = (move _6,);
+        _11 = copy (_5.0: &&std::panic::PanicHookInfo<'_>);
+        _8 = core::fmt::rt::Argument::<'_>::new_display::<&PanicHookInfo<'_>>(copy _11) -> [return: bb1, unwind continue];
+    }
+
+    bb1: {
+        _7 = [move _8];
+        _9 = const b"\x0bpanic-hook=\xc0\x01\n\x00";
+        _10 = &_7;
+        _4 = Arguments::<'_>::new::<16, 1>(move _9, copy _10) -> [return: bb2, unwind continue];
+    }
+
+    bb2: {
+        _3 = std::io::_eprint(move _4) -> [return: bb3, unwind continue];
+    }
+
+    bb3: {
+        return;
+    }
+}
+
+alloc25 (size: 16, align: 1) {
+    0b 70 61 6e 69 63 2d 68 6f 6f 6b 3d c0 01 0a 00 │ .panic-hook=....
+}

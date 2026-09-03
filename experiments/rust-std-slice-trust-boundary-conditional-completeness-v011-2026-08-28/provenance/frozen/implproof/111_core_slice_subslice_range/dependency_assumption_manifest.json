@@ -1,0 +1,191 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "slice_subslice_in_domain;slice_subslice_range_option_result;slice_subslice_range_result;slice_start_ptr",
+      "rationale": "The harness instantiates the generated subslice-range vocabulary and the reviewed immutable slice-start pointer vocabulary without assuming the public target body.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "generated_target_dependency",
+      "name": "core::slice::as_ptr",
+      "rationale": "Rust 1.96 computes both `self.as_ptr().addr()` and `subslice.as_ptr().addr()`. The harness reuses the reviewed as_ptr raw-cast boundary locally to obtain `slice_start_ptr(..., ptr)` before observing pointer addresses.",
+      "source_lines": "core/src/slice/mod.rs:726-728 and 5321-5322",
+      "source_sha256": "df0d49a1417773cb8932d48e9e7bb06a553039beaca7f20000b9fc6319236c1d",
+      "status": "reviewed_dependency_reused_for_immutable_pointer_start_fact"
+    },
+    {
+      "kind": "source_backed_zst_panic_boundary",
+      "name": "rust_1_96_subslice_range_zst_panic",
+      "rationale": "The source body panics on `T::IS_ZST` before dividing by `size_of::<T>()`; the harness preserves the panic branch as the retained ZST-domain boundary while `rust_1_96_type_is_zst` and `rust_1_96_size_of` now verify from concrete `core::mem::size_of::<T>()`.",
+      "source_excerpt_relpath": "proof_harnesses/111_core_slice_subslice_range/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5316-5318,5326",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421",
+      "status": "retained_minimal_source_backed_boundary_for_zst_panic_only"
+    },
+    {
+      "kind": "source_verified_pointer_address_helper",
+      "name": "rust_1_96_ptr_addr",
+      "rationale": "Verus supports the Rust 1.96 `ptr.addr()` wrapper here, so the target-local pointer-address observation helper is executable. The generated Seq view still has no provenance/address model, so the lower pointer-domain result bridges remain retained.",
+      "source_excerpt_relpath": "proof_harnesses/111_core_slice_subslice_range/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5321-5322",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421",
+      "status": "verified_executable_not_trusted_boundary"
+    },
+    {
+      "kind": "source_verified_layout_pointer_alignment_range_arithmetic_helpers",
+      "name": "rust_1_96_type_is_zst;rust_1_96_size_of;rust_1_96_ptr_addr;rust_1_96_wrapping_sub;rust_1_96_is_multiple_of;rust_1_96_divide_byte_offset;rust_1_96_wrapping_add",
+      "rationale": "The public target preserves the concrete `core::mem::size_of::<T>() == 0` ZST test, the concrete nonzero `size_of::<T>()` fact after the panic branch, pointer-address observations, wrapping address subtraction, alignment check via `is_multiple_of(size_of::<T>())`, byte-offset division, and wrapping end construction. These source-pure operations now have executable verified helper bodies rather than trusted `external_body` boundaries; the pointer-domain bridges still carry the provenance/address facts that pure arithmetic cannot provide.",
+      "source_excerpt_relpath": "proof_harnesses/111_core_slice_subslice_range/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5324-5331",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421",
+      "status": "verified_executable_not_trusted_boundary"
+    },
+    {
+      "kind": "source_backed_pointer_domain_result_bridge_boundary",
+      "name": "rust_1_96_subslice_range_unaligned_bridge;rust_1_96_subslice_range_oob_bridge;rust_1_96_subslice_range_some_bridge",
+      "rationale": "The source distinguishes unaligned None, out-of-slice None, and length-guarded Some(start..end), but the pure contract vocabulary is relational over pointer-domain membership. The bridge connects preserved source branches to that vocabulary without forcing uniqueness or changing the contract.",
+      "source_excerpt_relpath": "proof_harnesses/111_core_slice_subslice_range/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:5324-5336",
+      "source_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421",
+      "status": "minimal_result_bridge_for_pointer_provenance_alignment_domain_contract"
+    }
+  ],
+  "direct_call_names": [
+    "as_ptr",
+    "addr",
+    "wrapping_sub",
+    "is_multiple_of",
+    "size_of",
+    "wrapping_add",
+    "len",
+    "panic!",
+    "rust_1_96_slice_as_ptr_cast",
+    "rust_1_96_type_is_zst",
+    "rust_1_96_subslice_range_zst_panic",
+    "rust_1_96_size_of",
+    "rust_1_96_ptr_addr",
+    "rust_1_96_wrapping_sub",
+    "rust_1_96_is_multiple_of",
+    "rust_1_96_divide_byte_offset",
+    "rust_1_96_wrapping_add",
+    "rust_1_96_subslice_range_unaligned_bridge",
+    "rust_1_96_subslice_range_oob_bridge",
+    "rust_1_96_subslice_range_some_bridge"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::as_ptr"
+  ],
+  "harness_sha256": "a146f50eddb3926853c4c17c18838063a647cb152fdee0b6e0cc940eb2b0d49c",
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external executable public target preserving the Rust 1.96 subslice_range flow: ZST panic branch, self/subslice as_ptr().addr(), wrapping_sub byte_start, is_multiple_of(size_of::<T>()) alignment check, division by size_of::<T>(), wrapping_add end construction, and length-guarded Some(Range { start, end })/None. The concrete `core::mem::size_of::<T>() == 0` test, concrete nonzero size fact, ptr.addr(), wrapping/alignment/division/addition helpers are executable and verified locally; the generated option-result contract is discharged modulo the reviewed as_ptr boundary plus narrow source-backed ZST panic and pointer/provenance/address/domain bridges. The harness contains no assume_specification marker and no public-target external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus --crate-type=lib proof_harnesses/111_core_slice_subslice_range/harness.rs",
+    "duration_limit_seconds": 60,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_actual.rc",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "no_verify_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus --crate-type=lib --no-verify proof_harnesses/111_core_slice_subslice_range/harness.rs",
+    "no_verify_exit_code": 0,
+    "no_verify_exit_code_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.rc",
+    "no_verify_exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "no_verify_stderr_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.stderr",
+    "no_verify_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "no_verify_stdout_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.stdout",
+    "no_verify_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_actual.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_actual.stdout",
+    "stdout_sha256": "0db84fdca805e20957a6a5f77ba941cb3a95665386d6103b420b85cfa71f3609",
+    "summary": "verification results:: 10 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus --crate-type=lib --no-verify proof_harnesses/111_core_slice_subslice_range/harness.rs",
+    "typecheck_exit_code_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.rc",
+    "typecheck_exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "typecheck_stderr_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.stderr",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.stdout",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/111_core_slice_subslice_range/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu\n\n"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_raw_pointer_cast_boundary_and_addr_zst_panic_pointer_domain_bridge_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "a7deec2b313078cd2025212553c60d1578ed93aac7baa15a11c2749f97fd5421",
+  "target": "core::slice::subslice_range",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus --crate-type=lib --no-verify proof_harnesses/111_core_slice_subslice_range/harness.rs",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.rc",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_inventory/raw_slice_start_pointer_tail_consumers_20260818T0802Z/evidence/111_core_slice_subslice_range_no_verify.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bpanic!"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "\\bas_ptr\\s*\\("
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

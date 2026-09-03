@@ -1,0 +1,202 @@
+{
+  "active_contract": {
+    "authority_path": "evidence/targets/078_core_slice_select_nth_unstable_by/authority_bindings.json",
+    "contract_sha256": "8d197563a2e9735beef3c52ff46ea5d3dd44da47b48e3b199654cf3c667490d7",
+    "contract_text": "pub assume_specification<T, F: core::ops::FnMut(&T, &T) -> core::cmp::Ordering>[ <[T]>::select_nth_unstable_by::<F> ]( slice: &mut [T], index: usize, compare: F, ) -> (ret: (&mut [T], &mut T, &mut [T])) requires index < old(slice)@.len(), ensures final(slice)@ == final(ret.0)@ + seq![*final(ret.1)] + final(ret.2)@, final(ret.0)@.len() == index, *final(ret.1) == final(slice)@[index as int], final(ret.2)@.len() == old(slice)@.len() - (index as int) - 1, slice_permutation(old(slice)@, final(slice)@), slice_select_partition_cmp( final(ret.0)@, *final(ret.1), final(ret.2)@, comparator_observation(compare, old(slice)@), ), ;",
+    "conjuncts": [
+      "final(slice) == final(ret.0) + [*final(ret.1)] + final(ret.2)",
+      "len(final(ret.0)) == index",
+      "*final(ret.1) == final(slice)[index]",
+      "len(final(ret.2)) == len(old(slice)) - index - 1",
+      "slice_permutation(old(slice), final(slice))",
+      "slice_select_partition_cmp(final(ret.0), *final(ret.1), final(ret.2), comparator_observation(compare, old(slice)))"
+    ]
+  },
+  "boundary": {
+    "admitted_trust_site_ids": [
+      "TS-078-D004"
+    ],
+    "context_only_trust_site_ids": [
+      "TS-078-D001",
+      "TS-078-C001"
+    ],
+    "observations": [
+      "callback identity",
+      "initial callback-visible state",
+      "total immutable functional Ordering(state,left_identity,right_identity)",
+      "total immutable functional next_state(state,left_identity,right_identity)",
+      "total immutable functional panic(state,left_identity,right_identity)",
+      "state-independent contract Ordering(left_identity,right_identity), exactly projected from implementation Ordering and constrained by reflexive, dual, total, and transitive laws"
+    ],
+    "prohibited_observations": [
+      "realized calls or count",
+      "partial or trace-shaped callback domains",
+      "pivot or partition choices",
+      "mutations or permutation",
+      "returned references or range",
+      "post-sequence",
+      "post-callback state",
+      "answer or trace encoding"
+    ]
+  },
+  "classification_eligible": true,
+  "formal_source_transition": "tools/target_078_exact_smt_v1.py::ExactRunState",
+  "configuration_coverage": [
+    "optimize_for_size=true",
+    "optimize_for_size=false",
+    "size_of_T<=16",
+    "16<size_of_T<=96",
+    "size_of_T>96"
+  ],
+  "covered_source": [
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/source_item.rs",
+      "references": [
+        "core/src/slice/mod.rs:3581-3590"
+      ],
+      "role": "public-target-adapter",
+      "semantic_anchors": [
+        "pub fn select_nth_unstable_by",
+        "compare(a, b) == Less",
+        "sort::select::partition_at_index"
+      ],
+      "sha256": "e747f8a086cd882588cd5afe9b1800c1ec90130423301aef03089f05e5623fca"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/select.rs",
+      "references": [
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "role": "selection-and-fallback",
+      "semantic_anchors": [
+        "fn partition_at_index_loop",
+        "let mut limit = 16",
+        "median_of_medians",
+        "median_of_ninthers",
+        "fn ninther",
+        "fn median_idx"
+      ],
+      "sha256": "93b40c191cc4a5410bf070e80b27ad60dbba144f4628568fbb2f3a6608ff285f"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/pivot.rs",
+      "references": [
+        "core/src/slice/sort/shared/pivot.rs:1-94"
+      ],
+      "role": "pivot-selection",
+      "semantic_anchors": [
+        "pub fn choose_pivot",
+        "unsafe fn median3_rec",
+        "fn median3"
+      ],
+      "sha256": "09788115fcd10dac381446e2a68c228266ed2c78d4840fcdb3b77b7bd06bce6e"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/partition_entry.rs",
+      "references": [
+        "frozen core/src/slice/sort/unstable/quicksort.rs:93-137"
+      ],
+      "role": "frozen-partition-entry",
+      "semantic_anchors": [
+        "pub(crate) fn partition",
+        "let num_lt = (const { inst_partition::<T, F>() })",
+        "v.swap_unchecked(0, num_lt)"
+      ],
+      "sha256": "659bf07e9477479b77ae012563e7fd74c1e8fd5344511c637d0a2677fb6fa55b"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/quicksort.rs",
+      "references": [
+        "core/src/slice/sort/unstable/quicksort.rs:93-393"
+      ],
+      "role": "partition-and-unwind",
+      "semantic_anchors": [
+        "pub(crate) fn partition",
+        "const fn inst_partition",
+        "partition_hoare_branchy_cyclic",
+        "partition_lomuto_branchless_cyclic",
+        "partition_lomuto_branchless_simple",
+        "struct GapGuard",
+        "struct GapGuardRaw"
+      ],
+      "sha256": "8fc55e114a3715dafb6b6d336b9450534ce7d45314d71faa9bd79a0c7d3e8a13"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/smallsort.rs",
+      "references": [
+        "core/src/slice/sort/shared/smallsort.rs:295-309,542-607"
+      ],
+      "role": "small-sort-and-unwind",
+      "semantic_anchors": [
+        "struct CopyOnDrop",
+        "unsafe fn insert_tail",
+        "pub fn insertion_sort_shift_left"
+      ],
+      "sha256": "42750ff629840c8a6b065a6dfdb9dc359cde7453d47ff8209b58469fb08b13da"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/cfg_select.rs",
+      "references": [
+        "core/src/macros/mod.rs:231-236"
+      ],
+      "role": "cfg-select-semantics",
+      "semantic_anchors": [
+        "pub macro cfg_select",
+        "compiler built-in"
+      ],
+      "sha256": "e1c99a9323ee5b163fcb1dde31b314cf640f5a13747923d898bb21889b689910"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/sized_type_properties.rs",
+      "references": [
+        "core/src/mem/mod.rs:1271-1324"
+      ],
+      "role": "zst-type-property",
+      "semantic_anchors": [
+        "pub trait SizedTypeProperties",
+        "const IS_ZST: bool = Self::SIZE == 0"
+      ],
+      "sha256": "4b9a8c9276ddf8ae9166df2099b72dbb64e0b1d05a5d8b1520b92dd6bcff723a"
+    },
+    {
+      "path": "evidence/target_078_operational_v1/bound_inputs/callback_vocabulary.rs",
+      "references": [
+        "specs/slice_shared_vocabulary.rs:664-749,768-776"
+      ],
+      "role": "callback-contract-vocabulary",
+      "semantic_anchors": [
+        "pub ghost struct ComparatorObservation",
+        "comparator_ordering_observed",
+        "slice_select_partition_cmp"
+      ],
+      "sha256": "c6f97215ac7f923733aba4ee18d26514f04241b2a5b4d2ffc1a3b7860e64c735"
+    }
+  ],
+  "missing_source_phases": [],
+  "model_id": "target-078-operational-v1-rust-1.96-complete",
+  "model_version": 1,
+  "primitive_semantics": [
+    "slice length and indexing",
+    "split_at_mut reference projection",
+    "swap and mem::swap",
+    "ptr::read, ptr::copy, and ptr::copy_nonoverlapping",
+    "integer comparisons and checked source index arithmetic"
+  ],
+  "schema_version": 2,
+  "source_model_complete": true,
+  "target": "core::slice::select_nth_unstable_by",
+  "trust_site_dispositions": {
+    "TS-078-D002": {
+      "disposition": "replaced-by-public-adapter-transition",
+      "scope": "Only compare(a,b) == Ordering::Less closure lowering; it does not supply selection output."
+    },
+    "TS-078-D003": {
+      "disposition": "replaced-by-complete-source-operational-model",
+      "scope": "Bounds, configuration dispatch, pivot selection, lower partitions, narrowing, fallback, unwind, and return are derived from the bound Rust 1.96 closure."
+    },
+    "TS-078-E001": {
+      "disposition": "excluded-and-replaced-by-complete-source-operational-model",
+      "scope": "The answer-bearing external body is not called or assumed by this model."
+    }
+  }
+}

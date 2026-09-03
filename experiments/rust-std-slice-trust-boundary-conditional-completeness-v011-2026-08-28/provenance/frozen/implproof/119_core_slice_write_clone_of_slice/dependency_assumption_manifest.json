@@ -1,0 +1,176 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_model_helper",
+      "name": "MaybeUninitSliceRelation;maybe_uninit_seq_relation;maybe_uninit_relation_well_formed;maybe_uninit_all_initialized;maybe_uninit_written_from;maybe_uninit_prefix_written_from",
+      "rationale": "The generated MaybeUninit raw-storage vocabulary is instantiated in the harness as target-local spec definitions and is used to state the written-from relation. The target-local prefix helper is a proof decomposition of the same final written-from relation and does not assume the public target body.",
+      "source_lines": "frozen_inputs/slice/specs/slice_shared_vocabulary.rs:1143-1185",
+      "status": "audited_generated_contract_vocabulary_instantiated_in_harness"
+    },
+    {
+      "kind": "reviewed_generated_dependency_boundary",
+      "name": "core::slice::assume_init_mut",
+      "rationale": "The final Rust 1.96 `unsafe { self.assume_init_mut() }` step reuses the already ordered `core::slice::assume_init_mut` proof shape and its source-backed MaybeUninit raw mutable-slice cast boundary.",
+      "source_excerpt_relpath": "proof_harnesses/026_core_slice_assume_init_mut/source_excerpt.rs",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1527-1531",
+      "source_sha256": "beb997b66dd7cca2818667bddfe1e1ade51676cdf0ea4f32cf6253af1c0234f4",
+      "status": "reviewed_dependency_reused_for_final_initialized_storage_cast"
+    },
+    {
+      "kind": "source_backed_clone_write_boundary",
+      "name": "rust_1_96_write_cloned_at",
+      "rationale": "Each loop iteration preserves the source operation `guard.slice[i].write(src[i].clone())`; the wrapper now verifies the source-side `src[i].clone()` under the equal-length index bound and isolates only the destination `slice[i].write(value)` MaybeUninit slot write because Verus does not recursively model MaybeUninit slot writes or destination slice indexing/provenance.",
+      "source_excerpt_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/source_excerpt.rs",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1242",
+      "source_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6",
+      "status": "minimal_trusted_boundary_for_maybeuninit_slot_write_destination_indexing_and_provenance"
+    },
+    {
+      "kind": "source_backed_guard_iteration_effect_boundary",
+      "name": "rust_1_96_write_clone_iteration_effect",
+      "rationale": "The public body keeps the initialized counter, loop guard, counter increment, and final `forget(guard)`. The proof-only bridge is now per-iteration: after one source-shaped clone/write step it extends the carried MaybeUninit initialized/value prefix by one slot, and the executable loop invariant carries those facts to completion.",
+      "source_excerpt_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/source_excerpt.rs",
+      "source_lines": "core/src/mem/maybe_uninit.rs:1238-1245",
+      "source_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6",
+      "status": "minimal_trusted_boundary_for_per_iteration_guard_commit_and_maybeuninit_prefix_relation"
+    }
+  ],
+  "direct_call_names": [
+    "len",
+    "rust_1_96_equal_len_source_prefix",
+    "rust_1_96_clone_write_at",
+    "forget",
+    "assume_init_mut"
+  ],
+  "generated_target_dependency_candidates": [
+    "core::slice::assume_init_mut"
+  ],
+  "harness_sha256": "36e27942a83b6231dad8830c5d1b131c338a26aa2e0542b253973c130b219118",
+  "module": "slice",
+  "notes": "The seed recorder was replaced with a non-external public write_clone_of_slice target. It preserves the Rust 1.96 length assertion, equal-length source prefix, Guard initialized counter, clone/write loop, guard forget, and final assume_init_mut call. The equal-length source prefix helper verifies as executable code using the source-equivalent full-prefix split_at(len) construction under len == src@.len(); it is no longer a target-local trusted boundary. The per-iteration wrapper verifies the source-side `src[i].clone()` under the equal-length index bound and retains only the destination MaybeUninit slot-write/indexing/provenance boundary, while a narrower per-iteration bridge extends the MaybeUninit written/value prefix and the executable loop invariant carries that fact to the final written-from relation. This is a B proof modulo source-backed MaybeUninit initialized-storage vocabulary, destination slot-write/provenance, per-iteration guard/write relation, and the reviewed assume_init_mut raw-cast dependency; the harness has no assume_specification and does not externalize the target body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 144,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter/macros.rs",
+      "item_sha256": "48328fef24b9a414c7599eb67374e2d10f3c26ce8316557ce897b9c9e5203fc1",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 142,
+      "source_reference_path": "core/src/slice/iter/macros.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 297,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/stable/drift.rs",
+      "item_sha256": "39713253c1089e4b037e302f5b7358f257f51d24290f54f0efc0dc25d78323fc",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 295,
+      "source_reference_path": "core/src/slice/sort/stable/drift.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 17,
+      "frozen_relpath": "frozen_inputs/vec/rust-alloc-vec/vec/in_place_drop.rs",
+      "item_sha256": "abc18bdf2169eed2a02867127488f3df813795a68b96b8e832725dab3e82adb9",
+      "name": "len",
+      "public": false,
+      "signature_start_line": 15,
+      "source_reference_path": "alloc/src/vec/in_place_drop.rs",
+      "disposition": "source_indexed_conservative_len_callee_not_semantically_assumed"
+    },
+    {
+      "body_end_line": 1531,
+      "frozen_relpath": "frozen_inputs/slice/rust-core-adjacent/mem/maybe_uninit.rs",
+      "item_sha256": "beb997b66dd7cca2818667bddfe1e1ade51676cdf0ea4f32cf6253af1c0234f4",
+      "name": "assume_init_mut",
+      "public": true,
+      "signature_start_line": 1527,
+      "source_reference_path": "core/src/mem/maybe_uninit.rs",
+      "disposition": "reviewed_generated_dependency_reused"
+    }
+  ],
+  "proof_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/119_core_slice_write_clone_of_slice/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_stdout.txt",
+    "stdout_sha256": "d60b12749bfab863a82c999f402053a54f20be737b2fcada613916611c077e8b",
+    "summary": "verification results:: 7 verified, 0 errors",
+    "typecheck_command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/119_core_slice_write_clone_of_slice/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_maybeuninit_clone_write_loop_and_assume_init_mut_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "cd1152779de3a6bc96b29997e8a95d3beb9ff1018f99223b429ed0df66baa8ef",
+  "source_item_sha256": "e462745e3463480cfc474d3dcdfb86acac33f658f55c9cd12500e44d23ba42a6",
+  "target": "core::slice::write_clone_of_slice",
+  "typecheck_evidence": {
+    "command": "./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/119_core_slice_write_clone_of_slice/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_typecheck_exit_code.txt",
+    "exit_code_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "stderr_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/119_core_slice_write_clone_of_slice/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [
+        "MaybeUninit",
+        "assume_init_mut initialized-storage relation",
+        "MaybeUninit::write"
+      ],
+      "present": true
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "assert_eq!",
+        "&src[..len]",
+        "slice indexing"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "MaybeUninit::write",
+        "assume_init_mut raw cast"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "T: Clone",
+        "src[i].clone()"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [
+        "unsafe { self.assume_init_mut() }",
+        "assume_init_mut raw cast"
+      ],
+      "present": true
+    }
+  }
+}

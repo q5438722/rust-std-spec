@@ -1,0 +1,45 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/090_core_slice_split_first_chunk_mut/harness.rs",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/090_core_slice_split_first_chunk_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 426,
+    "body_start_line": 419,
+    "item_sha256": "3be6504bdddb52013d9143e4e18804170bf42fae8db6e9404c432e967877e3ab",
+    "signature_end_line": 419,
+    "signature_start_line": 417
+  },
+  "status": "verus_verified_modulo_source_shaped_split_at_mut_unchecked_raw_parts_final_frame_boundary_and_source_backed_raw_pointer_cast_boundary_and_mut_array_ref_final_frame_boundary",
+  "target": "core::slice::split_first_chunk_mut",
+  "transformations": [
+    {
+      "kind": "verus_signature_adaptation",
+      "edit": "Replaced the seed-only contract/body string recorder with an executable Verus target function, adapting the inherent mutable `[T]` receiver to an explicit `slice: &mut [T]` argument and naming the return.",
+      "source_lines": "core/src/slice/mod.rs:417-426",
+      "source_sha256": "3be6504bdddb52013d9143e4e18804170bf42fae8db6e9404c432e967877e3ab"
+    },
+    {
+      "kind": "contract_attachment",
+      "edit": "Attached the generated split_first_chunk_mut prefix/tail Option and mutable final-frame postcondition directly to the executable target; this records the contract under test and does not assume the target body.",
+      "source_lines": "frozen generated contract for <[T]>::split_first_chunk_mut::<N>",
+      "source_sha256": "eb599a67a0f7b786e404c9b3f97181b56e9b01bb82f3cc21822b93d2d46ab950"
+    },
+    {
+      "kind": "rust_control_flow_preserved",
+      "edit": "Preserved the Rust 1.96 flow: `let Some((first, tail)) = self.split_at_mut_checked(N) else { return None }; Some((unsafe { &mut *(first.as_mut_ptr().cast_array()) }, tail))`, with only receiver/signature adaptation.",
+      "source_lines": "core/src/slice/mod.rs:420-425",
+      "source_sha256": "3be6504bdddb52013d9143e4e18804170bf42fae8db6e9404c432e967877e3ab"
+    },
+    {
+      "kind": "checked_wrapper_reduction_and_raw_pointer_boundaries",
+      "edit": "Replaced the target-local external_body split_at_mut_checked wrapper with source-shaped executable code modeled on proof_harnesses/085: compute len, branch on mid <= len, call split_at_mut_unchecked only under that guard, and return None otherwise. The remaining mutable split fact is the reviewed split_at_mut_unchecked final-frame relation; only the Verus-unsupported first.as_mut_ptr(), ptr.cast_array(), and unsafe mutable array-reference dereference remain as source-backed local boundaries following the first_chunk_mut mutable cast-array pattern.",
+      "source_lines": "core/src/slice/mod.rs:420-425; proof_harnesses/085_core_slice_split_at_mut_checked/harness.rs; proof_harnesses/086_core_slice_split_at_mut_unchecked/harness.rs; proof_harnesses/046_core_slice_first_chunk_mut/harness.rs",
+      "source_sha256": "3be6504bdddb52013d9143e4e18804170bf42fae8db6e9404c432e967877e3ab"
+    }
+  ],
+  "harness_sha256": "a0267dfc672df4c2020cee1b3c35f05582001aec76b9f8c505978675c951909b",
+  "proof_evidence_relpath": "proof_harnesses/090_core_slice_split_first_chunk_mut/evidence/verus_stdout.txt"
+}

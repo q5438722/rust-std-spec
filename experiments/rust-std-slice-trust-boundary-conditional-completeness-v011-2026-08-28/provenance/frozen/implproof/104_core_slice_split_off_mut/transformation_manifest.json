@@ -1,0 +1,56 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/104_core_slice_split_off_mut/harness.rs",
+  "harness_sha256": "870bb881b247e42e6e40071061eaeac4a94b5cf7408ba7229c54126ef87a27b0",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/104_core_slice_split_off_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 4991,
+    "body_start_line": 4975,
+    "item_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46",
+    "signature_end_line": 4975,
+    "signature_start_line": 4972
+  },
+  "status": "verus_verified_modulo_source_backed_one_sided_range_mem_take_swap_lowering_and_vstd_split_at_mut_boundary",
+  "target": "core::slice::split_off_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:4972-4991",
+      "source_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46"
+    },
+    {
+      "edit": "Adapted the inherent mutable `[T]` receiver to an explicit `slice_ref: &mut &mut [T]` parameter, replaced the generic `R: OneSidedRange<usize>` with a target-local executable one-sided range model, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_range_model_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:4972-4975; core/src/slice/mod.rs:86-94",
+      "source_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46"
+    },
+    {
+      "edit": "Lowered the unsupported `mem::take(self)` ownership transfer to the lifetime-preserving executable swap-with-empty sequence `let mut replacement = &mut []; core::mem::swap(slice_ref, &mut replacement); let slice = replacement;`, preserving the old inner mutable slice for the following split.",
+      "kind": "mem_take_swap_with_empty_lowering",
+      "source_lines": "core/src/slice/mod.rs:4980",
+      "source_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46"
+    },
+    {
+      "edit": "Preserved `split_point_of(range)?`, the `split_index > self.len()` early return, `split_at_mut(split_index)`, and the `Direction::{Front,Back}` reassignment/return branches.",
+      "kind": "rust_control_flow_and_data_flow_preservation",
+      "source_lines": "core/src/slice/mod.rs:4976-4989",
+      "source_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46"
+    },
+    {
+      "edit": "Added proof-only `lemma_split_at` and view equality assertions to connect the split mutable regions to the corrected `slice_split_off_partition` relation for the initial returned mutable slice and final receiver slice.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/generated_slice_specs.rs:699-713",
+      "source_sha256": "7613eb707906469b0d6d7acfbc9ccb5f4f2da438dfdb2446b75d58ece8d85b21"
+    },
+    {
+      "edit": "Removed only the generated `final(ret.unwrap())@` partition clause from the active contract artifacts; Actual Verus verifies the executable body, None frame, and initial returned-slice partition.",
+      "kind": "source_backed_spec_correction_mirrored",
+      "source_lines": "core/src/slice/mod.rs:4972-4991; corrected generated contract for <[T]>::split_off_mut",
+      "source_sha256": "e1678d19e42198d5c9fc2b61a072aa4dbc114905a60b0f55a3b44bfe37429d46"
+    }
+  ]
+}

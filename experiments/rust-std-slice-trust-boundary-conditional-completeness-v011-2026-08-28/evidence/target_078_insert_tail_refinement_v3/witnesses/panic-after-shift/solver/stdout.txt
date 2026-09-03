@@ -1,0 +1,80 @@
+sat
+(
+  (define-fun IntroselectLimit () Int
+    16)
+  (define-fun witness_refined_run () ExactState
+    (let ((a!1 (mkCallKey (e_callback_state (mkExactState witness_sequence 0 false))
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              2)
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              (- 2 1)))))
+(let ((a!2 (mkExactState (e_sequence (mkExactState witness_sequence 0 false))
+                         (select (b_next_state witness_boundary) a!1)
+                         (select (b_panics witness_boundary) a!1))))
+(let ((a!3 (RefinedInsertTailLoop
+             a!2
+             witness_boundary
+             0
+             (- 2 1)
+             2
+             (select (e_sequence (mkExactState witness_sequence 0 false)) 2))))
+(let ((a!4 (ite (= (select (b_ordering witness_boundary) a!1) (- 1)) a!3 a!2)))
+  (ite (e_panicked (mkExactState witness_sequence 0 false))
+       (mkExactState witness_sequence 0 false)
+       (ite (e_panicked a!2) a!2 a!4)))))))
+  (define-fun witness_exact_run () ExactState
+    (let ((a!1 (mkCallKey (e_callback_state (mkExactState witness_sequence 0 false))
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              2)
+                      (select (e_sequence (mkExactState witness_sequence
+                                                        0
+                                                        false))
+                              (- 2 1)))))
+(let ((a!2 (mkExactState (e_sequence (mkExactState witness_sequence 0 false))
+                         (select (b_next_state witness_boundary) a!1)
+                         (select (b_panics witness_boundary) a!1))))
+(let ((a!3 (ExactInsertTailLoop
+             a!2
+             witness_boundary
+             0
+             (- 2 1)
+             2
+             (select (e_sequence (mkExactState witness_sequence 0 false)) 2))))
+(let ((a!4 (ite (= (select (b_ordering witness_boundary) a!1) (- 1)) a!3 a!2)))
+  (ite (e_panicked (mkExactState witness_sequence 0 false))
+       (mkExactState witness_sequence 0 false)
+       (ite (e_panicked a!2) a!2 a!4)))))))
+  (define-fun witness_sequence () (Array Int Int)
+    (store (store (store ((as const (Array Int Int)) 11) 1 20) 0 10) 2 5))
+  (define-fun witness_state () ExactState
+    (mkExactState witness_sequence 0 false))
+  (define-fun witness_boundary () Boundary
+    (let ((a!1 (store (store (store ((as const (Array CallKey Int)) 8)
+                                (mkCallKey 0 5 20)
+                                (- 1))
+                         (mkCallKey 1 5 10)
+                         0)
+                  (mkCallKey 12 8 8)
+                  13))
+      (a!2 (store (store (store ((as const (Array CallKey Int)) 9)
+                                (mkCallKey 0 5 20)
+                                1)
+                         (mkCallKey 1 5 10)
+                         7)
+                  (mkCallKey 12 8 8)
+                  14)))
+  (mkBoundary 3
+              4
+              ((as const (Array PairKey Int)) 6)
+              a!1
+              a!2
+              (store ((as const (Array CallKey Bool)) false)
+                     (mkCallKey 1 5 10)
+                     true))))
+)

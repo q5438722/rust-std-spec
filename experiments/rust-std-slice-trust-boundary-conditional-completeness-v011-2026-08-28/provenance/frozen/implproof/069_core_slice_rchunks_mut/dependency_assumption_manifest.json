@@ -1,0 +1,124 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "source_backed_model_instantiation",
+      "name": "slice_iterator_view::<RChunksMut<'a, T>, T>",
+      "rationale": "The generated contract's shared iterator-view helper is instantiated over the extracted RChunksMut private representation, with the raw pointer region represented by its source-backed mutable slice sequence; this does not assume the target postcondition.",
+      "source_lines": "core/src/slice/iter.rs:2471-2487",
+      "status": "minimal_trusted_boundary_for_shared_helper_representation_and_raw_pointer_view"
+    },
+    {
+      "kind": "source_backed_iterator_view_boundary",
+      "name": "repaired generated mutable-iterator contract without final-slice frame",
+      "rationale": "The remaining source-backed obligation is the iterator/chunk/predicate view abstraction over returned lazy mutable iterator state; the removed final(slice) frame is no longer part of the contract under proof.",
+      "source_lines": "core/src/slice/iter.rs:2485-2487",
+      "status": "actual_verus_verified_after_contract_repair"
+    },
+    {
+      "kind": "panic_or_bounds",
+      "name": "assert!(chunk_size != 0)",
+      "rationale": "The generated precondition `chunk_size != 0` makes the Rust assert pass; the Verus harness keeps the assertion as a proof assertion.",
+      "source_lines": "core/src/slice/mod.rs:1730-1732",
+      "status": "discharged_by_target_precondition"
+    },
+    {
+      "kind": "source_backed_iterator_view_boundary",
+      "name": "repaired generated mutable-iterator contract without final-slice frame",
+      "rationale": "The remaining source-backed obligation is the iterator/chunk/predicate view abstraction over returned lazy mutable iterator state; the removed final(slice) frame is no longer part of the contract under proof.",
+      "source_lines": "core/src/slice/iter.rs:2471-2487; generated contract for <[T]>::rchunks_mut",
+      "status": "actual_verus_verified_after_contract_repair"
+    }
+  ],
+  "direct_call_names": [
+    "assert!",
+    "new"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "89d585062bca359f211e714553ce077db55879baf864f6c712bad29f6875b578",
+  "module": "slice",
+  "notes": "Actual Verus verifies the executable Rust 1.96 target/constructor harness after the repaired generated contract removed the unsound final(slice) frame; no assume_specification, --no-verify marker, or target-body external_body is present.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 2487,
+      "disposition": "body_preserved_in_harness_actual_verus_verified_after_contract_repair",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/iter.rs",
+      "item_sha256": "c309e04ca3da2fc4220ee3f93b4466c578ea7f3f2ef52cca6a3fdf8ac28e53d3",
+      "name": "RChunksMut::new",
+      "public": false,
+      "signature_start_line": 2485,
+      "source_reference_path": "core/src/slice/iter.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "timeout 110s ./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/069_core_slice_rchunks_mut/harness.rs --crate-type=lib",
+    "duration_limit_seconds": 110,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_stdout.txt",
+    "stdout_sha256": "eb489a3cdf1ba4a03ff3bd67b4faa07cde1814bf7fffb2e7cca399985d2f8959",
+    "summary": "verification results:: 2 verified, 0 errors",
+    "typecheck_command": "timeout 110s ./verus/source/target-verus/release/verus nanvix-rust-std-slice-vec-implproof-2026-08-12/proof_harnesses/069_core_slice_rchunks_mut/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_iterator_view_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "d910a481ba713ebe6456eb7bd6f6fb02a50cb5e7fc88d652ee0d88ee9082632c",
+  "spec_correction_relpath": "proof_manifests/069_core_slice_rchunks_mut/spec_correction.json",
+  "spec_correction_status": "mirrored_to_active_module_artifacts_after_exact_empty_refresh",
+  "target": "core::slice::rchunks_mut",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/069_core_slice_rchunks_mut/harness.rs --crate-type=lib --no-verify",
+    "duration_limit_seconds": 120,
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/069_core_slice_rchunks_mut/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [
+        "\\bassert(?:_eq|_ne)?!"
+      ],
+      "present": true
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [
+        "private helper core::slice::iter::RChunksMut stores remaining region as *mut [T]"
+      ],
+      "present": true
+    },
+    "trait_or_callback": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

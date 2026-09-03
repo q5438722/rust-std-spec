@@ -1,0 +1,50 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/103_core_slice_split_off_last_mut/harness.rs",
+  "harness_sha256": "2b11db639ed9a38e09c3c9f9c2695ddba318d667b524ad76aeadf271d7eebab9",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/103_core_slice_split_off_last_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 5091,
+    "body_start_line": 5085,
+    "item_sha256": "8a7346f07fcf4cf6ee992be7812103b22dbed089118e0b60902114b2f63cf6aa",
+    "signature_end_line": 5085,
+    "signature_start_line": 5085
+  },
+  "status": "verus_verified_modulo_mem_replace_swap_lowering_and_verus_mut_slice_pattern_desugaring_boundary",
+  "target": "core::slice::split_off_last_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:5085-5091",
+      "source_sha256": "8a7346f07fcf4cf6ee992be7812103b22dbed089118e0b60902114b2f63cf6aa"
+    },
+    {
+      "edit": "Adapted the inherent mutable `[T]` receiver to an explicit `slice_ref: &mut &mut [T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:5085",
+      "source_sha256": "8a7346f07fcf4cf6ee992be7812103b22dbed089118e0b60902114b2f63cf6aa"
+    },
+    {
+      "edit": "Lowered unsupported `mem::replace(self, &mut [])` to the lifetime-preserving executable swap-with-empty sequence `let mut replacement = &mut []; core::mem::swap(slice_ref, &mut replacement); let slice = replacement;`, preserving the old inner mutable slice for the following split.",
+      "kind": "mem_replace_swap_with_empty_lowering",
+      "source_lines": "core/src/slice/mod.rs:5088",
+      "source_sha256": "8a7346f07fcf4cf6ee992be7812103b22dbed089118e0b60902114b2f63cf6aa"
+    },
+    {
+      "edit": "Lowered the following `split_last_mut` empty/nonempty behavior to `slice.len() != 0`, `slice.split_at_mut(slice.len() - 1)`, and `&mut tail[0]`, preserving the last/rem data flow before executing `*slice_ref = rem` and `Some(last)`.",
+      "kind": "verus_mut_slice_pattern_desugaring",
+      "source_lines": "core/src/slice/mod.rs:5088-5090",
+      "source_sha256": "8a7346f07fcf4cf6ee992be7812103b22dbed089118e0b60902114b2f63cf6aa"
+    },
+    {
+      "edit": "Added proof-only `lemma_split_at` and view equality assertions to connect the swap-lowered rem/last views to `slice_split_off_last_result`, the final slice reference, and the returned mutable element length composition.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/generated_slice_specs.rs:748-765",
+      "source_sha256": "04bdf1c492a96233f8d4c791fd55cbea26ef0dab484a2c96c46ea6b15266d818"
+    }
+  ]
+}

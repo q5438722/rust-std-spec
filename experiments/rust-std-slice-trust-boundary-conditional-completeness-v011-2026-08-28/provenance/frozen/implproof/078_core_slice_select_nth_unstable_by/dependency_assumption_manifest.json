@@ -1,0 +1,123 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "comparator_leq_observed;comparator_observation;comparator_ordering_observed;ordering_rank;slice_multiplicity;slice_permutation;slice_select_partition_cmp",
+      "rationale": "The generated comparator-selection contract vocabulary is instantiated in the harness and attached to the private helper boundary and public target without using assume_specification.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "verus_fnmut_comparator_closure_lowering_boundary",
+      "name": "|a: &T, b: &T| compare(a, b) == core::cmp::Ordering::Less",
+      "rationale": "Rust 1.96 passes this FnMut comparator-to-bool closure to `sort::select::partition_at_index`. This Verus build rejects closures that capture a mutable FnMut comparator, so the harness lowers only that closure adapter to the named source-backed `partition_at_index_by_compare` boundary while preserving the comparator borrow, Less predicate, selection call intent, and public target postcondition.",
+      "source_excerpt_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3581-3590",
+      "source_sha256": "e747f8a086cd882588cd5afe9b1800c1ec90130423301aef03089f05e5623fca",
+      "status": "minimal_verus_closure_lowering_boundary_for_fnmut_comparator"
+    },
+    {
+      "kind": "source_backed_selection_partition_boundary",
+      "name": "sort::select::partition_at_index",
+      "rationale": "The recursive private introselect implementation in `partition_at_index` is not recursively proved here; its source-backed boundary carries the generated permutation, pivot-position, length, and comparator-partition facts.",
+      "source_excerpt_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3589; core/src/slice/sort/select.rs:17-59",
+      "source_sha256": "a52bc07442d8a7e8db4ac9bf4e49950019041226785a79b8d43ea5fdb5b9733a",
+      "status": "minimal_trusted_boundary_until_private_selection_algorithm_is_recursively_proved"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "compare FnMut Ordering observation",
+      "rationale": "The Rust target receives an arbitrary `FnMut(&T, &T) -> Ordering` comparator. The harness records its relation through the audited comparator-observation vocabulary rather than assuming the public target body.",
+      "source_lines": "core/src/slice/mod.rs:3581-3590",
+      "status": "minimal_observation_boundary_for_fnmut_ordering_callback"
+    }
+  ],
+  "direct_call_names": [
+    "compare",
+    "partition_at_index"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "2f630c1c747db3e874e3fcb5c02e7db4faae15824c98f1cdf6480f803712499f",
+  "module": "slice",
+  "notes": "Target body is represented by a non-external public Verus function that keeps the Rust 1.96 comparator selection intent `sort::select::partition_at_index(self, index, |a: &T, b: &T| compare(a, b) == Less)`. Because Verus rejects the exact FnMut closure capture, only the closure adapter plus private selection helper is isolated in the named `partition_at_index_by_compare` external-body boundary. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 59,
+      "disposition": "source_backed_private_selection_partition_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/select.rs",
+      "item_sha256": "a52bc07442d8a7e8db4ac9bf4e49950019041226785a79b8d43ea5fdb5b9733a",
+      "name": "sort::select::partition_at_index",
+      "public": false,
+      "signature_start_line": 17,
+      "source_reference_path": "core/src/slice/sort/select.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/078_core_slice_select_nth_unstable_by/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/078_core_slice_select_nth_unstable_by/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_selection_partition_boundary_and_fnmut_comparator_closure_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "e747f8a086cd882588cd5afe9b1800c1ec90130423301aef03089f05e5623fca",
+  "target": "core::slice::select_nth_unstable_by",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/078_core_slice_select_nth_unstable_by/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/078_core_slice_select_nth_unstable_by/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "FnMut comparator Ordering observation",
+        "Verus FnMut closure lowering boundary",
+        "sort::select::partition_at_index source-backed boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

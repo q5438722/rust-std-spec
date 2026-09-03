@@ -1,0 +1,44 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/097_core_slice_split_last_mut/harness.rs",
+  "harness_sha256": "79cde36bfa903f2f82536655e821781d4fd39e5d1bced66048094f3511dd5614",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/097_core_slice_split_last_mut/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 264,
+    "body_start_line": 262,
+    "item_sha256": "bea57e99b1e178d9176ff0b1a6f78a83dafce93f1f7485844e6275ac07ab2005",
+    "signature_end_line": 262,
+    "signature_start_line": 262
+  },
+  "status": "verus_verified_modulo_verus_mut_slice_pattern_desugaring_boundary",
+  "target": "core::slice::split_last_mut",
+  "transformations": [
+    {
+      "edit": "Replaced the seed string recorder with an executable Verus function for the Rust 1.96 target body.",
+      "kind": "verus_harness_materialization",
+      "source_lines": "core/src/slice/mod.rs:262-264",
+      "source_sha256": "bea57e99b1e178d9176ff0b1a6f78a83dafce93f1f7485844e6275ac07ab2005"
+    },
+    {
+      "edit": "Adapted the inherent mutable `[T]` receiver to an explicit `slice: &mut [T]` parameter, removed `const`, and named the return value for Verus; no target-body path was externalized or assumed.",
+      "kind": "receiver_const_and_return_naming_adaptation",
+      "source_lines": "core/src/slice/mod.rs:262",
+      "source_sha256": "bea57e99b1e178d9176ff0b1a6f78a83dafce93f1f7485844e6275ac07ab2005"
+    },
+    {
+      "edit": "Lowered the unsupported Rust slice pattern `if let [init @ .., last] = self` to the mechanically equivalent nonempty branch `slice.len() != 0`, `slice.split_at_mut(slice.len() - 1)`, and `&mut tail[0]`; this preserves the init-prefix/last-element mutable data flow of the Rust body while using Verus-supported syntax.",
+      "kind": "verus_mut_slice_pattern_desugaring",
+      "source_lines": "core/src/slice/mod.rs:263",
+      "source_sha256": "bea57e99b1e178d9176ff0b1a6f78a83dafce93f1f7485844e6275ac07ab2005"
+    },
+    {
+      "edit": "Added proof-only `lemma_split_at` and view equality assertions before taking the returned mutable last-element borrow, connecting the desugared init/tail views to the generated `old(slice)@[old(slice)@.len() - 1]`, prefix subrange, and final reconstruction contract without changing executable control flow or data flow.",
+      "kind": "proof_only_annotation",
+      "source_lines": "frozen_inputs/slice/specs/generated_slice_specs.rs:2927-2941",
+      "source_sha256": "04bdf1c492a96233f8d4c791fd55cbea26ef0dab484a2c96c46ea6b15266d818"
+    }
+  ]
+}

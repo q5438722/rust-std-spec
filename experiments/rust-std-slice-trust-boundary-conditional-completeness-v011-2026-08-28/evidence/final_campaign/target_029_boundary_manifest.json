@@ -1,0 +1,143 @@
+{
+  "active_contract_sha256": "bbea7d2146da8d9116c68e9603460103ed4f7322c785180266a17b23b06c0f6b",
+  "all_audited_trust_site_ids": [
+    "TS-029-D001",
+    "TS-029-D002",
+    "TS-029-D003",
+    "TS-029-D004",
+    "TS-029-D005",
+    "TS-029-C001",
+    "TS-029-E001",
+    "TS-029-E002"
+  ],
+  "boundary_narrower_than_target": true,
+  "conditional_obligation_boundary": {
+    "context_only_trust_site_ids": [
+      "TS-029-D001",
+      "TS-029-C001"
+    ],
+    "distinction": "The new two-execution obligation does not import the retained implementation proof as a functionality oracle. Only source element reads and callback observations enter Boundary_T; hint and loop-result support remain outside b.",
+    "source_transition_only_trust_site_ids": [
+      "TS-029-D004",
+      "TS-029-D005"
+    ],
+    "used_boundary_trust_site_ids": [
+      "TS-029-D002",
+      "TS-029-D003",
+      "TS-029-E001",
+      "TS-029-E002"
+    ]
+  },
+  "deterministic_source_transitions": [
+    {
+      "operation": "hint::select_unpredictable",
+      "semantics": "returns the condition-selected base or midpoint operand; the choice is derived and is not a boundary field",
+      "source_citations": [
+        "core/src/slice/mod.rs:3000"
+      ],
+      "trust_site_ids": [
+        "TS-029-D004"
+      ]
+    },
+    {
+      "operation": "hint::assert_unchecked",
+      "semantics": "contributes only the source-proved Ok or Err index bound and supplies no result observation",
+      "source_citations": [
+        "core/src/slice/mod.rs:3017,3022"
+      ],
+      "trust_site_ids": [
+        "TS-029-D004"
+      ]
+    },
+    {
+      "operation": "length-two callback state composition",
+      "semantics": "threads the initial callback state through the two source invocations by adding the two shared transition deltas",
+      "source_citations": [
+        "core/src/slice/mod.rs:2980-3022"
+      ],
+      "trust_site_ids": [
+        "TS-029-D003",
+        "TS-029-D005"
+      ]
+    }
+  ],
+  "excluded_from_boundary": [
+    "selected index or insertion point",
+    "returned Result tag or payload",
+    "aggregate callback final state",
+    "select_unpredictable branch choice",
+    "loop base, size, midpoint, or complete execution trace",
+    "active-contract truth or an answer-equivalent encoding"
+  ],
+  "excluded_retained_trust_site_ids": [],
+  "input_order": "29",
+  "proof_scope": {
+    "domain": "exactly two input elements",
+    "limitation": "This is a bounded active-contract conditional-completeness obligation, not a recursive verification of the public target implementation for arbitrary lengths.",
+    "requires_adds_sortedness": false,
+    "target_relation": "literal active generated contract plus source-backed callback state composition"
+  },
+  "retained_implementation_proof_boundary": {
+    "assumption": "The retained Verus implementation proof trusts source-linked get_unchecked element resolution, arbitrary FnMut Ordering observations, the select_unpredictable/assert_unchecked hint semantics, and verified source-shaped loop-result support.",
+    "context_only_trust_site_ids": [
+      "TS-029-D001",
+      "TS-029-C001"
+    ],
+    "executable_lower_boundary_trust_site_ids": [
+      "TS-029-D002",
+      "TS-029-D003",
+      "TS-029-D004",
+      "TS-029-D005",
+      "TS-029-E001",
+      "TS-029-E002"
+    ]
+  },
+  "schema_version": 1,
+  "shared_boundary_observations": [
+    {
+      "fields": [
+        "b_read0",
+        "b_read1"
+      ],
+      "kind": "source element reads at the two get_unchecked sites",
+      "source_citations": [
+        "core/src/slice/mod.rs:2995,3014",
+        "core/src/slice/mod.rs:639-647"
+      ],
+      "trust_site_ids": [
+        "TS-029-D002",
+        "TS-029-E001"
+      ]
+    },
+    {
+      "fields": [
+        "b_cmp0",
+        "b_cmp1"
+      ],
+      "kind": "per-element FnMut Ordering results",
+      "source_citations": [
+        "core/src/slice/mod.rs:2995,3014"
+      ],
+      "trust_site_ids": [
+        "TS-029-D003",
+        "TS-029-E002"
+      ]
+    },
+    {
+      "fields": [
+        "b_state_delta0",
+        "b_state_delta1"
+      ],
+      "kind": "per-call callback state transitions",
+      "source_citations": [
+        "core/src/slice/mod.rs:2995,3014"
+      ],
+      "trust_site_ids": [
+        "TS-029-D003",
+        "TS-029-E002"
+      ]
+    }
+  ],
+  "source_backed_replacements": [],
+  "target": "core::slice::binary_search_by"
+}

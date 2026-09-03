@@ -1,0 +1,113 @@
+{
+  "abcd_status": "B",
+  "assumptions_and_boundaries": [
+    {
+      "kind": "shared_contract_vocabulary",
+      "name": "ord_cmp_observed;ord_leq_observed;slice_multiplicity;slice_permutation;slice_select_partition_ord",
+      "rationale": "The generated selection contract vocabulary is instantiated in the harness and attached to the private helper boundary and public target without using assume_specification.",
+      "status": "existing_generated_contract_vocabulary_boundary"
+    },
+    {
+      "kind": "source_backed_selection_partition_boundary",
+      "name": "sort::select::partition_at_index",
+      "rationale": "The public target is executable and preserves the Rust 1.96 body `sort::select::partition_at_index(self, index, T::lt)`, adapted only to the explicit Verus receiver parameter. The recursive private introselect implementation in `partition_at_index` is not recursively proved here; its source-backed boundary carries the generated permutation, pivot-position, length, and Ord-partition facts.",
+      "source_excerpt_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/source_excerpt.rs",
+      "source_lines": "core/src/slice/mod.rs:3520; core/src/slice/sort/select.rs:17-59",
+      "source_sha256": "a52bc07442d8a7e8db4ac9bf4e49950019041226785a79b8d43ea5fdb5b9733a",
+      "status": "minimal_trusted_boundary_until_private_selection_algorithm_is_recursively_proved"
+    },
+    {
+      "kind": "trait_or_callback",
+      "name": "T::lt / Ord comparison observation",
+      "rationale": "The Rust target passes `T::lt` as the comparator to the private selection helper. The harness preserves that callback shape and records the Ord comparison relation through the audited uninterpreted observation vocabulary rather than assuming the public target body.",
+      "source_lines": "core/src/slice/mod.rs:3516-3521",
+      "status": "minimal_observation_boundary_for_ord_lt_callback"
+    }
+  ],
+  "direct_call_names": [
+    "partition_at_index",
+    "T::lt"
+  ],
+  "generated_target_dependency_candidates": [],
+  "harness_sha256": "7aa08a799d0f53a1e268446d09e959faa13b6f702049062f46f1ac7358b9b419",
+  "module": "slice",
+  "notes": "Target body preserves the Rust 1.96 single delegation `sort::select::partition_at_index(self, index, T::lt)`, adapted only to the explicit Verus receiver `slice`. The proof is B modulo the source-backed private selection helper and Ord comparison observation boundaries. The harness contains no assume_specification, no --no-verify marker, and no target-body external_body; the only external_body is the named private helper boundary.",
+  "private_helper_callee_closure": [
+    {
+      "body_end_line": 59,
+      "disposition": "source_backed_private_selection_partition_boundary",
+      "frozen_relpath": "frozen_inputs/slice/rust-core-slice/sort/select.rs",
+      "item_sha256": "a52bc07442d8a7e8db4ac9bf4e49950019041226785a79b8d43ea5fdb5b9733a",
+      "name": "sort::select::partition_at_index",
+      "public": false,
+      "signature_start_line": 17,
+      "source_reference_path": "core/src/slice/sort/select.rs"
+    }
+  ],
+  "proof_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/077_core_slice_select_nth_unstable/harness.rs --crate-type=lib",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_stdout.txt",
+    "stdout_sha256": "39bb92a9a90e6b82618a4c692bd41c2d80fe2f8df854fd13580c974f171737c4",
+    "summary": "verification results:: 1 verified, 0 errors",
+    "typecheck_command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/077_core_slice_select_nth_unstable/harness.rs --crate-type=lib --no-verify",
+    "typecheck_exit_code_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_typecheck_exit_code.txt",
+    "typecheck_stderr_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_typecheck_stderr.txt",
+    "typecheck_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck_stdout_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_typecheck_stdout.txt",
+    "typecheck_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_version.txt",
+    "version_sha256": "b30664f4b093461d5a4bfcc9687b1122b9a9ad8e909523141163896a155b1b12",
+    "verus_version": "Verus\n  Version: 0.2026.07.21.1beb0fa.dirty\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.96.0-x86_64-unknown-linux-gnu"
+  },
+  "proof_status": "actual_verus_verified_modulo_source_backed_selection_partition_boundary_and_ord_lt_observation_boundary",
+  "schema_version": 2,
+  "source_file_sha256": "58901fa6437dbd4d77c68427bbced0fc3a91a10fdb8bd2e233adf6a9ba27d2d5",
+  "source_item_sha256": "dd55bbb0ec8084c8e81b3000133de113a2249b5c57d6ffa845cb5c5348909cd2",
+  "target": "core::slice::select_nth_unstable",
+  "typecheck_evidence": {
+    "command": "/home/chentianyu/nanvix-rust-std-spec-survey/verus/source/target-verus/release/verus proof_harnesses/077_core_slice_select_nth_unstable/harness.rs --crate-type=lib --no-verify",
+    "exit_code": 0,
+    "exit_code_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_typecheck_exit_code.txt",
+    "stderr_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_typecheck_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_relpath": "proof_harnesses/077_core_slice_select_nth_unstable/evidence/verus_typecheck_stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unsafe_intrinsic_trait_allocator_dependencies": {
+    "allocator": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "intrinsic": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "maybe_uninit": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "panic_or_bounds": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "raw_pointer_or_provenance": {
+      "matched_patterns": [],
+      "present": false
+    },
+    "trait_or_callback": {
+      "matched_patterns": [
+        "T::lt Ord comparison observation",
+        "sort::select::partition_at_index source-backed boundary"
+      ],
+      "present": true
+    },
+    "unsafe": {
+      "matched_patterns": [],
+      "present": false
+    }
+  }
+}

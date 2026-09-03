@@ -1,0 +1,32 @@
+{
+  "frozen_relpath": "frozen_inputs/slice/rust-core-slice/mod.rs",
+  "harness_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/harness.rs",
+  "harness_sha256": "88519f55b9b7374707b758bed4b244c175c3c7d632fd8a32c424172ed9557f8d",
+  "schema_version": 2,
+  "semantic_replacement": false,
+  "source_excerpt_relpath": "proof_harnesses/082_core_slice_sort_unstable_by_key/source_excerpt.rs",
+  "source_reference_path": "core/src/slice/mod.rs",
+  "source_span": {
+    "body_end_line": 3246,
+    "body_start_line": 3244,
+    "item_sha256": "a1709e9e61a25c52c3235a85bf2c15daf80785ec749e7f9bed299596413c074e",
+    "signature_end_line": 3244,
+    "signature_start_line": 3240
+  },
+  "status": "verus_verified_modulo_source_backed_unstable_sort_boundary_and_fnmut_key_ord_observation_boundary",
+  "target": "core::slice::sort_unstable_by_key",
+  "transformations": [
+    {
+      "kind": "receiver_adaptation",
+      "rationale": "The Rust method receiver `self` is represented as the explicit Verus parameter `slice`; the public target remains executable and carries the generated permutation plus key-sorted contract."
+    },
+    {
+      "kind": "verus_fnmut_key_ord_closure_lowering_boundary",
+      "rationale": "The Rust 1.96 body passes `&mut |a, b| f(a).lt(&f(b))` to `sort::unstable::sort`. This Verus build cannot typecheck that mutable FnMut key closure directly, so the harness lowers only that closure adapter to a named key-observation boundary while preserving the key extraction, Ord::lt comparison intent, and source-backed unstable-sort call."
+    },
+    {
+      "kind": "source_backed_private_helper_boundary",
+      "rationale": "The recursive private unstable-sort implementation behind `sort::unstable::sort` is isolated as a named source-backed helper boundary. The public target function is executable and not `external_body`."
+    }
+  ]
+}

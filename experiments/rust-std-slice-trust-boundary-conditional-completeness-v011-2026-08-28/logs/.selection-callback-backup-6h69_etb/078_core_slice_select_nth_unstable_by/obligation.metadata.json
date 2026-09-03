@@ -1,0 +1,285 @@
+{
+  "active_contract_conjuncts": [
+    "ActiveFinalConcatConjunct",
+    "ActiveLeftLengthConjunct",
+    "ActivePivotAtIndexConjunct",
+    "ActiveRightLengthConjunct",
+    "ActivePermutationConjunct",
+    "ActiveCallbackPartitionConjunct"
+  ],
+  "active_contract_sha256": "8d197563a2e9735beef3c52ff46ea5d3dd44da47b48e3b199654cf3c667490d7",
+  "active_contract_text": "pub assume_specification<T, F: core::ops::FnMut(&T, &T) -> core::cmp::Ordering>[ <[T]>::select_nth_unstable_by::<F> ]( slice: &mut [T], index: usize, compare: F, ) -> (ret: (&mut [T], &mut T, &mut [T])) requires index < old(slice)@.len(), ensures final(slice)@ == final(ret.0)@ + seq![*final(ret.1)] + final(ret.2)@, final(ret.0)@.len() == index, *final(ret.1) == final(slice)@[index as int], final(ret.2)@.len() == old(slice)@.len() - (index as int) - 1, slice_permutation(old(slice)@, final(slice)@), slice_select_partition_cmp( final(ret.0)@, *final(ret.1), final(ret.2)@, comparator_observation(compare, old(slice)@), ), ;",
+  "boundary_fields": [
+    {
+      "role": "callback_argument",
+      "selector": "b_callback_identity",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "trust_site_ids": [
+        "TS-078-D004"
+      ]
+    },
+    {
+      "role": "callback_state_transition",
+      "selector": "b_initial_callback_state",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "trust_site_ids": [
+        "TS-078-D004"
+      ]
+    },
+    {
+      "role": "callback_state_transition",
+      "selector": "b_compare_ordering_relation",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "trust_site_ids": [
+        "TS-078-D004"
+      ]
+    },
+    {
+      "role": "callback_state_transition",
+      "selector": "b_compare_next_state_relation",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "trust_site_ids": [
+        "TS-078-D004"
+      ]
+    },
+    {
+      "role": "callback_panic",
+      "selector": "b_compare_panic_relation",
+      "source_backed_replacement_ids": [],
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "trust_site_ids": [
+        "TS-078-D004"
+      ]
+    }
+  ],
+  "boundary_scope": {
+    "admitted_trust_site_ids": [
+      "TS-078-D004"
+    ],
+    "all_audited_trust_site_ids": [
+      "TS-078-D001",
+      "TS-078-D002",
+      "TS-078-D003",
+      "TS-078-D004",
+      "TS-078-C001",
+      "TS-078-E001"
+    ],
+    "context_only_trust_site_ids": [
+      "TS-078-D001",
+      "TS-078-C001"
+    ],
+    "excluded_observations": [
+      "realized callback invocation trace or invocation count",
+      "pivot or selected permutation",
+      "returned ranges or selected output",
+      "final callback state or final slice",
+      "answer encoding or complete target execution trace"
+    ],
+    "excluded_retained_trust_site_ids": [
+      "TS-078-D002",
+      "TS-078-D003",
+      "TS-078-E001"
+    ],
+    "narrower_than_target": true,
+    "shared_observations": [
+      "callback implementation identity",
+      "initial callback-visible state",
+      "source-step relation selected by callback identity"
+    ],
+    "source_backed_replacement_ids": []
+  },
+  "declared_functions": [],
+  "domain": {
+    "bounded": true,
+    "callback": "functional source-step observations over arguments, result, next state, and panic",
+    "classification_use": "bounded source-faithfulness regression only; target classification is missing-source-backed-model",
+    "index": "exactly one",
+    "missing_source_phases": [
+      "choose_pivot mutation and callback schedule",
+      "lower partition intermediate mutation and callback schedule",
+      "introselect window narrowing and ancestor-pivot branch",
+      "16-step median-of-medians fallback",
+      "introselect panic prefixes and unwind mutation"
+    ],
+    "slice_length": "exactly four",
+    "source_model_complete": false,
+    "zst": "excluded from this bounded source model"
+  },
+  "equivalence_kind": "exact",
+  "equivalence_scope": "exact returned references, pivot identity, final slice, all derived profiles, allocation/borrow identity, panic status, and callback-visible final state",
+  "expected_solver_result": "unsat",
+  "input_order": "78",
+  "model_status": "missing-source-backed-model",
+  "obligation_purpose": "completeness-modulo-reviewed-selection-equivalence",
+  "principal_observations": [
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_left_ref",
+      "sort": "Reference"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_pivot_ref",
+      "sort": "Reference"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_right_ref",
+      "sort": "Reference"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_left_len",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_pivot_identity",
+      "sort": "Int"
+    },
+    {
+      "left": "output1",
+      "right": "output2",
+      "selector": "y_right_len",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_sequence",
+      "sort": "Array Int Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_allocation",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_borrow",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_final_length",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_callback_state",
+      "sort": "Int"
+    },
+    {
+      "left": "state1",
+      "right": "state2",
+      "selector": "s_panicked",
+      "sort": "Bool"
+    }
+  ],
+  "schema_version": 5,
+  "solver_result_role": "bounded length-four source-faithfulness regression only; it cannot classify the arbitrary-length target",
+  "source_backed_replacements": [
+    {
+      "replacement_id": "RB-078-BOUNDED-CALLBACK-SMALLSORT",
+      "replaces_trust_site_ids": [
+        "TS-078-D002"
+      ],
+      "semantics": "one CompareStep call followed by an exact Ordering::Less test; the exact length-four insertion_sort_shift_left loop threads all three tail iterations, per-comparison state, sequence rotations, normal return, panic prefixes, and final subslices.",
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307",
+        "core/src/slice/sort/shared/smallsort.rs:295-309,542-607"
+      ],
+      "symbols": [
+        "SmallSortTransition"
+      ]
+    }
+  ],
+  "source_transition_bindings": {
+    "bounds": {
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "symbol": "BoundsTransition"
+    },
+    "normal_return": {
+      "replacement_id": "RB-078-BOUNDED-CALLBACK-SMALLSORT",
+      "semantics": "Normal-return obligations exclude panicked states. PanicPrefixReachable separately uses the same InsertTailNormal and AdapterPanic definitions.",
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "symbol": "NormalReturnTransition"
+    },
+    "returned_subslices": {
+      "replacement_id": "RB-078-BOUNDED-CALLBACK-SMALLSORT",
+      "source_citations": [
+        "core/src/slice/mod.rs:3581-3590",
+        "core/src/slice/sort/select.rs:17-307"
+      ],
+      "symbol": "FinalReturnedSubsliceTransition"
+    },
+    "small_sort": {
+      "replacement_id": "RB-078-BOUNDED-CALLBACK-SMALLSORT",
+      "semantics": "The exact length-four insertion-sort path executes tails one, two, and three. InsertTailNormal derives every comparison argument and result, per-call callback state, and the source rotation of the intermediate sequence.",
+      "source_citations": [
+        "core/src/slice/sort/select.rs:17-307",
+        "core/src/slice/sort/shared/smallsort.rs:295-309,542-607"
+      ],
+      "symbol": "SmallSortTransition",
+      "trust_site_ids": [
+        "TS-078-D004"
+      ]
+    }
+  },
+  "source_transition_definitions": [
+    "BoundsTransition",
+    "SmallSortTransition",
+    "NormalReturnTransition",
+    "FinalReturnedSubsliceTransition"
+  ],
+  "target": "core::slice::select_nth_unstable_by",
+  "target_definition": "TargetDefinition_T",
+  "theorem_variables": {
+    "boundary": "b",
+    "input": "x",
+    "output1": "y1",
+    "output2": "y2",
+    "state1": "s1",
+    "state2": "s2"
+  },
+  "unresolved_source_model_trust_site_ids": [
+    "TS-078-D003",
+    "TS-078-E001"
+  ],
+  "weak_equivalence_review": {}
+}
