@@ -1,0 +1,159 @@
+{
+  "state": "ready_for_independent_replay",
+  "validated_on": "2026-09-22",
+  "runtime_source": "/home/chentianyu/Argus",
+  "runtime_version": "0.1.8 with independently reviewed local correction",
+  "python": "/home/chentianyu/Argus/.venv/bin/python",
+  "profile": "/home/chentianyu/.argus-slice-specgen-astra-20260922",
+  "capabilities": [
+    "native Copilot review action submission",
+    "scoped authoritative source and shared/OWN Skill reads",
+    "call-bound read-only Docker command execution with scratch outputs",
+    "asynchronous query/cancellation and fail-closed teardown",
+    "actual Verus compilation and specdet analysis"
+  ],
+  "evidence": {
+    "live_copilot_review": "/home/chentianyu/.argus-slice-specgen-astra-20260922/live-review-probe/decision.json",
+    "live_provider_stream": "/home/chentianyu/.argus-slice-specgen-astra-20260922/live-review-probe/provider-stream.jsonl",
+    "specdet_analysis_receipt": "/home/chentianyu/.argus-slice-specgen-astra-20260922/reviewer-checks/0099eb03003344e19ac4ff4a814e5d80/3046646b57da40528326981d20f13986/result.json"
+  },
+  "replay_guidance": [
+    "Use run_review_command; if running, query the same command_id with get_review_command.",
+    "Keep compiler, verifier and checker outputs under {scratch}; do not write reviewed inputs.",
+    "Use explicit baseline environment, including RUSTUP_HOME=/home/chentianyu/.rustup where needed.",
+    "Use unambiguous specdet selectors, including source line when required.",
+    "Recheck pending reviews and the temporary redundancy criterion; do not inherit acceptance."
+  ],
+  "container_startup_recovery": {
+    "checked_on": "2026-09-22",
+    "observed_problem": "Two Reviewer Docker create calls exceeded the existing 10-second setup deadline and correctly failed closed.",
+    "inspected_state": "Both named containers were created but not running.",
+    "removed_containers": [
+      "argus-review-b160c588f15640c38450baef677a65fe",
+      "argus-review-5b40187f01cd4489810d5d4c3300659a"
+    ],
+    "probe_receipt": "/home/chentianyu/.argus-slice-specgen-astra-20260922/reviewer-checks/fed13b8f4f67497fb6059a3193b8c80a/7016f162a0734b37a5afe4d4381a951f/result.json",
+    "probe_result": "Existing readonly validation path completed a known proof compile: exit0, 1 verified, 0 errors, no cleanup or persistence error.",
+    "root_cause": "The cause of the slow create calls is not established; no permission, deadline, verifier or source change was made.",
+    "scope": "The cleanup attention condition is cleared and a bounded review retry may proceed. This is not acceptance of ASCII or any new API."
+  },
+  "native_split_replay": {
+    "state": "ready_for_independent_runtime_replay",
+    "scope": "Engineering execution of the actual adopted split native suite in the existing restricted environment; not an independent review result.",
+    "image": "ubuntu:24.04, unchanged",
+    "compiler": "toolchain/review-native/bin/cc",
+    "compiler_description": "Project-local GCC 13.3.0 driver and pinned Ubuntu 24.04 link dependencies, extracted without system installation.",
+    "package_record": "logs/splits/native-linker-setup/packages.json",
+    "engineering_receipt": "logs/splits/native-readonly-engineering/result.json",
+    "observed_result": "Exit 0; actual linking and 15 runtime tests passed; 120 exact compiler rejection diagnostics passed; container removed.",
+    "review_command_argv": [
+      "/usr/bin/env",
+      "PATH=/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/toolchain/review-native/bin:/home/chentianyu/.cargo/bin:/home/chentianyu/miniconda3/bin:/usr/bin:/bin",
+      "RUSTUP_HOME=/home/chentianyu/.rustup",
+      "/home/chentianyu/miniconda3/bin/python",
+      "-B",
+      "/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/scripts/check_native.py",
+      "--group",
+      "splits",
+      "--output-root",
+      "{scratch}/native-splits"
+    ],
+    "constraints": [
+      "Use this argv through run_review_command and get_review_command; do not invoke an unsandboxed substitute.",
+      "The project, canonical source and existing toolchain mounts remain read-only; all generated native output stays in scratch.",
+      "No image, read-root policy, Argus implementation, canonical Rust, candidate, Verus or vstd change is needed.",
+      "Prior independent missing-cc and missing-Argus-Python failures remain recorded; the mounted Miniconda Python runs only the standard-library native script.",
+      "This engineering execution does not count as the still-required final independent runtime replay or API review."
+    ]
+  },
+  "native_mutable_endpoints_replay": {
+    "state": "ready_for_independent_runtime_replay",
+    "scope": "Adopted first_mut/last_mut proof copies after the exact independent permission recorded in mission 02036b1aebf8 round-0002; final current-file review remains required.",
+    "engineering_results": "logs/mutable-endpoints/current-native/logs/mutable-endpoints/native/results.json",
+    "observed_result": "Authority originals, actual adopted current proof bodies and public APIs compiled as Rust 1.96 metadata/MIR, linked and passed 17 runtime tests plus 96 exact compiler rejection diagnostics. This is new engineering execution after adoption, not final independent replay.",
+    "review_command_argv": [
+      "/usr/bin/env",
+      "PATH=/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/toolchain/review-native/bin:/home/chentianyu/.cargo/bin:/home/chentianyu/miniconda3/bin:/usr/bin:/bin",
+      "RUSTUP_HOME=/home/chentianyu/.rustup",
+      "/home/chentianyu/miniconda3/bin/python",
+      "-B",
+      "/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/scripts/check_native.py",
+      "--group",
+      "mutable-endpoints",
+      "--output-root",
+      "{scratch}/native-mutable-endpoints"
+    ],
+    "constraints": [
+      "Execute through run_review_command/get_review_command with all generated output in scratch.",
+      "The current proof files must contain only the two independently permitted body replacements; the native runner never reads the isolated proposals.",
+      "The old mutable-endpoints-proposal execution route was replaced. All original patterns, isolated proposals and earlier runs remain historical records; the prior replay guidance is saved under logs/mutable-endpoints/adoption-before/.",
+      "No environment change or final API correctness conclusion follows from this command alone."
+    ]
+  },
+  "native_mutable_splits_replay": {
+    "state": "ready_for_independent_runtime_replay",
+    "scope": "Adopted split_first_mut/split_last_mut proof copies after the exact permission in mission c0b2f8f17fdf round-0002. Final current-source and export review remains required.",
+    "engineering_results": "logs/mutable-splits/current-native/logs/mutable-splits/native/results.json",
+    "observed_result": "New Rust 1.96 metadata/MIR compilation, actual linking, 19 runtime tests and 216 exact compiler rejections passed for the original authority patterns, current adopted proof bodies and public APIs.",
+    "review_command_argv": [
+      "/usr/bin/env",
+      "PATH=/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/toolchain/review-native/bin:/home/chentianyu/.cargo/bin:/home/chentianyu/miniconda3/bin:/usr/bin:/bin",
+      "RUSTUP_HOME=/home/chentianyu/.rustup",
+      "/home/chentianyu/miniconda3/bin/python",
+      "-B",
+      "/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/scripts/check_native.py",
+      "--group",
+      "mutable-splits",
+      "--output-root",
+      "{scratch}/native-mutable-splits"
+    ],
+    "checker_targets": [
+      "proofs/completeness/slice/inputs/split_first_mut.rs:split_first_mut_observation@7",
+      "proofs/completeness/slice/inputs/split_last_mut.rs:split_last_mut_observation@7"
+    ],
+    "constraints": [
+      "Execute review commands only through run_review_command/get_review_command, with generated output under scratch and explicit RUSTUP_HOME.",
+      "Check that each formal source differs from logs/mutable-splits/adoption-before only by the exact independently permitted body and existing borrow-length proof block.",
+      "Each source uses only the pure candidate plus existing split_at_mut, indexing and borrow-length facts. Native extraction reads only current formal files and erases only the exact checked length-proof annotation.",
+      "Compile current source proofs with --crate-type lib --compile --no-cheating --num-threads 1 and both new exported comparisons with ordinary --compile --num-threads 1. Unchanged state, aggregate and analysis work was independently reviewed before adoption.",
+      "Both value-state checker comparisons retain the Option, initial element, entire initial remainder and whole final input; all 19 original-query search guards must be off.",
+      "Only these two coverage rows and two new top-level completeness files were exported; 329 unselected raw rows and 18 pre-existing top-level completeness files remain unchanged.",
+      "The mutable-splits-proposal execution route was replaced, not retained alongside the current route. Original patterns, isolated proposals, all failures and prior replay guidance remain in the proposal logs and logs/mutable-splits/adoption-before/.",
+      "Supplementary generic and u8 clause-deletion searches remain UNKNOWN with separate compiled concrete witnesses; do not rerun them or count them as checker success."
+    ]
+  },
+  "native_split_off_endpoints_proposal_replay": {
+    "state": "ready_for_independent_proposal_replay",
+    "scope": "The original first source compiles. The formal last source still has its unsupported external split_last call. Only an isolated last proposal calls the previously proved local shared split_last; no adoption permission is recorded.",
+    "engineering_receipt": "logs/split-off-endpoints-proposal/native-readonly-mir-spelling/result.json",
+    "engineering_results": "logs/split-off-endpoints-proposal/native/results.json",
+    "observed_result": "The unchanged read-only environment compiled Rust 1.96 metadata/MIR, linked and executed 20 runtime tests plus 128 exact compiler rejections, including both real public const calls without the feature. This is engineering execution, not independent review or source permission.",
+    "review_command_argv": [
+      "/usr/bin/env",
+      "PATH=/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/toolchain/review-native/bin:/home/chentianyu/.cargo/bin:/home/chentianyu/miniconda3/bin:/usr/bin:/bin",
+      "RUSTUP_HOME=/home/chentianyu/.rustup",
+      "/home/chentianyu/miniconda3/bin/python",
+      "-B",
+      "/home/chentianyu/rust-std-slice-specgen-astra-2026-09-22/scripts/check_native.py",
+      "--group",
+      "split-off-endpoints-proposal",
+      "--output-root",
+      "{scratch}/native-split-off"
+    ],
+    "checker_targets": [
+      "proofs/completeness/slice/inputs/split_off_first.rs:split_off_first@15",
+      "proofs/completeness/slice/inputs/split_off_last.rs:split_off_last@15"
+    ],
+    "constraints": [
+      "Use run_review_command/get_review_command with scratch-only generated output and explicit RUSTUP_HOME; do not substitute unsandboxed native execution.",
+      "Review the exact one-call last-source proposal in issues/V-ASCII-CALL-BINDING.md separately. The formal last file still contains the original call, and earlier conversion permissions do not authorize this new call change.",
+      "The pure candidates observe the initial sequence, returned Option value and complete reference-slot sequence at call return. final applies to the short outer slot borrow, not an arbitrary future caller assignment or an element borrow.",
+      "The direct checker already compares both independent post-slot sequences, Option variants and full values. No state adapter or caller-final environment was introduced. Both actual analyze/reexecute pairs prove one comparison with original UNSAT and all eleven actual guards disabled.",
+      "Current counts are first source 1 target; isolated last proposal 1 target plus 1 shared split dependency and 2 imported consistency lemmas; state 6 lemmas; state regressions 5 plus those 6; public clients 7; aggregate 2 existing consistency lemmas; each compiled generated comparison 1.",
+      "Thirty-five current Python native/binding tests pass; the focused tests respect TMPDIR for read-only replay. Earlier annotation, MIR-name and Python invocation failures are retained.",
+      "Neither split-off API has a selective success export yet. Complete current-last adoption, its source proof, selective export and real CLI cases only after the required independent permission, then perform final independent review."
+    ]
+  },
+  "module_or_api_acceptance_granted": false,
+  "original_source_or_spec_changed": false
+}

@@ -1,0 +1,46 @@
+note: preparing crate for verification
+
+error[E0308]: mismatched types
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:20:43
+   |
+20 |         ensures(|result: usize| result == IteratorSpec::remaining(&self).len());
+   |                                 ------    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `usize`, found `nat`
+   |                                 |
+   |                                 expected because this is `usize`
+
+error[E0308]: mismatched types
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:26:66
+   |
+26 |             result == if IteratorSpec::remaining(&self).len() == 0 {
+   |                          ------------------------------------    ^ expected `nat`, found integer
+   |                          |
+   |                          expected because this is `vstd::prelude::nat`
+
+error[E0308]: mismatched types
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:26:66
+   |
+26 |             result == if IteratorSpec::remaining(&self).len() == 0 {
+   |                                                                  ^ expected `nat`, found integer
+
+error[E0369]: binary operation `==` cannot be applied to type `std::option::Option<T>`
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:26:20
+   |
+26 |               result == if IteratorSpec::remaining(&self).len() == 0 {
+   |  _____________------_^^_-
+   | |             |
+   | |             std::option::Option<T>
+27 | |                 None
+28 | |             } else {
+29 | |                 Some(IteratorSpec::remaining(&self).last())
+30 | |             }
+   | |_____________- std::option::Option<T>
+   |
+help: consider restricting type parameter `T` with trait `PartialEq`
+   |
+16 | impl<T: std::cmp::PartialEq, A: Allocator> Iterator for IntoIter<T, A> {
+   |       +++++++++++++++++++++
+
+error: aborting due to 4 previous errors
+
+Some errors have detailed explanations: E0308, E0369.
+For more information about an error, try `rustc --explain E0308`.

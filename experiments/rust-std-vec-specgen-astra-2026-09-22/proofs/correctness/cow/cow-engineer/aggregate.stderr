@@ -1,0 +1,76 @@
+note: preparing crate for verification
+
+error: assume_specification trait bound mismatch
+  --> specs/cow/conversions.rs:9:1
+   |
+ 9 | / pub assume_specification<'a, T: Clone>[
+10 | |     <Cow<'a, [T]> as From<&'a [T]>>::from
+11 | | ](s: &'a [T]) -> (result: Cow<'a, [T]>)
+12 | |     where Cow<'a, [T]>: CowObservation<T>,
+   | |__________________________________________^
+   |
+   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds
+           but the proxy function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+             - std::borrow::Cow<'_, [T]>: cow::observation::CowObservation<T>
+           the external function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+
+error: assume_specification trait bound mismatch
+  --> specs/cow/conversions.rs:17:1
+   |
+17 | / pub assume_specification<'a, T: Clone, const N: usize>[
+18 | |     <Cow<'a, [T]> as From<&'a [T; N]>>::from
+19 | | ](s: &'a [T; N]) -> (result: Cow<'a, [T]>)
+20 | |     where Cow<'a, [T]>: CowObservation<T>,
+   | |__________________________________________^
+   |
+   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds
+           but the proxy function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+             - std::borrow::Cow<'_, [T]>: cow::observation::CowObservation<T>
+           the external function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+
+error: assume_specification trait bound mismatch
+  --> specs/cow/conversions.rs:25:1
+   |
+25 | / pub assume_specification<'a, T: Clone>[
+26 | |     <Cow<'a, [T]> as From<Vec<T>>>::from
+27 | | ](v: Vec<T>) -> (result: Cow<'a, [T]>)
+28 | |     where Cow<'a, [T]>: CowObservation<T>,
+   | |__________________________________________^
+   |
+   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds
+           but the proxy function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+             - std::borrow::Cow<'_, [T]>: cow::observation::CowObservation<T>
+           the external function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+
+error: assume_specification trait bound mismatch
+  --> specs/cow/conversions.rs:33:1
+   |
+33 | / pub assume_specification<'a, T: Clone>[
+34 | |     <Cow<'a, [T]> as From<&'a Vec<T>>>::from
+35 | | ](v: &'a Vec<T>) -> (result: Cow<'a, [T]>)
+36 | |     where Cow<'a, [T]>: CowObservation<T>,
+   | |__________________________________________^
+   |
+   = help: assume_specification requires function type signatures to match exactly, ignoring any Destruct trait bounds
+           but the proxy function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+             - std::borrow::Cow<'_, [T]>: cow::observation::CowObservation<T>
+           the external function's trait bounds are:
+             - T: std::marker::Sized
+             - T: std::clone::Clone
+
+error: aborting due to 4 previous errors
+

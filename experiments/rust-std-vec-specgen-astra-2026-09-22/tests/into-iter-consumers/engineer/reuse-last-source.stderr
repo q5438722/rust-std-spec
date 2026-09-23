@@ -1,0 +1,22 @@
+error[E0382]: borrow of moved value: `i`
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/into-iter-consumers/engineer/reuse-last-source.rs:5:127
+   |
+ 5 | ... { let i = vec![1].into_iter(); let _ = <IntoIter<i32> as into_iter_last_native::source::Iterator>::last(i); let _ = i.len(); }
+   |           -                                -------------------------------------------------------------------          ^ value borrowed here after move
+   |           |                                |
+   |           |                                `i` moved due to this method call
+   |           move occurs because `i` has type `std::vec::IntoIter<i32>`, which does not implement the `Copy` trait
+   |
+note: `into_iter_last_native::source::Iterator::last` takes ownership of the receiver `self`, which moves `i`
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source_last.rs:11:13
+   |
+11 |     fn last(self) -> Option<Self::Item> where Self: Sized;
+   |             ^^^^
+help: you can `clone` the value and consume it, but this might not be your desired behavior
+   |
+ 5 | fn main() { let i = vec![1].into_iter(); let _ = <IntoIter<i32> as into_iter_last_native::source::Iterator>::last(i.clone()); let _ = i.len(); }
+   |                                                                                                                    ++++++++
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0382`.

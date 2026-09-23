@@ -1,0 +1,11 @@
+macro	invocation_span	definition_span	policy	generated_functions	invocation
+impl_fn_for_zst	slice/ascii.rs:301-306	internal_macros.rs:72-110	token-substitution	3	impl_fn_for_zst! {\n    #[derive(Clone)]\n    struct EscapeByte impl Fn = |byte: &u8| -> ascii::EscapeDefault {\n        ascii::escape_default(*byte)\n    };\n}
+always_applicable_ord	slice/cmp.rs:276-284	slice/cmp.rs:270-274	token-substitution	0	always_applicable_ord! {\n    [] u8, [] u16, [] u32, [] u64, [] u128, [] usize,\n    [] i8, [] i16, [] i32, [] i64, [] i128, [] isize,\n    [] bool, [] char,\n    [T: ?Sized] *const T, [T: ?Sized] *mut T,\n    [T: AlwaysApplicableOrd] &T,\n    [T: AlwaysApplicableOrd] &mut T,\n    [T: AlwaysApplicableOrd] Option<T>,\n}
+impl_slice_contains	slice/cmp.rs:455-455	slice/cmp.rs:431-453	token-substitution	11	impl_slice_contains!(u16, u32, u64, i16, i32, i64, f32, f64, usize, isize, char)
+iterator	slice/iter.rs:142-150	slice/iter/macros.rs:64-508	token-substitution	28	iterator! {struct Iter -> *const T, &'a T, const, {/* no mut */}, as_ref, each_ref, {\n    fn is_sorted_by<F>(self, mut compare: F) -> bool\n    where\n        Self: Sized,\n        F: FnMut(&Self::Item, &Self::Item) -> bool,\n    {\n        self.as_slice().is_sorted_by(|a, b| compare(&a, &b))\n    }\n}}
+iterator	slice/iter.rs:371-371	slice/iter/macros.rs:64-508	token-substitution	27	iterator! {struct IterMut -> *mut T, &'a mut T, mut, {mut}, as_mut, each_mut, {}}
+forward_iterator	slice/iter.rs:1306-1306	slice/iter/macros.rs:510-533	token-substitution	2	forward_iterator! { SplitN: T, &'a [T] }
+forward_iterator	slice/iter.rs:1307-1307	slice/iter/macros.rs:510-533	token-substitution	2	forward_iterator! { RSplitN: T, &'a [T] }
+forward_iterator	slice/iter.rs:1308-1308	slice/iter/macros.rs:510-533	token-substitution	2	forward_iterator! { SplitNMut: T, &'a mut [T] }
+forward_iterator	slice/iter.rs:1309-1309	slice/iter/macros.rs:510-533	token-substitution	2	forward_iterator! { RSplitNMut: T, &'a mut [T] }
+spec_fill_int	slice/specialize.rs:73-73	slice/specialize.rs:48-71	token-substitution	10	spec_fill_int! { u16 i16 u32 i32 u64 i64 u128 i128 usize isize }

@@ -1,0 +1,48 @@
+schema_version = 1
+offline = true
+
+[project]
+root = "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/specs"
+
+[language]
+name = "verus"
+
+[targets]
+include = ["vec/borrowed.rs", "cow/conversions.rs", "vec/owned_conversions.rs", "vec/reused_basic.rs"]
+visibility = "public"
+
+[build]
+adapter = "verus.native"
+entrypoint = "lib.rs"
+extra_args = ["--crate-type=lib", "--edition=2021"]
+
+[adapters.verus]
+executable = "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/toolchains/verus-x86-linux/verus"
+rust_toolchain = "1.98.1"
+extra_args = ["--num-threads=1"]
+
+[adapters.verus.environment]
+RUSTUP_HOME = "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/toolchains/rustup"
+CARGO_HOME = "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/toolchains/cargo"
+TMPDIR = "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/completeness/vec/reused-basic/engineer/tmp"
+RUSTC_BOOTSTRAP = "1"
+
+[analysis]
+kind = "concrete_determinism"
+observation_policy = "verus-strict-v1"
+
+[analysis.proof_generation]
+strategies = ["baseline", "rules"]
+max_attempts = 2
+
+[limits]
+verifier_timeout_seconds = 120
+solver_timeout_ms = 10000
+max_search_rounds = 30
+seed = 0
+
+[artifacts]
+output_dir = "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/completeness/vec/reused-basic/engineer/analysis-runs"
+
+[assistance]
+mode = "off"

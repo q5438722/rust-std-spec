@@ -1,0 +1,112 @@
+test_actual_const_api_is_not_stable (test_with_capacity.WithCapacityTests.test_actual_const_api_is_not_stable) ... ok
+test_checker_contract_observation_and_reexecution_records (test_with_capacity.WithCapacityTests.test_checker_contract_observation_and_reexecution_records) ... ok
+test_completeness_has_nonzero_successful_obligations (test_with_capacity.WithCapacityTests.test_completeness_has_nonzero_successful_obligations) ... 
+  test_completeness_has_nonzero_successful_obligations (test_with_capacity.WithCapacityTests.test_completeness_has_nonzero_successful_obligations) (phase='analyze') ... FAIL
+  test_completeness_has_nonzero_successful_obligations (test_with_capacity.WithCapacityTests.test_completeness_has_nonzero_successful_obligations) (phase='replay') ... FAIL
+test_config_and_four_row_coverage_scope (test_with_capacity.WithCapacityTests.test_config_and_four_row_coverage_scope) ... ok
+test_const_heap_enabled_on_actual_api_and_source (test_with_capacity.WithCapacityTests.test_const_heap_enabled_on_actual_api_and_source) ... ok
+test_disabled_global_oom_configuration_removes_entry (test_with_capacity.WithCapacityTests.test_disabled_global_oom_configuration_removes_entry) ... ok
+test_exact_type_and_element_lifetime_rejections (test_with_capacity.WithCapacityTests.test_exact_type_and_element_lifetime_rejections) ... ok
+test_lowered_source_calls_only_official_dependency (test_with_capacity.WithCapacityTests.test_lowered_source_calls_only_official_dependency) ... FAIL
+test_minimal_global_constructor_diagnostic (test_with_capacity.WithCapacityTests.test_minimal_global_constructor_diagnostic) ... ok
+test_native_aggregate_compiles_current_sources (test_with_capacity.WithCapacityTests.test_native_aggregate_compiles_current_sources) ... ok
+test_native_behavior_with_fresh_library_and_executable (test_with_capacity.WithCapacityTests.test_native_behavior_with_fresh_library_and_executable) ... ok
+test_official_and_source_contract_clients (test_with_capacity.WithCapacityTests.test_official_and_source_contract_clients) ... FAIL
+test_official_contract_and_original_expression (test_with_capacity.WithCapacityTests.test_official_contract_and_original_expression) ... ok
+test_source_and_aggregate_verus_compilation (test_with_capacity.WithCapacityTests.test_source_and_aggregate_verus_compilation) ... 
+  test_source_and_aggregate_verus_compilation (test_with_capacity.WithCapacityTests.test_source_and_aggregate_verus_compilation) (entry='source') ... FAIL
+  test_source_and_aggregate_verus_compilation (test_with_capacity.WithCapacityTests.test_source_and_aggregate_verus_compilation) (entry='aggregate') ... FAIL
+test_source_body_requires_const_heap_to_compile (test_with_capacity.WithCapacityTests.test_source_body_requires_const_heap_to_compile) ... ok
+
+======================================================================
+FAIL: test_completeness_has_nonzero_successful_obligations (test_with_capacity.WithCapacityTests.test_completeness_has_nonzero_successful_obligations) (phase='analyze')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_with_capacity.py", line 459, in test_completeness_has_nonzero_successful_obligations
+    self.assertEqual(record["returncode"], 0, f"{phase}: {data['status']}")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : analyze: completed
+
+======================================================================
+FAIL: test_completeness_has_nonzero_successful_obligations (test_with_capacity.WithCapacityTests.test_completeness_has_nonzero_successful_obligations) (phase='replay')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_with_capacity.py", line 459, in test_completeness_has_nonzero_successful_obligations
+    self.assertEqual(record["returncode"], 0, f"{phase}: {data['status']}")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : replay: completed
+
+======================================================================
+FAIL: test_lowered_source_calls_only_official_dependency (test_with_capacity.WithCapacityTests.test_lowered_source_calls_only_official_dependency)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_with_capacity.py", line 194, in test_lowered_source_calls_only_official_dependency
+    self.assertIn('(VarIdent "capacity"', parameters)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '(VarIdent "capacity"' not found in '\n   (@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/specs/vec/with_capacity.rs:8:31: 8:46 (#0)" (Param :name (VarIdent\n      "capacity" (VarIdentDisambiguate RustcId 2)\n     ) :typ (Typ Int (IntRange USize)) :mode Exec :user_mut false :unwrapped_info None))\n  ) '
+
+======================================================================
+FAIL: test_official_and_source_contract_clients (test_with_capacity.WithCapacityTests.test_official_and_source_contract_clients)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_with_capacity.py", line 243, in test_official_and_source_contract_clients
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [rust_verify/src/verifier.rs:113:17] &note = "Verus treats this datatype as 'opaque' because it is marked 'external_body'"
+[rust_verify/src/verifier.rs:113:17] &sp.as_string = "std_specs/alloc.rs:11:1: 11:43 (#0)"
+error: disallowed: constructor for an opaque datatype
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/../specs/vec/with_capacity.rs:12:42
+   |
+12 |     Vec::<T>::with_capacity_in(capacity, Global)
+   |                                          ^^^^^^ this constructor is disallowed
+
+error: aborting due to 1 previous error
+
+
+
+======================================================================
+FAIL: test_source_and_aggregate_verus_compilation (test_with_capacity.WithCapacityTests.test_source_and_aggregate_verus_compilation) (entry='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_with_capacity.py", line 169, in test_source_and_aggregate_verus_compilation
+    self.assertEqual(record["returncode"], 0, (PROOF / f"{name}.stderr").read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : note: preparing crate for verification
+
+[rust_verify/src/verifier.rs:113:17] &note = "Verus treats this datatype as 'opaque' because it is marked 'external_body'"
+[rust_verify/src/verifier.rs:113:17] &sp.as_string = "std_specs/alloc.rs:11:1: 11:43 (#0)"
+error: disallowed: constructor for an opaque datatype
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/vec/../../../specs/vec/with_capacity.rs:12:42
+   |
+12 |     Vec::<T>::with_capacity_in(capacity, Global)
+   |                                          ^^^^^^ this constructor is disallowed
+
+error: aborting due to 1 previous error
+
+
+
+======================================================================
+FAIL: test_source_and_aggregate_verus_compilation (test_with_capacity.WithCapacityTests.test_source_and_aggregate_verus_compilation) (entry='aggregate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_with_capacity.py", line 169, in test_source_and_aggregate_verus_compilation
+    self.assertEqual(record["returncode"], 0, (PROOF / f"{name}.stderr").read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : note: preparing crate for verification
+
+[rust_verify/src/verifier.rs:113:17] &note = "Verus treats this datatype as 'opaque' because it is marked 'external_body'"
+[rust_verify/src/verifier.rs:113:17] &sp.as_string = "std_specs/alloc.rs:11:1: 11:43 (#0)"
+error: disallowed: constructor for an opaque datatype
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/specs/vec/with_capacity.rs:12:42
+   |
+12 |     Vec::<T>::with_capacity_in(capacity, Global)
+   |                                          ^^^^^^ this constructor is disallowed
+
+error: aborting due to 1 previous error
+
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 1.724s
+
+FAILED (failures=6)

@@ -1,0 +1,2251 @@
+(set-option :auto_config false)
+(set-option :smt.mbqi false)
+(set-option :smt.case_split 3)
+(set-option :smt.qi.eager_threshold 100.0)
+(set-option :smt.delay_units true)
+(set-option :smt.arith.solver 2)
+(set-option :smt.arith.nl false)
+(set-option :pi.enabled false)
+(set-option :rewriter.sort_disjunctions false)
+(set-option :rlimit 30000000)
+
+;; Prelude
+
+;; AIR prelude
+
+(declare-sort FuelId 0)
+(declare-sort Fuel 0)
+(declare-const zero Fuel)
+(declare-fun succ (Fuel) Fuel)
+(declare-fun fuel_bool (FuelId) Bool)
+(declare-fun fuel_bool_default (FuelId) Bool)
+(declare-const fuel_defaults Bool)
+(axiom (=>
+  fuel_defaults
+  (forall ((id FuelId)) (!
+    (= (fuel_bool id) (fuel_bool_default id))
+    :pattern ((fuel_bool id))
+    :qid prelude_fuel_defaults
+    :skolemid skolem_prelude_fuel_defaults
+))))
+(declare-datatypes ((fndef 0)) (((fndef_singleton))))
+(declare-sort Poly 0)
+(declare-sort Height 0)
+(declare-fun I (Int) Poly)
+(declare-fun B (Bool) Poly)
+(declare-fun R (Real) Poly)
+(declare-fun F (fndef) Poly)
+(declare-fun %I (Poly) Int)
+(declare-fun %B (Poly) Bool)
+(declare-fun %R (Poly) Real)
+(declare-fun %F (Poly) fndef)
+(declare-sort Type 0)
+(declare-const BOOL Type)
+(declare-const INT Type)
+(declare-const NAT Type)
+(declare-const REAL Type)
+(declare-const CHAR Type)
+(declare-const USIZE Type)
+(declare-const ISIZE Type)
+(declare-const TYPE%tuple%0. Type)
+(declare-fun UINT (Int) Type)
+(declare-fun SINT (Int) Type)
+(declare-fun FLOAT (Int) Type)
+(declare-fun CONST_INT (Int) Type)
+(declare-fun CONST_BOOL (Bool) Type)
+(declare-sort Dcr 0)
+(declare-const $ Dcr)
+(declare-const $slice Dcr)
+(declare-const $dyn Dcr)
+(declare-fun DST (Dcr) Dcr)
+(declare-fun REF (Dcr) Dcr)
+(declare-fun BOX (Dcr Type Dcr) Dcr)
+(declare-fun RC (Dcr Type Dcr) Dcr)
+(declare-fun ARC (Dcr Type Dcr) Dcr)
+(declare-fun GHOST (Dcr) Dcr)
+(declare-fun TRACKED (Dcr) Dcr)
+(declare-fun NEVER (Dcr) Dcr)
+(declare-fun CONST_PTR (Dcr) Dcr)
+(declare-fun ARRAY (Dcr Type Dcr Type) Type)
+(declare-fun MUTREF (Dcr Type) Type)
+(declare-fun SLICE (Dcr Type) Type)
+(declare-const STRSLICE Type)
+(declare-const ALLOCATOR_GLOBAL Type)
+(declare-fun PTR (Dcr Type) Type)
+(declare-fun has_type (Poly Type) Bool)
+(declare-fun sized (Dcr) Bool)
+(declare-fun as_type (Poly Type) Poly)
+(declare-fun mk_fun (Fun) Fun)
+(declare-fun const_int (Type) Int)
+(declare-fun const_bool (Type) Bool)
+(declare-fun mut_ref_current% (Poly) Poly)
+(declare-fun mut_ref_future% (Poly) Poly)
+(declare-fun mut_ref_update_current% (Poly Poly) Poly)
+(axiom (forall ((m Poly) (arg Poly)) (!
+   (= (mut_ref_current% (mut_ref_update_current% m arg)) arg)
+   :pattern ((mut_ref_update_current% m arg))
+   :qid prelude_mut_ref_update_current_current
+   :skolemid skolem_prelude_mut_ref_update_current_current
+)))
+(axiom (forall ((m Poly) (arg Poly)) (!
+   (= (mut_ref_future% (mut_ref_update_current% m arg)) (mut_ref_future% m))
+   :pattern ((mut_ref_update_current% m arg))
+   :qid prelude_mut_ref_update_current_future
+   :skolemid skolem_prelude_mut_ref_update_current_future
+)))
+(axiom (forall ((m Poly) (d Dcr) (t Type)) (!
+   (=>
+    (has_type m (MUTREF d t))
+    (has_type (mut_ref_current% m) t)
+   )
+   :pattern ((has_type m (MUTREF d t)) (mut_ref_current% m))
+   :qid prelude_mut_ref_current_has_type
+   :skolemid skolem_prelude_mut_ref_current_has_type
+)))
+(axiom (forall ((m Poly) (d Dcr) (t Type)) (!
+   (=>
+    (has_type m (MUTREF d t))
+    (has_type (mut_ref_future% m) t)
+   )
+   :pattern ((has_type m (MUTREF d t)) (mut_ref_future% m))
+   :qid prelude_mut_ref_future_has_type
+   :skolemid skolem_prelude_mut_ref_future_has_type
+)))
+(axiom (forall ((m Poly) (d Dcr) (t Type) (arg Poly)) (!
+   (=>
+    (and
+     (has_type m (MUTREF d t))
+     (has_type arg t)
+    )
+    (has_type (mut_ref_update_current% m arg) (MUTREF d t))
+   )
+   :pattern ((has_type m (MUTREF d t)) (mut_ref_update_current% m arg))
+   :qid prelude_mut_ref_update_has_type
+   :skolemid skolem_prelude_mut_ref_update_has_type
+)))
+(axiom (forall ((d Dcr)) (!
+   (=>
+    (sized d)
+    (sized (DST d))
+   )
+   :pattern ((sized (DST d)))
+   :qid prelude_sized_decorate_struct_inherit
+   :skolemid skolem_prelude_sized_decorate_struct_inherit
+)))
+(axiom (forall ((d Dcr)) (!
+   (sized (REF d))
+   :pattern ((sized (REF d)))
+   :qid prelude_sized_decorate_ref
+   :skolemid skolem_prelude_sized_decorate_ref
+)))
+(axiom (forall ((d Dcr) (t Type) (d2 Dcr)) (!
+   (sized (BOX d t d2))
+   :pattern ((sized (BOX d t d2)))
+   :qid prelude_sized_decorate_box
+   :skolemid skolem_prelude_sized_decorate_box
+)))
+(axiom (forall ((d Dcr) (t Type) (d2 Dcr)) (!
+   (sized (RC d t d2))
+   :pattern ((sized (RC d t d2)))
+   :qid prelude_sized_decorate_rc
+   :skolemid skolem_prelude_sized_decorate_rc
+)))
+(axiom (forall ((d Dcr) (t Type) (d2 Dcr)) (!
+   (sized (ARC d t d2))
+   :pattern ((sized (ARC d t d2)))
+   :qid prelude_sized_decorate_arc
+   :skolemid skolem_prelude_sized_decorate_arc
+)))
+(axiom (forall ((d Dcr)) (!
+   (sized (GHOST d))
+   :pattern ((sized (GHOST d)))
+   :qid prelude_sized_decorate_ghost
+   :skolemid skolem_prelude_sized_decorate_ghost
+)))
+(axiom (forall ((d Dcr)) (!
+   (sized (TRACKED d))
+   :pattern ((sized (TRACKED d)))
+   :qid prelude_sized_decorate_tracked
+   :skolemid skolem_prelude_sized_decorate_tracked
+)))
+(axiom (forall ((d Dcr)) (!
+   (sized (NEVER d))
+   :pattern ((sized (NEVER d)))
+   :qid prelude_sized_decorate_never
+   :skolemid skolem_prelude_sized_decorate_never
+)))
+(axiom (forall ((d Dcr)) (!
+   (sized (CONST_PTR d))
+   :pattern ((sized (CONST_PTR d)))
+   :qid prelude_sized_decorate_const_ptr
+   :skolemid skolem_prelude_sized_decorate_const_ptr
+)))
+(axiom (sized $))
+(axiom (forall ((i Int)) (!
+   (= i (const_int (CONST_INT i)))
+   :pattern ((CONST_INT i))
+   :qid prelude_type_id_const_int
+   :skolemid skolem_prelude_type_id_const_int
+)))
+(axiom (forall ((b Bool)) (!
+   (= b (const_bool (CONST_BOOL b)))
+   :pattern ((CONST_BOOL b))
+   :qid prelude_type_id_const_bool
+   :skolemid skolem_prelude_type_id_const_bool
+)))
+(axiom (forall ((b Bool)) (!
+   (has_type (B b) BOOL)
+   :pattern ((has_type (B b) BOOL))
+   :qid prelude_has_type_bool
+   :skolemid skolem_prelude_has_type_bool
+)))
+(axiom (forall ((r Real)) (!
+   (has_type (R r) REAL)
+   :pattern ((has_type (R r) REAL))
+   :qid prelude_has_type_real
+   :skolemid skolem_prelude_has_type_real
+)))
+(axiom (forall ((x Poly) (t Type)) (!
+   (and
+    (has_type (as_type x t) t)
+    (=>
+     (has_type x t)
+     (= x (as_type x t))
+   ))
+   :pattern ((as_type x t))
+   :qid prelude_as_type
+   :skolemid skolem_prelude_as_type
+)))
+(axiom (forall ((x Fun)) (!
+   (= (mk_fun x) x)
+   :pattern ((mk_fun x))
+   :qid prelude_mk_fun
+   :skolemid skolem_prelude_mk_fun
+)))
+(axiom (forall ((x Bool)) (!
+   (= x (%B (B x)))
+   :pattern ((B x))
+   :qid prelude_unbox_box_bool
+   :skolemid skolem_prelude_unbox_box_bool
+)))
+(axiom (forall ((x Int)) (!
+   (= x (%I (I x)))
+   :pattern ((I x))
+   :qid prelude_unbox_box_int
+   :skolemid skolem_prelude_unbox_box_int
+)))
+(axiom (forall ((x Real)) (!
+   (= x (%R (R x)))
+   :pattern ((R x))
+   :qid prelude_unbox_box_real
+   :skolemid skolem_prelude_unbox_box_real
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x BOOL)
+    (= x (B (%B x)))
+   )
+   :pattern ((has_type x BOOL))
+   :qid prelude_box_unbox_bool
+   :skolemid skolem_prelude_box_unbox_bool
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x INT)
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x INT))
+   :qid prelude_box_unbox_int
+   :skolemid skolem_prelude_box_unbox_int
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x NAT)
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x NAT))
+   :qid prelude_box_unbox_nat
+   :skolemid skolem_prelude_box_unbox_nat
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x USIZE)
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x USIZE))
+   :qid prelude_box_unbox_usize
+   :skolemid skolem_prelude_box_unbox_usize
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x ISIZE)
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x ISIZE))
+   :qid prelude_box_unbox_isize
+   :skolemid skolem_prelude_box_unbox_isize
+)))
+(axiom (forall ((bits Int) (x Poly)) (!
+   (=>
+    (has_type x (UINT bits))
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x (UINT bits)))
+   :qid prelude_box_unbox_uint
+   :skolemid skolem_prelude_box_unbox_uint
+)))
+(axiom (forall ((bits Int) (x Poly)) (!
+   (=>
+    (has_type x (SINT bits))
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x (SINT bits)))
+   :qid prelude_box_unbox_sint
+   :skolemid skolem_prelude_box_unbox_sint
+)))
+(axiom (forall ((bits Int) (x Poly)) (!
+   (=>
+    (has_type x (FLOAT bits))
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x (FLOAT bits)))
+   :qid prelude_box_unbox_float
+   :skolemid skolem_prelude_box_unbox_float
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x CHAR)
+    (= x (I (%I x)))
+   )
+   :pattern ((has_type x CHAR))
+   :qid prelude_box_unbox_char
+   :skolemid skolem_prelude_box_unbox_char
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x REAL)
+    (= x (R (%R x)))
+   )
+   :pattern ((has_type x REAL))
+   :qid prelude_box_unbox_real
+   :skolemid skolem_prelude_box_unbox_real
+)))
+(declare-fun ext_eq (Bool Type Poly Poly) Bool)
+(axiom (forall ((deep Bool) (t Type) (x Poly) (y Poly)) (!
+   (= (= x y) (ext_eq deep t x y))
+   :pattern ((ext_eq deep t x y))
+   :qid prelude_ext_eq
+   :skolemid skolem_prelude_ext_eq
+)))
+(declare-const SZ Int)
+(axiom (or
+  (= SZ 32)
+  (= SZ 64)
+))
+(declare-fun uHi (Int) Int)
+(declare-fun iLo (Int) Int)
+(declare-fun iHi (Int) Int)
+(axiom (= (uHi 8) 256))
+(axiom (= (uHi 16) 65536))
+(axiom (= (uHi 32) 4294967296))
+(axiom (= (uHi 64) 18446744073709551616))
+(axiom (= (uHi 128) (+ 1 340282366920938463463374607431768211455)))
+(axiom (= (iLo 8) (- 128)))
+(axiom (= (iLo 16) (- 32768)))
+(axiom (= (iLo 32) (- 2147483648)))
+(axiom (= (iLo 64) (- 9223372036854775808)))
+(axiom (= (iLo 128) (- 170141183460469231731687303715884105728)))
+(axiom (= (iHi 8) 128))
+(axiom (= (iHi 16) 32768))
+(axiom (= (iHi 32) 2147483648))
+(axiom (= (iHi 64) 9223372036854775808))
+(axiom (= (iHi 128) 170141183460469231731687303715884105728))
+(declare-fun nClip (Int) Int)
+(declare-fun uClip (Int Int) Int)
+(declare-fun iClip (Int Int) Int)
+(declare-fun charClip (Int) Int)
+(axiom (forall ((i Int)) (!
+   (and
+    (<= 0 (nClip i))
+    (=>
+     (<= 0 i)
+     (= i (nClip i))
+   ))
+   :pattern ((nClip i))
+   :qid prelude_nat_clip
+   :skolemid skolem_prelude_nat_clip
+)))
+(axiom (forall ((bits Int) (i Int)) (!
+   (and
+    (<= 0 (uClip bits i))
+    (< (uClip bits i) (uHi bits))
+    (=>
+     (and
+      (<= 0 i)
+      (< i (uHi bits))
+     )
+     (= i (uClip bits i))
+   ))
+   :pattern ((uClip bits i))
+   :qid prelude_u_clip
+   :skolemid skolem_prelude_u_clip
+)))
+(axiom (forall ((bits Int) (i Int)) (!
+   (and
+    (<= (iLo bits) (iClip bits i))
+    (< (iClip bits i) (iHi bits))
+    (=>
+     (and
+      (<= (iLo bits) i)
+      (< i (iHi bits))
+     )
+     (= i (iClip bits i))
+   ))
+   :pattern ((iClip bits i))
+   :qid prelude_i_clip
+   :skolemid skolem_prelude_i_clip
+)))
+(axiom (forall ((i Int)) (!
+   (and
+    (or
+     (and
+      (<= 0 (charClip i))
+      (<= (charClip i) 55295)
+     )
+     (and
+      (<= 57344 (charClip i))
+      (<= (charClip i) 1114111)
+    ))
+    (=>
+     (or
+      (and
+       (<= 0 i)
+       (<= i 55295)
+      )
+      (and
+       (<= 57344 i)
+       (<= i 1114111)
+     ))
+     (= i (charClip i))
+   ))
+   :pattern ((charClip i))
+   :qid prelude_char_clip
+   :skolemid skolem_prelude_char_clip
+)))
+(declare-fun uInv (Int Int) Bool)
+(declare-fun iInv (Int Int) Bool)
+(declare-fun charInv (Int) Bool)
+(axiom (forall ((bits Int) (i Int)) (!
+   (= (uInv bits i) (and
+     (<= 0 i)
+     (< i (uHi bits))
+   ))
+   :pattern ((uInv bits i))
+   :qid prelude_u_inv
+   :skolemid skolem_prelude_u_inv
+)))
+(axiom (forall ((bits Int) (i Int)) (!
+   (= (iInv bits i) (and
+     (<= (iLo bits) i)
+     (< i (iHi bits))
+   ))
+   :pattern ((iInv bits i))
+   :qid prelude_i_inv
+   :skolemid skolem_prelude_i_inv
+)))
+(axiom (forall ((i Int)) (!
+   (= (charInv i) (or
+     (and
+      (<= 0 i)
+      (<= i 55295)
+     )
+     (and
+      (<= 57344 i)
+      (<= i 1114111)
+   )))
+   :pattern ((charInv i))
+   :qid prelude_char_inv
+   :skolemid skolem_prelude_char_inv
+)))
+(axiom (forall ((x Int)) (!
+   (has_type (I x) INT)
+   :pattern ((has_type (I x) INT))
+   :qid prelude_has_type_int
+   :skolemid skolem_prelude_has_type_int
+)))
+(axiom (forall ((x Int)) (!
+   (=>
+    (<= 0 x)
+    (has_type (I x) NAT)
+   )
+   :pattern ((has_type (I x) NAT))
+   :qid prelude_has_type_nat
+   :skolemid skolem_prelude_has_type_nat
+)))
+(axiom (forall ((x Int)) (!
+   (=>
+    (uInv SZ x)
+    (has_type (I x) USIZE)
+   )
+   :pattern ((has_type (I x) USIZE))
+   :qid prelude_has_type_usize
+   :skolemid skolem_prelude_has_type_usize
+)))
+(axiom (forall ((x Int)) (!
+   (=>
+    (iInv SZ x)
+    (has_type (I x) ISIZE)
+   )
+   :pattern ((has_type (I x) ISIZE))
+   :qid prelude_has_type_isize
+   :skolemid skolem_prelude_has_type_isize
+)))
+(axiom (forall ((bits Int) (x Int)) (!
+   (=>
+    (uInv bits x)
+    (has_type (I x) (UINT bits))
+   )
+   :pattern ((has_type (I x) (UINT bits)))
+   :qid prelude_has_type_uint
+   :skolemid skolem_prelude_has_type_uint
+)))
+(axiom (forall ((bits Int) (x Int)) (!
+   (=>
+    (iInv bits x)
+    (has_type (I x) (SINT bits))
+   )
+   :pattern ((has_type (I x) (SINT bits)))
+   :qid prelude_has_type_sint
+   :skolemid skolem_prelude_has_type_sint
+)))
+(axiom (forall ((bits Int) (x Int)) (!
+   (=>
+    (uInv bits x)
+    (has_type (I x) (FLOAT bits))
+   )
+   :pattern ((has_type (I x) (FLOAT bits)))
+   :qid prelude_has_type_float
+   :skolemid skolem_prelude_has_type_float
+)))
+(axiom (forall ((x Int)) (!
+   (=>
+    (charInv x)
+    (has_type (I x) CHAR)
+   )
+   :pattern ((has_type (I x) CHAR))
+   :qid prelude_has_type_char
+   :skolemid skolem_prelude_has_type_char
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x NAT)
+    (<= 0 (%I x))
+   )
+   :pattern ((has_type x NAT))
+   :qid prelude_unbox_int
+   :skolemid skolem_prelude_unbox_int
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x USIZE)
+    (uInv SZ (%I x))
+   )
+   :pattern ((has_type x USIZE))
+   :qid prelude_unbox_usize
+   :skolemid skolem_prelude_unbox_usize
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x CHAR)
+    (charInv (%I x))
+   )
+   :pattern ((has_type x CHAR))
+   :qid prelude_unbox_char
+   :skolemid skolem_prelude_unbox_char
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x ISIZE)
+    (iInv SZ (%I x))
+   )
+   :pattern ((has_type x ISIZE))
+   :qid prelude_unbox_isize
+   :skolemid skolem_prelude_unbox_isize
+)))
+(axiom (forall ((bits Int) (x Poly)) (!
+   (=>
+    (has_type x (UINT bits))
+    (uInv bits (%I x))
+   )
+   :pattern ((has_type x (UINT bits)))
+   :qid prelude_unbox_uint
+   :skolemid skolem_prelude_unbox_uint
+)))
+(axiom (forall ((bits Int) (x Poly)) (!
+   (=>
+    (has_type x (SINT bits))
+    (iInv bits (%I x))
+   )
+   :pattern ((has_type x (SINT bits)))
+   :qid prelude_unbox_sint
+   :skolemid skolem_prelude_unbox_sint
+)))
+(axiom (forall ((bits Int) (x Poly)) (!
+   (=>
+    (has_type x (FLOAT bits))
+    (uInv bits (%I x))
+   )
+   :pattern ((has_type x (FLOAT bits)))
+   :qid prelude_unbox_float
+   :skolemid skolem_prelude_unbox_float
+)))
+(declare-fun Add (Int Int) Int)
+(declare-fun Sub (Int Int) Int)
+(declare-fun Mul (Int Int) Int)
+(declare-fun EucDiv (Int Int) Int)
+(declare-fun EucMod (Int Int) Int)
+(declare-fun RAdd (Real Real) Real)
+(declare-fun RSub (Real Real) Real)
+(declare-fun RMul (Real Real) Real)
+(declare-fun RDiv (Real Real) Real)
+(axiom (forall ((x Int) (y Int)) (!
+   (= (Add x y) (+ x y))
+   :pattern ((Add x y))
+   :qid prelude_add
+   :skolemid skolem_prelude_add
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (= (Sub x y) (- x y))
+   :pattern ((Sub x y))
+   :qid prelude_sub
+   :skolemid skolem_prelude_sub
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (= (Mul x y) (* x y))
+   :pattern ((Mul x y))
+   :qid prelude_mul
+   :skolemid skolem_prelude_mul
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (= (EucDiv x y) (div x y))
+   :pattern ((EucDiv x y))
+   :qid prelude_eucdiv
+   :skolemid skolem_prelude_eucdiv
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (= (EucMod x y) (mod x y))
+   :pattern ((EucMod x y))
+   :qid prelude_eucmod
+   :skolemid skolem_prelude_eucmod
+)))
+(axiom (forall ((x Real) (y Real)) (!
+   (= (RAdd x y) (+ x y))
+   :pattern ((RAdd x y))
+   :qid prelude_radd
+   :skolemid skolem_prelude_radd
+)))
+(axiom (forall ((x Real) (y Real)) (!
+   (= (RSub x y) (- x y))
+   :pattern ((RSub x y))
+   :qid prelude_rsub
+   :skolemid skolem_prelude_rsub
+)))
+(axiom (forall ((x Real) (y Real)) (!
+   (= (RMul x y) (* x y))
+   :pattern ((RMul x y))
+   :qid prelude_rmul
+   :skolemid skolem_prelude_rmul
+)))
+(axiom (forall ((x Real) (y Real)) (!
+   (= (RDiv x y) (/ x y))
+   :pattern ((RDiv x y))
+   :qid prelude_rdiv
+   :skolemid skolem_prelude_rdiv
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (=>
+    (and
+     (<= 0 x)
+     (<= 0 y)
+    )
+    (<= 0 (Mul x y))
+   )
+   :pattern ((Mul x y))
+   :qid prelude_mul_nats
+   :skolemid skolem_prelude_mul_nats
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (=>
+    (and
+     (<= 0 x)
+     (< 0 y)
+    )
+    (and
+     (<= 0 (EucDiv x y))
+     (<= (EucDiv x y) x)
+   ))
+   :pattern ((EucDiv x y))
+   :qid prelude_div_unsigned_in_bounds
+   :skolemid skolem_prelude_div_unsigned_in_bounds
+)))
+(axiom (forall ((x Int) (y Int)) (!
+   (=>
+    (and
+     (<= 0 x)
+     (< 0 y)
+    )
+    (and
+     (<= 0 (EucMod x y))
+     (< (EucMod x y) y)
+   ))
+   :pattern ((EucMod x y))
+   :qid prelude_mod_unsigned_in_bounds
+   :skolemid skolem_prelude_mod_unsigned_in_bounds
+)))
+(declare-fun bitxor (Poly Poly) Int)
+(declare-fun bitand (Poly Poly) Int)
+(declare-fun bitor (Poly Poly) Int)
+(declare-fun bitshr (Poly Poly) Int)
+(declare-fun bitshl (Poly Poly) Int)
+(declare-fun bitnot (Poly) Int)
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (uInv bits (%I x))
+     (uInv bits (%I y))
+    )
+    (uInv bits (bitxor x y))
+   )
+   :pattern ((uClip bits (bitxor x y)))
+   :qid prelude_bit_xor_u_inv
+   :skolemid skolem_prelude_bit_xor_u_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (iInv bits (%I x))
+     (iInv bits (%I y))
+    )
+    (iInv bits (bitxor x y))
+   )
+   :pattern ((iClip bits (bitxor x y)))
+   :qid prelude_bit_xor_i_inv
+   :skolemid skolem_prelude_bit_xor_i_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (uInv bits (%I x))
+     (uInv bits (%I y))
+    )
+    (uInv bits (bitor x y))
+   )
+   :pattern ((uClip bits (bitor x y)))
+   :qid prelude_bit_or_u_inv
+   :skolemid skolem_prelude_bit_or_u_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (iInv bits (%I x))
+     (iInv bits (%I y))
+    )
+    (iInv bits (bitor x y))
+   )
+   :pattern ((iClip bits (bitor x y)))
+   :qid prelude_bit_or_i_inv
+   :skolemid skolem_prelude_bit_or_i_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (uInv bits (%I x))
+     (uInv bits (%I y))
+    )
+    (uInv bits (bitand x y))
+   )
+   :pattern ((uClip bits (bitand x y)))
+   :qid prelude_bit_and_u_inv
+   :skolemid skolem_prelude_bit_and_u_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (iInv bits (%I x))
+     (iInv bits (%I y))
+    )
+    (iInv bits (bitand x y))
+   )
+   :pattern ((iClip bits (bitand x y)))
+   :qid prelude_bit_and_i_inv
+   :skolemid skolem_prelude_bit_and_i_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (uInv bits (%I x))
+     (<= 0 (%I y))
+    )
+    (uInv bits (bitshr x y))
+   )
+   :pattern ((uClip bits (bitshr x y)))
+   :qid prelude_bit_shr_u_inv
+   :skolemid skolem_prelude_bit_shr_u_inv
+)))
+(axiom (forall ((x Poly) (y Poly) (bits Int)) (!
+   (=>
+    (and
+     (iInv bits (%I x))
+     (<= 0 (%I y))
+    )
+    (iInv bits (bitshr x y))
+   )
+   :pattern ((iClip bits (bitshr x y)))
+   :qid prelude_bit_shr_i_inv
+   :skolemid skolem_prelude_bit_shr_i_inv
+)))
+(declare-fun singular_mod (Int Int) Int)
+(axiom (forall ((x Int) (y Int)) (!
+   (=>
+    (not (= y 0))
+    (= (EucMod x y) (singular_mod x y))
+   )
+   :pattern ((singular_mod x y))
+   :qid prelude_singularmod
+   :skolemid skolem_prelude_singularmod
+)))
+(declare-fun has_resolved (Dcr Type Poly) Bool)
+(declare-fun closure_req (Type Dcr Type Poly Poly) Bool)
+(declare-fun closure_ens (Type Dcr Type Poly Poly Poly) Bool)
+(declare-fun default_ens (Type Dcr Type Poly Poly Poly) Bool)
+(declare-fun height (Poly) Height)
+(declare-fun height_lt (Height Height) Bool)
+(declare-fun fun_from_recursive_field (Poly) Poly)
+(declare-fun check_decrease_height (Poly Poly Bool) Bool)
+(axiom (forall ((cur Poly) (prev Poly) (otherwise Bool)) (!
+   (= (check_decrease_height cur prev otherwise) (or
+     (height_lt (height cur) (height prev))
+     (and
+      (= (height cur) (height prev))
+      otherwise
+   )))
+   :pattern ((check_decrease_height cur prev otherwise))
+   :qid prelude_check_decrease_height
+   :skolemid skolem_prelude_check_decrease_height
+)))
+(axiom (forall ((cur Int) (prev Int)) (!
+   (= (height_lt (height (I cur)) (height (I prev))) (and
+     (<= 0 cur)
+     (< cur prev)
+   ))
+   :pattern ((height_lt (height (I cur)) (height (I prev))))
+   :qid prelude_check_decrease_int_height
+   :skolemid skolem_prelude_check_decrease_int_height
+)))
+(axiom (forall ((x Height) (y Height)) (!
+   (= (height_lt x y) (and
+     ((_ partial-order 0) x y)
+     (not (= x y))
+   ))
+   :pattern ((height_lt x y))
+   :qid prelude_height_lt
+   :skolemid skolem_prelude_height_lt
+)))
+
+;; MODULE 'module source'
+
+;; Fuel
+(declare-const fuel%vstd!std_specs.iter.impl&%0.obeys_prophetic_iter_laws. FuelId)
+(declare-const fuel%vstd!std_specs.iter.impl&%0.remaining. FuelId)
+(declare-const fuel%vstd!std_specs.vec.impl&%3.obeys_prophetic_iter_laws. FuelId)
+(declare-const fuel%vstd!function.axiom_fn_mut_call_requires. FuelId)
+(declare-const fuel%vstd!function.axiom_fn_mut_call_ensures. FuelId)
+(declare-const fuel%vstd!seq.impl&%2.spec_index. FuelId)
+(declare-const fuel%vstd!seq.lemma_seq_index_decreases. FuelId)
+(declare-const fuel%vstd!seq.lemma_seq_ext_equal. FuelId)
+(declare-const fuel%vstd!seq.lemma_seq_ext_equal_deep. FuelId)
+(declare-const fuel%vstd!array.group_array_axioms. FuelId)
+(declare-const fuel%vstd!function.group_function_axioms. FuelId)
+(declare-const fuel%vstd!imap.group_imap_lemmas. FuelId)
+(declare-const fuel%vstd!iset.group_iset_lemmas. FuelId)
+(declare-const fuel%vstd!laws_cmp.group_laws_cmp. FuelId)
+(declare-const fuel%vstd!laws_eq.bool_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.u8_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.i8_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.u16_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.i16_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.u32_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.i32_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.u64_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.i64_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.u128_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.i128_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.usize_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.isize_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_1_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_2_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_3_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_4_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_5_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_6_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_7_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_8_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_9_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_10_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_11_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.tuple_12_laws.group_laws_eq. FuelId)
+(declare-const fuel%vstd!laws_eq.group_laws_eq. FuelId)
+(declare-const fuel%vstd!layout.group_align_properties. FuelId)
+(declare-const fuel%vstd!layout.group_layout_axioms. FuelId)
+(declare-const fuel%vstd!map.group_map_lemmas. FuelId)
+(declare-const fuel%vstd!multiset.group_multiset_axioms. FuelId)
+(declare-const fuel%vstd!mut_ref.group_mut_ref_axioms. FuelId)
+(declare-const fuel%vstd!raw_ptr.group_raw_ptr_axioms. FuelId)
+(declare-const fuel%vstd!seq.group_seq_lemmas. FuelId)
+(declare-const fuel%vstd!seq_lib.group_filter_ensures. FuelId)
+(declare-const fuel%vstd!seq_lib.group_seq_lib_default. FuelId)
+(declare-const fuel%vstd!set.group_set_lemmas. FuelId)
+(declare-const fuel%vstd!set_lib.group_set_lib_default. FuelId)
+(declare-const fuel%vstd!slice.group_slice_axioms. FuelId)
+(declare-const fuel%vstd!string.group_string_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.bits.group_bits_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.control_flow.group_control_flow_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.fmt.group_fmt_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.iter.group_iter_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.manually_drop.group_manually_drop_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.btree.group_btree_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.hash.group_hash_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.range.group_range_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.vec.group_vec_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.vecdeque.group_vec_dequeue_axioms. FuelId)
+(declare-const fuel%vstd!std_specs.nonzero.group_nonzero_axioms. FuelId)
+(declare-const fuel%vstd!group_vstd_default. FuelId)
+(axiom (distinct fuel%vstd!std_specs.iter.impl&%0.obeys_prophetic_iter_laws. fuel%vstd!std_specs.iter.impl&%0.remaining.
+  fuel%vstd!std_specs.vec.impl&%3.obeys_prophetic_iter_laws. fuel%vstd!function.axiom_fn_mut_call_requires.
+  fuel%vstd!function.axiom_fn_mut_call_ensures. fuel%vstd!seq.impl&%2.spec_index. fuel%vstd!seq.lemma_seq_index_decreases.
+  fuel%vstd!seq.lemma_seq_ext_equal. fuel%vstd!seq.lemma_seq_ext_equal_deep. fuel%vstd!array.group_array_axioms.
+  fuel%vstd!function.group_function_axioms. fuel%vstd!imap.group_imap_lemmas. fuel%vstd!iset.group_iset_lemmas.
+  fuel%vstd!laws_cmp.group_laws_cmp. fuel%vstd!laws_eq.bool_laws.group_laws_eq. fuel%vstd!laws_eq.u8_laws.group_laws_eq.
+  fuel%vstd!laws_eq.i8_laws.group_laws_eq. fuel%vstd!laws_eq.u16_laws.group_laws_eq.
+  fuel%vstd!laws_eq.i16_laws.group_laws_eq. fuel%vstd!laws_eq.u32_laws.group_laws_eq.
+  fuel%vstd!laws_eq.i32_laws.group_laws_eq. fuel%vstd!laws_eq.u64_laws.group_laws_eq.
+  fuel%vstd!laws_eq.i64_laws.group_laws_eq. fuel%vstd!laws_eq.u128_laws.group_laws_eq.
+  fuel%vstd!laws_eq.i128_laws.group_laws_eq. fuel%vstd!laws_eq.usize_laws.group_laws_eq.
+  fuel%vstd!laws_eq.isize_laws.group_laws_eq. fuel%vstd!laws_eq.tuple_1_laws.group_laws_eq.
+  fuel%vstd!laws_eq.tuple_2_laws.group_laws_eq. fuel%vstd!laws_eq.tuple_3_laws.group_laws_eq.
+  fuel%vstd!laws_eq.tuple_4_laws.group_laws_eq. fuel%vstd!laws_eq.tuple_5_laws.group_laws_eq.
+  fuel%vstd!laws_eq.tuple_6_laws.group_laws_eq. fuel%vstd!laws_eq.tuple_7_laws.group_laws_eq.
+  fuel%vstd!laws_eq.tuple_8_laws.group_laws_eq. fuel%vstd!laws_eq.tuple_9_laws.group_laws_eq.
+  fuel%vstd!laws_eq.tuple_10_laws.group_laws_eq. fuel%vstd!laws_eq.tuple_11_laws.group_laws_eq.
+  fuel%vstd!laws_eq.tuple_12_laws.group_laws_eq. fuel%vstd!laws_eq.group_laws_eq. fuel%vstd!layout.group_align_properties.
+  fuel%vstd!layout.group_layout_axioms. fuel%vstd!map.group_map_lemmas. fuel%vstd!multiset.group_multiset_axioms.
+  fuel%vstd!mut_ref.group_mut_ref_axioms. fuel%vstd!raw_ptr.group_raw_ptr_axioms. fuel%vstd!seq.group_seq_lemmas.
+  fuel%vstd!seq_lib.group_filter_ensures. fuel%vstd!seq_lib.group_seq_lib_default.
+  fuel%vstd!set.group_set_lemmas. fuel%vstd!set_lib.group_set_lib_default. fuel%vstd!slice.group_slice_axioms.
+  fuel%vstd!string.group_string_axioms. fuel%vstd!std_specs.bits.group_bits_axioms.
+  fuel%vstd!std_specs.control_flow.group_control_flow_axioms. fuel%vstd!std_specs.fmt.group_fmt_axioms.
+  fuel%vstd!std_specs.iter.group_iter_axioms. fuel%vstd!std_specs.manually_drop.group_manually_drop_axioms.
+  fuel%vstd!std_specs.btree.group_btree_axioms. fuel%vstd!std_specs.hash.group_hash_axioms.
+  fuel%vstd!std_specs.range.group_range_axioms. fuel%vstd!std_specs.vec.group_vec_axioms.
+  fuel%vstd!std_specs.vecdeque.group_vec_dequeue_axioms. fuel%vstd!std_specs.nonzero.group_nonzero_axioms.
+  fuel%vstd!group_vstd_default.
+))
+(axiom (=>
+  (fuel_bool_default fuel%vstd!function.group_function_axioms.)
+  (and
+   (fuel_bool_default fuel%vstd!function.axiom_fn_mut_call_requires.)
+   (fuel_bool_default fuel%vstd!function.axiom_fn_mut_call_ensures.)
+)))
+(axiom (=>
+  (fuel_bool_default fuel%vstd!laws_eq.group_laws_eq.)
+  (and
+   (fuel_bool_default fuel%vstd!laws_eq.bool_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.u8_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.i8_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.u16_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.i16_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.u32_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.i32_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.u64_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.i64_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.u128_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.i128_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.usize_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.isize_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_1_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_2_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_3_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_4_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_5_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_6_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_7_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_8_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_9_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_10_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_11_laws.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_eq.tuple_12_laws.group_laws_eq.)
+)))
+(axiom (=>
+  (fuel_bool_default fuel%vstd!layout.group_layout_axioms.)
+  (fuel_bool_default fuel%vstd!layout.group_align_properties.)
+))
+(axiom (=>
+  (fuel_bool_default fuel%vstd!seq.group_seq_lemmas.)
+  (and
+   (fuel_bool_default fuel%vstd!seq.lemma_seq_index_decreases.)
+   (fuel_bool_default fuel%vstd!seq.lemma_seq_ext_equal.)
+   (fuel_bool_default fuel%vstd!seq.lemma_seq_ext_equal_deep.)
+)))
+(axiom (=>
+  (fuel_bool_default fuel%vstd!seq_lib.group_seq_lib_default.)
+  (fuel_bool_default fuel%vstd!seq_lib.group_filter_ensures.)
+))
+(axiom (fuel_bool_default fuel%vstd!group_vstd_default.))
+(axiom (=>
+  (fuel_bool_default fuel%vstd!group_vstd_default.)
+  (and
+   (fuel_bool_default fuel%vstd!seq.group_seq_lemmas.)
+   (fuel_bool_default fuel%vstd!seq_lib.group_seq_lib_default.)
+   (fuel_bool_default fuel%vstd!map.group_map_lemmas.)
+   (fuel_bool_default fuel%vstd!set.group_set_lemmas.)
+   (fuel_bool_default fuel%vstd!imap.group_imap_lemmas.)
+   (fuel_bool_default fuel%vstd!iset.group_iset_lemmas.)
+   (fuel_bool_default fuel%vstd!set_lib.group_set_lib_default.)
+   (fuel_bool_default fuel%vstd!multiset.group_multiset_axioms.)
+   (fuel_bool_default fuel%vstd!function.group_function_axioms.)
+   (fuel_bool_default fuel%vstd!laws_eq.group_laws_eq.)
+   (fuel_bool_default fuel%vstd!laws_cmp.group_laws_cmp.)
+   (fuel_bool_default fuel%vstd!slice.group_slice_axioms.)
+   (fuel_bool_default fuel%vstd!array.group_array_axioms.)
+   (fuel_bool_default fuel%vstd!string.group_string_axioms.)
+   (fuel_bool_default fuel%vstd!raw_ptr.group_raw_ptr_axioms.)
+   (fuel_bool_default fuel%vstd!layout.group_layout_axioms.)
+   (fuel_bool_default fuel%vstd!mut_ref.group_mut_ref_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.range.group_range_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.bits.group_bits_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.control_flow.group_control_flow_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.fmt.group_fmt_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.manually_drop.group_manually_drop_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.iter.group_iter_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.vec.group_vec_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.vecdeque.group_vec_dequeue_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.hash.group_hash_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.btree.group_btree_axioms.)
+   (fuel_bool_default fuel%vstd!std_specs.nonzero.group_nonzero_axioms.)
+)))
+
+;; Trait-Decls
+(declare-fun tr_bound%core!marker.Tuple. (Dcr Type) Bool)
+(declare-fun tr_bound%core!ops.function.FnOnce. (Dcr Type Dcr Type) Bool)
+(declare-fun tr_bound%core!ops.function.FnMut. (Dcr Type Dcr Type) Bool)
+(declare-fun tr_bound%core!ops.function.Fn. (Dcr Type Dcr Type) Bool)
+(declare-fun tr_bound%core!alloc.Allocator. (Dcr Type) Bool)
+(declare-fun tr_bound%core!iter.traits.iterator.Iterator. (Dcr Type) Bool)
+(declare-fun tr_bound%core!iter.traits.exact_size.ExactSizeIterator. (Dcr Type) Bool)
+(declare-fun tr_bound%vstd!std_specs.iter.IteratorSpec. (Dcr Type) Bool)
+(declare-fun tr_bound%vstd!std_specs.iter.ExactSizeIteratorSpec. (Dcr Type) Bool)
+(declare-fun tr_bound%into_iter_count!source.Iterator. (Dcr Type) Bool)
+
+;; Associated-Type-Decls
+(declare-fun proj%%core!ops.function.FnOnce./Output (Dcr Type Dcr Type) Dcr)
+(declare-fun proj%core!ops.function.FnOnce./Output (Dcr Type Dcr Type) Type)
+(declare-fun proj%%core!iter.traits.iterator.Iterator./Item (Dcr Type) Dcr)
+(declare-fun proj%core!iter.traits.iterator.Iterator./Item (Dcr Type) Type)
+(declare-fun proj%%into_iter_count!source.Iterator./Item (Dcr Type) Dcr)
+(declare-fun proj%into_iter_count!source.Iterator./Item (Dcr Type) Type)
+
+;; Datatypes
+(declare-datatypes ((tuple%0. 0)) (((tuple%0./tuple%0))))
+(declare-fun TYPE%alloc!vec.into_iter.IntoIter. (Dcr Type Dcr Type) Type)
+(declare-fun TYPE%vstd!seq.Seq. (Dcr Type) Type)
+(declare-fun Poly%tuple%0. (tuple%0.) Poly)
+(declare-fun %Poly%tuple%0. (Poly) tuple%0.)
+(axiom (forall ((x tuple%0.)) (!
+   (= x (%Poly%tuple%0. (Poly%tuple%0. x)))
+   :pattern ((Poly%tuple%0. x))
+   :qid internal_crate__tuple__0_box_axiom_definition
+   :skolemid skolem_internal_crate__tuple__0_box_axiom_definition
+)))
+(axiom (forall ((x Poly)) (!
+   (=>
+    (has_type x TYPE%tuple%0.)
+    (= x (Poly%tuple%0. (%Poly%tuple%0. x)))
+   )
+   :pattern ((has_type x TYPE%tuple%0.))
+   :qid internal_crate__tuple__0_unbox_axiom_definition
+   :skolemid skolem_internal_crate__tuple__0_unbox_axiom_definition
+)))
+(axiom (forall ((x tuple%0.)) (!
+   (has_type (Poly%tuple%0. x) TYPE%tuple%0.)
+   :pattern ((has_type (Poly%tuple%0. x) TYPE%tuple%0.))
+   :qid internal_crate__tuple__0_has_type_always_definition
+   :skolemid skolem_internal_crate__tuple__0_has_type_always_definition
+)))
+
+;; Trait-Bounds
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   true
+   :pattern ((tr_bound%core!marker.Tuple. Self%&. Self%&))
+   :qid internal_core__marker__Tuple_trait_type_bounds_definition
+   :skolemid skolem_internal_core__marker__Tuple_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (Args&. Dcr) (Args& Type)) (!
+   (=>
+    (tr_bound%core!ops.function.FnOnce. Self%&. Self%& Args&. Args&)
+    (and
+     (sized Args&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+     (sized (proj%%core!ops.function.FnOnce./Output Self%&. Self%& Args&. Args&))
+   ))
+   :pattern ((tr_bound%core!ops.function.FnOnce. Self%&. Self%& Args&. Args&))
+   :qid internal_core__ops__function__FnOnce_trait_type_bounds_definition
+   :skolemid skolem_internal_core__ops__function__FnOnce_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (Args&. Dcr) (Args& Type)) (!
+   (=>
+    (tr_bound%core!ops.function.FnMut. Self%&. Self%& Args&. Args&)
+    (and
+     (tr_bound%core!ops.function.FnOnce. Self%&. Self%& Args&. Args&)
+     (sized Args&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+   ))
+   :pattern ((tr_bound%core!ops.function.FnMut. Self%&. Self%& Args&. Args&))
+   :qid internal_core__ops__function__FnMut_trait_type_bounds_definition
+   :skolemid skolem_internal_core__ops__function__FnMut_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (Args&. Dcr) (Args& Type)) (!
+   (=>
+    (tr_bound%core!ops.function.Fn. Self%&. Self%& Args&. Args&)
+    (and
+     (tr_bound%core!ops.function.FnMut. Self%&. Self%& Args&. Args&)
+     (sized Args&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+   ))
+   :pattern ((tr_bound%core!ops.function.Fn. Self%&. Self%& Args&. Args&))
+   :qid internal_core__ops__function__Fn_trait_type_bounds_definition
+   :skolemid skolem_internal_core__ops__function__Fn_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   true
+   :pattern ((tr_bound%core!alloc.Allocator. Self%&. Self%&))
+   :qid internal_core__alloc__Allocator_trait_type_bounds_definition
+   :skolemid skolem_internal_core__alloc__Allocator_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.iterator.Iterator. Self%&. Self%&)
+    (sized (proj%%core!iter.traits.iterator.Iterator./Item Self%&. Self%&))
+   )
+   :pattern ((tr_bound%core!iter.traits.iterator.Iterator. Self%&. Self%&))
+   :qid internal_core__iter__traits__iterator__Iterator_trait_type_bounds_definition
+   :skolemid skolem_internal_core__iter__traits__iterator__Iterator_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. Self%&. Self%&)
+    (tr_bound%core!iter.traits.iterator.Iterator. Self%&. Self%&)
+   )
+   :pattern ((tr_bound%core!iter.traits.exact_size.ExactSizeIterator. Self%&. Self%&))
+   :qid internal_core__iter__traits__exact_size__ExactSizeIterator_trait_type_bounds_definition
+   :skolemid skolem_internal_core__iter__traits__exact_size__ExactSizeIterator_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   (=>
+    (tr_bound%vstd!std_specs.iter.IteratorSpec. Self%&. Self%&)
+    (tr_bound%core!iter.traits.iterator.Iterator. Self%&. Self%&)
+   )
+   :pattern ((tr_bound%vstd!std_specs.iter.IteratorSpec. Self%&. Self%&))
+   :qid internal_vstd__std_specs__iter__IteratorSpec_trait_type_bounds_definition
+   :skolemid skolem_internal_vstd__std_specs__iter__IteratorSpec_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   (=>
+    (tr_bound%vstd!std_specs.iter.ExactSizeIteratorSpec. Self%&. Self%&)
+    (and
+     (tr_bound%core!iter.traits.iterator.Iterator. Self%&. Self%&)
+     (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. Self%&. Self%&)
+   ))
+   :pattern ((tr_bound%vstd!std_specs.iter.ExactSizeIteratorSpec. Self%&. Self%&))
+   :qid internal_vstd__std_specs__iter__ExactSizeIteratorSpec_trait_type_bounds_definition
+   :skolemid skolem_internal_vstd__std_specs__iter__ExactSizeIteratorSpec_trait_type_bounds_definition
+)))
+(axiom (forall ((Self%&. Dcr) (Self%& Type)) (!
+   (=>
+    (tr_bound%into_iter_count!source.Iterator. Self%&. Self%&)
+    (sized (proj%%into_iter_count!source.Iterator./Item Self%&. Self%&))
+   )
+   :pattern ((tr_bound%into_iter_count!source.Iterator. Self%&. Self%&))
+   :qid internal_into_iter_count__source__Iterator_trait_type_bounds_definition
+   :skolemid skolem_internal_into_iter_count__source__Iterator_trait_type_bounds_definition
+)))
+
+;; Associated-Type-Impls
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.Fn. F&. F& A&. A&)
+    )
+    (= (proj%%core!ops.function.FnOnce./Output (REF F&.) F& A&. A&) (proj%%core!ops.function.FnOnce./Output
+      F&. F& A&. A&
+   )))
+   :pattern ((proj%%core!ops.function.FnOnce./Output (REF F&.) F& A&. A&))
+   :qid internal_proj____core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__2_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__2_assoc_type_impl_true_definition
+)))
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.Fn. F&. F& A&. A&)
+    )
+    (= (proj%core!ops.function.FnOnce./Output (REF F&.) F& A&. A&) (proj%core!ops.function.FnOnce./Output
+      F&. F& A&. A&
+   )))
+   :pattern ((proj%core!ops.function.FnOnce./Output (REF F&.) F& A&. A&))
+   :qid internal_proj__core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__2_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__2_assoc_type_impl_false_definition
+)))
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.FnMut. F&. F& A&. A&)
+    )
+    (= (proj%%core!ops.function.FnOnce./Output $ (MUTREF F&. F&) A&. A&) (proj%%core!ops.function.FnOnce./Output
+      F&. F& A&. A&
+   )))
+   :pattern ((proj%%core!ops.function.FnOnce./Output $ (MUTREF F&. F&) A&. A&))
+   :qid internal_proj____core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__4_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__4_assoc_type_impl_true_definition
+)))
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.FnMut. F&. F& A&. A&)
+    )
+    (= (proj%core!ops.function.FnOnce./Output $ (MUTREF F&. F&) A&. A&) (proj%core!ops.function.FnOnce./Output
+      F&. F& A&. A&
+   )))
+   :pattern ((proj%core!ops.function.FnOnce./Output $ (MUTREF F&. F&) A&. A&))
+   :qid internal_proj__core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__4_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__core!ops.function.FnOnce./Output_core__ops__function__impls__impl&__4_assoc_type_impl_false_definition
+)))
+(axiom (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (A&. Dcr) (A& Type))
+  (!
+   (=>
+    (and
+     (sized Args&.)
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+     (tr_bound%core!ops.function.FnOnce. F&. F& Args&. Args&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%%core!ops.function.FnOnce./Output (BOX A&. A& F&.) F& Args&. Args&) (proj%%core!ops.function.FnOnce./Output
+      F&. F& Args&. Args&
+   )))
+   :pattern ((proj%%core!ops.function.FnOnce./Output (BOX A&. A& F&.) F& Args&. Args&))
+   :qid internal_proj____core!ops.function.FnOnce./Output_alloc__boxed__impl&__31_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____core!ops.function.FnOnce./Output_alloc__boxed__impl&__31_assoc_type_impl_true_definition
+)))
+(axiom (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (A&. Dcr) (A& Type))
+  (!
+   (=>
+    (and
+     (sized Args&.)
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+     (tr_bound%core!ops.function.FnOnce. F&. F& Args&. Args&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%core!ops.function.FnOnce./Output (BOX A&. A& F&.) F& Args&. Args&) (proj%core!ops.function.FnOnce./Output
+      F&. F& Args&. Args&
+   )))
+   :pattern ((proj%core!ops.function.FnOnce./Output (BOX A&. A& F&.) F& Args&. Args&))
+   :qid internal_proj__core!ops.function.FnOnce./Output_alloc__boxed__impl&__31_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__core!ops.function.FnOnce./Output_alloc__boxed__impl&__31_assoc_type_impl_false_definition
+)))
+(axiom (forall ((I&. Dcr) (I& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+    (= (proj%%core!iter.traits.iterator.Iterator./Item $ (MUTREF I&. I&)) (proj%%core!iter.traits.iterator.Iterator./Item
+      I&. I&
+   )))
+   :pattern ((proj%%core!iter.traits.iterator.Iterator./Item $ (MUTREF I&. I&)))
+   :qid internal_proj____core!iter.traits.iterator.Iterator./Item_core__iter__traits__iterator__impl&__2_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____core!iter.traits.iterator.Iterator./Item_core__iter__traits__iterator__impl&__2_assoc_type_impl_true_definition
+)))
+(axiom (forall ((I&. Dcr) (I& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+    (= (proj%core!iter.traits.iterator.Iterator./Item $ (MUTREF I&. I&)) (proj%core!iter.traits.iterator.Iterator./Item
+      I&. I&
+   )))
+   :pattern ((proj%core!iter.traits.iterator.Iterator./Item $ (MUTREF I&. I&)))
+   :qid internal_proj__core!iter.traits.iterator.Iterator./Item_core__iter__traits__iterator__impl&__2_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__core!iter.traits.iterator.Iterator./Item_core__iter__traits__iterator__impl&__2_assoc_type_impl_false_definition
+)))
+(axiom (forall ((I&. Dcr) (I& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%%core!iter.traits.iterator.Iterator./Item (BOX A&. A& I&.) I&) (proj%%core!iter.traits.iterator.Iterator./Item
+      I&. I&
+   )))
+   :pattern ((proj%%core!iter.traits.iterator.Iterator./Item (BOX A&. A& I&.) I&))
+   :qid internal_proj____core!iter.traits.iterator.Iterator./Item_alloc__boxed__iter__impl&__0_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____core!iter.traits.iterator.Iterator./Item_alloc__boxed__iter__impl&__0_assoc_type_impl_true_definition
+)))
+(axiom (forall ((I&. Dcr) (I& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%core!iter.traits.iterator.Iterator./Item (BOX A&. A& I&.) I&) (proj%core!iter.traits.iterator.Iterator./Item
+      I&. I&
+   )))
+   :pattern ((proj%core!iter.traits.iterator.Iterator./Item (BOX A&. A& I&.) I&))
+   :qid internal_proj__core!iter.traits.iterator.Iterator./Item_alloc__boxed__iter__impl&__0_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__core!iter.traits.iterator.Iterator./Item_alloc__boxed__iter__impl&__0_assoc_type_impl_false_definition
+)))
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%%core!iter.traits.iterator.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+       T&. T& A&. A&
+      )
+     ) T&.
+   ))
+   :pattern ((proj%%core!iter.traits.iterator.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_proj____core!iter.traits.iterator.Iterator./Item_alloc__vec__into_iter__impl&__6_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____core!iter.traits.iterator.Iterator./Item_alloc__vec__into_iter__impl&__6_assoc_type_impl_true_definition
+)))
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%core!iter.traits.iterator.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+       T&. T& A&. A&
+      )
+     ) T&
+   ))
+   :pattern ((proj%core!iter.traits.iterator.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_proj__core!iter.traits.iterator.Iterator./Item_alloc__vec__into_iter__impl&__6_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__core!iter.traits.iterator.Iterator./Item_alloc__vec__into_iter__impl&__6_assoc_type_impl_false_definition
+)))
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%%into_iter_count!source.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+       T&. T& A&. A&
+      )
+     ) T&.
+   ))
+   :pattern ((proj%%into_iter_count!source.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_proj____into_iter_count!source.Iterator./Item_into_iter_count__source__impl&__0_assoc_type_impl_true_definition
+   :skolemid skolem_internal_proj____into_iter_count!source.Iterator./Item_into_iter_count__source__impl&__0_assoc_type_impl_true_definition
+)))
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (= (proj%into_iter_count!source.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+       T&. T& A&. A&
+      )
+     ) T&
+   ))
+   :pattern ((proj%into_iter_count!source.Iterator./Item $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_proj__into_iter_count!source.Iterator./Item_into_iter_count__source__impl&__0_assoc_type_impl_false_definition
+   :skolemid skolem_internal_proj__into_iter_count!source.Iterator./Item_into_iter_count__source__impl&__0_assoc_type_impl_false_definition
+)))
+
+;; Function-Decl vstd::seq::Seq::len
+(declare-fun vstd!seq.Seq.len.? (Dcr Type Poly) Int)
+
+;; Function-Decl vstd::seq::Seq::index
+(declare-fun vstd!seq.Seq.index.? (Dcr Type Poly Poly) Poly)
+
+;; Function-Decl vstd::seq::impl&%2::spec_index
+(declare-fun vstd!seq.impl&%2.spec_index.? (Dcr Type Poly Poly) Poly)
+
+;; Function-Decl vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws
+(declare-fun vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? (Dcr Type
+  Poly
+ ) Poly
+)
+(declare-fun vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws%default%.?
+ (Dcr Type Poly) Poly
+)
+
+;; Function-Decl vstd::std_specs::iter::IteratorSpec::remaining
+(declare-fun vstd!std_specs.iter.IteratorSpec.remaining.? (Dcr Type Poly) Poly)
+(declare-fun vstd!std_specs.iter.IteratorSpec.remaining%default%.? (Dcr Type Poly)
+ Poly
+)
+
+;; Function-Decl vstd::std_specs::iter::ExactSizeIteratorSpec::exact_len
+(declare-fun vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len.? (Dcr Type Poly)
+ Poly
+)
+(declare-fun vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len%default%.? (Dcr Type
+  Poly
+ ) Poly
+)
+
+;; Function-Axioms vstd::seq::Seq::len
+(axiom (forall ((A&. Dcr) (A& Type) (self! Poly)) (!
+   (=>
+    (has_type self! (TYPE%vstd!seq.Seq. A&. A&))
+    (<= 0 (vstd!seq.Seq.len.? A&. A& self!))
+   )
+   :pattern ((vstd!seq.Seq.len.? A&. A& self!))
+   :qid internal_vstd!seq.Seq.len.?_pre_post_definition
+   :skolemid skolem_internal_vstd!seq.Seq.len.?_pre_post_definition
+)))
+
+;; Function-Specs vstd::seq::Seq::index
+(declare-fun req%vstd!seq.Seq.index. (Dcr Type Poly Poly) Bool)
+(axiom (forall ((A&. Dcr) (A& Type) (self! Poly) (i! Poly)) (!
+   (= (req%vstd!seq.Seq.index. A&. A& self! i!) (axiom_location ("recommendation not met")
+     (vstd!seq.Seq.index.) (let
+      ((tmp%%$ 0))
+      (let
+       ((tmp%%$1 (%I i!)))
+       (let
+        ((tmp%%$2 (vstd!seq.Seq.len.? A&. A& self!)))
+        (and
+         (<= tmp%%$ tmp%%$1)
+         (< tmp%%$1 tmp%%$2)
+   ))))))
+   :pattern ((req%vstd!seq.Seq.index. A&. A& self! i!))
+   :qid internal_req__vstd!seq.Seq.index._definition
+   :skolemid skolem_internal_req__vstd!seq.Seq.index._definition
+)))
+
+;; Function-Axioms vstd::seq::Seq::index
+(axiom (forall ((A&. Dcr) (A& Type) (self! Poly) (i! Poly)) (!
+   (=>
+    (and
+     (has_type self! (TYPE%vstd!seq.Seq. A&. A&))
+     (has_type i! INT)
+    )
+    (has_type (vstd!seq.Seq.index.? A&. A& self! i!) A&)
+   )
+   :pattern ((vstd!seq.Seq.index.? A&. A& self! i!))
+   :qid internal_vstd!seq.Seq.index.?_pre_post_definition
+   :skolemid skolem_internal_vstd!seq.Seq.index.?_pre_post_definition
+)))
+
+;; Function-Specs vstd::seq::impl&%2::spec_index
+(declare-fun req%vstd!seq.impl&%2.spec_index. (Dcr Type Poly Poly) Bool)
+(axiom (forall ((A&. Dcr) (A& Type) (self! Poly) (i! Poly)) (!
+   (= (req%vstd!seq.impl&%2.spec_index. A&. A& self! i!) (axiom_location ("recommendation not met")
+     (vstd!seq.impl&%2.spec_index.) (let
+      ((tmp%%$ 0))
+      (let
+       ((tmp%%$1 (%I i!)))
+       (let
+        ((tmp%%$2 (vstd!seq.Seq.len.? A&. A& self!)))
+        (and
+         (<= tmp%%$ tmp%%$1)
+         (< tmp%%$1 tmp%%$2)
+   ))))))
+   :pattern ((req%vstd!seq.impl&%2.spec_index. A&. A& self! i!))
+   :qid internal_req__vstd!seq.impl&__2.spec_index._definition
+   :skolemid skolem_internal_req__vstd!seq.impl&__2.spec_index._definition
+)))
+
+;; Function-Axioms vstd::seq::impl&%2::spec_index
+(axiom (fuel_bool_default fuel%vstd!seq.impl&%2.spec_index.))
+(axiom (=>
+  (fuel_bool fuel%vstd!seq.impl&%2.spec_index.)
+  (forall ((A&. Dcr) (A& Type) (self! Poly) (i! Poly)) (!
+    (= (vstd!seq.impl&%2.spec_index.? A&. A& self! i!) (vstd!seq.Seq.index.? A&. A& self!
+      i!
+    ))
+    :pattern ((vstd!seq.impl&%2.spec_index.? A&. A& self! i!))
+    :qid internal_vstd!seq.impl&__2.spec_index.?_definition
+    :skolemid skolem_internal_vstd!seq.impl&__2.spec_index.?_definition
+))))
+(axiom (forall ((A&. Dcr) (A& Type) (self! Poly) (i! Poly)) (!
+   (=>
+    (and
+     (has_type self! (TYPE%vstd!seq.Seq. A&. A&))
+     (has_type i! INT)
+    )
+    (has_type (vstd!seq.impl&%2.spec_index.? A&. A& self! i!) A&)
+   )
+   :pattern ((vstd!seq.impl&%2.spec_index.? A&. A& self! i!))
+   :qid internal_vstd!seq.impl&__2.spec_index.?_pre_post_definition
+   :skolemid skolem_internal_vstd!seq.impl&__2.spec_index.?_pre_post_definition
+)))
+
+;; Broadcast vstd::seq::lemma_seq_index_decreases
+(axiom (=>
+  (fuel_bool fuel%vstd!seq.lemma_seq_index_decreases.)
+  (forall ((A&. Dcr) (A& Type) (s! Poly) (i! Poly)) (!
+    (=>
+     (and
+      (has_type s! (TYPE%vstd!seq.Seq. A&. A&))
+      (has_type i! INT)
+     )
+     (=>
+      (and
+       (sized A&.)
+       (let
+        ((tmp%%$ 0))
+        (let
+         ((tmp%%$1 (%I i!)))
+         (let
+          ((tmp%%$2 (vstd!seq.Seq.len.? A&. A& s!)))
+          (and
+           (<= tmp%%$ tmp%%$1)
+           (< tmp%%$1 tmp%%$2)
+      )))))
+      (height_lt (height (vstd!seq.Seq.index.? A&. A& s! i!)) (height s!))
+    ))
+    :pattern ((height (vstd!seq.Seq.index.? A&. A& s! i!)))
+    :qid user_vstd__seq__lemma_seq_index_decreases_0
+    :skolemid skolem_user_vstd__seq__lemma_seq_index_decreases_0
+))))
+
+;; Broadcast vstd::seq::lemma_seq_ext_equal
+(axiom (=>
+  (fuel_bool fuel%vstd!seq.lemma_seq_ext_equal.)
+  (forall ((A&. Dcr) (A& Type) (s1! Poly) (s2! Poly)) (!
+    (=>
+     (and
+      (has_type s1! (TYPE%vstd!seq.Seq. A&. A&))
+      (has_type s2! (TYPE%vstd!seq.Seq. A&. A&))
+     )
+     (=>
+      (sized A&.)
+      (= (ext_eq false (TYPE%vstd!seq.Seq. A&. A&) s1! s2!) (and
+        (= (vstd!seq.Seq.len.? A&. A& s1!) (vstd!seq.Seq.len.? A&. A& s2!))
+        (forall ((i$ Poly)) (!
+          (=>
+           (has_type i$ INT)
+           (=>
+            (let
+             ((tmp%%$ 0))
+             (let
+              ((tmp%%$1 (%I i$)))
+              (let
+               ((tmp%%$2 (vstd!seq.Seq.len.? A&. A& s1!)))
+               (and
+                (<= tmp%%$ tmp%%$1)
+                (< tmp%%$1 tmp%%$2)
+            ))))
+            (= (vstd!seq.Seq.index.? A&. A& s1! i$) (vstd!seq.Seq.index.? A&. A& s2! i$))
+          ))
+          :pattern ((vstd!seq.Seq.index.? A&. A& s1! i$))
+          :pattern ((vstd!seq.Seq.index.? A&. A& s2! i$))
+          :qid user_vstd__seq__lemma_seq_ext_equal_0
+          :skolemid skolem_user_vstd__seq__lemma_seq_ext_equal_0
+    ))))))
+    :pattern ((ext_eq false (TYPE%vstd!seq.Seq. A&. A&) s1! s2!))
+    :qid user_vstd__seq__lemma_seq_ext_equal_1
+    :skolemid skolem_user_vstd__seq__lemma_seq_ext_equal_1
+))))
+
+;; Broadcast vstd::seq::lemma_seq_ext_equal_deep
+(axiom (=>
+  (fuel_bool fuel%vstd!seq.lemma_seq_ext_equal_deep.)
+  (forall ((A&. Dcr) (A& Type) (s1! Poly) (s2! Poly)) (!
+    (=>
+     (and
+      (has_type s1! (TYPE%vstd!seq.Seq. A&. A&))
+      (has_type s2! (TYPE%vstd!seq.Seq. A&. A&))
+     )
+     (=>
+      (sized A&.)
+      (= (ext_eq true (TYPE%vstd!seq.Seq. A&. A&) s1! s2!) (and
+        (= (vstd!seq.Seq.len.? A&. A& s1!) (vstd!seq.Seq.len.? A&. A& s2!))
+        (forall ((i$ Poly)) (!
+          (=>
+           (has_type i$ INT)
+           (=>
+            (let
+             ((tmp%%$ 0))
+             (let
+              ((tmp%%$1 (%I i$)))
+              (let
+               ((tmp%%$2 (vstd!seq.Seq.len.? A&. A& s1!)))
+               (and
+                (<= tmp%%$ tmp%%$1)
+                (< tmp%%$1 tmp%%$2)
+            ))))
+            (ext_eq true A& (vstd!seq.Seq.index.? A&. A& s1! i$) (vstd!seq.Seq.index.? A&. A& s2!
+              i$
+          ))))
+          :pattern ((vstd!seq.Seq.index.? A&. A& s1! i$))
+          :pattern ((vstd!seq.Seq.index.? A&. A& s2! i$))
+          :qid user_vstd__seq__lemma_seq_ext_equal_deep_0
+          :skolemid skolem_user_vstd__seq__lemma_seq_ext_equal_deep_0
+    ))))))
+    :pattern ((ext_eq true (TYPE%vstd!seq.Seq. A&. A&) s1! s2!))
+    :qid user_vstd__seq__lemma_seq_ext_equal_deep_1
+    :skolemid skolem_user_vstd__seq__lemma_seq_ext_equal_deep_1
+))))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.FnMut. F&. F& A&. A&)
+    )
+    (tr_bound%core!ops.function.FnOnce. $ (MUTREF F&. F&) A&. A&)
+   )
+   :pattern ((tr_bound%core!ops.function.FnOnce. $ (MUTREF F&. F&) A&. A&))
+   :qid internal_core__ops__function__impls__impl&__4_trait_impl_definition
+   :skolemid skolem_internal_core__ops__function__impls__impl&__4_trait_impl_definition
+)))
+
+;; Broadcast vstd::function::axiom_fn_mut_call_requires
+(axiom (=>
+  (fuel_bool fuel%vstd!function.axiom_fn_mut_call_requires.)
+  (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (f! Poly) (args! Poly)) (!
+    (=>
+     (and
+      (has_type f! (MUTREF F&. F&))
+      (has_type args! Args&)
+     )
+     (=>
+      (and
+       (and
+        (and
+         (and
+          (sized Args&.)
+          (sized F&.)
+         )
+         (tr_bound%core!marker.Tuple. Args&. Args&)
+        )
+        (tr_bound%core!ops.function.FnMut. F&. F& Args&. Args&)
+       )
+       (closure_req F& Args&. Args& (mut_ref_current% f!) args!)
+      )
+      (closure_req (MUTREF F&. F&) Args&. Args& f! args!)
+    ))
+    :pattern ((closure_req (MUTREF F&. F&) Args&. Args& f! args!))
+    :qid user_vstd__function__axiom_fn_mut_call_requires_0
+    :skolemid skolem_user_vstd__function__axiom_fn_mut_call_requires_0
+))))
+
+;; Broadcast vstd::function::axiom_fn_mut_call_ensures
+(axiom (=>
+  (fuel_bool fuel%vstd!function.axiom_fn_mut_call_ensures.)
+  (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (f! Poly) (args! Poly) (output!
+     Poly
+    )
+   ) (!
+    (=>
+     (and
+      (has_type f! (MUTREF F&. F&))
+      (has_type args! Args&)
+      (has_type output! (proj%core!ops.function.FnOnce./Output F&. F& Args&. Args&))
+     )
+     (=>
+      (and
+       (and
+        (and
+         (and
+          (sized Args&.)
+          (sized F&.)
+         )
+         (tr_bound%core!marker.Tuple. Args&. Args&)
+        )
+        (tr_bound%core!ops.function.FnMut. F&. F& Args&. Args&)
+       )
+       (closure_ens (MUTREF F&. F&) Args&. Args& f! args! output!)
+      )
+      (and
+       (closure_ens F& Args&. Args& (mut_ref_current% f!) args! output!)
+       (= (mut_ref_current% f!) (mut_ref_future% f!))
+    )))
+    :pattern ((closure_ens (MUTREF F&. F&) Args&. Args& f! args! output!))
+    :qid user_vstd__function__axiom_fn_mut_call_ensures_0
+    :skolemid skolem_user_vstd__function__axiom_fn_mut_call_ensures_0
+))))
+
+;; Trait-Impl-Axiom
+(axiom (tr_bound%core!marker.Tuple. $ TYPE%tuple%0.))
+
+;; Function-Axioms vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (self! Poly)) (!
+   (=>
+    (has_type self! Self%&)
+    (has_type (vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? Self%&. Self%&
+      self!
+     ) BOOL
+   ))
+   :pattern ((vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? Self%&. Self%&
+     self!
+   ))
+   :qid internal_vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.?_pre_post_definition
+   :skolemid skolem_internal_vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.?_pre_post_definition
+)))
+
+;; Function-Axioms vstd::std_specs::iter::IteratorSpec::remaining
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (self! Poly)) (!
+   (=>
+    (has_type self! Self%&)
+    (has_type (vstd!std_specs.iter.IteratorSpec.remaining.? Self%&. Self%& self!) (TYPE%vstd!seq.Seq.
+      (proj%%core!iter.traits.iterator.Iterator./Item Self%&. Self%&) (proj%core!iter.traits.iterator.Iterator./Item
+       Self%&. Self%&
+   ))))
+   :pattern ((vstd!std_specs.iter.IteratorSpec.remaining.? Self%&. Self%& self!))
+   :qid internal_vstd!std_specs.iter.IteratorSpec.remaining.?_pre_post_definition
+   :skolemid skolem_internal_vstd!std_specs.iter.IteratorSpec.remaining.?_pre_post_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((VERUS_SPEC__A&. Dcr) (VERUS_SPEC__A& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.iterator.Iterator. VERUS_SPEC__A&. VERUS_SPEC__A&)
+    (tr_bound%vstd!std_specs.iter.IteratorSpec. VERUS_SPEC__A&. VERUS_SPEC__A&)
+   )
+   :pattern ((tr_bound%vstd!std_specs.iter.IteratorSpec. VERUS_SPEC__A&. VERUS_SPEC__A&))
+   :qid internal_vstd__std_specs__iter__impl&__12_trait_impl_definition
+   :skolemid skolem_internal_vstd__std_specs__iter__impl&__12_trait_impl_definition
+)))
+
+;; Function-Axioms vstd::std_specs::iter::ExactSizeIteratorSpec::exact_len
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (self! Poly)) (!
+   (=>
+    (has_type self! Self%&)
+    (has_type (vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len.? Self%&. Self%& self!)
+     USIZE
+   ))
+   :pattern ((vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len.? Self%&. Self%& self!))
+   :qid internal_vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len.?_pre_post_definition
+   :skolemid skolem_internal_vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len.?_pre_post_definition
+)))
+
+;; Function-Specs core::iter::traits::exact_size::ExactSizeIterator::len
+(declare-fun ens%core!iter.traits.exact_size.ExactSizeIterator.len. (Dcr Type Poly
+  Poly
+ ) Bool
+)
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (self! Poly) (len! Poly)) (!
+   (= (ens%core!iter.traits.exact_size.ExactSizeIterator.len. Self%&. Self%& self! len!)
+    (and
+     (has_type len! USIZE)
+     (=>
+      (%B (vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? Self%&. Self%& self!))
+      (let
+       ((tmp%%$ (%I len!)))
+       (let
+        ((tmp%%$1 (%I (vstd!std_specs.iter.ExactSizeIteratorSpec.exact_len.? Self%&. Self%& self!))))
+        (let
+         ((tmp%%$2 (vstd!seq.Seq.len.? (proj%%core!iter.traits.iterator.Iterator./Item Self%&.
+             Self%&
+            ) (proj%core!iter.traits.iterator.Iterator./Item Self%&. Self%&) (vstd!std_specs.iter.IteratorSpec.remaining.?
+             Self%&. Self%& self!
+         ))))
+         (and
+          (= tmp%%$ tmp%%$1)
+          (= tmp%%$1 tmp%%$2)
+   )))))))
+   :pattern ((ens%core!iter.traits.exact_size.ExactSizeIterator.len. Self%&. Self%& self!
+     len!
+   ))
+   :qid internal_ens__core!iter.traits.exact_size.ExactSizeIterator.len._definition
+   :skolemid skolem_internal_ens__core!iter.traits.exact_size.ExactSizeIterator.len._definition
+)))
+
+;; Function-Specs into_iter_count::source::Iterator::count
+(declare-fun ens%into_iter_count!source.Iterator.count. (Dcr Type Poly Poly) Bool)
+(axiom (forall ((Self%&. Dcr) (Self%& Type) (self! Poly) (%return! Poly)) (!
+   (= (ens%into_iter_count!source.Iterator.count. Self%&. Self%& self! %return!) (has_type
+     %return! USIZE
+   ))
+   :pattern ((ens%into_iter_count!source.Iterator.count. Self%&. Self%& self! %return!))
+   :qid internal_ens__into_iter_count!source.Iterator.count._definition
+   :skolemid skolem_internal_ens__into_iter_count!source.Iterator.count._definition
+)))
+
+;; Function-Axioms vstd::std_specs::iter::impl&%0::obeys_prophetic_iter_laws
+(axiom (fuel_bool_default fuel%vstd!std_specs.iter.impl&%0.obeys_prophetic_iter_laws.))
+(axiom (=>
+  (fuel_bool fuel%vstd!std_specs.iter.impl&%0.obeys_prophetic_iter_laws.)
+  (forall ((I&. Dcr) (I& Type) (self! Poly)) (!
+    (=>
+     (and
+      (sized I&.)
+      (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+     )
+     (= (vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? $ (MUTREF I&. I&)
+       self!
+      ) (vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? I&. I& (mut_ref_current%
+        self!
+    ))))
+    :pattern ((vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? $ (MUTREF I&.
+       I&
+      ) self!
+    ))
+    :qid internal_vstd!std_specs.iter.impl&__0.obeys_prophetic_iter_laws.?_definition
+    :skolemid skolem_internal_vstd!std_specs.iter.impl&__0.obeys_prophetic_iter_laws.?_definition
+))))
+
+;; Function-Axioms vstd::std_specs::iter::impl&%0::remaining
+(axiom (fuel_bool_default fuel%vstd!std_specs.iter.impl&%0.remaining.))
+(axiom (=>
+  (fuel_bool fuel%vstd!std_specs.iter.impl&%0.remaining.)
+  (forall ((I&. Dcr) (I& Type) (self! Poly)) (!
+    (=>
+     (and
+      (sized I&.)
+      (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+     )
+     (= (vstd!std_specs.iter.IteratorSpec.remaining.? $ (MUTREF I&. I&) self!) (vstd!std_specs.iter.IteratorSpec.remaining.?
+       I&. I& (mut_ref_current% self!)
+    )))
+    :pattern ((vstd!std_specs.iter.IteratorSpec.remaining.? $ (MUTREF I&. I&) self!))
+    :qid internal_vstd!std_specs.iter.impl&__0.remaining.?_definition
+    :skolemid skolem_internal_vstd!std_specs.iter.impl&__0.remaining.?_definition
+))))
+
+;; Function-Axioms vstd::std_specs::vec::impl&%3::obeys_prophetic_iter_laws
+(axiom (fuel_bool_default fuel%vstd!std_specs.vec.impl&%3.obeys_prophetic_iter_laws.))
+(axiom (=>
+  (fuel_bool fuel%vstd!std_specs.vec.impl&%3.obeys_prophetic_iter_laws.)
+  (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type) (self! Poly)) (!
+    (=>
+     (and
+      (sized T&.)
+      (sized A&.)
+      (tr_bound%core!alloc.Allocator. A&. A&)
+     )
+     (= (vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? $ (TYPE%alloc!vec.into_iter.IntoIter.
+        T&. T& A&. A&
+       ) self!
+      ) (B true)
+    ))
+    :pattern ((vstd!std_specs.iter.IteratorSpec.obeys_prophetic_iter_laws.? $ (TYPE%alloc!vec.into_iter.IntoIter.
+       T&. T& A&. A&
+      ) self!
+    ))
+    :qid internal_vstd!std_specs.vec.impl&__3.obeys_prophetic_iter_laws.?_definition
+    :skolemid skolem_internal_vstd!std_specs.vec.impl&__3.obeys_prophetic_iter_laws.?_definition
+))))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((I&. Dcr) (I& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+    (tr_bound%core!iter.traits.iterator.Iterator. $ (MUTREF I&. I&))
+   )
+   :pattern ((tr_bound%core!iter.traits.iterator.Iterator. $ (MUTREF I&. I&)))
+   :qid internal_core__iter__traits__iterator__impl&__2_trait_impl_definition
+   :skolemid skolem_internal_core__iter__traits__iterator__impl&__2_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((I&. Dcr) (I& Type)) (!
+   (=>
+    (and
+     (sized I&.)
+     (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+    )
+    (tr_bound%vstd!std_specs.iter.IteratorSpec. $ (MUTREF I&. I&))
+   )
+   :pattern ((tr_bound%vstd!std_specs.iter.IteratorSpec. $ (MUTREF I&. I&)))
+   :qid internal_vstd__std_specs__iter__impl&__0_trait_impl_definition
+   :skolemid skolem_internal_vstd__std_specs__iter__impl&__0_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!iter.traits.iterator.Iterator. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :pattern ((tr_bound%core!iter.traits.iterator.Iterator. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_alloc__vec__into_iter__impl&__6_trait_impl_definition
+   :skolemid skolem_internal_alloc__vec__into_iter__impl&__6_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%vstd!std_specs.iter.IteratorSpec. $ (TYPE%alloc!vec.into_iter.IntoIter. T&.
+      T& A&. A&
+   )))
+   :pattern ((tr_bound%vstd!std_specs.iter.IteratorSpec. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_vstd__std_specs__vec__impl&__3_trait_impl_definition
+   :skolemid skolem_internal_vstd__std_specs__vec__impl&__3_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.Fn. F&. F& A&. A&)
+    )
+    (tr_bound%core!ops.function.FnOnce. (REF F&.) F& A&. A&)
+   )
+   :pattern ((tr_bound%core!ops.function.FnOnce. (REF F&.) F& A&. A&))
+   :qid internal_core__ops__function__impls__impl&__2_trait_impl_definition
+   :skolemid skolem_internal_core__ops__function__impls__impl&__2_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.Fn. F&. F& A&. A&)
+    )
+    (tr_bound%core!ops.function.FnMut. (REF F&.) F& A&. A&)
+   )
+   :pattern ((tr_bound%core!ops.function.FnMut. (REF F&.) F& A&. A&))
+   :qid internal_core__ops__function__impls__impl&__1_trait_impl_definition
+   :skolemid skolem_internal_core__ops__function__impls__impl&__1_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.Fn. F&. F& A&. A&)
+    )
+    (tr_bound%core!ops.function.Fn. (REF F&.) F& A&. A&)
+   )
+   :pattern ((tr_bound%core!ops.function.Fn. (REF F&.) F& A&. A&))
+   :qid internal_core__ops__function__impls__impl&__0_trait_impl_definition
+   :skolemid skolem_internal_core__ops__function__impls__impl&__0_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (A&. Dcr) (A& Type))
+  (!
+   (=>
+    (and
+     (sized Args&.)
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+     (tr_bound%core!ops.function.FnOnce. F&. F& Args&. Args&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!ops.function.FnOnce. (BOX A&. A& F&.) F& Args&. Args&)
+   )
+   :pattern ((tr_bound%core!ops.function.FnOnce. (BOX A&. A& F&.) F& Args&. Args&))
+   :qid internal_alloc__boxed__impl&__31_trait_impl_definition
+   :skolemid skolem_internal_alloc__boxed__impl&__31_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (A&. Dcr) (A& Type))
+  (!
+   (=>
+    (and
+     (sized Args&.)
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+     (tr_bound%core!ops.function.FnMut. F&. F& Args&. Args&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!ops.function.FnMut. (BOX A&. A& F&.) F& Args&. Args&)
+   )
+   :pattern ((tr_bound%core!ops.function.FnMut. (BOX A&. A& F&.) F& Args&. Args&))
+   :qid internal_alloc__boxed__impl&__32_trait_impl_definition
+   :skolemid skolem_internal_alloc__boxed__impl&__32_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((Args&. Dcr) (Args& Type) (F&. Dcr) (F& Type) (A&. Dcr) (A& Type))
+  (!
+   (=>
+    (and
+     (sized Args&.)
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. Args&. Args&)
+     (tr_bound%core!ops.function.Fn. F&. F& Args&. Args&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!ops.function.Fn. (BOX A&. A& F&.) F& Args&. Args&)
+   )
+   :pattern ((tr_bound%core!ops.function.Fn. (BOX A&. A& F&.) F& Args&. Args&))
+   :qid internal_alloc__boxed__impl&__33_trait_impl_definition
+   :skolemid skolem_internal_alloc__boxed__impl&__33_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type) (F&. Dcr) (F& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!marker.Tuple. A&. A&)
+     (tr_bound%core!ops.function.FnMut. F&. F& A&. A&)
+    )
+    (tr_bound%core!ops.function.FnMut. $ (MUTREF F&. F&) A&. A&)
+   )
+   :pattern ((tr_bound%core!ops.function.FnMut. $ (MUTREF F&. F&) A&. A&))
+   :qid internal_core__ops__function__impls__impl&__3_trait_impl_definition
+   :skolemid skolem_internal_core__ops__function__impls__impl&__3_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((I&. Dcr) (I& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. I&. I&)
+    (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. $ (MUTREF I&. I&))
+   )
+   :pattern ((tr_bound%core!iter.traits.exact_size.ExactSizeIterator. $ (MUTREF I&. I&)))
+   :qid internal_core__iter__traits__exact_size__impl&__0_trait_impl_definition
+   :skolemid skolem_internal_core__iter__traits__exact_size__impl&__0_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((I&. Dcr) (I& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!iter.traits.iterator.Iterator. I&. I&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!iter.traits.iterator.Iterator. (BOX A&. A& I&.) I&)
+   )
+   :pattern ((tr_bound%core!iter.traits.iterator.Iterator. (BOX A&. A& I&.) I&))
+   :qid internal_alloc__boxed__iter__impl&__0_trait_impl_definition
+   :skolemid skolem_internal_alloc__boxed__iter__impl&__0_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((I&. Dcr) (I& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. I&. I&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. (BOX A&. A& I&.) I&)
+   )
+   :pattern ((tr_bound%core!iter.traits.exact_size.ExactSizeIterator. (BOX A&. A& I&.)
+     I&
+   ))
+   :qid internal_alloc__boxed__iter__impl&__4_trait_impl_definition
+   :skolemid skolem_internal_alloc__boxed__iter__impl&__4_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :pattern ((tr_bound%core!iter.traits.exact_size.ExactSizeIterator. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_alloc__vec__into_iter__impl&__8_trait_impl_definition
+   :skolemid skolem_internal_alloc__vec__into_iter__impl&__8_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type)) (!
+   (=>
+    (tr_bound%core!alloc.Allocator. A&. A&)
+    (tr_bound%core!alloc.Allocator. (REF A&.) A&)
+   )
+   :pattern ((tr_bound%core!alloc.Allocator. (REF A&.) A&))
+   :qid internal_core__alloc__impl&__2_trait_impl_definition
+   :skolemid skolem_internal_core__alloc__impl&__2_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((A&. Dcr) (A& Type)) (!
+   (=>
+    (tr_bound%core!alloc.Allocator. A&. A&)
+    (tr_bound%core!alloc.Allocator. $ (MUTREF A&. A&))
+   )
+   :pattern ((tr_bound%core!alloc.Allocator. $ (MUTREF A&. A&)))
+   :qid internal_core__alloc__impl&__3_trait_impl_definition
+   :skolemid skolem_internal_core__alloc__impl&__3_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. T&. T&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!alloc.Allocator. (BOX A&. A& T&.) T&)
+   )
+   :pattern ((tr_bound%core!alloc.Allocator. (BOX A&. A& T&.) T&))
+   :qid internal_alloc__boxed__impl&__49_trait_impl_definition
+   :skolemid skolem_internal_alloc__boxed__impl&__49_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. T&. T&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!alloc.Allocator. (RC A&. A& T&.) T&)
+   )
+   :pattern ((tr_bound%core!alloc.Allocator. (RC A&. A& T&.) T&))
+   :qid internal_alloc__rc__impl&__116_trait_impl_definition
+   :skolemid skolem_internal_alloc__rc__impl&__116_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. T&. T&)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%core!alloc.Allocator. (ARC A&. A& T&.) T&)
+   )
+   :pattern ((tr_bound%core!alloc.Allocator. (ARC A&. A& T&.) T&))
+   :qid internal_alloc__sync__impl&__118_trait_impl_definition
+   :skolemid skolem_internal_alloc__sync__impl&__118_trait_impl_definition
+)))
+
+;; Function-Specs alloc::vec::into_iter::IntoIter::count
+(declare-fun ens%into_iter_count!source.impl&%0.count. (Dcr Type Dcr Type Poly Poly)
+ Bool
+)
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type) (self! Poly) (result! Poly))
+  (!
+   (= (ens%into_iter_count!source.impl&%0.count. T&. T& A&. A& self! result!) (and
+     (ens%into_iter_count!source.Iterator.count. $ (TYPE%alloc!vec.into_iter.IntoIter. T&.
+       T& A&. A&
+      ) self! result!
+     )
+     (= (%I result!) (vstd!seq.Seq.len.? T&. T& (vstd!std_specs.iter.IteratorSpec.remaining.?
+        $ (TYPE%alloc!vec.into_iter.IntoIter. T&. T& A&. A&) self!
+   )))))
+   :pattern ((ens%into_iter_count!source.impl&%0.count. T&. T& A&. A& self! result!))
+   :qid internal_ens__into_iter_count!source.impl&__0.count._definition
+   :skolemid skolem_internal_ens__into_iter_count!source.impl&__0.count._definition
+)))
+
+;; Function-Def alloc::vec::into_iter::IntoIter::count
+;; /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:18:5: 18:28 (#0)
+(check-valid
+ (declare-const T&. Dcr)
+ (declare-const T& Type)
+ (declare-const A&. Dcr)
+ (declare-const A& Type)
+ (declare-const result! Poly)
+ (declare-const self! Poly)
+ (declare-const tmp%1 Poly)
+ (axiom fuel_defaults)
+ (axiom (sized T&.))
+ (axiom (sized A&.))
+ (axiom (tr_bound%core!alloc.Allocator. A&. A&))
+ (axiom (has_type self! (TYPE%alloc!vec.into_iter.IntoIter. T&. T& A&. A&)))
+ (block
+  (snapshot snap%PRE)
+  (assume
+   (has_resolved $ (TYPE%alloc!vec.into_iter.IntoIter. T&. T& A&. A&) self!)
+  )
+  (block
+   (assume
+    (ens%core!iter.traits.exact_size.ExactSizeIterator.len. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+     ) self! tmp%1
+  )))
+  (assume
+   (= result! tmp%1)
+  )
+  (assert
+   ("postcondition not satisfied" "at the end of the function body" "failed this postcondition")
+   ()
+   (= (%I result!) (vstd!seq.Seq.len.? T&. T& (vstd!std_specs.iter.IteratorSpec.remaining.?
+      $ (TYPE%alloc!vec.into_iter.IntoIter. T&. T& A&. A&) (old snap%PRE self!)
+))))))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((T&. Dcr) (T& Type) (A&. Dcr) (A& Type)) (!
+   (=>
+    (and
+     (sized T&.)
+     (sized A&.)
+     (tr_bound%core!alloc.Allocator. A&. A&)
+    )
+    (tr_bound%into_iter_count!source.Iterator. $ (TYPE%alloc!vec.into_iter.IntoIter. T&.
+      T& A&. A&
+   )))
+   :pattern ((tr_bound%into_iter_count!source.Iterator. $ (TYPE%alloc!vec.into_iter.IntoIter.
+      T&. T& A&. A&
+   )))
+   :qid internal_into_iter_count__source__impl&__0_trait_impl_definition
+   :skolemid skolem_internal_into_iter_count__source__impl&__0_trait_impl_definition
+)))
+
+;; Trait-Impl-Axiom
+(axiom (forall ((VERUS_SPEC__A&. Dcr) (VERUS_SPEC__A& Type)) (!
+   (=>
+    (tr_bound%core!iter.traits.exact_size.ExactSizeIterator. VERUS_SPEC__A&. VERUS_SPEC__A&)
+    (tr_bound%vstd!std_specs.iter.ExactSizeIteratorSpec. VERUS_SPEC__A&. VERUS_SPEC__A&)
+   )
+   :pattern ((tr_bound%vstd!std_specs.iter.ExactSizeIteratorSpec. VERUS_SPEC__A&. VERUS_SPEC__A&))
+   :qid internal_vstd__std_specs__iter__impl&__14_trait_impl_definition
+   :skolemid skolem_internal_vstd__std_specs__iter__impl&__14_trait_impl_definition
+)))

@@ -1,0 +1,36 @@
+schema_version = 1
+offline = true
+
+[project]
+root = "../../.."
+
+[language]
+name = "verus"
+
+[targets]
+include = ["proofs/completeness/slice/inputs/default_mut.rs"]
+exclude = [
+    "toolchain/**", "inventory/**", "scripts/**", "tests/**", "issues/**",
+    "logs/**", "target/**", ".autors/**", ".argus_subagents/**",
+    "proofs/completeness/slice/runs/**",
+]
+visibility = "public"
+
+[build]
+adapter = "verus.single_file"
+extra_args = ["--crate-type", "lib"]
+
+[adapters.verus]
+executable = "../../../toolchain/verus-x86-linux/verus"
+rust_toolchain = "1.98.1-x86_64-unknown-linux-gnu"
+extra_args = ["--num-threads", "1"]
+
+[analysis]
+kind = "concrete_determinism"
+observation_policy = "verus-observable-v1"
+
+[artifacts]
+output_dir = "runs/defaults/default_mut"
+
+[assistance]
+mode = "off"

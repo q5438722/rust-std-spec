@@ -1,0 +1,26 @@
+error[E0425]: cannot find function `with_capacity` in crate `source_without_oom`
+ --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/with-capacity/const-features/cfg-disabled-entry-rejected.rs:2:62
+  |
+2 |             pub fn absent() -> Vec<u8> { source_without_oom::with_capacity(0) }
+  |                                                              ^^^^^^^^^^^^^ not found in `source_without_oom`
+  |
+note: found an item that was configured out
+ --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/vec/with_capacity.rs:7:31
+  |
+6 | #[cfg(not(no_global_oom_handling))]
+  |          ------------------------ the item is gated here
+7 | pub use with_capacity_source::with_capacity;
+  |                               ^^^^^^^^^^^^^
+help: consider importing this function
+  |
+2 +             use source_with_capacity::with_capacity;
+  |
+help: if you import `with_capacity`, refer to it directly
+  |
+2 -             pub fn absent() -> Vec<u8> { source_without_oom::with_capacity(0) }
+2 +             pub fn absent() -> Vec<u8> { with_capacity(0) }
+  |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0425`.

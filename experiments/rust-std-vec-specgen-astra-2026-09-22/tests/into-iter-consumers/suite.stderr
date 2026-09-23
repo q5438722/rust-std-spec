@@ -1,0 +1,147 @@
+test_count_source (test_into_iter_consumers.IntoIterConsumers.test_count_source) ... ok
+test_default_inputs_and_unrelated_coverage_preserved (test_into_iter_consumers.IntoIterConsumers.test_default_inputs_and_unrelated_coverage_preserved) ... ok
+test_generic_remaining_clients (test_into_iter_consumers.IntoIterConsumers.test_generic_remaining_clients) ... FAIL
+test_last_source (test_into_iter_consumers.IntoIterConsumers.test_last_source) ... FAIL
+test_move_result_and_lifetime_rejections (test_into_iter_consumers.IntoIterConsumers.test_move_result_and_lifetime_rejections) ... ok
+test_native_analyze_and_reexecute (test_into_iter_consumers.IntoIterConsumers.test_native_analyze_and_reexecute) ... 
+  test_native_analyze_and_reexecute (test_into_iter_consumers.IntoIterConsumers.test_native_analyze_and_reexecute) (name='analyze') ... FAIL
+  test_native_analyze_and_reexecute (test_into_iter_consumers.IntoIterConsumers.test_native_analyze_and_reexecute) (name='replay') ... FAIL
+test_original_body_runtime_supplement (test_into_iter_consumers.IntoIterConsumers.test_original_body_runtime_supplement) ... FAIL
+test_real_standard_library_bindings (test_into_iter_consumers.IntoIterConsumers.test_real_standard_library_bindings) ... FAIL
+test_source_signatures_and_contracts (test_into_iter_consumers.IntoIterConsumers.test_source_signatures_and_contracts) ... ok
+
+======================================================================
+FAIL: test_generic_remaining_clients (test_into_iter_consumers.IntoIterConsumers.test_generic_remaining_clients)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 150, in test_generic_remaining_clients
+    self.assertEqual(result.returncode, 0, (OUTPUT / "clients.stderr").read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : error: duplicate specification for this trait implementation
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/../proofs/correctness/into_iter/isolated/consumers.rs:8:1
+   |
+ 8 | / pub assume_specification<T, A: Allocator>[
+ 9 | |     <IntoIter<T, A> as core::iter::Iterator>::count
+10 | | ](iter: IntoIter<T, A>) -> (result: usize)
+   | |_________________________________________^
+
+error: aborting due to 1 previous error
+
+
+
+======================================================================
+FAIL: test_last_source (test_into_iter_consumers.IntoIterConsumers.test_last_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 107, in test_last_source
+    record = self.successful_source("last")
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 82, in successful_source
+    self.assertEqual(receipt["returncode"], 0, (record / f"{name}.stderr").read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : note: preparing crate for verification
+
+error: The verifier does not yet support the following Rust feature: mut self
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source_last.rs:17:5
+   |
+17 |     fn last(mut self) -> Option<T> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
+
+
+======================================================================
+FAIL: test_native_analyze_and_reexecute (test_into_iter_consumers.IntoIterConsumers.test_native_analyze_and_reexecute) (name='analyze')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 230, in test_native_analyze_and_reexecute
+    self.assertEqual(receipt["returncode"], 0, summary["counts"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : {'inconclusive': 2}
+
+======================================================================
+FAIL: test_native_analyze_and_reexecute (test_into_iter_consumers.IntoIterConsumers.test_native_analyze_and_reexecute) (name='replay')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 230, in test_native_analyze_and_reexecute
+    self.assertEqual(receipt["returncode"], 0, summary["counts"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : {'inconclusive': 2}
+
+======================================================================
+FAIL: test_original_body_runtime_supplement (test_into_iter_consumers.IntoIterConsumers.test_original_body_runtime_supplement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 164, in test_original_body_runtime_supplement
+    self.assertEqual(result.returncode, 0, (OUTPUT / "runtime.stdout").read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 101 != 0 : 
+running 6 tests
+test count_drops_only_the_remaining_elements ... FAILED
+test current_remaining_empty_singleton_duplicates_and_both_ends ... FAILED
+test exact_generic_function_types ... ok
+test last_does_not_drop_the_returned_or_previously_moved_elements ... ok
+test nonstatic_elements_and_nonclone_borrowing_allocator ... FAILED
+test zero_sized_elements_without_clone_or_eq ... FAILED
+
+failures:
+
+---- count_drops_only_the_remaining_elements stdout ----
+
+thread 'count_drops_only_the_remaining_elements' (108234) panicked at /home/runner/work/verus/verus/source/builtin/src/lib.rs:51:5:
+not implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- current_remaining_empty_singleton_duplicates_and_both_ends stdout ----
+
+thread 'current_remaining_empty_singleton_duplicates_and_both_ends' (108235) panicked at /home/runner/work/verus/verus/source/builtin/src/lib.rs:51:5:
+not implemented
+
+---- nonstatic_elements_and_nonclone_borrowing_allocator stdout ----
+
+thread 'nonstatic_elements_and_nonclone_borrowing_allocator' (108238) panicked at /home/runner/work/verus/verus/source/builtin/src/lib.rs:51:5:
+not implemented
+
+---- zero_sized_elements_without_clone_or_eq stdout ----
+
+thread 'zero_sized_elements_without_clone_or_eq' (108239) panicked at /home/runner/work/verus/verus/source/builtin/src/lib.rs:51:5:
+not implemented
+
+
+failures:
+    count_drops_only_the_remaining_elements
+    current_remaining_empty_singleton_duplicates_and_both_ends
+    nonstatic_elements_and_nonclone_borrowing_allocator
+    zero_sized_elements_without_clone_or_eq
+
+test result: FAILED. 2 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+
+======================================================================
+FAIL: test_real_standard_library_bindings (test_into_iter_consumers.IntoIterConsumers.test_real_standard_library_bindings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 113, in test_real_standard_library_bindings
+    record = self.successful_source("bindings")
+  File "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/test_into_iter_consumers.py", line 82, in successful_source
+    self.assertEqual(receipt["returncode"], 0, (record / f"{name}.stderr").read_text())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : note: preparing crate for verification
+
+error: duplicate specification for this trait implementation
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/isolated/consumers.rs:8:1
+   |
+ 8 | / pub assume_specification<T, A: Allocator>[
+ 9 | |     <IntoIter<T, A> as core::iter::Iterator>::count
+10 | | ](iter: IntoIter<T, A>) -> (result: usize)
+   | |_________________________________________^
+
+error: aborting due to 1 previous error
+
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.331s
+
+FAILED (failures=6)

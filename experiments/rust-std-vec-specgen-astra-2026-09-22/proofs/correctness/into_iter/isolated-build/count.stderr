@@ -1,0 +1,55 @@
+note: preparing crate for verification
+
+error[E0034]: multiple applicable items in scope
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:19:8
+   |
+19 |     fn count(self) -> (result: usize)
+   |        ^^^^^ multiple `count` found
+   |
+note: candidate #1 is defined in an impl of the trait `source::Iterator` for the type `std::vec::IntoIter<T, A>`
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:19:5
+   |
+19 |     fn count(self) -> (result: usize)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: candidate #2 is defined in an impl of the trait `std::iter::Iterator` for the type `std::vec::IntoIter<T, A>`
+help: disambiguate the method for candidate #1
+   |
+19 -     fn count(self) -> (result: usize)
+20 -         ensures
+19 +     fn count(source::Iterator::count(self)
+   |
+help: disambiguate the method for candidate #2
+   |
+19 -     fn count(self) -> (result: usize)
+20 -         ensures
+19 +     fn count(std::iter::Iterator::count(self)
+   |
+
+error[E0034]: multiple applicable items in scope
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:26:8
+   |
+26 |     fn last(mut self) -> (result: Option<T>)
+   |        ^^^^ multiple `last` found
+   |
+note: candidate #1 is defined in an impl of the trait `source::Iterator` for the type `std::vec::IntoIter<T, A>`
+  --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:26:5
+   |
+26 |     fn last(mut self) -> (result: Option<T>)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: candidate #2 is defined in an impl of the trait `std::iter::Iterator` for the type `std::vec::IntoIter<T, A>`
+help: disambiguate the method for candidate #1
+   |
+26 -     fn last(mut self) -> (result: Option<T>)
+27 -         ensures
+26 +     fn last(mut source::Iterator::last(self)
+   |
+help: disambiguate the method for candidate #2
+   |
+26 -     fn last(mut self) -> (result: Option<T>)
+27 -         ensures
+26 +     fn last(mut std::iter::Iterator::last(self)
+   |
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0034`.

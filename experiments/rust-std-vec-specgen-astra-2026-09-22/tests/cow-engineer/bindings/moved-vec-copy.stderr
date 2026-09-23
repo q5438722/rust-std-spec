@@ -1,0 +1,18 @@
+error[E0382]: borrow of moved value: `values`
+ --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/cow-engineer/bindings/moved-vec-copy.rs:5:13
+  |
+3 |     let values = vec![String::from("moved")];
+  |         ------ move occurs because `values` has type `Vec<String>`, which does not implement the `Copy` trait
+4 |     let result: Cow<'_, [String]> = from_vec::from_vec(values);
+  |                                                        ------ value moved here
+5 |     let _ = values.len();
+  |             ^^^^^^ value borrowed here after move
+  |
+help: consider cloning the value if the performance cost is acceptable
+  |
+4 |     let result: Cow<'_, [String]> = from_vec::from_vec(values.clone());
+  |                                                              ++++++++
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0382`.

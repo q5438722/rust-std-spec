@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "scripts/with_baseline.sh",
+    "env",
+    "PYTHONPATH=tests",
+    "CAPACITY_TEST_OUTPUT=/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/with-capacity/lowering",
+    "python3",
+    "-"
+  ],
+  "stdin": "import sys\nimport unittest\nimport test_with_capacity as checks\nchecks.OUTPUT.mkdir(parents=True, exist_ok=False)\ncase = checks.WithCapacityTests('test_lowered_source_calls_only_official_dependency')\nsuite = unittest.TestSuite([unittest.FunctionTestCase(case.test_lowered_source_calls_only_official_dependency, description=case.id())])\nresult = unittest.TextTestRunner(verbosity=2).run(suite)\nsys.exit(not result.wasSuccessful())\n"
+}

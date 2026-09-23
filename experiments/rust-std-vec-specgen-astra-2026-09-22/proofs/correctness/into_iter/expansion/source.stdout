@@ -1,0 +1,210 @@
+#![feature(prelude_import)]
+#![feature(allocator_api)]
+
+#![allow(internal_features)]
+#![allow(unused_features)]
+#![feature(stmt_expr_attributes)]
+#![feature(box_patterns)]
+#![feature(negative_impls)]
+#![feature(rustc_attrs)]
+#![feature(unboxed_closures)]
+#![feature(register_tool)]
+#![feature(tuple_trait)]
+#![feature(custom_inner_attributes)]
+#![feature(try_trait_v2)]
+#![register_tool(verus)]
+#![register_tool(verifier)]
+#![register_tool(verusfmt)]
+extern crate std;
+#[prelude_import]
+use std::prelude::rust_2021::*;
+#[path = "isolated/consumers.rs"]
+pub mod consumers {
+    use std::alloc::Allocator;
+    use std::vec::IntoIter;
+    use vstd::prelude::*;
+    use vstd::std_specs::iter::IteratorSpec;
+    #[verifier::external_trait_specification]
+    #[verus::internal(verus_macro)]
+    pub trait ExIteratorConsumers {
+        type ExternalTraitSpecificationFor: core::iter::Iterator;
+        type Item;
+        #[verus::internal(verus_macro)]
+        fn count(self)
+        -> usize
+        where
+        Self: Sized;
+        #[verus::internal(verus_macro)]
+        fn last(self)
+        -> Option<Self::Item>
+        where
+        Self: Sized;
+        #[doc(hidden)]
+        #[verus::internal(verus_macro)]
+        fn VERUS_SPEC__count(self) -> usize where Self: Sized,
+            Self: core::marker::Sized {
+            ::vstd::prelude::no_method_body()
+        }
+        #[doc(hidden)]
+        #[verus::internal(verus_macro)]
+        fn VERUS_SPEC__last(self) -> Option<Self::Item> where Self: Sized,
+            Self: core::marker::Sized {
+            ::vstd::prelude::no_method_body()
+        }
+    }
+    #[verus::internal(external_fn_specification)]
+    #[allow(non_snake_case)]
+    #[verus::internal(verus_macro)]
+    #[verus::internal(verus_macro)]
+    pub unsafe fn _verus_external_fn_specification_0__60__32_IntoIter_32__60__32_T_44__32_A_32__62__32_as_32_core_32__58__58__32_iter_32__58__58__32_Iterator_32__62__32__58__58__32_count<T,
+        A: Allocator>(iter: IntoIter<T, A>) -> usize {
+        ::vstd::prelude::ensures(|result|
+                [::vstd::prelude::constrain_type(result,
+                            _verus_external_fn_specification_0__60__32_IntoIter_32__60__32_T_44__32_A_32__62__32_as_32_core_32__58__58__32_iter_32__58__58__32_Iterator_32__62__32__58__58__32_count::<T,
+                                    A>(iter)),
+                        ::vstd::prelude::spec_eq(result,
+                            IteratorSpec::remaining(&iter).len())]);
+        unsafe { <IntoIter<T, A> as core::iter::Iterator>::count(iter) }
+    }
+    #[verus::internal(external_fn_specification)]
+    #[allow(non_snake_case)]
+    #[verus::internal(verus_macro)]
+    #[verus::internal(verus_macro)]
+    pub unsafe fn _verus_external_fn_specification_1__60__32_IntoIter_32__60__32_T_44__32_A_32__62__32_as_32_core_32__58__58__32_iter_32__58__58__32_Iterator_32__62__32__58__58__32_last<T,
+        A: Allocator>(iter: IntoIter<T, A>) -> Option<T> {
+        ::vstd::prelude::ensures(|result|
+                [::vstd::prelude::constrain_type(result,
+                            _verus_external_fn_specification_1__60__32_IntoIter_32__60__32_T_44__32_A_32__62__32_as_32_core_32__58__58__32_iter_32__58__58__32_Iterator_32__62__32__58__58__32_last::<T,
+                                    A>(iter)),
+                        ::vstd::prelude::spec_eq(result,
+                            if ::vstd::prelude::spec_eq(IteratorSpec::remaining(&iter).len(),
+                                    ::vstd::prelude::spec_literal_nat("0")) {
+                                None
+                            } else { Some(IteratorSpec::remaining(&iter).last()) })]);
+        unsafe { <IntoIter<T, A> as core::iter::Iterator>::last(iter) }
+    }
+}
+pub mod source {
+    use std::alloc::Allocator;
+    use std::iter::{DoubleEndedIterator, ExactSizeIterator};
+    use std::vec::IntoIter;
+    use vstd::prelude::*;
+    use vstd::std_specs::iter::IteratorSpec;
+    #[verus::internal(verus_macro)]
+    pub trait Iterator {
+        type Item;
+        #[verus::internal(verus_macro)]
+        fn count(self)
+        -> usize
+        where
+        Self: Sized;
+        #[verus::internal(verus_macro)]
+        fn last(self)
+        -> Option<Self::Item>
+        where
+        Self: Sized;
+        #[doc(hidden)]
+        #[verus::internal(verus_macro)]
+        fn VERUS_SPEC__count(self) -> usize where Self: Sized,
+            Self: core::marker::Sized {
+            ::vstd::prelude::no_method_body()
+        }
+        #[doc(hidden)]
+        #[verus::internal(verus_macro)]
+        fn VERUS_SPEC__last(self) -> Option<Self::Item> where Self: Sized,
+            Self: core::marker::Sized {
+            ::vstd::prelude::no_method_body()
+        }
+    }
+    #[verus::internal(verus_macro)]
+    impl<T, A: Allocator> Iterator for IntoIter<T, A> {
+        type Item = T;
+        #[verus::internal(verus_macro)]
+        fn count(self) -> usize {
+            ::vstd::prelude::ensures(|result|
+                    [::vstd::prelude::constrain_type(result, self.count()),
+                            ::vstd::prelude::spec_eq(result,
+                                IteratorSpec::remaining(&self).len())]);
+            self.len()
+        }
+        #[verus::internal(verus_macro)]
+        fn last(mut self) -> Option<T> {
+            ::vstd::prelude::ensures(|result|
+                    [::vstd::prelude::constrain_type(result, self.last()),
+                            ::vstd::prelude::spec_eq(result,
+                                if ::vstd::prelude::spec_eq(IteratorSpec::remaining(&self).len(),
+                                        ::vstd::prelude::spec_literal_nat("0")) {
+                                    None
+                                } else { Some(IteratorSpec::remaining(&self).last()) })]);
+            self.next_back()
+        }
+    }
+}
+#![feature(prelude_import)]
+#![feature(allocator_api)]
+
+#![allow(internal_features)]
+#![allow(unused_features)]
+#![feature(stmt_expr_attributes)]
+#![feature(box_patterns)]
+#![feature(negative_impls)]
+#![feature(rustc_attrs)]
+#![feature(unboxed_closures)]
+#![feature(register_tool)]
+#![feature(tuple_trait)]
+#![feature(custom_inner_attributes)]
+#![feature(try_trait_v2)]
+#![register_tool(verus)]
+#![register_tool(verifier)]
+#![register_tool(verusfmt)]
+extern crate std;
+#[prelude_import]
+use std::prelude::rust_2021::*;
+#[path = "isolated/consumers.rs"]
+pub mod consumers {
+    use std::alloc::Allocator;
+    use std::vec::IntoIter;
+    use vstd::prelude::*;
+    use vstd::std_specs::iter::IteratorSpec;
+    #[verifier::external_trait_specification]
+    #[verus::internal(verus_macro)]
+    pub trait ExIteratorConsumers {
+        type ExternalTraitSpecificationFor: core::iter::Iterator;
+        type Item;
+        fn count(self)
+        -> usize
+        where
+        Self: Sized;
+        fn last(self)
+        -> Option<Self::Item>
+        where
+        Self: Sized;
+    }
+    const _: () = ();
+    const _: () = ();
+}
+pub mod source {
+    use std::alloc::Allocator;
+    use std::iter::{DoubleEndedIterator, ExactSizeIterator};
+    use std::vec::IntoIter;
+    use vstd::prelude::*;
+    use vstd::std_specs::iter::IteratorSpec;
+    #[verus::internal(verus_macro)]
+    pub trait Iterator {
+        type Item;
+        fn count(self)
+        -> usize
+        where
+        Self: Sized;
+        fn last(self)
+        -> Option<Self::Item>
+        where
+        Self: Sized;
+    }
+    #[verus::internal(verus_macro)]
+    impl<T, A: Allocator> Iterator for IntoIter<T, A> {
+        type Item = T;
+        fn count(self) -> usize { self.len() }
+        fn last(mut self) -> Option<T> { self.next_back() }
+    }
+}

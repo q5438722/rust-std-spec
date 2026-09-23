@@ -1,0 +1,317 @@
+{
+  "purpose": "Supplemental official-contract clients; not source or completeness proofs.",
+  "fixture_sha256": "57462244d3a05bce491994f5bca11c3c4043604c9b134b2ea256f7599dcbf1dc",
+  "binary_version_stdout": "Verus\n  Version: 0.2026.09.20.aef82ed\n  Profile: release\n  Platform: linux_x86_64\n  Toolchain: 1.98.1-x86_64-unknown-linux-gnu (overridden by environment variable RUSTUP_TOOLCHAIN)\n\n",
+  "environment": {
+    "RUSTUP_HOME": "toolchains/rustup",
+    "CARGO_HOME": "toolchains/cargo",
+    "RUSTUP_TOOLCHAIN": "1.98.1-x86_64-unknown-linux-gnu",
+    "RUSTC_BOOTSTRAP": "1"
+  },
+  "all_matched": true,
+  "cases": 15,
+  "positive_cases": 6,
+  "negative_controls": 9,
+  "results": [
+    {
+      "probe": "positive",
+      "purpose": "Generic len, Index<I>, range indexing, usize mutable syntax and Box<[T],A>::into_vec.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_positive",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_diagnostic": "5 verified, 0 errors",
+      "matched_expectation": true,
+      "stdout": "verification results:: 5 verified, 0 errors\n",
+      "stderr": "",
+      "interpretation": "official-contract client verified"
+    },
+    {
+      "probe": "next",
+      "purpose": "IntoIter<T,A> generic next + concrete IteratorSpecImpl.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_next",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_diagnostic": "1 verified, 0 errors",
+      "matched_expectation": true,
+      "stdout": "verification results:: 1 verified, 0 errors\n",
+      "stderr": "",
+      "interpretation": "official-contract client verified"
+    },
+    {
+      "probe": "next_back",
+      "purpose": "IntoIter<T,A> generic next_back + concrete law predicate.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_next_back",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_diagnostic": "1 verified, 0 errors",
+      "matched_expectation": true,
+      "stdout": "verification results:: 1 verified, 0 errors\n",
+      "stderr": "",
+      "interpretation": "official-contract client verified"
+    },
+    {
+      "probe": "from_iter",
+      "purpose": "Full I:IntoIterator input domain; literal opaque into_iter_remaining relation.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_from_iter",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_diagnostic": "1 verified, 0 errors",
+      "matched_expectation": true,
+      "stdout": "verification results:: 1 verified, 0 errors\n",
+      "stderr": "",
+      "interpretation": "official-contract client verified"
+    },
+    {
+      "probe": "eq",
+      "purpose": "T:PartialEq<U> and distinct generic A1/A2; literal conditional equality model.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_eq",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_diagnostic": "1 verified, 0 errors",
+      "matched_expectation": true,
+      "stdout": "verification results:: 1 verified, 0 errors\n",
+      "stderr": "",
+      "interpretation": "official-contract client verified"
+    },
+    {
+      "probe": "ne",
+      "purpose": "Explicit Vec/Vec ne uses generic trait + concrete model without its own assume declaration.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_ne",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_diagnostic": "1 verified, 0 errors",
+      "matched_expectation": true,
+      "stdout": "verification results:: 1 verified, 0 errors\n",
+      "stderr": "",
+      "interpretation": "official-contract client verified"
+    },
+    {
+      "probe": "as_ref_vec",
+      "purpose": "No exact <Vec<T,A> as AsRef<Vec<T,A>>>::as_ref binding.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_as_ref_vec",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "is not supported",
+      "matched_expectation": true,
+      "stdout": "",
+      "stderr": "error: `alloc::vec::impl&%29::as_ref` is not supported (note: you may be able to add a Verus specification to this function with `assume_specification`) (note: the vstd library provides some specification for the Rust std library, but it is currently limited)\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:106:5\n    |\n106 |     <Vec<T, A> as AsRef<Vec<T, A>>>::as_ref(v)\n    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = help: The following declaration may resolve this error:\n            pub assume_specification<T, A> [<std::vec::Vec<T, A> as std::convert::AsRef<std::vec::Vec<T, A>>>::as_ref] (_0: &std::vec::Vec<T, A>) -> &std::vec::Vec<T, A>\n            where\n            A: std::alloc::Allocator,;\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "as_ref_slice",
+      "purpose": "No exact <Vec<T,A> as AsRef<[T]>>::as_ref binding.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_as_ref_slice",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "is not supported",
+      "matched_expectation": true,
+      "stdout": "",
+      "stderr": "error: `alloc::vec::impl&%31::as_ref` is not supported (note: you may be able to add a Verus specification to this function with `assume_specification`) (note: the vstd library provides some specification for the Rust std library, but it is currently limited)\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:113:5\n    |\n113 |     <Vec<T, A> as AsRef<[T]>>::as_ref(v)\n    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = help: The following declaration may resolve this error:\n            pub assume_specification<T, A> [<std::vec::Vec<T, A> as std::convert::AsRef<[T]>>::as_ref] (_0: &std::vec::Vec<T, A>) -> &[T]\n            where\n            A: std::alloc::Allocator,;\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "as_mut_vec",
+      "purpose": "No exact <Vec<T,A> as AsMut<Vec<T,A>>>::as_mut binding.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_as_mut_vec",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "is not supported",
+      "matched_expectation": true,
+      "stdout": "",
+      "stderr": "error: `alloc::vec::impl&%30::as_mut` is not supported (note: you may be able to add a Verus specification to this function with `assume_specification`) (note: the vstd library provides some specification for the Rust std library, but it is currently limited)\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:120:5\n    |\n120 |     <Vec<T, A> as AsMut<Vec<T, A>>>::as_mut(v)\n    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = help: The following declaration may resolve this error:\n            pub assume_specification<T, A> [<std::vec::Vec<T, A> as std::convert::AsMut<std::vec::Vec<T, A>>>::as_mut] (_0: &mut std::vec::Vec<T, A>) -> &mut std::vec::Vec<T, A>\n            where\n            A: std::alloc::Allocator,;\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "as_mut_slice",
+      "purpose": "No exact <Vec<T,A> as AsMut<[T]>>::as_mut binding.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_as_mut_slice",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "is not supported",
+      "matched_expectation": true,
+      "stdout": "",
+      "stderr": "error: `alloc::vec::impl&%32::as_mut` is not supported (note: you may be able to add a Verus specification to this function with `assume_specification`) (note: the vstd library provides some specification for the Rust std library, but it is currently limited)\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:127:5\n    |\n127 |     <Vec<T, A> as AsMut<[T]>>::as_mut(v)\n    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    |\n    = help: The following declaration may resolve this error:\n            pub assume_specification<T, A> [<std::vec::Vec<T, A> as std::convert::AsMut<[T]>>::as_mut] (_0: &mut std::vec::Vec<T, A>) -> &mut [T]\n            where\n            A: std::alloc::Allocator,;\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "index_mut_range",
+      "purpose": "General IndexMut range content/frame is not supplied.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_index_mut_range",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "postcondition not satisfied",
+      "matched_expectation": true,
+      "stdout": "verification results:: 0 verified, 1 errors\n",
+      "stderr": "note: function body check: not all errors may have been reported; rerun with a higher value for --multiple-errors to find other potential errors in this function\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:131:1\n    |\n131 | fn index_mut_range<T, A: Allocator>(v: &mut Vec<T, A>, lo: usize, hi: usize) -> (r: &mut [T])\n    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nerror: postcondition not satisfied\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:134:9\n    |\n134 |         r@ == old(v)@.subrange(lo as int, hi as int),\n    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n...\n137 |     &mut v[lo..hi]\n    |          --------- at the end of the function body\n\nerror: postcondition not satisfied\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:135:9\n    |\n135 |         final(v)@ == old(v)@.subrange(0, lo as int) + final(r)@ + old(v)@.subrange(hi as int, old(v)@.len() as int),\n    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n136 | {\n137 |     &mut v[lo..hi]\n    |          --------- at the end of the function body\n\nerror: aborting due to 2 previous errors\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "index_mut_usize_ufcs",
+      "purpose": "Even usize UFCS lacks the mutable-index syntax hook's postcondition.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_index_mut_usize_ufcs",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "postcondition not satisfied",
+      "matched_expectation": true,
+      "stdout": "verification results:: 0 verified, 1 errors\n",
+      "stderr": "error: postcondition not satisfied\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:143:13\n    |\n143 |       ensures final(v)@ == old(v)@.update(i as int, x),\n    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n144 | / {\n145 | |     *<Vec<T, A> as std::ops::IndexMut<usize>>::index_mut(v, i) = x;\n146 | | }\n    | |_- at the end of the function body\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "into_iter_elts_after_next",
+      "purpose": "Constructor-only elts/remaining equality is not propagated across next.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_into_iter_elts_after_next",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "postcondition not satisfied",
+      "matched_expectation": true,
+      "stdout": "verification results:: 0 verified, 1 errors\n",
+      "stderr": "error: postcondition not satisfied\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:151:13\n    |\n151 |     ensures vstd::std_specs::vec::into_iter_elts(it) == IteratorSpec::remaining(&it),\n    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ failed this postcondition\n...\n155 |     it\n    |     -- at the end of the function body\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "from_iter_vec_contents",
+      "purpose": "into_iter_remaining(Vec) is not tied to the Vec sequence by the Iterator-only axiom.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_from_iter_vec_contents",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "postcondition not satisfied",
+      "matched_expectation": true,
+      "stdout": "verification results:: 0 verified, 1 errors\n",
+      "stderr": "error: postcondition not satisfied\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:160:13\n    |\n160 |     ensures r@ == v@,\n    |             ^^^^^^^^ failed this postcondition\n161 | {\n162 |     Vec::from_iter(v)\n    |     ----------------- at the end of the function body\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    },
+    {
+      "probe": "try_reserve_variant",
+      "purpose": "Existing try_reserve only frames contents; no success-variant guarantee, even for zero.",
+      "command": [
+        "toolchains/verus-x86-linux/verus",
+        "--crate-type=lib",
+        "--out-dir",
+        "<temporary directory under inventory/vstd-tests>",
+        "--cfg",
+        "probe_try_reserve_variant",
+        "inventory/vstd-tests/binding_probes.rs"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_diagnostic": "postcondition not satisfied",
+      "matched_expectation": true,
+      "stdout": "verification results:: 0 verified, 1 errors\n",
+      "stderr": "error: postcondition not satisfied\n   --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/inventory/vstd-tests/binding_probes.rs:167:13\n    |\n167 |     ensures r.is_ok(),\n    |             ^^^^^^^^^ failed this postcondition\n168 | {\n169 |     v.try_reserve(0)\n    |     ---------------- at the end of the function body\n\nerror: aborting due to 1 previous error\n\n",
+      "interpretation": "expected unsupported binding or unproved strengthening; not a Rust-source counterexample"
+    }
+  ]
+}

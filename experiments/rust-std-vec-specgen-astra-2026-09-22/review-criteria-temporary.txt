@@ -1,0 +1,20 @@
+临时 Reviewer criterion：规格冗余检查
+范围：仅本轮 Vec spec generation/repair，不修改全局 Skill 或 Argus/Verus 实现。
+
+对每个 API 的 requires/ensures 增加逻辑冗余检查，不只检查文本重复。
+若保留的较强条款与已成立的定义/前提已经蕴含另一条款，后者原则上应删除。
+例如同类型、同一状态下的 Verus 逻辑 value equality x == y，若按现有 View 定义
+已能推出 x@ == y@，就不应再把该 view equality 当成独立必要的后置条件。
+
+不要混淆：
+- Verus 逻辑相等与 Rust PartialEq 的运行结果。
+- 值相等、指针地址相等、pointee 内容关系以及选定 view 的相等。
+- old、返回时和 final 的状态；初始序列与已消费后的 remaining。
+不同状态的写回、未借出区域的 frame、合法调用域和独立内容关系，不能误删。
+不得用矛盾前提、任意 UF 等式或未经证明的 observer 关系来声称蕴含成立。
+
+Reviewer 对冗余项指出“哪条保留条件能推出哪条待删条件”，给出简短依据，
+再要求 Engineer 做最小删除并重跑受影响的 correctness 与 completeness 证明。
+如显式条款确有触发器/证明器支持等保留理由，必须具体记录，不当作新增语义。
+没有发现冗余时简短说明即可，不增加大型报告或新的全库重跑要求。
+此项补充不替代双轨验证、独立 review、implementation-change issue 或其他既有门槛。

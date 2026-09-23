@@ -1,0 +1,2025 @@
+(@ "std_specs/vec.rs:352:1: 352:56 (#0)" (Datatype :name (Dt Path alloc::vec::into_iter::IntoIter) :proxy (@ "std_specs/vec.rs:352:1: 352:56 (#0)"
+   vstd::std_specs::vec::ExIntoIter
+  ) :owning_module vstd::std_specs::vec :visibility (Visibility :restricted_to None) :transparency (DatatypeTransparency Never)
+  :typ_params (
+   (tuple "T" (AcceptRecursiveType Accept))
+   (tuple "A" (AcceptRecursiveType Reject))
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "T")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :variants (
+   (Variant :name "IntoIter" :fields () :ctor_style (CtorPrintStyle Braces))
+  ) :mode Exec :ext_equal false :user_defined_invariant_fn None :sized_constraint None :destructor true))
+
+(@ "seq.rs:13:9: 16:2 (#0)" (Datatype :name (Dt Path vstd::seq::SeqInner) :proxy None :owning_module vstd::seq :visibility
+  (Visibility :restricted_to vstd::seq) :transparency (DatatypeTransparency WhenVisible (Visibility :restricted_to vstd::seq))
+  :typ_params (
+   (tuple "A" (AcceptRecursiveType Accept))
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :variants (
+   (Variant :name "Nil" :fields () :ctor_style (CtorPrintStyle Const))
+   (Variant :name "Cons" :fields ((-> head (tuple (Typ Decorate (TypDecoration Tracked) None (Typ TypParam "A")) Exec (Visibility
+        :restricted_to vstd::seq))
+     ) (-> tail (tuple (Typ Decorate (TypDecoration Tracked) None (Typ Datatype (Dt Path vstd::seq::SeqInner) ((Typ TypParam "A"))
+         ())
+       ) Exec (Visibility :restricted_to vstd::seq)))
+    ) :ctor_style (CtorPrintStyle Braces))
+  ) :mode Proof :ext_equal true :user_defined_invariant_fn None :sized_constraint None :destructor false))
+
+(@ "seq.rs:936:1: 938:2 (#0)" (Datatype :name (Dt Path vstd::seq::Seq) :proxy None :owning_module vstd::seq :visibility (Visibility
+   :restricted_to None
+  ) :transparency (DatatypeTransparency WhenVisible (Visibility :restricted_to vstd::seq)) :typ_params (
+   (tuple "A" (AcceptRecursiveType Accept))
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :variants (
+   (Variant :name "Seq" :fields ((-> inner (tuple (Typ Datatype (Dt Path vstd::seq::SeqInner) ((Typ TypParam "A")) ()) Exec (Visibility
+        :restricted_to vstd::seq)))
+    ) :ctor_style (CtorPrintStyle Braces))
+  ) :mode Proof :ext_equal true :user_defined_invariant_fn None :sized_constraint None :destructor false))
+
+(@ "std_specs/iter.rs:297:5: 299:100 (#0)" (Function
+  :name (Fun :path core::iter::traits::exact_size::ExactSizeIterator::len) :proxy (@ "std_specs/iter.rs:297:5: 299:100 (#0)"
+   vstd::std_specs::iter::ExExactSizeIterator::len
+  ) :kind (FunctionKind TraitMethodDecl :trait_path core::iter::traits::exact_size::ExactSizeIterator :has_default false) :visibility
+  (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::std_specs::iter))
+  :opaqueness (Opaqueness Opaque) :owning_module vstd::std_specs::iter :mode Exec :typ_params (
+   "Self%"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path core::iter::traits::exact_size::ExactSizeIterator) ((Typ TypParam "Self%")))
+  ) :params (
+   (@ "std_specs/iter.rs:297:12: 297:17 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ TypParam "Self%")
+     ) :mode Exec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/iter.rs:297:28: 297:33 (#0)" (Param :name (VarIdent "len" (VarIdentDisambiguate RustcId 11)) :typ (Typ
+     Int (IntRange USize)
+    ) :mode Exec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ((@@ "std_specs/iter.rs:299:13: 299:99 (#0)" (> Logical (LogicalOp Implies) (@@ "std_specs/iter.rs:299:13: 299:45 (#0)" (> Call
+        :target (CallTarget Fun (CallTargetKind DynamicResolved :resolved (Fun :path vstd::std_specs::iter::impl&%12::obeys_prophetic_iter_laws)
+          :typs ((Typ TypParam "Self%")) :impl_paths () :is_trait_default false
+         ) (Fun :path vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws) ((Typ TypParam "Self%")) ((ImplPath TraitImplPath
+           vstd::std_specs::iter::impl&%12)
+         ) (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+        ) :args ((@@ "std_specs/iter.rs:299:13: 299:17 (#0)" (> ReadPlace (@@ "std_specs/iter.rs:299:13: 299:17 (#0)" (Place Local (VarIdent
+              "self" (VarIdentDisambiguate RustcId 2))
+            ) (Typ Decorate (TypDecoration Ref) None (Typ TypParam "Self%"))
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 42043)
+          ) (Typ Decorate (TypDecoration Ref) None (Typ Decorate (TypDecoration Ref) None (Typ TypParam "Self%"))))
+        ) :post_args None :body None
+       ) (Typ Bool)
+      ) (@@ "std_specs/iter.rs:299:50: 299:99 (#0)" (> Multi (MultiOp Chained ((ChainedOp MultiEq) (ChainedOp MultiEq))) ((@@ "std_specs/iter.rs:299:50: 299:53 (#0)"
+          (> ReadPlace (@@ "std_specs/iter.rs:299:50: 299:53 (#0)" (Place Local (VarIdent "len" (VarIdentDisambiguate RustcId 11))) (
+             Typ Int (IntRange USize))
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 42044)
+          ) (Typ Int (IntRange USize))
+         ) (@@ "std_specs/iter.rs:299:57: 299:73 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Dynamic) (Fun :path vstd::std_specs::iter::ExactSizeIteratorSpec::exact_len)
+            ((Typ TypParam "Self%")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed
+             false)
+           ) :args ((@@ "std_specs/iter.rs:299:57: 299:61 (#0)" (> ReadPlace (@@ "std_specs/iter.rs:299:57: 299:61 (#0)" (Place Local (VarIdent
+                 "self" (VarIdentDisambiguate RustcId 2))
+               ) (Typ Decorate (TypDecoration Ref) None (Typ TypParam "Self%"))
+              ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 42045)
+             ) (Typ Decorate (TypDecoration Ref) None (Typ Decorate (TypDecoration Ref) None (Typ TypParam "Self%"))))
+           ) :post_args None :body None
+          ) (Typ Int (IntRange USize))
+         ) (@@ "std_specs/iter.rs:299:77: 299:99 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len)
+            ((Typ Projection :trait_typ_args ((Typ TypParam "Self%")) :trait_path core::iter::traits::iterator::Iterator :name "Item"))
+            () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+           ) :args ((@@ "std_specs/iter.rs:299:77: 299:93 (#0)" (> Call :target (CallTarget Fun (CallTargetKind DynamicResolved :resolved
+                (Fun :path vstd::std_specs::iter::impl&%12::remaining) :typs ((Typ TypParam "Self%")) :impl_paths () :is_trait_default false
+               ) (Fun :path vstd::std_specs::iter::IteratorSpec::remaining) ((Typ TypParam "Self%")) ((ImplPath TraitImplPath vstd::std_specs::iter::impl&%12))
+               (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+              ) :args ((@@ "std_specs/iter.rs:299:77: 299:81 (#0)" (> ReadPlace (@@ "std_specs/iter.rs:299:77: 299:81 (#0)" (Place Local (VarIdent
+                    "self" (VarIdentDisambiguate RustcId 2))
+                  ) (Typ Decorate (TypDecoration Ref) None (Typ TypParam "Self%"))
+                 ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 42046)
+                ) (Typ Decorate (TypDecoration Ref) None (Typ Decorate (TypDecoration Ref) None (Typ TypParam "Self%"))))
+              ) :post_args None :body None
+             ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ Projection :trait_typ_args ((Typ TypParam "Self%")) :trait_path core::iter::traits::iterator::Iterator
+                :name "Item")
+              ) ()))
+           ) :post_args None :body None
+          ) (Typ Int (IntRange Nat))))
+       ) (Typ Bool))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "std_specs/iter.rs:361:15: 361:58 (#0)" (Function
+  :name (Fun :path vstd::std_specs::iter::impl&%0::obeys_prophetic_iter_laws) :proxy None :kind (FunctionKind TraitMethodImpl
+   :method (Fun :path vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws) :impl_path vstd::std_specs::iter::impl&%0
+   :trait_path vstd::std_specs::iter::IteratorSpec :trait_typ_args ((Typ MutRef (Typ TypParam "I"))) :inherit_body_from None
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to None))
+  :opaqueness (Opaqueness Revealed :visibility (Visibility :restricted_to None)) :owning_module vstd::std_specs::iter :mode
+  Spec :typ_params (
+   "I"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "I")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "I")))
+  ) :params (
+   (@ "std_specs/iter.rs:361:44: 361:49 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ MutRef (Typ TypParam "I"))
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/iter.rs:361:54: 361:58 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Bool
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body (@@ "std_specs/iter.rs:361:59: 363:6 (#0)" (> Block () (@@ "std_specs/iter.rs:362:9: 362:62 (#0)" (> Call :target (CallTarget
+       Fun (CallTargetKind DynamicResolved :resolved (Fun :path vstd::std_specs::iter::impl&%12::obeys_prophetic_iter_laws) :typs
+        ((Typ TypParam "I")) :impl_paths () :is_trait_default false
+       ) (Fun :path vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws) ((Typ TypParam "I")) ((ImplPath TraitImplPath
+         vstd::std_specs::iter::impl&%12)
+       ) (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+      ) :args ((@@ "std_specs/iter.rs:362:56: 362:61 (#0)" (> ReadPlace (@@ "std_specs/iter.rs:362:56: 362:61 (#0)" (Place DerefMut
+           (@@ "std_specs/iter.rs:362:57: 362:61 (#0)" (Place Local (VarIdent "self" (VarIdentDisambiguate RustcId 2))) (Typ Decorate
+             (TypDecoration Ref) None (Typ MutRef (Typ TypParam "I"))))
+          ) (Typ TypParam "I")
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 42054)
+        ) (Typ Decorate (TypDecoration Ref) None (Typ TypParam "I")))
+      ) :post_args None :body None
+     ) (Typ Bool))
+   ) (Typ Bool)
+  ) :extra_dependencies () :async_ret None))
+
+(@ "std_specs/iter.rs:366:15: 366:53 (#0)" (Function
+  :name (Fun :path vstd::std_specs::iter::impl&%0::remaining) :proxy None :kind (FunctionKind TraitMethodImpl :method (Fun :path
+    vstd::std_specs::iter::IteratorSpec::remaining
+   ) :impl_path vstd::std_specs::iter::impl&%0 :trait_path vstd::std_specs::iter::IteratorSpec :trait_typ_args ((Typ MutRef (Typ
+      TypParam "I"))
+   ) :inherit_body_from None
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to None))
+  :opaqueness (Opaqueness Revealed :visibility (Visibility :restricted_to None)) :owning_module vstd::std_specs::iter :mode
+  Spec :typ_params (
+   "I"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "I")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "I")))
+  ) :params (
+   (@ "std_specs/iter.rs:366:28: 366:33 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ MutRef (Typ TypParam "I"))
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/iter.rs:366:38: 366:53 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Datatype (Dt Path vstd::seq::Seq) ((Typ Projection :trait_typ_args ((Typ TypParam "I")) :trait_path core::iter::traits::iterator::Iterator
+       :name "Item")
+     ) ()
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   true :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body (@@ "std_specs/iter.rs:366:54: 368:6 (#0)" (> Block () (@@ "std_specs/iter.rs:367:9: 367:46 (#0)" (> Call :target (CallTarget
+       Fun (CallTargetKind DynamicResolved :resolved (Fun :path vstd::std_specs::iter::impl&%12::remaining) :typs ((Typ TypParam "I"))
+        :impl_paths () :is_trait_default false
+       ) (Fun :path vstd::std_specs::iter::IteratorSpec::remaining) ((Typ TypParam "I")) ((ImplPath TraitImplPath vstd::std_specs::iter::impl&%12))
+       (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+      ) :args ((@@ "std_specs/iter.rs:367:40: 367:45 (#0)" (> ReadPlace (@@ "std_specs/iter.rs:367:40: 367:45 (#0)" (Place DerefMut
+           (@@ "std_specs/iter.rs:367:41: 367:45 (#0)" (Place Local (VarIdent "self" (VarIdentDisambiguate RustcId 2))) (Typ Decorate
+             (TypDecoration Ref) None (Typ MutRef (Typ TypParam "I"))))
+          ) (Typ TypParam "I")
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 42055)
+        ) (Typ Decorate (TypDecoration Ref) None (Typ TypParam "I")))
+      ) :post_args None :body None
+     ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ Projection :trait_typ_args ((Typ TypParam "I")) :trait_path core::iter::traits::iterator::Iterator
+        :name "Item")
+      ) ()))
+   ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ Projection :trait_typ_args ((Typ TypParam "I")) :trait_path core::iter::traits::iterator::Iterator
+      :name "Item")
+    ) ())
+  ) :extra_dependencies () :async_ret None))
+
+(@ "std_specs/iter.rs:21:10: 21:54 (#0)" (Function
+  :name (Fun :path vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws) :proxy None :kind (FunctionKind TraitMethodDecl
+   :trait_path vstd::std_specs::iter::IteratorSpec :has_default false
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::std_specs::iter))
+  :opaqueness (Opaqueness Opaque) :owning_module vstd::std_specs::iter :mode Spec :typ_params (
+   "Self%"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path vstd::std_specs::iter::IteratorSpec) ((Typ TypParam "Self%")))
+  ) :params (
+   (@ "std_specs/iter.rs:21:39: 21:44 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ TypParam "Self%")
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/iter.rs:21:49: 21:53 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Bool
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "std_specs/iter.rs:25:10: 25:49 (#0)" (Function
+  :name (Fun :path vstd::std_specs::iter::IteratorSpec::remaining) :proxy None :kind (FunctionKind TraitMethodDecl :trait_path
+   vstd::std_specs::iter::IteratorSpec :has_default false
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::std_specs::iter))
+  :opaqueness (Opaqueness Opaque) :owning_module vstd::std_specs::iter :mode Spec :typ_params (
+   "Self%"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path vstd::std_specs::iter::IteratorSpec) ((Typ TypParam "Self%")))
+  ) :params (
+   (@ "std_specs/iter.rs:25:23: 25:28 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ TypParam "Self%")
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/iter.rs:25:33: 25:48 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Datatype (Dt Path vstd::seq::Seq) ((Typ Projection :trait_typ_args ((Typ TypParam "Self%")) :trait_path core::iter::traits::iterator::Iterator
+       :name "Item")
+     ) ()
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   true :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "std_specs/iter.rs:295:10: 295:39 (#0)" (Function
+  :name (Fun :path vstd::std_specs::iter::ExactSizeIteratorSpec::exact_len) :proxy None :kind (FunctionKind TraitMethodDecl
+   :trait_path vstd::std_specs::iter::ExactSizeIteratorSpec :has_default false
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::std_specs::iter))
+  :opaqueness (Opaqueness Opaque) :owning_module vstd::std_specs::iter :mode Spec :typ_params (
+   "Self%"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path core::iter::traits::exact_size::ExactSizeIterator) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path vstd::std_specs::iter::ExactSizeIteratorSpec) ((Typ TypParam "Self%")))
+  ) :params (
+   (@ "std_specs/iter.rs:295:23: 295:28 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ TypParam "Self%")
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/iter.rs:295:33: 295:38 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Int (IntRange USize)
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "std_specs/vec.rs:359:15: 359:58 (#0)" (Function
+  :name (Fun :path vstd::std_specs::vec::impl&%3::obeys_prophetic_iter_laws) :proxy None :kind (FunctionKind TraitMethodImpl
+   :method (Fun :path vstd::std_specs::iter::IteratorSpec::obeys_prophetic_iter_laws) :impl_path vstd::std_specs::vec::impl&%3
+   :trait_path vstd::std_specs::iter::IteratorSpec :trait_typ_args ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ
+       TypParam "T"
+      ) (Typ TypParam "A")
+     ) ())
+   ) :inherit_body_from None
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to None))
+  :opaqueness (Opaqueness Revealed :visibility (Visibility :restricted_to None)) :owning_module vstd::std_specs::vec :mode
+  Spec :typ_params (
+   "T"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "T")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :params (
+   (@ "std_specs/vec.rs:359:44: 359:49 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam "A")) ())
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/vec.rs:359:54: 359:58 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Bool
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body (@@ "std_specs/vec.rs:359:59: 361:6 (#0)" (> Block () (@@ "std_specs/vec.rs:360:9: 360:13 (#0)" (> Const (Constant Bool
+       true)
+     ) (Typ Bool))
+   ) (Typ Bool)
+  ) :extra_dependencies () :async_ret None))
+
+(@ "std_specs/vec.rs:363:19: 363:57 (#0)" (Function
+  :name (Fun :path vstd::std_specs::vec::impl&%3::remaining) :proxy None :kind (FunctionKind TraitMethodImpl :method (Fun :path
+    vstd::std_specs::iter::IteratorSpec::remaining
+   ) :impl_path vstd::std_specs::vec::impl&%3 :trait_path vstd::std_specs::iter::IteratorSpec :trait_typ_args ((Typ Datatype (
+      Dt Path alloc::vec::into_iter::IntoIter
+     ) ((Typ TypParam "T") (Typ TypParam "A")) ())
+   ) :inherit_body_from None
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Uninterpreted) :opaqueness (Opaqueness Opaque)
+  :owning_module vstd::std_specs::vec :mode Spec :typ_params (
+   "T"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "T")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :params (
+   (@ "std_specs/vec.rs:363:32: 363:37 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Decorate
+      (TypDecoration Ref) None (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam "A")) ())
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "std_specs/vec.rs:363:42: 363:57 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ
+     Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "T")) ()
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body true :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "function.rs:135:1: 138:2 (#0)" (Function
+  :name (Fun :path vstd::function::axiom_fn_mut_call_requires) :proxy None :kind (FunctionKind Static) :visibility (Visibility
+   :restricted_to None
+  ) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::function)) :opaqueness (Opaqueness Opaque)
+  :owning_module vstd::function :mode Proof :typ_params (
+   "Args"
+   "F"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "F")))
+   (GenericBound Trait (TraitId Path core::marker::Tuple) ((Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Path core::ops::function::FnMut) ((Typ TypParam "F") (Typ TypParam "Args")))
+  ) :params (
+   (@ "function.rs:136:5: 136:14 (#0)" (Param :name (VarIdent "f" (VarIdentDisambiguate RustcId 2)) :typ (Typ MutRef (Typ TypParam
+       "F")
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "function.rs:137:5: 137:15 (#0)" (Param :name (VarIdent "args" (VarIdentDisambiguate RustcId 4)) :typ (Typ TypParam "Args")
+     :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "function.rs:138:2: 138:2 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Datatype
+     (Dt Tuple 0) () ()
+    ) :mode Proof :user_mut false :unwrapped_info None)
+  ) :ens_has_return false :require (
+   (@@ "function.rs:140:9: 140:59 (#0)" (> Call :target (CallTarget BuiltinSpecFun (BuiltinSpecFun ClosureReq) ((Typ TypParam "F")
+       (Typ TypParam "Args")
+      ) ()
+     ) :args ((@@ "function.rs:140:34: 140:52 (#0)" (> Unary (UnaryOp MutRefCurrent) (@@ "function.rs:140:50: 140:51 (#0)" (> ReadPlace
+          (@@ "function.rs:140:50: 140:51 (#0)" (Place Local (VarIdent "f" (VarIdentDisambiguate RustcId 2))) (Typ MutRef (Typ TypParam
+             "F"))
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14811)
+         ) (Typ MutRef (Typ TypParam "F")))
+       ) (Typ TypParam "F")
+      ) (@@ "function.rs:140:54: 140:58 (#0)" (> ReadPlace (@@ "function.rs:140:54: 140:58 (#0)" (Place Local (VarIdent "args" (VarIdentDisambiguate
+            RustcId 4))
+         ) (Typ TypParam "Args")
+        ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14812)
+       ) (Typ TypParam "Args"))
+     ) :post_args None :body None
+    ) (Typ Bool))
+  ) :ensure (
+   tuple
+   ((@@ "function.rs:142:20: 142:58 (#0)" (> Unary (UnaryOp Trigger (TriggerAnnotation Trigger None)) (@@ "function.rs:142:20: 142:58 (#0)"
+       (> Call :target (CallTarget BuiltinSpecFun (BuiltinSpecFun ClosureReq) ((Typ MutRef (Typ TypParam "F")) (Typ TypParam "Args"))
+         ((ImplPath TraitImplPath core::ops::function::impls::impl&%4))
+        ) :args ((@@ "function.rs:142:50: 142:51 (#0)" (> ReadPlace (@@ "function.rs:142:50: 142:51 (#0)" (Place Local (VarIdent "f" (VarIdentDisambiguate
+               RustcId 2))
+            ) (Typ MutRef (Typ TypParam "F"))
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14813)
+          ) (Typ MutRef (Typ TypParam "F"))
+         ) (@@ "function.rs:142:53: 142:57 (#0)" (> ReadPlace (@@ "function.rs:142:53: 142:57 (#0)" (Place Local (VarIdent "args" (VarIdentDisambiguate
+               RustcId 4))
+            ) (Typ TypParam "Args")
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14814)
+          ) (Typ TypParam "Args"))
+        ) :post_args None :body None
+       ) (Typ Bool))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   true :broadcast_forall_only true :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method false :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body true :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "function.rs:145:1: 149:2 (#0)" (Function
+  :name (Fun :path vstd::function::axiom_fn_mut_call_ensures) :proxy None :kind (FunctionKind Static) :visibility (Visibility
+   :restricted_to None
+  ) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::function)) :opaqueness (Opaqueness Opaque)
+  :owning_module vstd::function :mode Proof :typ_params (
+   "Args"
+   "F"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "F")))
+   (GenericBound Trait (TraitId Path core::marker::Tuple) ((Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Path core::ops::function::FnMut) ((Typ TypParam "F") (Typ TypParam "Args")))
+  ) :params (
+   (@ "function.rs:146:5: 146:14 (#0)" (Param :name (VarIdent "f" (VarIdentDisambiguate RustcId 2)) :typ (Typ MutRef (Typ TypParam
+       "F")
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "function.rs:147:5: 147:15 (#0)" (Param :name (VarIdent "args" (VarIdentDisambiguate RustcId 4)) :typ (Typ TypParam "Args")
+     :mode Spec :user_mut false :unwrapped_info None))
+   (@ "function.rs:148:5: 148:22 (#0)" (Param :name (VarIdent "output" (VarIdentDisambiguate RustcId 6)) :typ (Typ Projection :trait_typ_args
+      ((Typ TypParam "F") (Typ TypParam "Args")) :trait_path core::ops::function::FnOnce :name "Output"
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "function.rs:149:2: 149:2 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Datatype
+     (Dt Tuple 0) () ()
+    ) :mode Proof :user_mut false :unwrapped_info None)
+  ) :ens_has_return false :require (
+   (@@ "function.rs:151:20: 151:65 (#0)" (> Unary (UnaryOp Trigger (TriggerAnnotation Trigger None)) (@@ "function.rs:151:20: 151:65 (#0)"
+      (> Call :target (CallTarget BuiltinSpecFun (BuiltinSpecFun ClosureEns) ((Typ MutRef (Typ TypParam "F")) (Typ TypParam "Args"))
+        ((ImplPath TraitImplPath core::ops::function::impls::impl&%4))
+       ) :args ((@@ "function.rs:151:49: 151:50 (#0)" (> ReadPlace (@@ "function.rs:151:49: 151:50 (#0)" (Place Local (VarIdent "f" (VarIdentDisambiguate
+              RustcId 2))
+           ) (Typ MutRef (Typ TypParam "F"))
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14815)
+         ) (Typ MutRef (Typ TypParam "F"))
+        ) (@@ "function.rs:151:52: 151:56 (#0)" (> ReadPlace (@@ "function.rs:151:52: 151:56 (#0)" (Place Local (VarIdent "args" (VarIdentDisambiguate
+              RustcId 4))
+           ) (Typ TypParam "Args")
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14816)
+         ) (Typ TypParam "Args")
+        ) (@@ "function.rs:151:58: 151:64 (#0)" (> ReadPlace (@@ "function.rs:151:58: 151:64 (#0)" (Place Local (VarIdent "output" (VarIdentDisambiguate
+              RustcId 6))
+           ) (Typ Projection :trait_typ_args ((Typ TypParam "F") (Typ TypParam "Args")) :trait_path core::ops::function::FnOnce :name
+            "Output")
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14817)
+         ) (Typ Projection :trait_typ_args ((Typ TypParam "F") (Typ TypParam "Args")) :trait_path core::ops::function::FnOnce :name
+          "Output"))
+       ) :post_args None :body None
+      ) (Typ Bool))
+    ) (Typ Bool))
+  ) :ensure (
+   tuple
+   ((@@ "function.rs:153:9: 153:66 (#0)" (> Call :target (CallTarget BuiltinSpecFun (BuiltinSpecFun ClosureEns) ((Typ TypParam "F")
+        (Typ TypParam "Args")
+       ) ()
+      ) :args ((@@ "function.rs:153:33: 153:51 (#0)" (> Unary (UnaryOp MutRefCurrent) (@@ "function.rs:153:49: 153:50 (#0)" (> ReadPlace
+           (@@ "function.rs:153:49: 153:50 (#0)" (Place Local (VarIdent "f" (VarIdentDisambiguate RustcId 2))) (Typ MutRef (Typ TypParam
+              "F"))
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14818)
+          ) (Typ MutRef (Typ TypParam "F")))
+        ) (Typ TypParam "F")
+       ) (@@ "function.rs:153:53: 153:57 (#0)" (> ReadPlace (@@ "function.rs:153:53: 153:57 (#0)" (Place Local (VarIdent "args" (VarIdentDisambiguate
+             RustcId 4))
+          ) (Typ TypParam "Args")
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14819)
+        ) (Typ TypParam "Args")
+       ) (@@ "function.rs:153:59: 153:65 (#0)" (> ReadPlace (@@ "function.rs:153:59: 153:65 (#0)" (Place Local (VarIdent "output" (VarIdentDisambiguate
+             RustcId 6))
+          ) (Typ Projection :trait_typ_args ((Typ TypParam "F") (Typ TypParam "Args")) :trait_path core::ops::function::FnOnce :name
+           "Output")
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14820)
+        ) (Typ Projection :trait_typ_args ((Typ TypParam "F") (Typ TypParam "Args")) :trait_path core::ops::function::FnOnce :name
+         "Output"))
+      ) :post_args None :body None
+     ) (Typ Bool)
+    ) (@@ "function.rs:154:9: 154:48 (#0)" (> Binary (BinaryOp Eq Spec) (@@ "function.rs:154:9: 154:27 (#0)" (> Unary (UnaryOp MutRefCurrent)
+        (@@ "function.rs:154:25: 154:26 (#0)" (> ReadPlace (@@ "function.rs:154:25: 154:26 (#0)" (Place Local (VarIdent "f" (VarIdentDisambiguate
+              RustcId 2))
+           ) (Typ MutRef (Typ TypParam "F"))
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14821)
+         ) (Typ MutRef (Typ TypParam "F")))
+       ) (Typ TypParam "F")
+      ) (@@ "function.rs:154:31: 154:48 (#0)" (> Unary (UnaryOp MutRefFuture (MutRefFutureSourceName MutRefFuture)) (@@ "function.rs:154:46: 154:47 (#0)"
+         (> ReadPlace (@@ "function.rs:154:46: 154:47 (#0)" (Place Local (VarIdent "f" (VarIdentDisambiguate RustcId 2))) (Typ MutRef
+            (Typ TypParam "F"))
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 14822)
+         ) (Typ MutRef (Typ TypParam "F")))
+       ) (Typ TypParam "F"))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   true :broadcast_forall_only true :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method false :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body true :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "seq.rs:961:5: 961:40 (#0)" (Function
+  :name (Fun :path vstd::seq::Seq::len) :proxy None :kind (FunctionKind Static) :visibility (Visibility :restricted_to None)
+  :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::seq)) :opaqueness (Opaqueness Revealed :visibility
+   (Visibility :restricted_to vstd::seq)
+  ) :owning_module vstd::seq :mode Spec :typ_params (
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :params (
+   (@ "seq.rs:961:28: 961:32 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "seq.rs:961:37: 961:40 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Int (IntRange
+      Nat)
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "seq.rs:970:5: 970:48 (#0)" (Function
+  :name (Fun :path vstd::seq::Seq::index) :proxy None :kind (FunctionKind Static) :visibility (Visibility :restricted_to None)
+  :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::seq)) :opaqueness (Opaqueness Revealed :visibility
+   (Visibility :restricted_to vstd::seq)
+  ) :owning_module vstd::seq :mode Spec :typ_params (
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :params (
+   (@ "seq.rs:970:30: 970:34 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "seq.rs:970:36: 970:42 (#0)" (Param :name (VarIdent "i" (VarIdentDisambiguate RustcId 4)) :typ (Typ Int (IntRange Int))
+     :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "seq.rs:970:47: 970:48 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ TypParam
+     "A"
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require (
+   (@@ "seq.rs:972:13: 972:32 (#0)" (> Multi (MultiOp Chained ((ChainedOp Inequality (InequalityOp Le)) (ChainedOp Inequality (InequalityOp
+         Lt)))
+     ) ((@@ "seq.rs:972:13: 972:14 (#0)" (> Const (Constant Int 0)) (Typ Int (IntRange Nat))) (@@ "seq.rs:972:18: 972:19 (#0)" (
+        > ReadPlace (@@ "seq.rs:972:18: 972:19 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate RustcId 4))) (Typ Int (IntRange
+           Int))
+        ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29450)
+       ) (Typ Int (IntRange Int))
+      ) (@@ "seq.rs:972:22: 972:32 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len) (
+          (Typ TypParam "A")
+         ) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+        ) :args ((@@ "seq.rs:972:22: 972:26 (#0)" (> ReadPlace (@@ "seq.rs:972:22: 972:26 (#0)" (Place Local (VarIdent "self" (VarIdentDisambiguate
+               RustcId 2))
+            ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29451)
+          ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+        ) :post_args None :body None
+       ) (Typ Int (IntRange Nat))))
+    ) (Typ Bool))
+  ) :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "seq.rs:979:5: 979:51 (#0)" (Function
+  :name (Fun :path vstd::seq::impl&%2::spec_index) :proxy None :kind (FunctionKind Static) :visibility (Visibility :restricted_to
+   None
+  ) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to None)) :opaqueness (Opaqueness Revealed :visibility
+   (Visibility :restricted_to None)
+  ) :owning_module vstd::seq :mode Spec :typ_params (
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :params (
+   (@ "seq.rs:979:33: 979:37 (#0)" (Param :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "seq.rs:979:39: 979:45 (#0)" (Param :name (VarIdent "i" (VarIdentDisambiguate RustcId 4)) :typ (Typ Int (IntRange Int))
+     :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "seq.rs:979:50: 979:51 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ TypParam
+     "A"
+    ) :mode Spec :user_mut false :unwrapped_info None)
+  ) :ens_has_return true :require (
+   (@@ "seq.rs:981:13: 981:32 (#0)" (> Multi (MultiOp Chained ((ChainedOp Inequality (InequalityOp Le)) (ChainedOp Inequality (InequalityOp
+         Lt)))
+     ) ((@@ "seq.rs:981:13: 981:14 (#0)" (> Const (Constant Int 0)) (Typ Int (IntRange Nat))) (@@ "seq.rs:981:18: 981:19 (#0)" (
+        > ReadPlace (@@ "seq.rs:981:18: 981:19 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate RustcId 4))) (Typ Int (IntRange
+           Int))
+        ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29454)
+       ) (Typ Int (IntRange Int))
+      ) (@@ "seq.rs:981:22: 981:32 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len) (
+          (Typ TypParam "A")
+         ) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+        ) :args ((@@ "seq.rs:981:22: 981:26 (#0)" (> ReadPlace (@@ "seq.rs:981:22: 981:26 (#0)" (Place Local (VarIdent "self" (VarIdentDisambiguate
+               RustcId 2))
+            ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29455)
+          ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+        ) :post_args None :body None
+       ) (Typ Int (IntRange Nat))))
+    ) (Typ Bool))
+  ) :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline true :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body (@@ "seq.rs:982:5: 984:6 (#0)" (> Block () (@@ "seq.rs:983:9: 983:22 (#0)" (> Call :target (CallTarget Fun (CallTargetKind
+        Static
+       ) (Fun :path vstd::seq::Seq::index) ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var
+        false :assume_external_allowed false)
+      ) :args ((@@ "seq.rs:983:9: 983:13 (#0)" (> ReadPlace (@@ "seq.rs:983:9: 983:13 (#0)" (Place Local (VarIdent "self" (VarIdentDisambiguate
+             RustcId 2))
+          ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29456)
+        ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+       ) (@@ "seq.rs:983:20: 983:21 (#0)" (> ReadPlace (@@ "seq.rs:983:20: 983:21 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate
+             RustcId 4))
+          ) (Typ Int (IntRange Int))
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29457)
+        ) (Typ Int (IntRange Int)))
+      ) :post_args None :body None
+     ) (Typ TypParam "A"))
+   ) (Typ TypParam "A")
+  ) :extra_dependencies () :async_ret None))
+
+(@ "seq.rs:1285:1: 1285:71 (#0)" (Function
+  :name (Fun :path vstd::seq::lemma_seq_index_decreases) :proxy None :kind (FunctionKind Static) :visibility (Visibility :restricted_to
+   None
+  ) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::seq)) :opaqueness (Opaqueness Opaque) :owning_module
+  vstd::seq :mode Proof :typ_params (
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :params (
+   (@ "seq.rs:1285:53: 1285:62 (#0)" (Param :name (VarIdent "s" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "seq.rs:1285:64: 1285:70 (#0)" (Param :name (VarIdent "i" (VarIdentDisambiguate RustcId 4)) :typ (Typ Int (IntRange Int))
+     :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "seq.rs:1285:71: 1285:71 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Datatype
+     (Dt Tuple 0) () ()
+    ) :mode Proof :user_mut false :unwrapped_info None)
+  ) :ens_has_return false :require (
+   (@@ "seq.rs:1287:9: 1287:25 (#0)" (> Multi (MultiOp Chained ((ChainedOp Inequality (InequalityOp Le)) (ChainedOp Inequality (InequalityOp
+         Lt)))
+     ) ((@@ "seq.rs:1287:9: 1287:10 (#0)" (> Const (Constant Int 0)) (Typ Int (IntRange Nat))) (@@ "seq.rs:1287:14: 1287:15 (#0)"
+       (> ReadPlace (@@ "seq.rs:1287:14: 1287:15 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate RustcId 4))) (Typ Int (IntRange
+           Int))
+        ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29654)
+       ) (Typ Int (IntRange Int))
+      ) (@@ "seq.rs:1287:18: 1287:25 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len)
+         ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+        ) :args ((@@ "seq.rs:1287:18: 1287:19 (#0)" (> ReadPlace (@@ "seq.rs:1287:18: 1287:19 (#0)" (Place Local (VarIdent "s" (VarIdentDisambiguate
+               RustcId 2))
+            ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+           ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29655)
+          ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+        ) :post_args None :body None
+       ) (Typ Int (IntRange Nat))))
+    ) (Typ Bool))
+  ) :ensure (
+   tuple
+   ((@@ "/home/runner/work/verus/verus/source/builtin/src/lib.rs:2382:9: 2382:68 (#2654)" (> Unary (UnaryOp Trigger (TriggerAnnotation
+        Trigger None)
+      ) (@@ "/home/runner/work/verus/verus/source/builtin/src/lib.rs:2382:9: 2382:68 (#2654)" (> Binary (BinaryOp HeightCompare :strictly_lt
+         true :recursive_function_field false
+        ) (@@ "seq.rs:1289:40: 1289:44 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::impl&%2::spec_index)
+           ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+          ) :args ((@@ "seq.rs:1289:40: 1289:41 (#0)" (> ReadPlace (@@ "seq.rs:1289:40: 1289:41 (#0)" (Place Local (VarIdent "s" (VarIdentDisambiguate
+                 RustcId 2))
+              ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+             ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29656)
+            ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+           ) (@@ "seq.rs:1289:42: 1289:43 (#0)" (> ReadPlace (@@ "seq.rs:1289:42: 1289:43 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate
+                 RustcId 4))
+              ) (Typ Int (IntRange Int))
+             ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29657)
+            ) (Typ Int (IntRange Int)))
+          ) :post_args None :body None
+         ) (Typ TypParam "A")
+        ) (@@ "seq.rs:1289:35: 1289:36 (#0)" (> ReadPlace (@@ "seq.rs:1289:35: 1289:36 (#0)" (Place Local (VarIdent "s" (VarIdentDisambiguate
+              RustcId 2))
+           ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29658)
+         ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+       ) (Typ Bool))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   true :broadcast_forall_only true :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method false :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "seq.rs:1580:1: 1580:70 (#0)" (Function
+  :name (Fun :path vstd::seq::lemma_seq_ext_equal) :proxy None :kind (FunctionKind Static) :visibility (Visibility :restricted_to
+   None
+  ) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::seq)) :opaqueness (Opaqueness Opaque) :owning_module
+  vstd::seq :mode Proof :typ_params (
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :params (
+   (@ "seq.rs:1580:47: 1580:57 (#0)" (Param :name (VarIdent "s1" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "seq.rs:1580:59: 1580:69 (#0)" (Param :name (VarIdent "s2" (VarIdentDisambiguate RustcId 4)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "seq.rs:1580:70: 1580:70 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Datatype
+     (Dt Tuple 0) () ()
+    ) :mode Proof :user_mut false :unwrapped_info None)
+  ) :ens_has_return false :require () :ensure (
+   tuple
+   ((@@ "seq.rs:1582:9: 1585:10 (#0)" (> Binary (BinaryOp Eq Exec) (@@ "seq.rs:1582:9: 1582:31 (#0)" (> Unary (UnaryOp Trigger (TriggerAnnotation
+          Trigger None)
+        ) (@@ "seq.rs:1582:9: 1582:31 (#0)" (> BinaryOpr (BinaryOpr ExtEq false (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A"))
+            ())
+          ) (@@ "seq.rs:1582:21: 1582:23 (#0)" (> ReadPlace (@@ "seq.rs:1582:21: 1582:23 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                RustcId 2))
+             ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+            ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29946)
+           ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+          ) (@@ "seq.rs:1582:28: 1582:30 (#0)" (> ReadPlace (@@ "seq.rs:1582:28: 1582:30 (#0)" (Place Local (VarIdent "s2" (VarIdentDisambiguate
+                RustcId 4))
+             ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+            ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29947)
+           ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+         ) (Typ Bool))
+       ) (Typ Bool)
+      ) (@@ "seq.rs:1582:37: 1585:10 (#0)" (> Block () (@@ "seq.rs:1583:17: 1584:68 (#0)" (> Logical (LogicalOp And) (@@ "seq.rs:1583:17: 1583:37 (#0)"
+           (> Binary (BinaryOp Eq Spec) (@@ "seq.rs:1583:17: 1583:25 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path
+                vstd::seq::Seq::len
+               ) ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+              ) :args ((@@ "seq.rs:1583:17: 1583:19 (#0)" (> ReadPlace (@@ "seq.rs:1583:17: 1583:19 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                     RustcId 2))
+                  ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                 ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29948)
+                ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+              ) :post_args None :body None
+             ) (Typ Int (IntRange Nat))
+            ) (@@ "seq.rs:1583:29: 1583:37 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len)
+               ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+              ) :args ((@@ "seq.rs:1583:29: 1583:31 (#0)" (> ReadPlace (@@ "seq.rs:1583:29: 1583:31 (#0)" (Place Local (VarIdent "s2" (VarIdentDisambiguate
+                     RustcId 4))
+                  ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                 ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29949)
+                ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+              ) :post_args None :body None
+             ) (Typ Int (IntRange Nat)))
+           ) (Typ Bool)
+          ) (@@ "seq.rs:1584:17: 1584:68 (#0)" (> Quant (Forall) ((-> (VarIdent "i" (VarIdentDisambiguate RustcId 45)) (Typ Int (IntRange
+                Int)))
+            ) (@@ "seq.rs:1584:32: 1584:68 (#0)" (> Logical (LogicalOp Implies) (@@ "seq.rs:1584:32: 1584:49 (#0)" (> Multi (MultiOp Chained
+                 ((ChainedOp Inequality (InequalityOp Le)) (ChainedOp Inequality (InequalityOp Lt)))
+                ) ((@@ "seq.rs:1584:32: 1584:33 (#0)" (> Const (Constant Int 0)) (Typ Int (IntRange Nat))) (@@ "seq.rs:1584:37: 1584:38 (#0)"
+                  (> ReadPlace (@@ "seq.rs:1584:37: 1584:38 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate RustcId 45))) (Typ Int (IntRange
+                      Int))
+                   ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29950)
+                  ) (Typ Int (IntRange Int))
+                 ) (@@ "seq.rs:1584:41: 1584:49 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len)
+                    ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+                   ) :args ((@@ "seq.rs:1584:41: 1584:43 (#0)" (> ReadPlace (@@ "seq.rs:1584:41: 1584:43 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                          RustcId 2))
+                       ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                      ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29951)
+                     ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+                   ) :post_args None :body None
+                  ) (Typ Int (IntRange Nat))))
+               ) (Typ Bool)
+              ) (@@ "seq.rs:1584:54: 1584:68 (#0)" (> Binary (BinaryOp Eq Spec) (@@ "seq.rs:1584:54: 1584:59 (#0)" (> Call :target (CallTarget
+                   Fun (CallTargetKind Static) (Fun :path vstd::seq::impl&%2::spec_index) ((Typ TypParam "A")) () (CallTargetAttrs :autospec
+                    (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+                  ) :args ((@@ "seq.rs:1584:54: 1584:56 (#0)" (> ReadPlace (@@ "seq.rs:1584:54: 1584:56 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                         RustcId 2))
+                      ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29952)
+                    ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                   ) (@@ "seq.rs:1584:57: 1584:58 (#0)" (> ReadPlace (@@ "seq.rs:1584:57: 1584:58 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate
+                         RustcId 45))
+                      ) (Typ Int (IntRange Int))
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29953)
+                    ) (Typ Int (IntRange Int)))
+                  ) :post_args None :body None
+                 ) (Typ TypParam "A")
+                ) (@@ "seq.rs:1584:63: 1584:68 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::impl&%2::spec_index)
+                   ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+                  ) :args ((@@ "seq.rs:1584:63: 1584:65 (#0)" (> ReadPlace (@@ "seq.rs:1584:63: 1584:65 (#0)" (Place Local (VarIdent "s2" (VarIdentDisambiguate
+                         RustcId 4))
+                      ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29954)
+                    ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                   ) (@@ "seq.rs:1584:66: 1584:67 (#0)" (> ReadPlace (@@ "seq.rs:1584:66: 1584:67 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate
+                         RustcId 45))
+                      ) (Typ Int (IntRange Int))
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 29955)
+                    ) (Typ Int (IntRange Int)))
+                  ) :post_args None :body None
+                 ) (Typ TypParam "A"))
+               ) (Typ Bool))
+             ) (Typ Bool))
+           ) (Typ Bool))
+         ) (Typ Bool))
+       ) (Typ Bool))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease ((@@ "seq.rs:1586:15: 1586:23 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path
+       vstd::seq::Seq::len
+      ) ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+     ) :args ((@@ "seq.rs:1586:15: 1586:17 (#0)" (> ReadPlace (@@ "seq.rs:1586:15: 1586:17 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+            RustcId 2))
+         ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+        ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 29956)
+       ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+     ) :post_args None :body None
+    ) (Typ Int (IntRange Nat)))
+  ) :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None :unwind_spec None :item_kind
+  (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall true :broadcast_forall_only
+   true :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures true :invariant true) :autospec
+   None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear false :spinoff_prover
+   false :memoize false :rlimit None :print_zero_args false :print_as_method false :prophecy_dependent false :size_of_broadcast_proof
+   false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec false :exec_assume_termination
+   false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "seq.rs:1642:1: 1642:75 (#0)" (Function
+  :name (Fun :path vstd::seq::lemma_seq_ext_equal_deep) :proxy None :kind (FunctionKind Static) :visibility (Visibility :restricted_to
+   None
+  ) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to vstd::seq)) :opaqueness (Opaqueness Opaque) :owning_module
+  vstd::seq :mode Proof :typ_params (
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+  ) :params (
+   (@ "seq.rs:1642:52: 1642:62 (#0)" (Param :name (VarIdent "s1" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+   (@ "seq.rs:1642:64: 1642:74 (#0)" (Param :name (VarIdent "s2" (VarIdentDisambiguate RustcId 4)) :typ (Typ Datatype (Dt Path vstd::seq::Seq)
+      ((Typ TypParam "A")) ()
+     ) :mode Spec :user_mut false :unwrapped_info None))
+  ) :ret (@ "seq.rs:1642:75: 1642:75 (#0)" (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Datatype
+     (Dt Tuple 0) () ()
+    ) :mode Proof :user_mut false :unwrapped_info None)
+  ) :ens_has_return false :require () :ensure (
+   tuple
+   ((@@ "seq.rs:1644:9: 1647:10 (#0)" (> Binary (BinaryOp Eq Exec) (@@ "seq.rs:1644:9: 1644:32 (#0)" (> Unary (UnaryOp Trigger (TriggerAnnotation
+          Trigger None)
+        ) (@@ "seq.rs:1644:9: 1644:32 (#0)" (> BinaryOpr (BinaryOpr ExtEq true (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A"))
+            ())
+          ) (@@ "seq.rs:1644:21: 1644:23 (#0)" (> ReadPlace (@@ "seq.rs:1644:21: 1644:23 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                RustcId 2))
+             ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+            ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30022)
+           ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+          ) (@@ "seq.rs:1644:29: 1644:31 (#0)" (> ReadPlace (@@ "seq.rs:1644:29: 1644:31 (#0)" (Place Local (VarIdent "s2" (VarIdentDisambiguate
+                RustcId 4))
+             ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+            ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30023)
+           ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+         ) (Typ Bool))
+       ) (Typ Bool)
+      ) (@@ "seq.rs:1644:38: 1647:10 (#0)" (> Block () (@@ "seq.rs:1645:17: 1646:70 (#0)" (> Logical (LogicalOp And) (@@ "seq.rs:1645:17: 1645:37 (#0)"
+           (> Binary (BinaryOp Eq Spec) (@@ "seq.rs:1645:17: 1645:25 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path
+                vstd::seq::Seq::len
+               ) ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+              ) :args ((@@ "seq.rs:1645:17: 1645:19 (#0)" (> ReadPlace (@@ "seq.rs:1645:17: 1645:19 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                     RustcId 2))
+                  ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                 ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30024)
+                ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+              ) :post_args None :body None
+             ) (Typ Int (IntRange Nat))
+            ) (@@ "seq.rs:1645:29: 1645:37 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len)
+               ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+              ) :args ((@@ "seq.rs:1645:29: 1645:31 (#0)" (> ReadPlace (@@ "seq.rs:1645:29: 1645:31 (#0)" (Place Local (VarIdent "s2" (VarIdentDisambiguate
+                     RustcId 4))
+                  ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                 ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30025)
+                ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+              ) :post_args None :body None
+             ) (Typ Int (IntRange Nat)))
+           ) (Typ Bool)
+          ) (@@ "seq.rs:1646:17: 1646:70 (#0)" (> Quant (Forall) ((-> (VarIdent "i" (VarIdentDisambiguate RustcId 45)) (Typ Int (IntRange
+                Int)))
+            ) (@@ "seq.rs:1646:32: 1646:70 (#0)" (> Logical (LogicalOp Implies) (@@ "seq.rs:1646:32: 1646:49 (#0)" (> Multi (MultiOp Chained
+                 ((ChainedOp Inequality (InequalityOp Le)) (ChainedOp Inequality (InequalityOp Lt)))
+                ) ((@@ "seq.rs:1646:32: 1646:33 (#0)" (> Const (Constant Int 0)) (Typ Int (IntRange Nat))) (@@ "seq.rs:1646:37: 1646:38 (#0)"
+                  (> ReadPlace (@@ "seq.rs:1646:37: 1646:38 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate RustcId 45))) (Typ Int (IntRange
+                      Int))
+                   ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 30026)
+                  ) (Typ Int (IntRange Int))
+                 ) (@@ "seq.rs:1646:41: 1646:49 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len)
+                    ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+                   ) :args ((@@ "seq.rs:1646:41: 1646:43 (#0)" (> ReadPlace (@@ "seq.rs:1646:41: 1646:43 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                          RustcId 2))
+                       ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                      ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30027)
+                     ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ()))
+                   ) :post_args None :body None
+                  ) (Typ Int (IntRange Nat))))
+               ) (Typ Bool)
+              ) (@@ "seq.rs:1646:54: 1646:70 (#0)" (> BinaryOpr (BinaryOpr ExtEq true (Typ TypParam "A")) (@@ "seq.rs:1646:54: 1646:59 (#0)"
+                 (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::impl&%2::spec_index) ((Typ TypParam "A")) ()
+                   (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+                  ) :args ((@@ "seq.rs:1646:54: 1646:56 (#0)" (> ReadPlace (@@ "seq.rs:1646:54: 1646:56 (#0)" (Place Local (VarIdent "s1" (VarIdentDisambiguate
+                         RustcId 2))
+                      ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30028)
+                    ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                   ) (@@ "seq.rs:1646:57: 1646:58 (#0)" (> ReadPlace (@@ "seq.rs:1646:57: 1646:58 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate
+                         RustcId 45))
+                      ) (Typ Int (IntRange Int))
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 30029)
+                    ) (Typ Int (IntRange Int)))
+                  ) :post_args None :body None
+                 ) (Typ TypParam "A")
+                ) (@@ "seq.rs:1646:65: 1646:70 (#0)" (> Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::impl&%2::spec_index)
+                   ((Typ TypParam "A")) () (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+                  ) :args ((@@ "seq.rs:1646:65: 1646:67 (#0)" (> ReadPlace (@@ "seq.rs:1646:65: 1646:67 (#0)" (Place Local (VarIdent "s2" (VarIdentDisambiguate
+                         RustcId 4))
+                      ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Move) :id 30030)
+                    ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "A")) ())
+                   ) (@@ "seq.rs:1646:68: 1646:69 (#0)" (> ReadPlace (@@ "seq.rs:1646:68: 1646:69 (#0)" (Place Local (VarIdent "i" (VarIdentDisambiguate
+                         RustcId 45))
+                      ) (Typ Int (IntRange Int))
+                     ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 30031)
+                    ) (Typ Int (IntRange Int)))
+                  ) :post_args None :body None
+                 ) (Typ TypParam "A"))
+               ) (Typ Bool))
+             ) (Typ Bool))
+           ) (Typ Bool))
+         ) (Typ Bool))
+       ) (Typ Bool))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   true :broadcast_forall_only true :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method false :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:12:5: 12:47 (#0)" (Function
+  :name (Fun :path into_iter_count::source::Iterator::count) :proxy None :kind (FunctionKind TraitMethodDecl :trait_path into_iter_count::source::Iterator
+   :has_default false
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to into_iter_count::source))
+  :opaqueness (Opaqueness Opaque) :owning_module into_iter_count::source :mode Exec :typ_params (
+   "Self%"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Path into_iter_count::source::Iterator) ((Typ TypParam "Self%")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "Self%")))
+  ) :params (
+   (@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:12:14: 12:18 (#0)" (Param
+     :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ TypParam "Self%") :mode Exec :user_mut false :unwrapped_info
+     None))
+  ) :ret (@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:12:23: 12:28 (#0)"
+   (Param :name (VarIdent "%return" (VarIdentDisambiguate AirLocal)) :typ (Typ Int (IntRange USize)) :mode Exec :user_mut false
+    :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ()
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body None :extra_dependencies () :async_ret None))
+
+(@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:18:5: 18:28 (#0)" (Function
+  :name (Fun :path into_iter_count::source::impl&%0::count) :proxy None :kind (FunctionKind TraitMethodImpl :method (Fun :path
+    into_iter_count::source::Iterator::count
+   ) :impl_path into_iter_count::source::impl&%0 :trait_path into_iter_count::source::Iterator :trait_typ_args ((Typ Datatype
+     (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam "A")) ())
+   ) :inherit_body_from None
+  ) :visibility (Visibility :restricted_to None) :body_visibility (BodyVisibility Visibility (Visibility :restricted_to into_iter_count::source))
+  :opaqueness (Opaqueness Opaque) :owning_module into_iter_count::source :mode Exec :typ_params (
+   "T"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "T")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :params (
+   (@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:18:14: 18:18 (#0)" (Param
+     :name (VarIdent "self" (VarIdentDisambiguate RustcId 2)) :typ (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ
+        TypParam "T"
+       ) (Typ TypParam "A")
+      ) ()
+     ) :mode Exec :user_mut false :unwrapped_info None))
+  ) :ret (@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:18:23: 18:28 (#0)"
+   (Param :name (VarIdent "result" (VarIdentDisambiguate RustcId 20)) :typ (Typ Int (IntRange USize)) :mode Exec :user_mut false
+    :unwrapped_info None)
+  ) :ens_has_return true :require () :ensure (
+   tuple
+   ((@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:20:17: 20:32 (#0)" (> Block
+      () (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:13: 21:59 (#0)" (
+        > Binary (BinaryOp Eq Spec) (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:13: 21:19 (#0)"
+         (> ReadPlace (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:13: 21:19 (#0)"
+           (Place Local (VarIdent "result" (VarIdentDisambiguate RustcId 20))) (Typ Int (IntRange USize))
+          ) (UnfinalizedReadKind :preliminary_kind (ReadKind Copy) :id 0)
+         ) (Typ Int (IntRange USize))
+        ) (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:23: 21:59 (#0)" (>
+          Call :target (CallTarget Fun (CallTargetKind Static) (Fun :path vstd::seq::Seq::len) ((Typ TypParam "T")) () (CallTargetAttrs
+            :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+          ) :args ((@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:23: 21:53 (#0)"
+            (> Call :target (CallTarget Fun (CallTargetKind DynamicResolved :resolved (Fun :path vstd::std_specs::iter::impl&%12::remaining)
+               :typs ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam "A")) ())) :impl_paths (
+                (ImplPath TraitImplPath alloc::vec::into_iter::impl&%6)
+               ) :is_trait_default false
+              ) (Fun :path vstd::std_specs::iter::IteratorSpec::remaining) ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam
+                  "T"
+                 ) (Typ TypParam "A")
+                ) ())
+              ) ((ImplPath TraitImplPath alloc::vec::into_iter::impl&%6) (ImplPath TraitImplPath vstd::std_specs::iter::impl&%12) (ImplPath
+                TraitImplPath alloc::vec::into_iter::impl&%6)
+              ) (CallTargetAttrs :autospec (AutospecUsage IfMarked) :const_var false :assume_external_allowed false)
+             ) :args ((@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:48: 21:52 (#0)"
+               (> ReadPlace (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:48: 21:52 (#0)"
+                 (Place Temporary (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:48: 21:52 (#0)"
+                   (> ReadPlace (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:21:48: 21:52 (#0)"
+                     (Place Local (VarIdent "self" (VarIdentDisambiguate RustcId 2))) (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) (
+                       (Typ TypParam "T") (Typ TypParam "A")
+                      ) ())
+                    ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 1)
+                   ) (Typ Decorate (TypDecoration Ref) None (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam
+                       "A")
+                     ) ())))
+                 ) (Typ Decorate (TypDecoration Ref) None (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam
+                     "A")
+                   ) ()))
+                ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 2)
+               ) (Typ Decorate (TypDecoration Ref) None (Typ Decorate (TypDecoration Ref) None (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter)
+                  ((Typ TypParam "T") (Typ TypParam "A")) ()))))
+             ) :post_args None :body None
+            ) (Typ Datatype (Dt Path vstd::seq::Seq) ((Typ TypParam "T")) ()))
+          ) :post_args None :body None
+         ) (Typ Int (IntRange Nat)))
+       ) (Typ Bool))
+     ) (Typ Bool)))
+   ()
+  ) :returns None :decrease () :decrease_when None :decrease_by None :fndef_axioms None :mask_spec None :atomic_update None
+  :unwind_spec None :item_kind (ItemKind Function) :attrs (FunctionAttrs :uses_ghost_blocks true :inline false :hidden () :broadcast_forall
+   false :broadcast_forall_only false :no_auto_trigger false :auto_ext_equal (AutoExtEqual :assert true :assert_by true :ensures
+    true :invariant true
+   ) :autospec None :bit_vector false :atomic false :integer_ring false :is_decrease_by false :check_recommends false :nonlinear
+   false :spinoff_prover false :memoize false :rlimit None :print_zero_args false :print_as_method true :prophecy_dependent
+   false :size_of_broadcast_proof false :is_type_invariant_fn false :is_external_body false :is_unsafe false :impls_cannot_extend_spec
+   false :exec_assume_termination false :exec_allows_no_decreases_clause false :tracked_swap false :tracked_take_option false
+   :is_async false
+  ) :body (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:18:29: 24:6 (#0)"
+   (> Block () (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:23:9: 23:19 (#0)"
+     (> Call :target (CallTarget Fun (CallTargetKind DynamicResolved :resolved (Fun :path alloc::vec::into_iter::impl&%8%default%len)
+        :typs ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam "A")) ())) :impl_paths (
+         (ImplPath TraitImplPath alloc::vec::into_iter::impl&%6)
+        ) :is_trait_default true
+       ) (Fun :path core::iter::traits::exact_size::ExactSizeIterator::len) ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter)
+         ((Typ TypParam "T") (Typ TypParam "A")) ())
+       ) ((ImplPath TraitImplPath alloc::vec::into_iter::impl&%6) (ImplPath TraitImplPath alloc::vec::into_iter::impl&%8)) (CallTargetAttrs
+        :autospec (AutospecUsage Final) :const_var false :assume_external_allowed false)
+      ) :args ((@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:23:9: 23:13 (#0)"
+        (> ReadPlace (@@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:23:9: 23:13 (#0)"
+          (Place Local (VarIdent "self" (VarIdentDisambiguate RustcId 2))) (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) (
+            (Typ TypParam "T") (Typ TypParam "A")
+           ) ())
+         ) (UnfinalizedReadKind :preliminary_kind (ReadKind ImmutBor) :id 3)
+        ) (Typ Decorate (TypDecoration Ref) None (Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ TypParam "T") (Typ TypParam
+            "A")
+          ) ())))
+      ) :post_args None :body None
+     ) (Typ Int (IntRange USize)))
+   ) (Typ Int (IntRange USize))
+  ) :extra_dependencies () :async_ret None))
+
+(group_id vstd::array::group_array_axioms)
+
+(group_id vstd::function::group_function_axioms)
+
+(group_id vstd::imap::group_imap_lemmas)
+
+(group_id vstd::iset::group_iset_lemmas)
+
+(group_id vstd::laws_cmp::group_laws_cmp)
+
+(group_id vstd::laws_eq::bool_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::u8_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::i8_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::u16_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::i16_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::u32_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::i32_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::u64_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::i64_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::u128_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::i128_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::usize_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::isize_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_1_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_2_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_3_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_4_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_5_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_6_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_7_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_8_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_9_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_10_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_11_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::tuple_12_laws::group_laws_eq)
+
+(group_id vstd::laws_eq::group_laws_eq)
+
+(group_id vstd::layout::group_align_properties)
+
+(group_id vstd::layout::group_layout_axioms)
+
+(group_id vstd::map::group_map_lemmas)
+
+(group_id vstd::multiset::group_multiset_axioms)
+
+(group_id vstd::mut_ref::group_mut_ref_axioms)
+
+(group_id vstd::raw_ptr::group_raw_ptr_axioms)
+
+(group_id vstd::seq::group_seq_lemmas)
+
+(group_id vstd::seq_lib::group_filter_ensures)
+
+(group_id vstd::seq_lib::group_seq_lib_default)
+
+(group_id vstd::set::group_set_lemmas)
+
+(group_id vstd::set_lib::group_set_lib_default)
+
+(group_id vstd::slice::group_slice_axioms)
+
+(group_id vstd::string::group_string_axioms)
+
+(group_id vstd::std_specs::bits::group_bits_axioms)
+
+(group_id vstd::std_specs::control_flow::group_control_flow_axioms)
+
+(group_id vstd::std_specs::fmt::group_fmt_axioms)
+
+(group_id vstd::std_specs::iter::group_iter_axioms)
+
+(group_id vstd::std_specs::manually_drop::group_manually_drop_axioms)
+
+(group_id vstd::std_specs::btree::group_btree_axioms)
+
+(group_id vstd::std_specs::hash::group_hash_axioms)
+
+(group_id vstd::std_specs::range::group_range_axioms)
+
+(group_id vstd::std_specs::vec::group_vec_axioms)
+
+(group_id vstd::std_specs::vecdeque::group_vec_dequeue_axioms)
+
+(group_id vstd::std_specs::nonzero::group_nonzero_axioms)
+
+(group_id vstd::group_vstd_default)
+
+(trait core::marker::Tuple)
+
+(trait core::ops::function::FnOnce)
+
+(trait core::ops::function::FnMut)
+
+(trait core::ops::function::Fn)
+
+(trait core::alloc::Allocator)
+
+(trait core::iter::traits::iterator::Iterator)
+
+(trait core::iter::traits::exact_size::ExactSizeIterator)
+
+(trait vstd::std_specs::iter::IteratorSpec)
+
+(trait vstd::std_specs::iter::ExactSizeIteratorSpec)
+
+(trait into_iter_count::source::Iterator)
+
+(trait_impl vstd::std_specs::iter::impl&%0 vstd::std_specs::iter::IteratorSpec)
+
+(trait_impl vstd::std_specs::iter::impl&%12 vstd::std_specs::iter::IteratorSpec)
+
+(trait_impl vstd::std_specs::iter::impl&%14 vstd::std_specs::iter::ExactSizeIteratorSpec)
+
+(trait_impl vstd::std_specs::vec::impl&%3 vstd::std_specs::iter::IteratorSpec)
+
+(trait_impl core::ops::function::impls::impl&%0 core::ops::function::Fn)
+
+(trait_impl alloc::boxed::impl&%33 core::ops::function::Fn)
+
+(trait_impl core::ops::function::impls::impl&%1 core::ops::function::FnMut)
+
+(trait_impl core::ops::function::impls::impl&%3 core::ops::function::FnMut)
+
+(trait_impl alloc::boxed::impl&%32 core::ops::function::FnMut)
+
+(trait_impl core::ops::function::impls::impl&%2 core::ops::function::FnOnce)
+
+(trait_impl core::ops::function::impls::impl&%4 core::ops::function::FnOnce)
+
+(trait_impl alloc::boxed::impl&%31 core::ops::function::FnOnce)
+
+(trait_impl core::iter::traits::exact_size::impl&%0 core::iter::traits::exact_size::ExactSizeIterator)
+
+(trait_impl alloc::boxed::iter::impl&%4 core::iter::traits::exact_size::ExactSizeIterator)
+
+(trait_impl alloc::vec::into_iter::impl&%8 core::iter::traits::exact_size::ExactSizeIterator)
+
+(trait_impl core::iter::traits::iterator::impl&%2 core::iter::traits::iterator::Iterator)
+
+(trait_impl alloc::boxed::iter::impl&%0 core::iter::traits::iterator::Iterator)
+
+(trait_impl alloc::vec::into_iter::impl&%6 core::iter::traits::iterator::Iterator)
+
+(trait_impl core::alloc::impl&%2 core::alloc::Allocator)
+
+(trait_impl core::alloc::impl&%3 core::alloc::Allocator)
+
+(trait_impl alloc::boxed::impl&%49 core::alloc::Allocator)
+
+(trait_impl alloc::rc::impl&%116 core::alloc::Allocator)
+
+(trait_impl alloc::sync::impl&%118 core::alloc::Allocator)
+
+(trait_impl into_iter_count::source::impl&%0 into_iter_count::source::Iterator)
+
+(@ "/rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:280:5: 282:26 (#0)" (AssocTypeImpl :name
+  "Output" :impl_path core::ops::function::impls::impl&%2 :typ_params (
+   "A"
+   "F"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "F")))
+   (GenericBound Trait (TraitId Path core::marker::Tuple) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::ops::function::Fn) ((Typ TypParam "F") (Typ TypParam "A")))
+  ) :trait_path core::ops::function::FnOnce :trait_typ_args ((Typ Decorate (TypDecoration Ref) None (Typ TypParam "F")) (Typ
+    TypParam "A")
+  ) :typ (Typ Projection :trait_typ_args ((Typ TypParam "F") (Typ TypParam "A")) :trait_path core::ops::function::FnOnce :name
+   "Output"
+  ) :impl_paths ()))
+
+(@ "/rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:304:5: 306:29 (#0)" (AssocTypeImpl :name
+  "Output" :impl_path core::ops::function::impls::impl&%4 :typ_params (
+   "A"
+   "F"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "F")))
+   (GenericBound Trait (TraitId Path core::marker::Tuple) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::ops::function::FnMut) ((Typ TypParam "F") (Typ TypParam "A")))
+  ) :trait_path core::ops::function::FnOnce :trait_typ_args ((Typ MutRef (Typ TypParam "F")) (Typ TypParam "A")) :typ (Typ Projection
+   :trait_typ_args ((Typ TypParam "F") (Typ TypParam "A")) :trait_path core::ops::function::FnOnce :name "Output"
+  ) :impl_paths ()))
+
+(@ "/rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/alloc/src/boxed.rs:2315:1: 2315:85 (#0)" (AssocTypeImpl :name "Output"
+  :impl_path alloc::boxed::impl&%31 :typ_params (
+   "Args"
+   "F"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "F")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::marker::Tuple) ((Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Path core::ops::function::FnOnce) ((Typ TypParam "F") (Typ TypParam "Args")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :trait_path core::ops::function::FnOnce :trait_typ_args ((Typ Decorate (TypDecoration Box) (TypDecorationArg :allocator_typ
+     (Typ TypParam "A")
+    ) (Typ TypParam "F")
+   ) (Typ TypParam "Args")
+  ) :typ (Typ Projection :trait_typ_args ((Typ TypParam "F") (Typ TypParam "Args")) :trait_path core::ops::function::FnOnce
+   :name "Output"
+  ) :impl_paths ()))
+
+(@ "/rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/iter/traits/iterator.rs:4237:1: 4237:47 (#0)" (AssocTypeImpl
+  :name "Item" :impl_path core::iter::traits::iterator::impl&%2 :typ_params (
+   "I"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "I")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "I")))
+  ) :trait_path core::iter::traits::iterator::Iterator :trait_typ_args ((Typ MutRef (Typ TypParam "I"))) :typ (Typ Projection
+   :trait_typ_args ((Typ TypParam "I")) :trait_path core::iter::traits::iterator::Iterator :name "Item"
+  ) :impl_paths ()))
+
+(@ "/rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/alloc/src/boxed/iter.rs:18:1: 18:64 (#0)" (AssocTypeImpl :name
+  "Item" :impl_path alloc::boxed::iter::impl&%0 :typ_params (
+   "I"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness MetaSized)) ((Typ TypParam "I")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::iter::traits::iterator::Iterator) ((Typ TypParam "I")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :trait_path core::iter::traits::iterator::Iterator :trait_typ_args ((Typ Decorate (TypDecoration Box) (TypDecorationArg :allocator_typ
+     (Typ TypParam "A")
+    ) (Typ TypParam "I"))
+  ) :typ (Typ Projection :trait_typ_args ((Typ TypParam "I")) :trait_path core::iter::traits::iterator::Iterator :name "Item")
+  :impl_paths ()))
+
+(@ "/rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/alloc/src/vec/into_iter.rs:248:1: 248:50 (#0)" (AssocTypeImpl :name
+  "Item" :impl_path alloc::vec::into_iter::impl&%6 :typ_params (
+   "T"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "T")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :trait_path core::iter::traits::iterator::Iterator :trait_typ_args ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter)
+    ((Typ TypParam "T") (Typ TypParam "A")) ())
+  ) :typ (Typ TypParam "T") :impl_paths ()))
+
+(@ "/home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/into_iter/source.rs:16:5: 16:19 (#0)" (AssocTypeImpl
+  :name "Item" :impl_path into_iter_count::source::impl&%0 :typ_params (
+   "T"
+   "A"
+  ) :typ_bounds (
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "T")))
+   (GenericBound Trait (TraitId Sizedness (Sizedness Sized)) ((Typ TypParam "A")))
+   (GenericBound Trait (TraitId Path core::alloc::Allocator) ((Typ TypParam "A")))
+  ) :trait_path into_iter_count::source::Iterator :trait_typ_args ((Typ Datatype (Dt Path alloc::vec::into_iter::IntoIter) ((Typ
+      TypParam "T"
+     ) (Typ TypParam "A")
+    ) ())
+  ) :typ (Typ TypParam "T") :impl_paths ()))
+
+(module_id vstd::arithmetic::internals::div_internals_nonlinear)
+
+(module_id vstd::arithmetic::internals::general_internals)
+
+(module_id vstd::arithmetic::internals::mod_internals_nonlinear)
+
+(module_id vstd::arithmetic::internals::mul_internals_nonlinear)
+
+(module_id vstd::arithmetic::internals::div_internals)
+
+(module_id vstd::arithmetic::internals::mod_internals)
+
+(module_id vstd::arithmetic::internals::mul_internals)
+
+(module_id vstd::contrib::exec_spec::map)
+
+(module_id vstd::contrib::exec_spec::multiset)
+
+(module_id vstd::contrib::exec_spec::option)
+
+(module_id vstd::contrib::exec_spec::seq)
+
+(module_id vstd::contrib::exec_spec::set)
+
+(module_id vstd::contrib::exec_spec::string)
+
+(module_id vstd::resource::combinators::agree)
+
+(module_id vstd::resource::combinators::auth)
+
+(module_id vstd::resource::combinators::exclusive)
+
+(module_id vstd::resource::combinators::frac)
+
+(module_id vstd::resource::combinators::option)
+
+(module_id vstd::resource::combinators::product)
+
+(module_id vstd::resource::combinators::sum)
+
+(module_id vstd::resource::impls::frac_opt)
+
+(module_id vstd::resource::impls::ghost_var)
+
+(module_id vstd::resource::impls::imap)
+
+(module_id vstd::resource::impls::iset)
+
+(module_id vstd::resource::impls::map)
+
+(module_id vstd::resource::impls::seq)
+
+(module_id vstd::resource::impls::set)
+
+(module_id vstd::rwlock::RwLockToks::show)
+
+(module_id vstd::rwlock::RwLockToks::take_step)
+
+(module_id vstd::shared::Dupe::show)
+
+(module_id vstd::shared::Dupe::take_step)
+
+(module_id vstd::std_specs::hash::m_occ)
+
+(module_id vstd::std_specs::hash::m_vac)
+
+(module_id vstd::std_specs::num::u8_specs_tmp)
+
+(module_id vstd::std_specs::num::i8_specs_tmp)
+
+(module_id vstd::std_specs::num::u16_specs_tmp)
+
+(module_id vstd::std_specs::num::i16_specs_tmp)
+
+(module_id vstd::std_specs::num::u32_specs_tmp)
+
+(module_id vstd::std_specs::num::i32_specs_tmp)
+
+(module_id vstd::std_specs::num::u64_specs_tmp)
+
+(module_id vstd::std_specs::num::i64_specs_tmp)
+
+(module_id vstd::std_specs::num::u128_specs_tmp)
+
+(module_id vstd::std_specs::num::i128_specs_tmp)
+
+(module_id vstd::std_specs::num::usize_specs_tmp)
+
+(module_id vstd::std_specs::num::isize_specs_tmp)
+
+(module_id vstd::arithmetic::div_mod)
+
+(module_id vstd::arithmetic::logarithm)
+
+(module_id vstd::arithmetic::mul)
+
+(module_id vstd::arithmetic::overflow)
+
+(module_id vstd::arithmetic::power)
+
+(module_id vstd::arithmetic::power2)
+
+(module_id vstd::cell::invcell)
+
+(module_id vstd::cell::pcell)
+
+(module_id vstd::cell::pcell_maybe_uninit)
+
+(module_id vstd::contrib::exec_spec)
+
+(module_id vstd::iset::fold)
+
+(module_id vstd::laws_cmp::u8_laws)
+
+(module_id vstd::laws_cmp::i8_laws)
+
+(module_id vstd::laws_cmp::u16_laws)
+
+(module_id vstd::laws_cmp::i16_laws)
+
+(module_id vstd::laws_cmp::u32_laws)
+
+(module_id vstd::laws_cmp::i32_laws)
+
+(module_id vstd::laws_cmp::u64_laws)
+
+(module_id vstd::laws_cmp::i64_laws)
+
+(module_id vstd::laws_cmp::u128_laws)
+
+(module_id vstd::laws_cmp::i128_laws)
+
+(module_id vstd::laws_cmp::usize_laws)
+
+(module_id vstd::laws_cmp::isize_laws)
+
+(module_id vstd::laws_cmp::tuple_1_laws)
+
+(module_id vstd::laws_cmp::tuple_2_laws)
+
+(module_id vstd::laws_cmp::tuple_3_laws)
+
+(module_id vstd::laws_cmp::tuple_4_laws)
+
+(module_id vstd::laws_cmp::tuple_5_laws)
+
+(module_id vstd::laws_cmp::tuple_6_laws)
+
+(module_id vstd::laws_cmp::tuple_7_laws)
+
+(module_id vstd::laws_cmp::tuple_8_laws)
+
+(module_id vstd::laws_cmp::tuple_9_laws)
+
+(module_id vstd::laws_cmp::tuple_10_laws)
+
+(module_id vstd::laws_cmp::tuple_11_laws)
+
+(module_id vstd::laws_cmp::tuple_12_laws)
+
+(module_id vstd::laws_eq::bool_laws)
+
+(module_id vstd::laws_eq::u8_laws)
+
+(module_id vstd::laws_eq::i8_laws)
+
+(module_id vstd::laws_eq::u16_laws)
+
+(module_id vstd::laws_eq::i16_laws)
+
+(module_id vstd::laws_eq::u32_laws)
+
+(module_id vstd::laws_eq::i32_laws)
+
+(module_id vstd::laws_eq::u64_laws)
+
+(module_id vstd::laws_eq::i64_laws)
+
+(module_id vstd::laws_eq::u128_laws)
+
+(module_id vstd::laws_eq::i128_laws)
+
+(module_id vstd::laws_eq::usize_laws)
+
+(module_id vstd::laws_eq::isize_laws)
+
+(module_id vstd::laws_eq::tuple_1_laws)
+
+(module_id vstd::laws_eq::tuple_2_laws)
+
+(module_id vstd::laws_eq::tuple_3_laws)
+
+(module_id vstd::laws_eq::tuple_4_laws)
+
+(module_id vstd::laws_eq::tuple_5_laws)
+
+(module_id vstd::laws_eq::tuple_6_laws)
+
+(module_id vstd::laws_eq::tuple_7_laws)
+
+(module_id vstd::laws_eq::tuple_8_laws)
+
+(module_id vstd::laws_eq::tuple_9_laws)
+
+(module_id vstd::laws_eq::tuple_10_laws)
+
+(module_id vstd::laws_eq::tuple_11_laws)
+
+(module_id vstd::laws_eq::tuple_12_laws)
+
+(module_id vstd::raw_ptr::ptr_mut_specs)
+
+(module_id vstd::raw_ptr::ptr_const_specs)
+
+(module_id vstd::resource::algebra)
+
+(module_id vstd::resource::lib)
+
+(module_id vstd::resource::pcm)
+
+(module_id vstd::resource::relations)
+
+(module_id vstd::resource::storage_protocol)
+
+(module_id vstd::rwlock::RwLockToks)
+
+(module_id vstd::seq::seq_inner)
+
+(module_id vstd::set::fold)
+
+(module_id vstd::shared::Dupe)
+
+(module_id vstd::wrapping::u8_specs)
+
+(module_id vstd::wrapping::i8_specs)
+
+(module_id vstd::wrapping::u16_specs)
+
+(module_id vstd::wrapping::i16_specs)
+
+(module_id vstd::wrapping::u32_specs)
+
+(module_id vstd::wrapping::i32_specs)
+
+(module_id vstd::wrapping::u64_specs)
+
+(module_id vstd::wrapping::i64_specs)
+
+(module_id vstd::wrapping::u128_specs)
+
+(module_id vstd::wrapping::i128_specs)
+
+(module_id vstd::wrapping::usize_specs)
+
+(module_id vstd::wrapping::isize_specs)
+
+(module_id vstd::std_specs::alloc)
+
+(module_id vstd::std_specs::array)
+
+(module_id vstd::std_specs::atomic)
+
+(module_id vstd::std_specs::bits)
+
+(module_id vstd::std_specs::borrow)
+
+(module_id vstd::std_specs::char)
+
+(module_id vstd::std_specs::clone)
+
+(module_id vstd::std_specs::cmp)
+
+(module_id vstd::std_specs::control_flow)
+
+(module_id vstd::std_specs::convert)
+
+(module_id vstd::std_specs::core)
+
+(module_id vstd::std_specs::default)
+
+(module_id vstd::std_specs::fmt)
+
+(module_id vstd::std_specs::iter)
+
+(module_id vstd::std_specs::manually_drop)
+
+(module_id vstd::std_specs::maybe_uninit)
+
+(module_id vstd::std_specs::ops)
+
+(module_id vstd::std_specs::btree)
+
+(module_id vstd::std_specs::hash)
+
+(module_id vstd::std_specs::num)
+
+(module_id vstd::std_specs::option)
+
+(module_id vstd::std_specs::range)
+
+(module_id vstd::std_specs::result)
+
+(module_id vstd::std_specs::slice)
+
+(module_id vstd::std_specs::vec)
+
+(module_id vstd::std_specs::vecdeque)
+
+(module_id vstd::std_specs::smart_ptrs)
+
+(module_id vstd::std_specs::nonzero)
+
+(module_id vstd::array)
+
+(module_id vstd::atomic)
+
+(module_id vstd::atomic_ghost)
+
+(module_id vstd::bits)
+
+(module_id vstd::bytes)
+
+(module_id vstd::cell)
+
+(module_id vstd::compute)
+
+(module_id vstd::endian)
+
+(module_id vstd::float)
+
+(module_id vstd::function)
+
+(module_id vstd::future)
+
+(module_id vstd::hash_map)
+
+(module_id vstd::hash_set)
+
+(module_id vstd::imap)
+
+(module_id vstd::imap_lib)
+
+(module_id vstd::invariant)
+
+(module_id vstd::iset)
+
+(module_id vstd::iset_lib)
+
+(module_id vstd::laws_cmp)
+
+(module_id vstd::laws_eq)
+
+(module_id vstd::layout)
+
+(module_id vstd::logatom)
+
+(module_id vstd::map)
+
+(module_id vstd::map_lib)
+
+(module_id vstd::math)
+
+(module_id vstd::modes)
+
+(module_id vstd::multiset)
+
+(module_id vstd::multiset_lib)
+
+(module_id vstd::mut_ref)
+
+(module_id vstd::pervasive)
+
+(module_id vstd::predicate)
+
+(module_id vstd::proph)
+
+(module_id vstd::raw_ptr)
+
+(module_id vstd::relations)
+
+(module_id vstd::resource)
+
+(module_id vstd::rwlock)
+
+(module_id vstd::seq)
+
+(module_id vstd::seq_lib)
+
+(module_id vstd::set)
+
+(module_id vstd::set_lib)
+
+(module_id vstd::shared)
+
+(module_id vstd::simple_pptr)
+
+(module_id vstd::slice)
+
+(module_id vstd::state_machine_internal)
+
+(module_id vstd::string)
+
+(module_id vstd::thread)
+
+(module_id vstd::tokens)
+
+(module_id vstd::utf8)
+
+(module_id vstd::view)
+
+(module_id vstd::wrapping)
+
+(module_id vstd::)
+
+(module_id into_iter_count::source)
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::_))
+
+(external_fn (Fun :path vstd::atomic::impl&%14::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%16::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%18::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%20::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%22::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%24::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%26::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%28::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%30::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%32::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%34::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%36::new))
+
+(external_fn (Fun :path vstd::atomic::impl&%0::fmt))
+
+(external_fn (Fun :path vstd::atomic::impl&%41::fmt))
+
+(external_fn (Fun :path vstd::atomic::atomically))
+
+(external_fn (Fun :path vstd::atomic::bind_lifetime_internal))
+
+(external_fn (Fun :path vstd::atomic::try_open_atomic_update_begin))
+
+(external_fn (Fun :path vstd::atomic::try_open_atomic_update_end))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%2::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%5::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%8::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%11::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%14::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%17::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%20::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%23::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%26::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%29::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%32::new))
+
+(external_fn (Fun :path vstd::atomic_ghost::impl&%34::new))
+
+(external_fn (Fun :path vstd::cell::pcell::impl&%3::new))
+
+(external_fn (Fun :path vstd::cell::pcell_maybe_uninit::impl&%1::empty))
+
+(external_fn (Fun :path vstd::cell::pcell_maybe_uninit::impl&%1::new))
+
+(external_fn (Fun :path vstd::cell::impl&%3::empty))
+
+(external_fn (Fun :path vstd::cell::impl&%3::new))
+
+(external_fn (Fun :path vstd::contrib::exec_spec::multiset::impl&%0::assert_fields_are_eq))
+
+(external_fn (Fun :path vstd::contrib::exec_spec::multiset::impl&%2::eq))
+
+(external_fn (Fun :path vstd::contrib::exec_spec::multiset::impl&%3::fmt))
+
+(external_fn (Fun :path vstd::invariant::open_atomic_invariant_begin))
+
+(external_fn (Fun :path vstd::invariant::open_local_invariant_begin))
+
+(external_fn (Fun :path vstd::invariant::open_invariant_end))
+
+(external_fn (Fun :path vstd::layout::layout_for_type_is_valid))
+
+(external_fn (Fun :path vstd::layout::layout_for_val_is_valid))
+
+(external_fn (Fun :path vstd::pervasive::runtime_assert_internal))
+
+(external_fn (Fun :path vstd::resource::impl&%0::assert_fields_are_eq))
+
+(external_fn (Fun :path vstd::resource::impl&%2::eq))
+
+(external_fn (Fun :path vstd::thread::impl&%4::clone))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_binary))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_debug))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_debug_noop))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_display))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_lower_exp))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_lower_hex))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_octal))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_pointer))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_upper_exp))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::new_upper_hex))
+
+(external_fn (Fun :path core::fmt::rt::impl&%0::from_usize))
+
+(external_fn (Fun :path core::fmt::impl&%4::new))
+
+(external_type core::fmt::rt::Argument)
+
+(external_type vstd::std_specs::VstdSpecsForRustStdLib)
+
+(arch_word_bits (ArchWordBits Either32Or64))
+

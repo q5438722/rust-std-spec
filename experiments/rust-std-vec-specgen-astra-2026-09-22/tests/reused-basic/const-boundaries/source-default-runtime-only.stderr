@@ -1,0 +1,17 @@
+error[E0015]: cannot call non-const function `reused_default::default::<i32>` in statics
+ --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/tests/reused-basic/const-boundaries/source-default-runtime-only.rs:2:38
+  |
+2 |             static EMPTY: Vec<i32> = reused_default::default();
+  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+note: function `default` is not const
+ --> /home/chentianyu/rust-std-vec-specgen-astra-2026-09-22/proofs/correctness/vec/../../../specs/vec/reused_basic.rs:6:1
+  |
+6 | pub fn default<T>() -> (v: Vec<T>)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = note: calls in statics are limited to constant functions, tuple structs and tuple variants
+  = note: consider wrapping this expression in `std::sync::LazyLock::new(|| ...)`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0015`.
