@@ -46,23 +46,4 @@ pub open spec fn last_post<T>(slice: &[T], result: Option<&T>) -> bool {
     }
 }
 
-pub proof fn scalar_domain<T>(slice: &[T])
-    ensures
-        len_post(slice, slice@.len() as usize),
-        is_empty_post(slice, slice@.len() == 0),
-{
-    vstd::slice::axiom_spec_len(slice);
-}
-
-pub proof fn empty_results<T>(slice: &[T])
-    requires
-        slice@.len() == 0,
-    ensures
-        first_post(slice, None),
-        split_first_post(slice, None),
-        split_last_post(slice, None),
-        last_post(slice, None),
-{
-}
-
 }
